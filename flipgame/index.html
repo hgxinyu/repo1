@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>九宫格翻牌 · 手动输入版（自动剩余次数 & 自动最佳线路）</title>
@@ -50,7 +51,16 @@
   }
   .counter{font-size:13px;color:#111827;background:#fff;border:1px solid var(--border);padding:6px 10px;border-radius:12px;box-shadow:var(--shadow)}
   .warn{color:#b91c1c;font-weight:600}
-</style>
+
+  .logo-badge{font-family:'Pacifico',cursive;font-size:18px;font-weight:400;
+    display:inline-flex;align-items:center;gap:6px;
+    font-weight:800;font-size:13px;letter-spacing:.2px;
+    padding:6px 10px;border-radius:999px;
+    background:#ffffff; border:1px solid var(--border); box-shadow:var(--shadow); color:#111827;
+    user-select:none;
+  }
+  .logo-dot{width:8px;height:8px;border-radius:999px;background:linear-gradient(135deg,#6366f1,#22c55e)}
+    </style>
 </head>
 <body>
 <div class="wrap">
@@ -64,6 +74,7 @@
     <div class="row">
       <div id="autoCounter" class="counter">已打开：0/4 · 剩余：4</div>
       <button class="btn" id="clearBtn">清空</button>
+      <span class="logo-badge" title="By ShinE"><span class="logo-dot"></span>By ShinE</span>
     </div>
   </header>
 
@@ -342,5 +353,9 @@
   pipeline();
 })();
 </script>
+
+<div style="position:fixed;right:10px;bottom:10px;opacity:.65;pointer-events:none;font-size:12px;background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:4px 8px;box-shadow:0 6px 16px rgba(0,0,0,.06)">
+  By ShinE
+</div>
 </body>
 </html>
