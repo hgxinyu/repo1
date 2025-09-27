@@ -330,6 +330,14 @@
 
     // 未满 4 张：给最佳下一步建议
     if(opened < TARGET_OPEN){
+      if (opened === 0) {
+        adviceEl.textContent = '—';
+        statusEl.textContent = `已开 ${opened} 张 · 请继续翻牌`;
+        linesWrap.style.display='none';
+        try { clearHighlights(); } catch(e) {}
+        return;
+      }
+
       const {ev, cell} = bestNextFlip(st, TARGET_OPEN - opened);
       if(!cell){
         adviceEl.textContent='所有格子都已确定，直接选择最佳线路即可。';
