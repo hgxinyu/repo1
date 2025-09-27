@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>核心计算器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        input {
+            width: 100%;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    
+/* floating top bar for actions */
+.topbar{
+  position:fixed; left:12px; top:12px; z-index:1000;
+  display:flex; gap:8px; align-items:center;
+  background:rgba(255,255,255,.9);
+  border:1px solid #e5e7eb;
+  padding:6px 8px; border-radius:12px; box-shadow:0 6px 16px rgba(0,0,0,.08);
+  backdrop-filter:saturate(140%) blur(4px);
+}
+.topbar .btn{padding:8px 12px; border-radius:12px; font-size:13px}
+@media (max-width:480px){ .topbar{left:8px; top:8px} }
+
+
+/* === Unified ShinE theme for CoreCalculator === */
+:root{
+  --gap:12px; --radius:16px; --shadow:0 6px 16px rgba(0,0,0,.06);
+  --border:#e5e7eb; --ink:#111827; --muted:#6b7280; --brand:#6366f1;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:#f9fafb;color:var(--ink);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
+.wrap{max-width:980px;margin:0 auto;padding:24px;display:flex;flex-direction:column;gap:16px;min-height:100vh}
+.site-header{display:flex;justify-content:space-between;gap:16px;align-items:flex-end;flex-wrap:wrap}
+.site-header .title h1{margin:0;font-size:24px}
+.site-header .title .note{margin:6px 0 0;color:var(--muted);font-size:14px}
+.tools{display:flex;gap:8px;align-items:center}
+.main{display:grid;grid-template-columns:1fr;gap:16px}
+.card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow:var(--shadow)}
+
+/* Buttons */
+.btn{border:1px solid var(--border);background:#fff;padding:10px 14px;border-radius:18px;box-shadow:var(--shadow);cursor:pointer;font-size:14px}
+.btn:disabled{opacity:.6;cursor:default}
+
+/* Floating top bar (back link) */
+.topbar{
+  position:fixed; left:12px; top:12px; z-index:1000;
+  display:flex; gap:8px; align-items:center;
+  background:rgba(255,255,255,.9);
+  border:1px solid var(--border);
+  padding:6px 8px; border-radius:12px; box-shadow:0 6px 16px rgba(0,0,0,.08);
+  backdrop-filter:saturate(140%) blur(4px);
+}
+.topbar .btn{padding:8px 12px; border-radius:12px; font-size:13px}
+@media (max-width:480px){ .topbar{left:8px; top:8px} }
+
+/* Bottom-right logo */
+.logo-bottom-left{
+  position:fixed; left:12px; bottom:12px; z-index:1000;
+  font-family:'Pacifico',cursive; font-size:20px; font-weight:400;
+  display:inline-flex; align-items:center; gap:6px;
+  padding:8px 14px; border-radius:999px;
+  background:#fff; border:1px solid #e5e7eb; box-shadow:0 6px 16px rgba(0,0,0,.06);
+  color:#111827;
+}
+.logo-bottom-left .logo-dot{width:8px;height:8px;border-radius:999px;background:linear-gradient(135deg,#6366f1,#22c55e)}
+/* === /Unified theme === */
+
+</style>
+</head>
+<body>
+<div class="topbar">
+  <a href="index.html" class="btn" style="text-decoration:none;">← 返回九宫格助手</a>
+</div>
+
+<div class="wrap">
+  <header class="site-header">
+    <div class="title">
+      <h1>核心计算器</h1>
+    </div>
+    <div class="tools"></div>
+  </header>
+
+  <main class="main">
+    <div class="card">
+<div class="row" id="calcToolbar" style="display:flex;gap:8px;align-items:center;margin-bottom:8px;"><button class="btn" id="clearBtnTop">清空</button></div>
+      
+
+<div class="topbar">
+  <a href="index.html" class="btn" style="text-decoration:none;">← 返回九宫格助手</a>
+</div>
+
+    <table id="inputTable">
+        <thead>
+            <tr>
+                <th>参数名</th>
+                <th>输入参数</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Rows will be populated by JavaScript -->
+        </tbody>
+    </table>
+    <button onclick="calculateTotal()">计算总核心</button>
+    <h2>总核心: <span id="totalCore">0.00</span></h2>
+
+    <script>
+        // 数据来自 Excel 文件，去掉 E6, E7, E8, E8.6, 360, 370, 380, 390 项
+        const data = [
+            { name: "E8.3", multiplier: 0.63 },
+            { name: "E9", multiplier: 1 },
+            { name: "400", multiplier: 2.3 },
+            { name: "420", multiplier: 3.03 },
+            { name: "彩1-100", multiplier: 3.2 },
+            { name: "彩2-100", multiplier: 3.43 },
+            { name: "彩3-100", multiplier: 3.73 },
+            { name: "彩4-100", multiplier: 4.1 },
+            { name: "彩5-100", multiplier: 4.53 },
+            { name: "彩6-100", multiplier: 5.06 },
+            { name: "额外蓝碎（K）", multiplier: 0.0002 }
+        ];
+
+        // 填充表格
+        const tableBody = document.querySelector("#inputTable tbody");
+        data.forEach(item => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${item.name}</td>
+                <td><input type="number" id="${item.name}" value="0"></td>
+            `;
+            tableBody.appendChild(row);
+        });
+
+        // 计算总核心
+        function calculateTotal() {
+            let total = 0;
+            data.forEach(item => {
+                const input = document.getElementById(item.name);
+                const value = parseFloat(input.value) || 0;
+                total += value * item.multiplier;
+            });
+            document.getElementById("totalCore").textContent = total.toFixed(2);
+        }
+    </script>
+
+    </div>
+  </main>
+</div>
+
+<!-- Bottom-right signature logo -->
+<div class="logo-bottom-left">
+  <span class="logo-dot"></span> By ShinE
+</div>
+
+<script>
+(function(){
+  // Debounce helper
+  function debounce(fn, delay){ let t; return function(){ const args=arguments; clearTimeout(t); t=setTimeout(()=>fn.apply(this,args), delay); }; }
+
+  const card = document.querySelector('.card') || document;
+  // Try to find an existing "计算" button to trigger program logic
+  function findCalcButton(root){
+    const candidates = Array.from(root.querySelectorAll('button, input[type="button"], input[type="submit"]'));
+    return candidates.find(b=>{
+      const txt = (b.textContent || b.value || '').trim();
+      const id = (b.id||'').toLowerCase();
+      return /计算|Calculate|开始|运行|calc/i.test(txt) || /calc|compute|submit/i.test(id);
+    }) || null;
+  }
+  const calcBtn = findCalcButton(card);
+  if(calcBtn){ try{ calcBtn.style.display='none'; }catch(e){} }
+
+  // Auto-calc when any input in card changes
+  const inputs = Array.from(card.querySelectorAll('input, select, textarea')).filter(el=>!el.id || el.id!=='clearBtnTop');
+  const triggerCalc = debounce(function(){
+    if(calcBtn){ calcBtn.click(); }
+    else {
+      // Fallback: submit parent form if exists
+      const form = card.closest('form') || card.querySelector('form');
+      if(form){ form.requestSubmit ? form.requestSubmit() : form.submit(); }
+    }
+  }, 300);
+
+  inputs.forEach(el=>{
+    el.addEventListener('input', triggerCalc);
+    el.addEventListener('change', triggerCalc);
+  });
+
+  // Clear button behavior
+  const clearTop = document.getElementById('clearBtnTop');
+  if(clearTop){
+    clearTop.addEventListener('click', function(){
+      // Prefer existing clear/reset button if available
+      const clears = Array.from(card.querySelectorAll('button, input[type="button"], input[type="reset"]')).filter(b=>{
+        const txt=(b.textContent||b.value||'').trim();
+        const id=(b.id||'').toLowerCase();
+        return /清空|重置|reset|清除/i.test(txt) || /reset|clear/i.test(id);
+      });
+      if(clears.length){ clears[0].click(); }
+      else{
+        // Fallback: clear inputs/selects/textareas
+        inputs.forEach(el=>{
+          if(el.tagName==='INPUT' || el.tagName==='TEXTAREA'){ el.value=''; }
+          if(el.tagName==='SELECT'){ el.selectedIndex=0; }
+        });
+        // Try to clear common result containers
+        ['#result','.result','.output','#output','#res'].forEach(sel=>{
+          card.querySelectorAll(sel).forEach(n=>{ n.innerHTML=''; n.textContent=''; });
+        });
+      }
+    });
+  }
+})();
+</script>
+
+
+
+
+
+<script>
+// Robust clear: set inputs to 0 on THIS page, then recompute
+(function(){
+  var btn = document.getElementById('clearBtnTop');
+  if(!btn) return;
+  // replace old listeners
+  var fresh = btn.cloneNode(true);
+  btn.parentNode.replaceChild(fresh, btn);
+
+  function findCalcButton(root){
+    var candidates = Array.from((root || document).querySelectorAll('button, input[type="button"], input[type="submit"]'));
+    return candidates.find(function(b){
+      var txt = (b.textContent || b.value || '').trim();
+      var id = (b.id||'').toLowerCase();
+      return /计算|Calculate|开始|运行|calc|compute|submit/i.test(txt) || /calc|compute|submit/i.test(id);
+    }) || null;
+  }
+
+  function triggerCompute(){
+    var root = document;
+    var calcBtn = findCalcButton(root);
+    if(calcBtn){ calcBtn.click(); return; }
+    var form = root.querySelector('form');
+    if(form){ form.requestSubmit ? form.requestSubmit() : form.submit(); return; }
+    // fallback: emit a global input event to notify auto-calc listeners
+    document.dispatchEvent(new Event('input', {bubbles:true}));
+  }
+
+  fresh.addEventListener('click', function(e){
+    e.preventDefault();
+    try {
+      // set all inputs to '0' (except checkbox/radio)
+      document.querySelectorAll('input, textarea, select').forEach(function(el){
+        var tag = el.tagName;
+        if(tag === 'INPUT'){
+          var t = (el.type||'').toLowerCase();
+          if(t === 'checkbox' || t === 'radio'){
+            el.checked = false; // radios/checkboxes unset
+          } else {
+            el.value = '0'; // numeric/text inputs => '0'
+          }
+          el.dispatchEvent(new Event('input', {bubbles:true}));
+          el.dispatchEvent(new Event('change', {bubbles:true}));
+        } else if(tag === 'TEXTAREA'){
+          el.value = '0';
+          el.dispatchEvent(new Event('input', {bubbles:true}));
+          el.dispatchEvent(new Event('change', {bubbles:true}));
+        } else if(tag === 'SELECT'){
+          // Try to pick an option whose value is '0', otherwise first option
+          var idx = 0;
+          for (var i=0;i<el.options.length;i++){ if((el.options[i].value||'').trim() === '0'){ idx = i; break; } }
+          el.selectedIndex = idx;
+          el.dispatchEvent(new Event('change', {bubbles:true}));
+        }
+      });
+
+      // clear common result boxes (optional; compute will overwrite anyway)
+      ['#result','.result','.output','#output','#res','#calcResult','[data-result]'].forEach(function(sel){
+        document.querySelectorAll(sel).forEach(function(n){ n.textContent=''; n.innerHTML=''; });
+      });
+
+      // now compute
+      triggerCompute();
+    } catch(err){ console && console.warn && console.warn('Clear to zero failed:', err); }
+  });
+})();
+</script>
+
+</body>
+</html>

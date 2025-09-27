@@ -52,7 +52,7 @@
   .counter{font-size:13px;color:#111827;background:#fff;border:1px solid var(--border);padding:6px 10px;border-radius:12px;box-shadow:var(--shadow)}
   .warn{color:#b91c1c;font-weight:600}
 
-  .logo-badge{font-family:'Pacifico',cursive;font-size:18px;font-weight:400;
+  .logo-badge{font-family:'Pacifico',cursive;font-size:22px;font-weight:400;
     display:inline-flex;align-items:center;gap:6px;
     font-weight:800;font-size:13px;letter-spacing:.2px;
     padding:6px 10px;border-radius:999px;
@@ -60,21 +60,64 @@
     user-select:none;
   }
   .logo-dot{width:8px;height:8px;border-radius:999px;background:linear-gradient(135deg,#6366f1,#22c55e)}
-    </style>
+    
+/* ===  Fixed Logo & Cleanup === */
+.logo-fixed{
+  position: fixed; right: 12px; top: 12px; z-index: 1200;
+  font-family:'Pacifico',cursive; font-size:22px; font-weight:400;
+  display:inline-flex; align-items:center; gap:6px;
+  padding:8px 14px; border-radius:999px;
+  background:#fff; border:1px solid #e5e7eb; box-shadow:0 6px 16px rgba(0,0,0,.06);
+  color:#111827;
+}
+.logo-fixed .logo-dot{width:8px;height:8px;border-radius:999px;background:linear-gradient(135deg,#6366f1,#22c55e)}
+.site-header .logo-badge{ display:none !important; }
+#clearBtn{ display:none !important; }
+
+
+/* floating top bar for actions */
+.topbar{
+  position:fixed; left:12px; top:12px; z-index:1000;
+  display:flex; gap:8px; align-items:center;
+  background:rgba(255,255,255,.9);
+  border:1px solid #e5e7eb;
+  padding:6px 8px; border-radius:12px; box-shadow:0 6px 16px rgba(0,0,0,.08);
+  backdrop-filter:saturate(140%) blur(4px);
+}
+.topbar .btn{padding:8px 12px; border-radius:12px; font-size:13px}
+@media (max-width:480px){ .topbar{left:8px; top:8px} }
+
+
+/* bottom-left logo with text */
+.logo-bottom-left{
+  position:fixed; left:12px; bottom:12px; z-index:1000;
+  font-family:'Pacifico',cursive; font-size:20px; font-weight:400;
+  display:inline-flex; align-items:center; gap:6px;
+  padding:8px 14px; border-radius:999px;
+  background:#fff; border:1px solid #e5e7eb; box-shadow:0 6px 16px rgba(0,0,0,.06);
+  color:#111827;
+}
+.logo-bottom-left .logo-dot{width:8px;height:8px;border-radius:999px;background:linear-gradient(135deg,#6366f1,#22c55e)}
+
+</style>
 </head>
 <body>
+
+<div class="topbar">
+  <a href="CoreCalculator.html" class="btn" style="text-decoration:none;">核心计算器</a>
+</div>
+
+</span>
 <div class="wrap">
   <header>
     <div>
-      <h1>手动输入 · 自动剩余次数 & 自动最佳线路</h1>
-      <p class="note">规则：开局自动算作已打开 1 张，再允许再翻 3 张；共 4 张。<br/>
-      在下面九宫格输入你已知的数字（未知留空），系统会：<br/>
-      ① 自动计算剩余翻牌次数；② <b>当已填满 4 格</b>时自动给出<b>最佳线路</b>；③ 未满 4 格时提示<b>最佳下一步</b>。</p>
+      
+      
     </div>
     <div class="row">
       <div id="autoCounter" class="counter">已打开：0/4 · 剩余：4</div>
       <button class="btn" id="clearBtn">清空</button>
-      <span class="logo-badge" title="By ShinE"><span class="logo-dot"></span>By ShinE</span>
+      </span>
     </div>
   </header>
 
@@ -88,6 +131,7 @@
       <div class="row" style="margin-top:12px">
         <button class="btn" id="advBtn">计算最佳下一步</button>
         <button class="btn" id="lineBtn">计算最佳线路</button>
+        <button class="btn" id="clearBtnInline">清空</button>
         <span id="msg" class="tip"></span>
       </div>
     </div>
@@ -360,10 +404,41 @@
   updateCounter();
   pipeline();
 })();
+
+// inline clear next to '计算最佳线路'
+(function(){
+  var inlineClear = document.getElementById('clearBtnInline');
+  if(inlineClear){
+    inlineClear.addEventListener('click', function(){
+      var real = document.getElementById('clearBtn');
+      if(real){ real.click(); return; }
+      try {
+        var inputs = document.querySelectorAll('#grid input.cell');
+        inputs.forEach(i=>i.value='');
+        var msg = document.getElementById('msg'), statusEl = document.getElementById('status'), adviceEl = document.getElementById('advice');
+        if(msg) msg.textContent='已清空';
+        if(statusEl) statusEl.textContent='—';
+        if(adviceEl) adviceEl.textContent='—';
+        var linesWrap = document.getElementById('lines'); if(linesWrap) linesWrap.style.display='none';
+        if(typeof clearHighlights === 'function') clearHighlights();
+        if(typeof updateCounter === 'function') updateCounter();
+      } catch(e){}
+    });
+  }
+})();
+
 </script>
 
 <div style="position:fixed;right:10px;bottom:10px;opacity:.65;pointer-events:none;font-size:12px;background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:4px 8px;box-shadow:0 6px 16px rgba(0,0,0,.06)">
-  By ShinE
+  
 </div>
+
+
+
+
+<div class="logo-bottom-left">
+  <span class="logo-dot"></span> By ShinE
+</div>
+
 </body>
 </html>
