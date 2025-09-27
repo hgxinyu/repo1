@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>九宫格翻牌 · 手动输入版（自动剩余次数 & 自动最佳线路）</title>
+<style>
+  :root{
+    --gap:10px; --cell:84px; --radius:12px;
+    --shadow:0 6px 16px rgba(0,0,0,.06);
+    --border:#e5e7eb; --ink:#111827; --muted:#6b7280;
+    --brand:#6366f1; --brand-weak:rgba(99,102,241,.18);
+    --good:#10b981;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family: ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; background:#f9fafb; color:var(--ink);}
+  .wrap{max-width:980px;margin:0 auto;padding:20px;display:flex;flex-direction:column;gap:16px;min-height:100vh}
+  header{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
+  h1{margin:0;font-size:22px}
+  .note{margin:6px 0 0;color:var(--muted);font-size:13px;max-width:700px}
+  .main{display:grid;grid-template-columns: 1fr 360px;gap:18px}
+  @media (max-width: 900px){.main{grid-template-columns:1fr}}
+  .card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px;box-shadow:var(--shadow)}
+  .card h2{margin:0 0 10px;font-size:16px}
+  .board-wrap{ position:relative; display:inline-block; }
+  .grid3{display:grid;grid-template-columns:repeat(3,var(--cell));gap:var(--gap);justify-content:center}
+  input.cell{
+    width:var(--cell);height:var(--cell);border:1px solid #d1d5db;border-radius:var(--radius);
+    background:#fff;display:flex;align-items:center;justify-content:center;
+    text-align:center;font-weight:800;font-size:28px;box-shadow:var(--shadow);
+    outline:none; position:relative;
+  }
+  input.cell:focus{border-color:#c7d2fe; box-shadow:0 0 0 3px rgba(99,102,241,.18)}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .btn{border:1px solid var(--border);background:#fff;padding:8px 12px;border-radius:12px;box-shadow:var(--shadow);cursor:pointer;font-size:14px}
+  .btn:disabled{opacity:.6;cursor:default}
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:8px 10px;align-items:center}
+  .badge{display:inline-block;background:#eef2ff;border:1px solid #c7d2fe;color:#1f2937;border-radius:999px;padding:2px 8px;font-size:12px}
+  .list{display:grid;gap:6px}
+  .tip{font-size:12px;color:var(--muted)}
+  .pair{display:flex;justify-content:space-between;background:#f3f4f6;border:1px solid var(--border);border-radius:8px;padding:6px 8px;font-size:13px}
+  /* Highlights */
+  .cell.rec{ outline:3px solid var(--brand); outline-offset:-3px; }
+  .cell.bestline{ outline:3px solid var(--good); outline-offset:-3px; background:#ecfdf5; }
+  .tag{ position:absolute; right:6px; bottom:6px; font-size:12px; background:#111827; color:#fff; border-radius:10px; padding:2px 6px; opacity:.92 }
+  .banner{
+    position:absolute; left:50%; transform:translateX(-50%);
+    top:-34px; background:#111827; color:#fff; font-size:13px; padding:6px 10px;
+    border-radius:10px; box-shadow:var(--shadow); white-space:nowrap;
+  }
+  .counter{font-size:13px;color:#111827;background:#fff;border:1px solid var(--border);padding:6px 10px;border-radius:12px;box-shadow:var(--shadow)}
+  .warn{color:#b91c1c;font-weight:600}
+
+  .logo-badge{font-family:'Pacifico',cursive;font-size:18px;font-weight:400;
+    display:inline-flex;align-items:center;gap:6px;
+    font-weight:800;font-size:13px;letter-spacing:.2px;
+    padding:6px 10px;border-radius:999px;
+    background:#ffffff; border:1px solid var(--border); box-shadow:var(--shadow); color:#111827;
+    user-select:none;
+  }
+  .logo-dot{width:8px;height:8px;border-radius:999px;background:linear-gradient(135deg,#6366f1,#22c55e)}
+    </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>手动输入 · 自动剩余次数 & 自动最佳线路</h1>
+      <p class="note">规则：开局自动算作已打开 1 张，再允许再翻 3 张；共 4 张。<br/>
+      在下面九宫格输入你已知的数字（未知留空），系统会：<br/>
+      ① 自动计算剩余翻牌次数；② <b>当已填满 4 格</b>时自动给出<b>最佳线路</b>；③ 未满 4 格时提示<b>最佳下一步</b>。</p>
+    </div>
+    <div class="row">
+      <div id="autoCounter" class="counter">已打开：0/4 · 剩余：4</div>
+      <button class="btn" id="clearBtn">清空</button>
+      <span class="logo-badge" title="By ShinE"><span class="logo-dot"></span>By ShinE</span>
+    </div>
+  </header>
+
+  <div class="main">
+    <div class="card">
+      <h2>输入当前棋面（1–9，不重复；未知留空）</h2>
+      <div class="board-wrap">
+        <div class="grid3" id="grid"></div>
+        <div id="boardBanner" class="banner" style="display:none"></div>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn" id="advBtn">计算最佳下一步</button>
+        <button class="btn" id="lineBtn">计算最佳线路</button>
+        <span id="msg" class="tip"></span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>结果</h2>
+      <div class="kv">
+        <div>状态：</div><div id="status">—</div>
+        <div>建议：</div><div id="advice">—</div>
+      </div>
+
+      <div style="margin-top:12px">
+        <div class="badge">S → 积分对照</div>
+        <div id="pairs" class="list" style="margin-top:8px"></div>
+      </div>
+
+      <div id="lines" style="margin-top:12px;display:none">
+        <div class="badge">各线路期望（仅用于“最佳线路”计算）</div>
+        <div id="lineList" class="list" style="margin-top:8px"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const SUM_TO_SCORE = {6:1680,7:84,8:630,9:280,10:42,11:34,12:180,13:120,14:53,15:105,16:53,17:144,18:48,19:202,20:105,21:51,22:420,23:840,24:1008};
+  const LINES = [
+    { name: "第1行", cells: [[0,0],[0,1],[0,2]] },
+    { name: "第2行", cells: [[1,0],[1,1],[1,2]] },
+    { name: "第3行", cells: [[2,0],[2,1],[2,2]] },
+    { name: "第1列", cells: [[0,0],[1,0],[2,0]] },
+    { name: "第2列", cells: [[0,1],[1,1],[2,1]] },
+    { name: "第3列", cells: [[0,2],[1,2],[2,2]] },
+    { name: "主对角线", cells: [[0,0],[1,1],[2,2]] },
+    { name: "副对角线", cells: [[0,2],[1,1],[2,0]] },
+  ];
+  const TARGET_OPEN = 4; // 开局1 + 可再翻3
+
+  const grid = document.getElementById('grid');
+  const pairs = document.getElementById('pairs');
+  const lineList = document.getElementById('lineList');
+  const linesWrap = document.getElementById('lines');
+  const statusEl = document.getElementById('status');
+  const adviceEl = document.getElementById('advice');
+  const clearBtn = document.getElementById('clearBtn');
+  const advBtn = document.getElementById('advBtn');
+  const lineBtn = document.getElementById('lineBtn');
+  const msg = document.getElementById('msg');
+  const banner = document.getElementById('boardBanner');
+  const counterEl = document.getElementById('autoCounter');
+
+  // Build inputs
+  const inputs = [];
+  for(let r=0;r<3;r++){
+    for(let c=0;c<3;c++){
+      const inp = document.createElement('input');
+      inp.type = 'text'; inp.maxLength = 1; inp.placeholder = '?';
+      inp.className = 'cell'; inp.dataset.r = r; inp.dataset.c = c;
+      inp.addEventListener('input', ()=>{
+        inp.value = inp.value.replace(/[^1-9]/g, '');
+        clearHighlights();
+        pipeline();
+      });
+      inputs.push(inp); grid.appendChild(inp);
+    }
+  }
+
+  function clearHighlights(){
+    inputs.forEach(el=>{
+      el.classList.remove('rec','bestline');
+    });
+    document.querySelectorAll('.tag').forEach(x=>x.remove());
+    banner.style.display='none';
+  }
+
+  clearBtn.addEventListener('click', ()=>{
+    inputs.forEach(i=>i.value='');
+    statusEl.textContent='—'; adviceEl.textContent='—'; linesWrap.style.display='none'; msg.textContent='已清空';
+    clearHighlights(); updateCounter();
+  });
+
+  function renderPairs(){
+    pairs.innerHTML='';
+    Object.entries(SUM_TO_SCORE).sort((a,b)=>Number(a[0])-Number(b[0])).forEach(([s,sc])=>{
+      const row = document.createElement('div');
+      row.className='pair';
+      row.innerHTML = `<span>S=${s}</span><span style="font-weight:600">${sc}</span>`;
+      pairs.appendChild(row);
+    });
+  }
+  renderPairs();
+
+  function getState(){
+    const board = [[null,null,null],[null,null,null],[null,null,null]];
+    const revealed = [[false,false,false],[false,false,false],[false,false,false]];
+    let filled=0;
+    for(let r=0;r<3;r++){
+      for(let c=0;c<3;c++){
+        const v = inputs[r*3+c].value.trim();
+        if(v){ board[r][c]=Number(v); revealed[r][c]=true; filled++; }
+      }
+    }
+    return {board, revealed, opened: filled};
+  }
+
+  function validateUnique(board){
+    const used = new Set();
+    for(let r=0;r<3;r++){ for(let c=0;c<3;c++){ const v=board[r][c]; if(v!=null){ if(used.has(v)){ return {ok:false, msg:`⚠️ 输入重复：已有数字 ${v}`}; } used.add(v);} }}
+    return {ok:true};
+  }
+
+  function updateCounter(){
+    const st = getState();
+    const opened = st.opened;
+    const left = Math.max(0, TARGET_OPEN - opened);
+    counterEl.textContent = `已打开：${Math.min(opened,TARGET_OPEN)}/${TARGET_OPEN} · 剩余：${left}`;
+    return {opened, left};
+  }
+
+  function sampleBoards(state, N=2500){
+    const {board, revealed} = state;
+    const used = new Set(); for(let r=0;r<3;r++){ for(let c=0;c<3;c++){ if(revealed[r][c]) used.add(board[r][c]); }}
+    const remaining = [1,2,3,4,5,6,7,8,9].filter(x=>!used.has(x));
+    const unknown = []; for(let r=0;r<3;r++){ for(let c=0;c<3;c++){ if(!revealed[r][c]) unknown.push([r,c]); }}
+    const samples=[];
+    function deepCopy(x){ return JSON.parse(JSON.stringify(x)); }
+    function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]] } return a; }
+    if(unknown.length===0){ samples.push(deepCopy(board)); return samples; }
+    for(let i=0;i<N;i++){ const nums=remaining.slice(); shuffle(nums); const b=deepCopy(board); for(let j=0;j<unknown.length;j++){ const [r,c]=unknown[j]; b[r][c]=nums[j]; } samples.push(b); }
+    return samples;
+  }
+  function lineSum(b, idx){ return LINES[idx].cells.map(([r,c])=>b[r][c]).reduce((a,b)=>a+b,0); }
+
+  function expectedBestScore_noFlip(samples){
+    let best = -Infinity, bestIdx = 0, perLine = new Array(8).fill(0);
+    for(let l=0;l<8;l++){
+      let acc=0; for(const s of samples){ acc += SUM_TO_SCORE[lineSum(s,l)] || 0; }
+      const avg = acc / samples.length; perLine[l]=avg;
+      if(avg>best){ best=avg; bestIdx=l; }
+    }
+    return {best, bestIdx, perLine};
+  }
+
+  function planEV(samples, flips, revealed){
+    if(flips<=0){ return expectedBestScore_noFlip(samples).best; }
+    const unknown=[]; for(let r=0;r<3;r++){ for(let c=0;c<3;c++){ if(!revealed[r][c]) unknown.push([r,c]); }}
+    let best=-Infinity;
+    for(const [r,c] of unknown){
+      const buckets=new Map();
+      for(const b of samples){ const v=b[r][c]; if(!buckets.has(v)) buckets.set(v,[]); buckets.get(v).push(b); }
+      let exp=0;
+      for(const [v,subset] of buckets){
+        const nextMask = revealed.map(row=>row.slice()); nextMask[r][c]=true;
+        exp += (subset.length/samples.length) * planEV(subset, flips-1, nextMask);
+      }
+      if(exp>best) best=exp;
+    }
+    return best;
+  }
+
+  function bestNextFlip(state, flipsLeft){
+    const samples = sampleBoards(state, 2500);
+    const {revealed} = state;
+    const unknown=[]; for(let r=0;r<3;r++){ for(let c=0;c<3;c++){ if(!revealed[r][c]) unknown.push([r,c]); }}
+    if(unknown.length===0){ return {ev: expectedBestScore_noFlip(samples).best, cell: null}; }
+    let globalBest=-Infinity, bestCell=null;
+    for(const [r,c] of unknown){
+      const buckets=new Map(); for(const b of samples){ const v=b[r][c]; if(!buckets.has(v)) buckets.set(v,[]); buckets.get(v).push(b); }
+      let exp=0;
+      for(const [v,subset] of buckets){
+        const mask = revealed.map(row=>row.slice()); mask[r][c]=true;
+        const val = planEV(subset, flipsLeft-1, mask);
+        exp += (subset.length/samples.length) * val;
+      }
+      if(exp>globalBest){ globalBest=exp; bestCell=[r,c]; }
+    }
+    return {ev:globalBest, cell:bestCell};
+  }
+
+  function applyBestNextHighlight(cell, ev){
+    clearHighlights();
+    if(!cell) return;
+    const [r,c]=cell, idx=r*3+c;
+    const el = inputs[idx];
+    el.classList.add('rec');
+    const tag = document.createElement('div');
+    tag.className='tag';
+    tag.textContent = `EV≈${ev.toFixed(1)}`;
+    el.parentElement ? el.parentElement.appendChild(tag) : el.appendChild(tag);
+  }
+
+  function applyBestLineHighlight(bestIdx, ev){
+    clearHighlights();
+    for(const [r,c] of LINES[bestIdx].cells){
+      inputs[r*3+c].classList.add('bestline');
+    }
+    banner.textContent = `最佳线路：${LINES[bestIdx].name} · 期望积分≈ ${ev.toFixed(1)}`;
+    banner.style.display='block';
+  }
+
+  function pipeline(){
+    const st = getState();
+    const uniq = validateUnique(st.board);
+    const {opened, left} = updateCounter();
+
+    if(!uniq.ok){
+      msg.textContent = uniq.msg;
+      adviceEl.textContent='—'; statusEl.textContent='—'; linesWrap.style.display='none';
+      clearHighlights();
+      return;
+    }
+    msg.textContent='';
+
+    if(opened > TARGET_OPEN){
+      msg.innerHTML = '<span class="warn">⚠️ 已超过 4 张：请保持总共只填 4 格</span>';
+      adviceEl.textContent='—'; statusEl.textContent='—'; linesWrap.style.display='none';
+      clearHighlights();
+      return;
+    }
+
+    if(opened === TARGET_OPEN){
+      // 自动计算最佳线路（无额外翻牌）
+      const samples = sampleBoards(st, 4000);
+      const {best, bestIdx, perLine} = expectedBestScore_noFlip(samples);
+      adviceEl.innerHTML = `最佳线路：<b>${LINES[bestIdx].name}</b>（期望积分≈ <b>${best.toFixed(1)}</b>）`;
+      statusEl.textContent = `样本数 4000 · 已开 4 张 · 翻牌结束`;
+      linesWrap.style.display='block';
+      lineList.innerHTML = '';
+      for(let i=0;i<8;i++){
+        const div=document.createElement('div');
+        div.className='pair';
+        div.innerHTML=`<span>${LINES[i].name}</span><span style="font-weight:600">${perLine[i].toFixed(1)}</span>`;
+        if(i===bestIdx){ div.style.borderColor='#6366f1'; div.style.background='#eef2ff'; }
+        lineList.appendChild(div);
+      }
+      applyBestLineHighlight(bestIdx, best);
+      return;
+    }
+
+    // 未满 4 张：给最佳下一步建议
+    if(opened < TARGET_OPEN){
+      const {ev, cell} = bestNextFlip(st, TARGET_OPEN - opened);
+      if(!cell){
+        adviceEl.textContent='所有格子都已确定，直接选择最佳线路即可。';
+        statusEl.textContent='—'; linesWrap.style.display='none';
+        return;
+      }
+      const [r,c]=cell;
+      adviceEl.innerHTML = `下一步建议翻：<b>(${r+1}, ${c+1})</b>；预计最高期望积分≈ <b>${ev.toFixed(1)}</b>`;
+      statusEl.textContent = `样本数 2500 · 已开 ${opened} 张 · 剩余 ${TARGET_OPEN-opened}`;
+      linesWrap.style.display='none';
+      applyBestNextHighlight(cell, ev);
+    }
+  }
+
+  // manual buttons still available
+  document.getElementById('advBtn').addEventListener('click', pipeline);
+  document.getElementById('lineBtn').addEventListener('click', pipeline);
+
+  // init
+  updateCounter();
+  pipeline();
+})();
+</script>
+
+<div style="position:fixed;right:10px;bottom:10px;opacity:.65;pointer-events:none;font-size:12px;background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:4px 8px;box-shadow:0 6px 16px rgba(0,0,0,.06)">
+  By ShinE
+</div>
+</body>
+</html>
