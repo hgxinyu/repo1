@@ -34,16 +34,27 @@
         }
     
 /* floating top bar for actions */
+
 .topbar{
   position:fixed; left:12px; top:12px; z-index:1000;
-  display:flex; gap:8px; align-items:center;
+  display:flex; flex-wrap:wrap; gap:8px; align-items:center;
   background:rgba(255,255,255,.9);
   border:1px solid #e5e7eb;
   padding:6px 8px; border-radius:12px; box-shadow:0 6px 16px rgba(0,0,0,.08);
   backdrop-filter:saturate(140%) blur(4px);
+  max-width:90%;
 }
 .topbar .btn{padding:8px 12px; border-radius:12px; font-size:13px}
-@media (max-width:480px){ .topbar{left:8px; top:8px} }
+@media (max-width:480px){ 
+.topbar{
+  position:fixed; left:12px; top:12px; z-index:1000;
+  display:flex; flex-wrap:wrap; gap:8px; align-items:center;
+  background:rgba(255,255,255,.9);
+  border:1px solid #e5e7eb;
+  padding:6px 8px; border-radius:12px; box-shadow:0 6px 16px rgba(0,0,0,.08);
+  backdrop-filter:saturate(140%) blur(4px);
+  max-width:90%;
+} }
 
 
 /* === Unified ShinE theme for CoreCalculator === */
@@ -67,16 +78,27 @@ body{background:#f9fafb;color:var(--ink);font-family:ui-sans-serif,system-ui,-ap
 .btn:disabled{opacity:.6;cursor:default}
 
 /* Floating top bar (back link) */
+
 .topbar{
   position:fixed; left:12px; top:12px; z-index:1000;
-  display:flex; gap:8px; align-items:center;
+  display:flex; flex-wrap:wrap; gap:8px; align-items:center;
   background:rgba(255,255,255,.9);
-  border:1px solid var(--border);
+  border:1px solid #e5e7eb;
   padding:6px 8px; border-radius:12px; box-shadow:0 6px 16px rgba(0,0,0,.08);
   backdrop-filter:saturate(140%) blur(4px);
+  max-width:90%;
 }
 .topbar .btn{padding:8px 12px; border-radius:12px; font-size:13px}
-@media (max-width:480px){ .topbar{left:8px; top:8px} }
+@media (max-width:480px){ 
+.topbar{
+  position:fixed; left:12px; top:12px; z-index:1000;
+  display:flex; flex-wrap:wrap; gap:8px; align-items:center;
+  background:rgba(255,255,255,.9);
+  border:1px solid #e5e7eb;
+  padding:6px 8px; border-radius:12px; box-shadow:0 6px 16px rgba(0,0,0,.08);
+  backdrop-filter:saturate(140%) blur(4px);
+  max-width:90%;
+} }
 
 /* Bottom-right logo */
 .logo-bottom-left{
@@ -90,12 +112,32 @@ body{background:#f9fafb;color:var(--ink);font-family:ui-sans-serif,system-ui,-ap
 .logo-bottom-left .logo-dot{width:8px;height:8px;border-radius:999px;background:linear-gradient(135deg,#6366f1,#22c55e)}
 /* === /Unified theme === */
 
+
+/* reset & robust floating nav bar */
+#topbar-nav{
+  position:fixed; left:12px; top:12px; z-index:1000;
+  display:flex; flex-wrap:wrap; gap:8px; align-items:center;
+  background:rgba(255,255,255,.9);
+  border:1px solid #e5e7eb;
+  padding:6px 8px; border-radius:12px; box-shadow:0 6px 16px rgba(0,0,0,.08);
+  backdrop-filter:saturate(140%) blur(4px);
+  max-width:92vw;
+}
+#topbar-nav .btn{padding:8px 12px; border-radius:12px; font-size:13px; white-space:nowrap; }
+@media (max-width:480px){ #topbar-nav{ left:8px; top:8px; right:8px; } }
+
 </style>
 </head>
 <body>
-<div class="topbar">
-  <a href="index.html" class="btn" style="text-decoration:none;">← 返回九宫格助手</a>
+
+<div id="topbar-nav">
+  <a href="index.html" class="btn" style="text-decoration:none;">回到主页</a>
+  <a href="flipgame.html" class="btn" style="text-decoration:none;">返回九宫格助手</a>
 </div>
+
+
+
+
 
 <div class="wrap">
   <header class="site-header">
@@ -110,9 +152,7 @@ body{background:#f9fafb;color:var(--ink);font-family:ui-sans-serif,system-ui,-ap
 <div class="row" id="calcToolbar" style="display:flex;gap:8px;align-items:center;margin-bottom:8px;"><button class="btn" id="clearBtnTop">清空</button></div>
       
 
-<div class="topbar">
-  <a href="index.html" class="btn" style="text-decoration:none;">← 返回九宫格助手</a>
-</div>
+
 
     <table id="inputTable">
         <thead>
