@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>凝魂升格计算器 · ShinE</title>
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --gap:12px; --radius:16px; --shadow:0 6px 16px rgba(0,0,0,.06);
+      --border:#e5e7eb; --ink:#111827; --muted:#6b7280; --brand:#6366f1; --danger:#ef4444;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body{background:#f9fafb;color:var(--ink);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
+    .wrap{max-width:980px;margin:0 auto;padding:24px;display:flex;flex-direction:column;gap:16px;min-height:100vh}
+    .site-header{display:flex;justify-content:space-between;gap:16px;align-items:flex-end;flex-wrap:wrap}
+    .site-header .title h1{margin:0;font-size:24px}
+    .tools{display:flex;gap:8px;align-items:center}
+    .hint{padding:10px 12px;background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);font-size:14px;color:#374151}
+    .main{display:grid;grid-template-columns:1fr;gap:16px}
+    .card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow:var(--shadow)}
+    .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:8px 0;justify-content:center;}
+    .col{display:flex;flex-direction:column;gap:6px;min-width:220px}
+    label{color:var(--muted);font-size:14px}
+    input[type="number"]{width:220px;border:1px solid var(--border);border-radius:12px;padding:10px 12px;font-size:15px;box-shadow:var(--shadow);background:#fff;color:#111827}
+    .btn{border:1px solid var(--border);background:#fff;padding:10px 14px;border-radius:18px;box-shadow:var(--shadow);cursor:pointer;font-size:14px}
+    .btn:disabled{opacity:.6;cursor:default}
+    .out{display:grid;grid-template-columns:repeat(2, minmax(220px, 1fr));gap:12px;margin-top:12px}
+    .box{background:#f3f4f6;border:1px solid #e5e7eb;border-radius:14px;padding:12px 14px}
+    .kv{display:flex;justify-content:space-between;gap:8px}
+    .v{font-weight:700}
+    .muted{color:var(--muted);font-size:13px}
+    .warn{color:#b91c1c; background:#fee2e2; border:1px solid #fecaca; padding:10px 12px; border-radius:12px; display:none}
+    /* floating nav */
+    #topbar-nav{
+      position:fixed; left:12px; top:12px; z-index:1000;
+      display:flex; flex-wrap:wrap; gap:8px; align-items:center;
+      background:rgba(255,255,255,.9);
+      border:1px solid #e5e7eb;
+      padding:6px 8px; border-radius:12px; box-shadow:0 6px 16px rgba(0,0,0,.08);
+      backdrop-filter:saturate(140%) blur(4px);
+      max-width:92vw;
+    }
+    #topbar-nav .btn{padding:8px 12px; border-radius:12px; font-size:13px; white-space:nowrap;}
+    @media (max-width:480px){ #topbar-nav{ left:8px; top:8px; right:8px; } }
+    /* bottom-left logo */
+    .logo-bottom-left{
+      position:fixed; left:12px; bottom:12px; z-index:1000;
+      font-family:'Pacifico',cursive; font-size:20px; font-weight:400;
+      display:inline-flex; align-items:center; gap:6px;
+      padding:8px 14px; border-radius:999px;
+      background:#fff; border:1px solid #e5e7eb; box-shadow:var(--shadow);
+      color:#111827;
+    }
+    .logo-bottom-left .logo-dot{width:8px;height:8px;border-radius:999px;background:linear-gradient(135deg,#6366f1,#22c55e)}
+  </style>
+</head>
+<body>
+  <div id="topbar-nav">
+    <a href="index.html" class="btn" style="text-decoration:none;">回到主页</a>
+    <a href="flipgame.html" class="btn" style="text-decoration:none;">九宫格翻牌</a>
+    <a href="CoreCalculator.html" class="btn" style="text-decoration:none;">核心计算器</a>
+    <a href="StarDiamondCalculator.html" class="btn" style="text-decoration:none;">星钻计算器</a>
+  </div>
+
+  <div class="wrap">
+    <header class="site-header">
+      <div class="title"><h1>凝魂升格计算器（A+ → S）</h1></div>
+      <div class="tools">
+        <button class="btn" id="clearBtn">清空</button>
+      </div>
+    </header>
+
+    <div class="hint">A+到S升格所需材料： <b>3 × A-</b>，<b>2 × A</b>，<b>1 × A+</b></div>
+
+    <main class="main">
+      <div class="card">
+        <div class="row">
+          <div class="col">
+            <label for="atk">攻击 x</label>
+            <input id="atk" type="number" inputmode="decimal" value="0" />
+          </div>
+          <div class="col">
+            <label for="hp">血量 y</label>
+            <input id="hp" type="number" inputmode="decimal" value="0" />
+          </div>
+          <div class="col">
+            <label for="spd">速度 z</label>
+            <input id="spd" type="number" inputmode="decimal" value="0" />
+          </div>
+        </div>
+
+        <div id="warn" class="warn">输入出错：x + y + 100 × z 必须在 <b>21600 ~ 24297</b> 之间。</div>
+
+        <div class="out">
+          <div class="box">
+            <div class="kv"><span>Sum</span><span class="v" id="sumV">0</span></div>
+          </div>
+          <div class="box">
+            <div class="kv"><span>凝魂次数</span><span class="v" id="times">0</span></div>
+            
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="logo-bottom-left">
+    <span class="logo-dot"></span> By ShinE
+  </div>
+
+  <script>
+    (function(){
+      const atk = document.getElementById('atk');
+      const hp = document.getElementById('hp');
+      const spd = document.getElementById('spd');
+      const sumV = document.getElementById('sumV');
+      const times = document.getElementById('times');
+      const warn = document.getElementById('warn');
+      const clearBtn = document.getElementById('clearBtn');
+
+      
+      let touched = false;
+function toNum(v){ const n = parseFloat(v); return isNaN(n)?0:n; }
+      function ceil(n){ return Math.ceil(n); }
+
+      function calc(){
+        const x = toNum(atk.value);
+        const y = toNum(hp.value);
+        const z = toNum(spd.value);
+        const sum = x + y + 100*z;
+        sumV.textContent = sum.toFixed(0);
+
+        // validate range
+        const valid = (sum >= 21600 && sum <= 24297);
+        warn.style.display = (!touched || valid) ? 'none' : 'block';
+
+        // compute times only if valid
+        if(valid){
+          const need = (24300 - sum) / 135;
+          const t = ceil(need);
+          times.textContent = (t < 0 ? 0 : t);
+        } else {
+          times.textContent = '—';
+        }
+      }
+
+      // debounce
+      let t=null; function debounced(){ clearTimeout(t); t=setTimeout(calc, 120); }
+      [atk,hp,spd].forEach(el=>{
+        el.addEventListener('input', function(e){ touched = true; debounced(); });
+        el.addEventListener('change', function(e){ touched = true; calc(); });
+      });
+
+      clearBtn.addEventListener('click', function(){
+        atk.value = '0'; hp.value = '0'; spd.value = '0';
+        touched = false; // reset touched so warning stays hidden after clear
+        calc();
+      });
+
+      calc();
+    })();
+  </script>
+</body>
+</html>
