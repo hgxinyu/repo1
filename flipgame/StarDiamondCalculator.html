@@ -1,99 +1,324 @@
-<!DOCTYPE html>
-<html lang="zh">
+﻿<!DOCTYPE html>
+<html lang="zh-Hans">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>星钻计算器 · ShinE</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
   <style>
-    :root{
-      --gap:12px; --radius:16px; --shadow:0 6px 16px rgba(0,0,0,.06);
-      --border:#e5e7eb; --ink:#111827; --muted:#6b7280; --brand:#6366f1;
+    :root {
+      --gap: 12px;
+      --radius: 16px;
+      --shadow: 0 10px 22px rgba(15, 23, 42, 0.12);
+      --border: #e5e7eb;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --brand: #6366f1;
+      --surface: #ffffff;
+      --bg: #f8fafc;
     }
-    *{box-sizing:border-box}
-    html,body{margin:0;padding:0}
-    body{background:#f9fafb;color:var(--ink);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
-    .wrap{max-width:980px;margin:0 auto;padding:24px;display:flex;flex-direction:column;gap:16px;min-height:100vh}
-    .site-header{display:flex;justify-content:space-between;gap:16px;align-items:flex-end;flex-wrap:wrap}
-    .site-header .title h1{margin:0;font-size:24px}
-    .tools{display:flex;gap:8px;align-items:center}
-    .main{display:grid;grid-template-columns:1fr;gap:16px}
-    .card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow:var(--shadow)}
-    .row{justify-content:center; display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:8px 0}
-    .col{display:flex;flex-direction:column;gap:6px;min-width:220px}
-    label{color:var(--muted);font-size:14px}
-    input[type="number"]{width:220px;border:1px solid var(--border);border-radius:12px;padding:10px 12px;font-size:15px;box-shadow:var(--shadow);background:#fff;color:var(--ink)}
-    .btn{border:1px solid var(--border);background:#fff;padding:10px 14px;border-radius:18px;box-shadow:var(--shadow);cursor:pointer;font-size:14px}
-    .btn:disabled{opacity:.6;cursor:default}
-    .out{display:grid;grid-template-columns:repeat(2, minmax(220px, 1fr));gap:12px;margin-top:12px}
-    .out .box{background:#f3f4f6;border:1px solid #e5e7eb;border-radius:14px;padding:12px 14px}
-    .out .kv{display:flex;justify-content:space-between;gap:8px}
-    .out .v{font-weight:700}
-    .muted{color:var(--muted);font-size:13px}
-    /* floating nav */
-    #topbar-nav{
-      position:fixed; left:12px; top:12px; z-index:1000;
-      display:flex; flex-wrap:wrap; gap:8px; align-items:center;
-      background:rgba(255,255,255,.9);
-      border:1px solid #e5e7eb;
-      padding:6px 8px; border-radius:12px; box-shadow:0 6px 16px rgba(0,0,0,.08);
-      backdrop-filter:saturate(140%) blur(4px);
-      max-width:92vw;
+    * {
+      box-sizing: border-box;
     }
-    #topbar-nav .btn{padding:8px 12px; border-radius:12px; font-size:13px; white-space:nowrap;}
-    @media (max-width:480px){ #topbar-nav{ left:8px; top:8px; right:8px; } }
-    /* bottom-left logo */
-    .logo-bottom-left{
-      position:fixed; left:12px; bottom:12px; z-index:1000;
-      font-family:'Pacifico',cursive; font-size:20px; font-weight:400;
-      display:inline-flex; align-items:center; gap:6px;
-      padding:8px 14px; border-radius:999px;
-      background:#fff; border:1px solid #e5e7eb; box-shadow:var(--shadow);
-      color:#111827;
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Segoe UI", "Microsoft YaHei", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
     }
-    .logo-bottom-left .logo-dot{width:8px;height:8px;border-radius:999px;background:linear-gradient(135deg,#6366f1,#22c55e)}
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    nav#topbar-nav {
+      position: sticky;
+      top: 12px;
+      z-index: 100;
+      margin: 12px auto 0;
+      width: min(100% - 24px, 640px);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      backdrop-filter: saturate(140%) blur(6px);
+    }
+    nav#topbar-nav a {
+      border: 1px solid transparent;
+      background: rgba(99, 102, 241, 0.08);
+      color: var(--brand);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 14px;
+      text-decoration: none;
+      transition: background 0.2s ease, box-shadow 0.2s ease;
+      white-space: nowrap;
+    }
+    nav#topbar-nav a:hover {
+      background: rgba(99, 102, 241, 0.16);
+      box-shadow: 0 6px 18px rgba(99, 102, 241, 0.25);
+    }
+    nav#topbar-nav a:focus-visible {
+      outline: 2px solid var(--brand);
+      outline-offset: 2px;
+    }
+    .wrap {
+      width: min(960px, 100%);
+      margin: 12px auto 24px;
+      padding: clamp(20px, 4vw, 36px);
+      display: flex;
+      flex-direction: column;
+      gap: clamp(16px, 4vw, 28px);
+      flex: 1 0 auto;
+    }
+    .site-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .title h1 {
+      margin: 0;
+      font-size: clamp(22px, 6vw, 32px);
+      letter-spacing: 0.03em;
+    }
+    .tools {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    main.main {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: clamp(16px, 4vw, 24px);
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: clamp(16px, 4vw, 24px);
+      box-shadow: var(--shadow);
+    }
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--gap);
+      align-items: flex-end;
+    }
+    .col {
+      flex: 1 1 220px;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    label {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    input[type="number"] {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 16px;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+      background: #fff;
+      color: var(--ink);
+      -moz-appearance: textfield;
+    }
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input[type="number"]:focus-visible {
+      outline: 2px solid rgba(99, 102, 241, 0.35);
+      outline-offset: 2px;
+    }
+    .btn {
+      border: 1px solid rgba(99, 102, 241, 0.35);
+      background: var(--surface);
+      padding: 10px 16px;
+      border-radius: 16px;
+      box-shadow: 0 6px 18px rgba(99, 102, 241, 0.18);
+      cursor: pointer;
+      font-size: 15px;
+      color: var(--brand);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      touch-action: manipulation;
+    }
+    .btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 28px rgba(99, 102, 241, 0.22);
+    }
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: default;
+      box-shadow: none;
+    }
+    .out {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: var(--gap);
+      margin-top: clamp(12px, 3vw, 20px);
+    }
+    .out .box {
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .out .kv {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 15px;
+    }
+    .out .v {
+      font-weight: 700;
+      font-size: clamp(18px, 5vw, 24px);
+    }
+    .muted {
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .logo-bottom-left {
+      position: fixed;
+      left: 12px;
+      bottom: 12px;
+      z-index: 10;
+      font-family: 'Pacifico', cursive;
+      font-size: 20px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      color: #111827;
+    }
+    .logo-bottom-left .logo-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #6366f1, #22c55e);
+    }
+    @media (max-width: 720px) {
+      nav#topbar-nav {
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        overflow-x: auto;
+        scrollbar-width: thin;
+      }
+      nav#topbar-nav::-webkit-scrollbar {
+        height: 4px;
+      }
+      nav#topbar-nav::-webkit-scrollbar-thumb {
+        background: rgba(99, 102, 241, 0.45);
+        border-radius: 999px;
+      }
+      .site-header {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .tools {
+        justify-content: flex-start;
+      }
+      .row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .col {
+        width: 100%;
+      }
+      .logo-bottom-left {
+        position: static;
+        margin: 24px auto 0;
+        justify-content: center;
+      }
+    }
+    @media (max-width: 420px) {
+      html, body {
+        font-size: 15px;
+      }
+      nav#topbar-nav {
+        gap: 6px;
+        padding: 6px 10px;
+      }
+      nav#topbar-nav a {
+        font-size: 13px;
+        padding: 8px 12px;
+      }
+      .btn {
+        font-size: 14px;
+        padding: 10px 14px;
+      }
+      input[type="number"] {
+        font-size: 15px;
+        padding: 11px 12px;
+      }
+    }
   </style>
 </head>
 <body>
-  <div id="topbar-nav">
-    <a href="index.html" class="btn" style="text-decoration:none;">回到主页</a>
-    <a href="flipgame.html" class="btn" style="text-decoration:none;">九宫格翻牌</a>
-    <a href="CoreCalculator.html" class="btn" style="text-decoration:none;">核心计算器</a>
-  </div>
+  <nav id="topbar-nav" aria-label="页面导航">
+    <a href="index.html">回到主页</a>
+    <a href="flipgame.html">九宫格翻牌</a>
+    <a href="CoreCalculator.html">核心计算器</a>
+  </nav>
 
   <div class="wrap">
     <header class="site-header">
-      <div class="title"><h1>星钻计算器</h1></div>
+      <div class="title">
+        <h1>星钻计算器</h1>
+      </div>
       <div class="tools">
-        <button class="btn" id="clearBtn">清空</button>
+        <button class="btn" id="clearBtn" type="button">清空</button>
       </div>
     </header>
 
     <main class="main">
-      <div class="card">
+      <section class="card" aria-labelledby="calculator-title">
+        <h2 id="calculator-title" class="muted" style="margin:0 0 12px; font-size:15px;">输入星钻与比例获取结果</h2>
         <div class="row">
           <div class="col">
-            <label for="star">星钻数</label>
-            <input id="star" type="number" inputmode="decimal" placeholder="例如：1050" value="0" />
+            <label for="star">星钻数量</label>
+            <input id="star" type="number" inputmode="decimal" placeholder="例如 2050" value="0" />
           </div>
           <div class="col">
             <label for="ratioX">比例 1 : X</label>
-            <input id="ratioX" type="number" inputmode="decimal" placeholder="例如：7.5" value="1" />
-            
+            <input id="ratioX" type="number" inputmode="decimal" placeholder="例如 1.5" value="1" />
           </div>
         </div>
 
-        <div class="out">
+        <div class="out" aria-live="polite">
           <div class="box">
             <div class="kv"><span>金额</span><span class="v" id="amount">0.00</span></div>
-            
+            <span class="muted">按输入比例折算的金额</span>
           </div>
           <div class="box">
             <div class="kv"><span>赠送额</span><span class="v" id="gift">0.00</span></div>
-            
+            <span class="muted">以 1.05 比例估算的赠送额度</span>
           </div>
         </div>
-      </div>
+      </section>
     </main>
   </div>
 
@@ -102,41 +327,49 @@
   </div>
 
   <script>
-    (function(){
+    (function () {
       const starEl = document.getElementById('star');
       const xEl = document.getElementById('ratioX');
       const amountEl = document.getElementById('amount');
       const giftEl = document.getElementById('gift');
       const clearBtn = document.getElementById('clearBtn');
 
-      function toNum(v){ const n = parseFloat(v); return isNaN(n)?0:n; }
-      function fmt(n){ return Number.isFinite(n) ? n.toFixed(2) : '—'; }
+      function toNum(value) {
+        const parsed = parseFloat(value);
+        return Number.isNaN(parsed) ? 0 : parsed;
+      }
 
-      function calc(){
+      function fmt(value) {
+        return Number.isFinite(value) ? value.toFixed(2) : '--';
+      }
+
+      function calc() {
         const star = toNum(starEl.value);
-        const x = toNum(xEl.value);
-        const amount = (x>0) ? (star / x) : NaN;
+        const ratioX = toNum(xEl.value);
+        const amount = ratioX > 0 ? (star / ratioX) : NaN;
         const gift = star / 1.05;
         amountEl.textContent = fmt(amount);
         giftEl.textContent = fmt(gift);
       }
 
-      // debounce
-      let t=null;
-      function debounced(){ clearTimeout(t); t=setTimeout(calc, 150); }
+      let debounceTimer = null;
+      function debouncedCalc() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(calc, 140);
+      }
 
-      starEl.addEventListener('input', debounced);
-      xEl.addEventListener('input', debounced);
+      starEl.addEventListener('input', debouncedCalc);
+      xEl.addEventListener('input', debouncedCalc);
       starEl.addEventListener('change', calc);
       xEl.addEventListener('change', calc);
 
-      clearBtn.addEventListener('click', function(){
+      clearBtn.addEventListener('click', function () {
         starEl.value = '0';
         xEl.value = '1';
         calc();
+        starEl.focus();
       });
 
-      // initial
       calc();
     })();
   </script>

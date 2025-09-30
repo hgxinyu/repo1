@@ -1,108 +1,345 @@
-<!DOCTYPE html>
-<html lang="zh">
+﻿<!DOCTYPE html>
+<html lang="zh-Hans">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>凝魂升格计算器 · ShinE</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
   <style>
-    :root{
-      --gap:12px; --radius:16px; --shadow:0 6px 16px rgba(0,0,0,.06);
-      --border:#e5e7eb; --ink:#111827; --muted:#6b7280; --brand:#6366f1; --danger:#ef4444;
+    :root {
+      --gap: 12px;
+      --radius: 16px;
+      --shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+      --border: #e2e8f0;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --brand: #6366f1;
+      --danger: #ef4444;
+      --surface: #ffffff;
+      --bg: #f8fafc;
     }
-    *{box-sizing:border-box}
-    html,body{margin:0;padding:0}
-    body{background:#f9fafb;color:var(--ink);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
-    .wrap{max-width:980px;margin:0 auto;padding:24px;display:flex;flex-direction:column;gap:16px;min-height:100vh}
-    .site-header{display:flex;justify-content:space-between;gap:16px;align-items:flex-end;flex-wrap:wrap}
-    .site-header .title h1{margin:0;font-size:24px}
-    .tools{display:flex;gap:8px;align-items:center}
-    .hint{padding:10px 12px;background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);font-size:14px;color:#374151}
-    .main{display:grid;grid-template-columns:1fr;gap:16px}
-    .card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow:var(--shadow)}
-    .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:8px 0;justify-content:center;}
-    .col{display:flex;flex-direction:column;gap:6px;min-width:220px}
-    label{color:var(--muted);font-size:14px}
-    input[type="number"]{width:220px;border:1px solid var(--border);border-radius:12px;padding:10px 12px;font-size:15px;box-shadow:var(--shadow);background:#fff;color:#111827}
-    .btn{border:1px solid var(--border);background:#fff;padding:10px 14px;border-radius:18px;box-shadow:var(--shadow);cursor:pointer;font-size:14px}
-    .btn:disabled{opacity:.6;cursor:default}
-    .out{display:grid;grid-template-columns:repeat(2, minmax(220px, 1fr));gap:12px;margin-top:12px}
-    .box{background:#f3f4f6;border:1px solid #e5e7eb;border-radius:14px;padding:12px 14px}
-    .kv{display:flex;justify-content:space-between;gap:8px}
-    .v{font-weight:700}
-    .muted{color:var(--muted);font-size:13px}
-    .warn{color:#b91c1c; background:#fee2e2; border:1px solid #fecaca; padding:10px 12px; border-radius:12px; display:none}
-    /* floating nav */
-    #topbar-nav{
-      position:fixed; left:12px; top:12px; z-index:1000;
-      display:flex; flex-wrap:wrap; gap:8px; align-items:center;
-      background:rgba(255,255,255,.9);
-      border:1px solid #e5e7eb;
-      padding:6px 8px; border-radius:12px; box-shadow:0 6px 16px rgba(0,0,0,.08);
-      backdrop-filter:saturate(140%) blur(4px);
-      max-width:92vw;
+    * {
+      box-sizing: border-box;
     }
-    #topbar-nav .btn{padding:8px 12px; border-radius:12px; font-size:13px; white-space:nowrap;}
-    @media (max-width:480px){ #topbar-nav{ left:8px; top:8px; right:8px; } }
-    /* bottom-left logo */
-    .logo-bottom-left{
-      position:fixed; left:12px; bottom:12px; z-index:1000;
-      font-family:'Pacifico',cursive; font-size:20px; font-weight:400;
-      display:inline-flex; align-items:center; gap:6px;
-      padding:8px 14px; border-radius:999px;
-      background:#fff; border:1px solid #e5e7eb; box-shadow:var(--shadow);
-      color:#111827;
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Segoe UI", "Microsoft YaHei", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
     }
-    .logo-bottom-left .logo-dot{width:8px;height:8px;border-radius:999px;background:linear-gradient(135deg,#6366f1,#22c55e)}
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    nav#topbar-nav {
+      position: sticky;
+      top: 12px;
+      z-index: 100;
+      margin: 12px auto 0;
+      width: min(100% - 24px, 720px);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      padding: 8px 14px;
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      backdrop-filter: saturate(140%) blur(6px);
+    }
+    nav#topbar-nav a {
+      border: 1px solid transparent;
+      background: rgba(99, 102, 241, 0.08);
+      color: var(--brand);
+      padding: 9px 16px;
+      border-radius: 999px;
+      font-size: 14px;
+      text-decoration: none;
+      transition: background 0.2s ease, box-shadow 0.2s ease;
+      white-space: nowrap;
+    }
+    nav#topbar-nav a:hover {
+      background: rgba(99, 102, 241, 0.16);
+      box-shadow: 0 12px 24px rgba(99, 102, 241, 0.28);
+    }
+    nav#topbar-nav a:focus-visible {
+      outline: 2px solid var(--brand);
+      outline-offset: 2px;
+    }
+    .wrap {
+      width: min(960px, 100%);
+      margin: 12px auto 32px;
+      padding: clamp(20px, 4vw, 36px);
+      display: flex;
+      flex-direction: column;
+      gap: clamp(18px, 4vw, 28px);
+      flex: 1 0 auto;
+    }
+    .site-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: clamp(14px, 4vw, 20px);
+    }
+    .title h1 {
+      margin: 0;
+      font-size: clamp(22px, 5.6vw, 32px);
+      letter-spacing: 0.03em;
+    }
+    .title p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .tools {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      border: 1px solid rgba(99, 102, 241, 0.35);
+      background: var(--surface);
+      color: var(--brand);
+      padding: 10px 16px;
+      border-radius: 16px;
+      font-size: 15px;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(99, 102, 241, 0.18);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      touch-action: manipulation;
+    }
+    .btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 28px rgba(99, 102, 241, 0.24);
+    }
+    main.main {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: clamp(16px, 4vw, 24px);
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: clamp(18px, 4vw, 28px);
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: clamp(16px, 4vw, 24px);
+    }
+    .card h2 {
+      margin: 0;
+      font-size: 18px;
+      color: var(--muted);
+    }
+    .hint {
+      padding: 12px 16px;
+      background: rgba(99, 102, 241, 0.08);
+      border: 1px solid rgba(99, 102, 241, 0.18);
+      border-radius: 14px;
+      color: #312e81;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--gap);
+      align-items: flex-start;
+    }
+    .col {
+      flex: 1 1 220px;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    label {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    input[type="number"] {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 16px;
+      background: #fff;
+      color: var(--ink);
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+      -moz-appearance: textfield;
+    }
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input[type="number"]:focus-visible {
+      outline: 2px solid rgba(99, 102, 241, 0.35);
+      outline-offset: 2px;
+    }
+    .warn {
+      display: none;
+      padding: 12px 16px;
+      border-radius: 14px;
+      background: rgba(254, 226, 226, 0.9);
+      border: 1px solid #fecaca;
+      color: var(--danger);
+      font-size: 14px;
+    }
+    .out {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: var(--gap);
+    }
+    .box {
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .kv {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 15px;
+    }
+    .v {
+      font-weight: 700;
+      font-size: clamp(18px, 5vw, 24px);
+      color: #1d4ed8;
+    }
+    .muted {
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .logo-bottom-left {
+      position: fixed;
+      left: 12px;
+      bottom: 12px;
+      z-index: 10;
+      font-family: "Pacifico", cursive;
+      font-size: 20px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      color: #111827;
+    }
+    .logo-bottom-left .logo-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #6366f1, #22c55e);
+    }
+    @media (max-width: 720px) {
+      nav#topbar-nav {
+        justify-content: flex-start;
+        overflow-x: auto;
+        scrollbar-width: thin;
+      }
+      nav#topbar-nav::-webkit-scrollbar {
+        height: 4px;
+      }
+      nav#topbar-nav::-webkit-scrollbar-thumb {
+        background: rgba(99, 102, 241, 0.45);
+        border-radius: 999px;
+      }
+    }
+    @media (max-width: 480px) {
+      html, body {
+        font-size: 15px;
+      }
+      nav#topbar-nav {
+        gap: 8px;
+        padding: 8px 10px;
+      }
+      nav#topbar-nav a {
+        font-size: 13px;
+        padding: 8px 12px;
+      }
+      .btn {
+        font-size: 14px;
+        padding: 10px 14px;
+      }
+      input[type="number"] {
+        font-size: 15px;
+      }
+      .logo-bottom-left {
+        position: static;
+        margin: 28px auto 16px;
+        justify-content: center;
+      }
+    }
   </style>
 </head>
 <body>
-  <div id="topbar-nav">
-    <a href="index.html" class="btn" style="text-decoration:none;">回到主页</a>
-    <a href="flipgame.html" class="btn" style="text-decoration:none;">九宫格翻牌</a>
-    <a href="CoreCalculator.html" class="btn" style="text-decoration:none;">核心计算器</a>
-    <a href="StarDiamondCalculator.html" class="btn" style="text-decoration:none;">星钻计算器</a>
-  </div>
+  <nav id="topbar-nav" aria-label="页面导航">
+    <a href="index.html">回到主页</a>
+    <a href="flipgame.html">九宫格翻牌</a>
+    <a href="CoreCalculator.html">核心计算器</a>
+    <a href="StarDiamondCalculator.html">星钻计算器</a>
+  </nav>
 
   <div class="wrap">
     <header class="site-header">
-      <div class="title"><h1>凝魂升格计算器（A+ → S）</h1></div>
+      <div class="title">
+        <h1>凝魂升格计算器（A+ → S）</h1>
+        <p>输入当前属性估算升格需求，平均值与所需次数即时更新。</p>
+      </div>
       <div class="tools">
-        <button class="btn" id="clearBtn">清空</button>
+        <button class="btn" id="clearBtn" type="button">清空</button>
       </div>
     </header>
 
-    <div class="hint">A+到S升格所需材料： <b>3 × A-</b>，<b>2 × A</b>，<b>1 × A+</b></div>
+    <div class="hint">升格材料要求：<strong>3 × A-</strong>、<strong>2 × A</strong>、<strong>1 × A+</strong></div>
 
     <main class="main">
-      <div class="card">
+      <section class="card" aria-labelledby="calc-title">
+        <h2 id="calc-title">填写基础属性</h2>
+        <p class="muted" style="margin:-4px 0 4px;">数值支持小数，编辑后自动校验区间并刷新结果。</p>
         <div class="row">
           <div class="col">
             <label for="atk">攻击 x</label>
-            <input id="atk" type="number" inputmode="decimal" value="0" />
+            <input id="atk" type="number" inputmode="decimal" value="0" aria-label="攻击数值" />
           </div>
           <div class="col">
             <label for="hp">血量 y</label>
-            <input id="hp" type="number" inputmode="decimal" value="0" />
+            <input id="hp" type="number" inputmode="decimal" value="0" aria-label="血量数值" />
           </div>
           <div class="col">
             <label for="spd">速度 z</label>
-            <input id="spd" type="number" inputmode="decimal" value="0" />
+            <input id="spd" type="number" inputmode="decimal" value="0" aria-label="速度数值" />
           </div>
         </div>
 
-        <div id="warn" class="warn">输入出错：x + y + 100 × z 必须在 <b>21600 ~ 24297</b> 之间。</div>
+        <div id="warn" class="warn" role="alert">输入错误：x + y + 100 × z 必须在 <strong>21600 ~ 24297</strong> 区间内。</div>
 
-        <div class="out">
+        <div class="out" aria-live="polite">
           <div class="box">
-            <div class="kv"><span>Sum</span><span class="v" id="sumV">0</span></div>
-          </div>
+            <div class="kv"><span>Average</span><span class="v" id="avgValue">0.00</span></div>
+                      </div>
           <div class="box">
             <div class="kv"><span>凝魂次数</span><span class="v" id="times">0</span></div>
-            
+            <span class="muted">仅在区间有效时显示</span>
           </div>
         </div>
-      </div>
+      </section>
     </main>
   </div>
 
@@ -111,55 +348,70 @@
   </div>
 
   <script>
-    (function(){
+    (function () {
       const atk = document.getElementById('atk');
       const hp = document.getElementById('hp');
       const spd = document.getElementById('spd');
-      const sumV = document.getElementById('sumV');
+      const avgValue = document.getElementById('avgValue');
       const times = document.getElementById('times');
       const warn = document.getElementById('warn');
       const clearBtn = document.getElementById('clearBtn');
 
-      
       let touched = false;
-function toNum(v){ const n = parseFloat(v); return isNaN(n)?0:n; }
-      function ceil(n){ return Math.ceil(n); }
+      let debounceTimer = null;
 
-      function calc(){
+      function toNum(value) {
+        const parsed = parseFloat(value);
+        return Number.isFinite(parsed) ? parsed : 0;
+      }
+
+      function update() {
         const x = toNum(atk.value);
         const y = toNum(hp.value);
         const z = toNum(spd.value);
-        const sum = x + y + 100*z;
-        sumV.textContent = sum.toFixed(0);
+        const total = x + y + (100 * z);
+        const average = (x + y + z*100) / 3;
 
-        // validate range
-        const valid = (sum >= 21600 && sum <= 24297);
+        avgValue.textContent = average.toFixed(2);
+
+        const valid = total >= 21600 && total <= 24297;
         warn.style.display = (!touched || valid) ? 'none' : 'block';
 
-        // compute times only if valid
-        if(valid){
-          const need = (24300 - sum) / 135;
-          const t = ceil(need);
-          times.textContent = (t < 0 ? 0 : t);
+        if (valid) {
+          const need = (24300 - total) / 135;
+          const count = Math.ceil(need);
+          times.textContent = count < 0 ? 0 : count;
         } else {
           times.textContent = '—';
         }
       }
 
-      // debounce
-      let t=null; function debounced(){ clearTimeout(t); t=setTimeout(calc, 120); }
-      [atk,hp,spd].forEach(el=>{
-        el.addEventListener('input', function(e){ touched = true; debounced(); });
-        el.addEventListener('change', function(e){ touched = true; calc(); });
+      function debouncedUpdate() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(update, 140);
+      }
+
+      [atk, hp, spd].forEach((input) => {
+        input.addEventListener('input', () => {
+          touched = true;
+          debouncedUpdate();
+        });
+        input.addEventListener('change', () => {
+          touched = true;
+          update();
+        });
       });
 
-      clearBtn.addEventListener('click', function(){
-        atk.value = '0'; hp.value = '0'; spd.value = '0';
-        touched = false; // reset touched so warning stays hidden after clear
-        calc();
+      clearBtn.addEventListener('click', () => {
+        atk.value = '0';
+        hp.value = '0';
+        spd.value = '0';
+        touched = false;
+        atk.focus();
+        update();
       });
 
-      calc();
+      update();
     })();
   </script>
 </body>
