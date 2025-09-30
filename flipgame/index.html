@@ -1,40 +1,435 @@
-<!DOCTYPE html>
-<html lang="zh">
+﻿<!DOCTYPE html>
+<html lang="zh-Hans">
 <head>
   <meta charset="UTF-8">
-  <title>放置工具箱</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>放置工具集 · ShinE</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
   <style>
-    body { background:#f9fafb; margin:0; font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
-           display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; }
-    .container { background:#fff; border:1px solid #e5e7eb; border-radius:16px;
-                 box-shadow:0 6px 16px rgba(0,0,0,.06); padding:40px;
-                 display:flex; flex-direction:column; gap:20px; text-align:center; }
-    h1 { margin:0 0 8px 0; font-size:24px; }
-    .btn { border:1px solid #e5e7eb; background:#fff; padding:12px 24px; border-radius:18px;
-           box-shadow:0 6px 16px rgba(0,0,0,.06); cursor:pointer; font-size:16px;
-           text-decoration:none; color:#111827; transition: background 0.2s; }
-    .btn:hover { background:#f3f4f6; }
-    .logo-bottom-right { position:fixed; right:12px; bottom:12px; z-index:1000;
-           font-family:'Pacifico',cursive; font-size:20px; font-weight:400;
-           display:inline-flex; align-items:center; gap:6px;
-           padding:8px 14px; border-radius:999px; background:#fff; border:1px solid #e5e7eb;
-           box-shadow:0 6px 16px rgba(0,0,0,.06); color:#111827; }
-    .logo-bottom-right .logo-dot { width:8px; height:8px; border-radius:999px;
-           background:linear-gradient(135deg,#6366f1,#22c55e); }
+    :root {
+      --radius: 18px;
+      --border: #e2e8f0;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --brand: #6366f1;
+      --surface: #ffffff;
+      --bg: #f8fafc;
+      --shadow: 0 14px 30px rgba(15, 23, 42, 0.12);
+    }
+    * {
+      box-sizing: border-box;
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Segoe UI", "Microsoft YaHei", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .wrap {
+      width: min(960px, 100%);
+      padding: clamp(28px, 6vw, 56px) clamp(18px, 5vw, 48px) 88px;
+      display: flex;
+      flex-direction: column;
+      gap: clamp(24px, 6vw, 40px);
+      flex: 1 0 auto;
+    }
+    header {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    header h1 {
+      margin: 0;
+      font-size: clamp(28px, 8vw, 44px);
+      letter-spacing: 0.04em;
+    }
+    header p {
+      margin: 0 auto;
+      max-width: 520px;
+      font-size: clamp(14px, 4vw, 16px);
+      color: var(--muted);
+    }
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: clamp(16px, 4vw, 28px);
+    }
+    .card-link {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: clamp(18px, 4vw, 26px);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      text-decoration: none;
+      color: var(--ink);
+      box-shadow: var(--shadow);
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    }
+    .card-link span.title {
+      font-size: clamp(18px, 5vw, 22px);
+      font-weight: 600;
+    }
+    .card-link span.subtitle {
+      color: var(--muted);
+      font-size: clamp(13px, 4vw, 15px);
+    }
+    .card-link:hover,
+    .card-link:focus-visible {
+      transform: translateY(-2px);
+      border-color: rgba(99, 102, 241, 0.35);
+      box-shadow: 0 18px 36px rgba(99, 102, 241, 0.25);
+      outline: none;
+    }
+    .card-link:focus-visible {
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+    }
+    .logo-bottom-right {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      z-index: 10;
+      font-family: 'Pacifico', cursive;
+      font-size: 20px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      color: #111827;
+    }
+    .logo-bottom-right .logo-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #6366f1, #22c55e);
+    }
+    .feedback-toggle {
+      position: fixed;
+      right: 18px;
+      bottom: 96px;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.95), rgba(59, 130, 246, 0.95));
+      color: #fff;
+      border: none;
+      border-radius: 999px;
+      padding: 12px 18px;
+      box-shadow: 0 20px 36px rgba(79, 70, 229, 0.35);
+      cursor: pointer;
+      font-size: 15px;
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .feedback-toggle span.icon {
+      width: 18px;
+      height: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 999px;
+      font-size: 13px;
+    }
+    .feedback-panel {
+      position: fixed;
+      right: 16px;
+      bottom: 170px;
+      width: min(340px, calc(100% - 32px));
+      max-height: 72vh;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: 0 24px 48px rgba(15, 23, 42, 0.28);
+      padding: 22px 22px 18px;
+      display: none;
+      flex-direction: column;
+      gap: 14px;
+      overflow: hidden;
+      z-index: 20;
+    }
+    .feedback-panel header {
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .feedback-panel header h2 {
+      margin: 0;
+      font-size: 18px;
+    }
+    .feedback-panel header p {
+      margin: 0;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .feedback-panel form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .feedback-panel label {
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .feedback-panel input,
+    .feedback-panel textarea,
+    .feedback-panel select {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      font-size: 14px;
+      background: #fff;
+      color: var(--ink);
+      box-shadow: inset 0 1px 0 rgba(148, 163, 184, 0.16);
+    }
+    .feedback-panel textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+    .feedback-panel button[type="submit"] {
+      margin-top: 6px;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.95), rgba(67, 56, 202, 0.95));
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      padding: 11px 16px;
+      font-size: 15px;
+      cursor: pointer;
+      box-shadow: 0 18px 36px rgba(67, 56, 202, 0.32);
+      transition: transform 0.2s ease;
+    }
+    .feedback-panel button[type="submit"]:hover {
+      transform: translateY(-1px);
+    }
+    .feedback-panel .status {
+      font-size: 13px;
+      color: var(--muted);
+      min-height: 18px;
+    }
+    .feedback-panel .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      background: none;
+      border: none;
+      font-size: 18px;
+      line-height: 1;
+      cursor: pointer;
+      color: var(--muted);
+    }
+    footer {
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+      padding-bottom: 24px;
+    }
+    @media (max-width: 560px) {
+      html, body {
+        font-size: 15px;
+      }
+      .wrap {
+        padding-top: 40px;
+        padding-bottom: 72px;
+      }
+      .logo-bottom-right {
+        position: static;
+        margin: 32px auto 12px;
+      }
+      .feedback-toggle {
+        right: 16px;
+        bottom: 16px;
+      }
+      .feedback-panel {
+        right: 16px;
+        left: 16px;
+        bottom: 96px;
+        width: auto;
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>放置工具箱</h1>
-    <a href="flipgame.html" class="btn">九宫格翻牌</a>
-    <a href="CoreCalculator.html" class="btn">核心计算器</a>
-    <a href="StarDiamondCalculator.html" class="btn">星钻计算器</a>
-    <a href="奇幻梦工厂隐藏关.html" class="btn">奇幻梦工厂隐藏关</a>
-    <a href="SoulAscensionCalculator.html" class="btn">凝魂升格计算器</a>
+  <div class="wrap">
+    <header>
+      <h1>放置工具集</h1>
+      <p>自用的放置类工具合集，涵盖九宫格翻牌、核心换算、星钻计算和凝魂升格等功能。</p>
+    </header>
+
+    <nav class="card-grid" aria-label="工具导航">
+      <a class="card-link" href="flipgame.html">
+        <span class="title">九宫格翻牌</span>
+        <span class="subtitle">模拟翻牌流程，记录并计算最佳组合。</span>
+      </a>
+      <a class="card-link" href="CoreCalculator.html">
+        <span class="title">核心计算器</span>
+        <span class="subtitle">输入各资源数量，一键估算总核心需求。</span>
+      </a>
+      <a class="card-link" href="StarDiamondCalculator.html">
+        <span class="title">星钻计算器</span>
+        <span class="subtitle">按比例换算金额与赠送额度。</span>
+      </a>
+      <a class="card-link" href="奇幻梦工厂隐藏关.html">
+        <span class="title">奇幻梦工厂隐藏关</span>
+        <span class="subtitle">隐藏关卡资料与攻略整理。</span>
+      </a>
+      <a class="card-link" href="SoulAscensionCalculator.html">
+        <span class="title">凝魂升格计算器</span>
+        <span class="subtitle">检验属性区间并估算升级次数。</span>
+      </a>
+    </nav>
   </div>
+
+  <button class="feedback-toggle" id="feedbackToggle" type="button">
+    <span class="icon">✉</span> 反馈建议
+  </button>
+
+  <section class="feedback-panel" id="feedbackPanel" aria-hidden="true">
+    <button class="close-btn" type="button" aria-label="关闭反馈面板">×</button>
+    <header>
+      <h2>反馈中心</h2>
+      <p>欢迎留言提供建议或问题反馈。</p>
+    </header>
+    <form id="feedbackForm" autocomplete="on">
+      <label for="fbTopic">反馈类型</label>
+      <select id="fbTopic" name="topic" required>
+        <option value="建议">建议</option>
+        <option value="问题">问题反馈</option>
+        <option value="其他">其他</option>
+      </select>
+
+      <label for="fbDetail">详细描述</label>
+      <textarea id="fbDetail" name="detail" placeholder="请输入具体情况…" required></textarea>
+
+      <label for="fbContact">联系方式或放置ID（必填）</label>
+      <input id="fbContact" name="contact" type="text" placeholder="请输入邮箱或微信或放置ID" required />
+
+      <button type="submit">发送反馈</button>
+      <div class="status" id="fbStatus" role="status"></div>
+    </form>
+  </section>
+
   <div class="logo-bottom-right">
     <span class="logo-dot"></span> By ShinE
   </div>
+
+  <footer>
+  </footer>
+
+  <script>
+    (function () {
+      const toggle = document.getElementById('feedbackToggle');
+      const panel = document.getElementById('feedbackPanel');
+      const closeBtn = panel.querySelector('.close-btn');
+      const form = document.getElementById('feedbackForm');
+      const statusEl = document.getElementById('fbStatus');
+
+      function setPanel(open) {
+        panel.style.display = open ? 'flex' : 'none';
+        panel.setAttribute('aria-hidden', open ? 'false' : 'true');
+        if (open) {
+          panel.querySelector('textarea').focus();
+        }
+      }
+
+      toggle.addEventListener('click', () => {
+        const isHidden = panel.getAttribute('aria-hidden') !== 'false';
+        setPanel(isHidden);
+      });
+
+      closeBtn.addEventListener('click', () => setPanel(false));
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          setPanel(false);
+        }
+      });
+
+      function decodeEndpoint() {
+        const encoded = 'Z3JlZW50aGVzaGluZUBnbWFpbC5jb20=';
+        return atob(encoded);
+      }
+
+      async function submitFeedback(formData) {
+        const email = decodeEndpoint();
+        const endpoint = `https://formsubmit.co/ajax/${encodeURIComponent(email)}`;
+        formData.append('_subject', `工具站反馈 - ${formData.get('topic')}`);
+        formData.append('_template', 'table');
+        return fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Accept': 'application/json' },
+          body: formData
+        });
+      }
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        statusEl.textContent = '正在发送，请稍候…';
+
+        const formData = new FormData(form);
+        formData.append('_honey', '');
+        formData.append('_captcha', 'false');
+
+        try {
+          const response = await submitFeedback(formData);
+          const contentType = (response.headers.get('content-type') || '').toLowerCase();
+          let data = null;
+          let rawText = '';
+
+          if (contentType.includes('application/json')) {
+            data = await response.json();
+          } else {
+            rawText = await response.text();
+            try {
+              data = rawText ? JSON.parse(rawText) : null;
+            } catch (parseErr) {
+              // 非 JSON响应忽略解析错误
+            }
+          }
+
+          const success = data && String(data.success).toLowerCase() === 'true';
+          if (response.ok && success) {
+            statusEl.textContent = '感谢反馈！我们会尽快查看。';
+            form.reset();
+            setTimeout(() => {
+              statusEl.textContent = '';
+              setPanel(false);
+            }, 2000);
+            return;
+          }
+
+          const detail = (data && (data.message || data.error)) || rawText || `HTTP ${response.status}`;
+          throw new Error(detail);
+        } catch (error) {
+          const fullMessage = String(error && error.message ? error.message : error || '').trim();
+          const message = fullMessage.toLowerCase();
+          if (message.includes('verify') || message.includes('confirmation')) {
+            statusEl.textContent = '首次使用需到邮箱点击 FormSubmit 的确认邮件，确认后即可正常接收。若未看到，请检查垃圾箱。';
+          } else if (message.includes('captcha')) {
+            statusEl.textContent = '提交过于频繁，请稍后再试或直接联系我们。';
+          } else if (fullMessage) {
+            statusEl.textContent = '发送失败：' + fullMessage;
+          } else {
+            statusEl.textContent = '发送失败，请稍后再试或直接联系我们。';
+          }
+        }
+      });
+    })();
+  </script>
 </body>
 </html>

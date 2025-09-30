@@ -8,9 +8,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
   <style>
     :root {
-      --gap: 12px;
-      --radius: 16px;
-      --shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+      --gap: 10px;
+      --radius: 14px;
+      --shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
       --border: #e2e8f0;
       --ink: #0f172a;
       --muted: #64748b;
@@ -46,11 +46,11 @@
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 10px;
-      padding: 8px 14px;
+      gap: 8px;
+      padding: 7px 12px;
       background: rgba(255, 255, 255, 0.94);
       border: 1px solid var(--border);
-      border-radius: 16px;
+      border-radius: 14px;
       box-shadow: var(--shadow);
       backdrop-filter: saturate(140%) blur(6px);
     }
@@ -58,16 +58,16 @@
       border: 1px solid transparent;
       background: rgba(99, 102, 241, 0.08);
       color: var(--brand);
-      padding: 9px 16px;
+      padding: 7px 14px;
       border-radius: 999px;
-      font-size: 14px;
+      font-size: 13px;
       text-decoration: none;
       transition: background 0.2s ease, box-shadow 0.2s ease;
       white-space: nowrap;
     }
     nav#topbar-nav a:hover {
       background: rgba(99, 102, 241, 0.16);
-      box-shadow: 0 12px 24px rgba(99, 102, 241, 0.28);
+      box-shadow: 0 10px 20px rgba(99, 102, 241, 0.24);
     }
     nav#topbar-nav a:focus-visible {
       outline: 2px solid var(--brand);
@@ -75,11 +75,11 @@
     }
     .wrap {
       width: min(980px, 100%);
-      margin: 12px auto 32px;
-      padding: clamp(20px, 4vw, 40px);
+      margin: 12px auto 28px;
+      padding: clamp(18px, 4vw, 32px);
       display: flex;
       flex-direction: column;
-      gap: clamp(18px, 4vw, 32px);
+      gap: clamp(16px, 4vw, 26px);
       flex: 1 0 auto;
     }
     .site-header {
@@ -87,76 +87,71 @@
       justify-content: space-between;
       align-items: flex-start;
       flex-wrap: wrap;
-      gap: clamp(12px, 3vw, 20px);
+      gap: clamp(10px, 3vw, 18px);
     }
     .title h1 {
       margin: 0;
-      font-size: clamp(22px, 5.6vw, 34px);
+      font-size: clamp(22px, 5.2vw, 32px);
       letter-spacing: 0.03em;
     }
     .title p {
-      margin: 6px 0 0;
+      margin: 4px 0 0;
       color: var(--muted);
-      font-size: 15px;
+      font-size: 14px;
     }
     .tools {
       display: flex;
-      gap: 12px;
+      gap: 10px;
       flex-wrap: wrap;
     }
     .btn {
       border: 1px solid rgba(99, 102, 241, 0.35);
       background: var(--surface);
       color: var(--brand);
-      padding: 11px 18px;
-      border-radius: 16px;
-      font-size: 15px;
+      padding: 9px 16px;
+      border-radius: 14px;
+      font-size: 14px;
       cursor: pointer;
-      box-shadow: 0 8px 20px rgba(99, 102, 241, 0.18);
+      box-shadow: 0 6px 18px rgba(99, 102, 241, 0.18);
       transition: transform 0.2s ease, box-shadow 0.2s ease;
       touch-action: manipulation;
     }
     .btn:hover:not(:disabled) {
       transform: translateY(-1px);
-      box-shadow: 0 14px 30px rgba(99, 102, 241, 0.24);
+      box-shadow: 0 12px 26px rgba(99, 102, 241, 0.22);
     }
     .btn.primary {
       background: linear-gradient(135deg, rgba(99, 102, 241, 0.9), rgba(67, 56, 202, 0.85));
       color: #fff;
       border-color: transparent;
-      box-shadow: 0 14px 28px rgba(79, 70, 229, 0.35);
-    }
-    .btn:disabled {
-      opacity: 0.6;
-      cursor: default;
-      box-shadow: none;
+      box-shadow: 0 12px 26px rgba(79, 70, 229, 0.3);
     }
     main.main {
       display: grid;
       grid-template-columns: 1fr;
-      gap: clamp(16px, 4vw, 28px);
+      gap: clamp(14px, 3vw, 22px);
     }
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: clamp(18px, 4vw, 28px);
+      padding: clamp(16px, 3vw, 24px);
       box-shadow: var(--shadow);
       display: flex;
       flex-direction: column;
-      gap: clamp(16px, 4vw, 24px);
+      gap: clamp(12px, 3vw, 20px);
     }
     .card h2 {
-      font-size: 18px;
+      font-size: 17px;
       margin: 0;
       color: var(--muted);
     }
     .table-wrapper {
       border: 1px solid var(--border);
-      border-radius: 14px;
+      border-radius: 12px;
       overflow: hidden;
       background: #fff;
-      box-shadow: inset 0 1px 0 rgba(148, 163, 184, 0.25);
+      box-shadow: inset 0 1px 0 rgba(148, 163, 184, 0.22);
     }
     .table-scroll {
       overflow-x: auto;
@@ -173,13 +168,13 @@
       width: 100%;
       border-collapse: collapse;
       min-width: 360px;
-      font-size: 15px;
+      font-size: 14px;
     }
     thead {
       background: rgba(99, 102, 241, 0.08);
     }
     th, td {
-      padding: 12px 14px;
+      padding: 10px 12px;
       text-align: left;
       border-bottom: 1px solid #e2e8f0;
     }
@@ -192,17 +187,17 @@
       border-bottom: none;
     }
     tbody tr:nth-child(even) {
-      background: rgba(148, 163, 184, 0.08);
+      background: rgba(148, 163, 184, 0.06);
     }
     input[type="number"] {
       width: 100%;
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 10px 12px;
-      font-size: 15px;
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 14px;
       background: #fff;
       color: var(--ink);
-      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+      box-shadow: 0 3px 10px rgba(15, 23, 42, 0.08);
       -moz-appearance: textfield;
     }
     input[type="number"]::-webkit-outer-spin-button,
@@ -211,22 +206,22 @@
       margin: 0;
     }
     input[type="number"]:focus-visible {
-      outline: 2px solid rgba(99, 102, 241, 0.4);
+      outline: 2px solid rgba(99, 102, 241, 0.32);
       outline-offset: 2px;
     }
     .result-card {
       display: flex;
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 10px;
       align-items: center;
       justify-content: space-between;
-      padding: 16px;
+      padding: 14px;
       background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(34, 197, 94, 0.08));
-      border: 1px dashed rgba(99, 102, 241, 0.25);
-      border-radius: 16px;
+      border: 1px dashed rgba(99, 102, 241, 0.22);
+      border-radius: 14px;
     }
     .result-card span {
-      font-size: clamp(18px, 5vw, 26px);
+      font-size: clamp(18px, 4.5vw, 24px);
       font-weight: 700;
       color: rgba(37, 99, 235, 0.95);
     }
@@ -280,19 +275,20 @@
         font-size: 15px;
       }
       nav#topbar-nav {
-        gap: 8px;
-        padding: 8px 10px;
+        gap: 6px;
+        padding: 6px 10px;
       }
       nav#topbar-nav a {
-        font-size: 13px;
-        padding: 8px 12px;
+        font-size: 12px;
+        padding: 6px 12px;
       }
       .btn {
-        font-size: 14px;
-        padding: 10px 14px;
+        font-size: 13px;
+        padding: 8px 14px;
       }
       input[type="number"] {
-        font-size: 15px;
+        font-size: 13.5px;
+        padding: 7px 9px;
       }
       .logo-bottom-left {
         position: static;
@@ -324,7 +320,9 @@
     <main class="main">
       <section class="card" aria-labelledby="calculator-title">
         <h2 id="calculator-title">填写参数</h2>
-        <p class="muted" style="margin: -4px 0 8px; color: var(--muted); font-size: 14px;">所有输入支持小数，修改后自动更新结果。</p>
+        <p class="muted" style="margin: -2px 0 6px; font-size: 13px;">
+          数值可填小数，修改后自动刷新结果。
+        </p>
 
         <div class="table-wrapper" role="region" aria-labelledby="calculator-title" tabindex="0">
           <div class="table-scroll">
@@ -360,12 +358,12 @@
         { label: "E9", multiplier: 1 },
         { label: "400", multiplier: 2.3 },
         { label: "420", multiplier: 3.03 },
-        { label: "飞升1-100", multiplier: 3.2 },
-        { label: "飞升2-100", multiplier: 3.43 },
-        { label: "飞升3-100", multiplier: 3.73 },
-        { label: "飞升4-100", multiplier: 4.1 },
-        { label: "飞升5-100", multiplier: 4.53 },
-        { label: "飞升6-100", multiplier: 5.06 },
+        { label: "飞1-100", multiplier: 3.2 },
+        { label: "飞2-100", multiplier: 3.43 },
+        { label: "飞3-100", multiplier: 3.73 },
+        { label: "飞4-100", multiplier: 4.1 },
+        { label: "飞5-100", multiplier: 4.53 },
+        { label: "飞6-100", multiplier: 5.06 },
         { label: "额外蓝碎（K）", multiplier: 0.0002 }
       ].map((item, index) => ({
         ...item,
