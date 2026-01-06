@@ -72,6 +72,26 @@
       outline: 2px solid var(--brand);
       outline-offset: 2px;
     }
+    .langbar {
+      position: fixed;
+      right: 12px;
+      top: 12px;
+      z-index: 120;
+      display: inline-flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid var(--border);
+      padding: 6px 8px;
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+      backdrop-filter: saturate(140%) blur(6px);
+    }
+    .langbar .btn {
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      box-shadow: none;
+    }
     .wrap {
       width: min(960px, 100%);
       margin: 12px auto 24px;
@@ -279,15 +299,19 @@
 </head>
 <body>
   <nav id="topbar-nav" aria-label="页面导航">
-    <a href="index.html">回到主页</a>
-    <a href="flipgame.html">九宫格翻牌</a>
-    <a href="CoreCalculator.html">核心计算器</a>
+    <a href="index.html" id="navHome">回到主页</a>
+    <a href="flipgame.html" id="navFlip">九宫格翻牌</a>
+    <a href="CoreCalculator.html" id="navCore">核心计算器</a>
   </nav>
+
+  <div class="langbar">
+    <button class="btn" id="langToggle" type="button">EN</button>
+  </div>
 
   <div class="wrap">
     <header class="site-header">
       <div class="title">
-        <h1>星钻计算器</h1>
+        <h1 id="pageTitle">星钻计算器</h1>
       </div>
       <div class="tools">
         <button class="btn" id="clearBtn" type="button">清空</button>
@@ -299,23 +323,23 @@
         <h2 id="calculator-title" class="muted" style="margin:0 0 12px; font-size:15px;">输入星钻与比例获取结果</h2>
         <div class="row">
           <div class="col">
-            <label for="star">星钻数量</label>
+            <label for="star" id="starLabel">星钻数量</label>
             <input id="star" type="number" inputmode="decimal" placeholder="例如 2050" value="0" />
           </div>
           <div class="col">
-            <label for="ratioX">比例 1 : X</label>
+            <label for="ratioX" id="ratioLabel">比例 1 : X</label>
             <input id="ratioX" type="number" inputmode="decimal" placeholder="例如 1.5" value="1" />
           </div>
         </div>
 
         <div class="out" aria-live="polite">
           <div class="box">
-            <div class="kv"><span>金额</span><span class="v" id="amount">0.00</span></div>
-            <span class="muted">按输入比例折算的金额</span>
+            <div class="kv"><span id="amountLabel">金额</span><span class="v" id="amount">0.00</span></div>
+            <span class="muted" id="amountDesc">按输入比例折算的金额</span>
           </div>
           <div class="box">
-            <div class="kv"><span>赠送额</span><span class="v" id="gift">0.00</span></div>
-            <span class="muted">以 1.05 比例估算的赠送额度</span>
+            <div class="kv"><span id="giftLabel">赠送额</span><span class="v" id="gift">0.00</span></div>
+            <span class="muted" id="giftDesc">以 1.05 比例估算的赠送额度</span>
           </div>
         </div>
       </section>
@@ -328,11 +352,104 @@
 
   <script>
     (function () {
+      const langToggle = document.getElementById('langToggle');
+      const navHome = document.getElementById('navHome');
+      const navFlip = document.getElementById('navFlip');
+      const navCore = document.getElementById('navCore');
+      const pageTitle = document.getElementById('pageTitle');
+      const calculatorTitle = document.getElementById('calculator-title');
+      const starLabel = document.getElementById('starLabel');
+      const ratioLabel = document.getElementById('ratioLabel');
+      const amountLabel = document.getElementById('amountLabel');
+      const amountDesc = document.getElementById('amountDesc');
+      const giftLabel = document.getElementById('giftLabel');
+      const giftDesc = document.getElementById('giftDesc');
       const starEl = document.getElementById('star');
       const xEl = document.getElementById('ratioX');
       const amountEl = document.getElementById('amount');
       const giftEl = document.getElementById('gift');
       const clearBtn = document.getElementById('clearBtn');
+      const topbarNav = document.getElementById('topbar-nav');
+
+      const I18N = {
+        zh: {
+          title: '星钻计算器 · ShinE',
+          nav_label: '页面导航',
+          nav_home: '回到主页',
+          nav_flip: '九宫格翻牌',
+          nav_core: '核心计算器',
+          page_title: '星钻计算器',
+          calc_title: '输入星钻与比例获取结果',
+          star_label: '星钻数量',
+          ratio_label: '比例 1 : X',
+          star_placeholder: '例如 2050',
+          ratio_placeholder: '例如 1.5',
+          amount_label: '金额',
+          amount_desc: '按输入比例折算的金额',
+          gift_label: '赠送额',
+          gift_desc: '以 1.05 比例估算的赠送额度',
+          clear: '清空',
+          lang_toggle_en: 'EN',
+          lang_toggle_zh: '中文'
+        },
+        en: {
+          title: 'Star Diamond Calculator · ShinE',
+          nav_label: 'Page Navigation',
+          nav_home: 'Home',
+          nav_flip: '3x3 Flip Cards',
+          nav_core: 'Core Calculator',
+          page_title: 'Star Diamond Calculator',
+          calc_title: 'Enter diamonds and ratio to get results',
+          star_label: 'Star Diamonds',
+          ratio_label: 'Ratio 1 : X',
+          star_placeholder: 'e.g. 2050',
+          ratio_placeholder: 'e.g. 1.5',
+          amount_label: 'Amount',
+          amount_desc: 'Converted amount based on the ratio',
+          gift_label: 'Bonus',
+          gift_desc: 'Estimated bonus at ratio 1.05',
+          clear: 'Clear',
+          lang_toggle_en: 'EN',
+          lang_toggle_zh: '中文'
+        }
+      };
+
+      let currentLang = (localStorage.getItem('flipgame_lang') || '').toLowerCase();
+      if (currentLang !== 'zh' && currentLang !== 'en') {
+        const navLang = (navigator.language || '').toLowerCase();
+        currentLang = navLang.startsWith('zh') ? 'zh' : 'en';
+      }
+
+      function t(key) {
+        return (I18N[currentLang] && I18N[currentLang][key]) || I18N.zh[key] || '';
+      }
+
+      function setStaticText() {
+        document.title = t('title');
+        document.documentElement.lang = currentLang === 'zh' ? 'zh-Hans' : 'en';
+        if (topbarNav) topbarNav.setAttribute('aria-label', t('nav_label'));
+        if (navHome) navHome.textContent = t('nav_home');
+        if (navFlip) navFlip.textContent = t('nav_flip');
+        if (navCore) navCore.textContent = t('nav_core');
+        if (pageTitle) pageTitle.textContent = t('page_title');
+        if (calculatorTitle) calculatorTitle.textContent = t('calc_title');
+        if (starLabel) starLabel.textContent = t('star_label');
+        if (ratioLabel) ratioLabel.textContent = t('ratio_label');
+        if (starEl) starEl.setAttribute('placeholder', t('star_placeholder'));
+        if (xEl) xEl.setAttribute('placeholder', t('ratio_placeholder'));
+        if (amountLabel) amountLabel.textContent = t('amount_label');
+        if (amountDesc) amountDesc.textContent = t('amount_desc');
+        if (giftLabel) giftLabel.textContent = t('gift_label');
+        if (giftDesc) giftDesc.textContent = t('gift_desc');
+        if (clearBtn) clearBtn.textContent = t('clear');
+        if (langToggle) langToggle.textContent = currentLang === 'zh' ? t('lang_toggle_en') : t('lang_toggle_zh');
+      }
+
+      function setLang(lang) {
+        currentLang = lang;
+        localStorage.setItem('flipgame_lang', lang);
+        setStaticText();
+      }
 
       function toNum(value) {
         const parsed = parseFloat(value);
@@ -370,6 +487,13 @@
         starEl.focus();
       });
 
+      if (langToggle) {
+        langToggle.addEventListener('click', () => {
+          setLang(currentLang === 'zh' ? 'en' : 'zh');
+        });
+      }
+
+      setStaticText();
       calc();
     })();
   </script>

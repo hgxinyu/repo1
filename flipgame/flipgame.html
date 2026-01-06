@@ -87,6 +87,18 @@
 .topbar .btn{padding:8px 12px; border-radius:12px; font-size:13px}
 @media (max-width:480px){ .topbar{left:8px; top:8px} }
 
+/* language toggle */
+.langbar{
+  position:fixed; right:12px; top:12px; z-index:1000;
+  display:flex; align-items:center;
+  background:rgba(255,255,255,.9);
+  border:1px solid #e5e7eb;
+  padding:6px 8px; border-radius:12px; box-shadow:0 6px 16px rgba(0,0,0,.08);
+  backdrop-filter:saturate(140%) blur(4px);
+}
+.langbar .btn{padding:8px 12px; border-radius:12px; font-size:13px}
+@media (max-width:480px){ .langbar{right:8px; top:8px} }
+
 
 /* bottom-left logo with text */
 .logo-bottom-left{
@@ -123,16 +135,21 @@
 <body>
 
 <div class="topbar">
-  <a href="index.html" class="btn" style="text-decoration:none;">回到主页</a>
-  <a href="CoreCalculator.html" class="btn" style="text-decoration:none;">核心计算器</a>
+  <a href="index.html" class="btn" style="text-decoration:none;" id="homeLink">回到主页</a>
+  <a href="CoreCalculator.html" class="btn" style="text-decoration:none;" id="coreLink">核心计算器</a>
+</div>
+
+</span>
+<div class="langbar">
+  <button class="btn" id="langToggle" type="button">EN</button>
 </div>
 
 </span>
 <div class="update-note">
   <span class="spark" aria-hidden="true"></span>
-  <span class="pill">Update</span>
+  <span class="pill" id="updatePill">Update</span>
   <span class="date">2026/1/6</span>
-  <span>更新内容：新添加20%几率出现小精灵</span>
+  <span id="updateText">更新内容：新添加20%几率出现小精灵</span>
 </div>
 
 </span>
@@ -151,7 +168,7 @@
 
   <div class="main">
     <div class="card">
-      <h2>输入当前棋面（1–9，不重复；未知留空）</h2>
+      <h2 id="boardTitle">输入当前棋面（1–9，不重复；未知留空）</h2>
       <div class="board-wrap">
         <div class="grid3" id="grid"></div>
         <div id="boardBanner" class="banner" style="display:none"></div>
@@ -165,19 +182,19 @@
     </div>
 
     <div class="card">
-      <h2>结果</h2>
+      <h2 id="resultTitle">结果</h2>
       <div class="kv">
-        <div>状态：</div><div id="status">—</div>
-        <div>建议：</div><div id="advice">—</div>
+        <div id="statusLabel">状态：</div><div id="status">—</div>
+        <div id="adviceLabel">建议：</div><div id="advice">—</div>
       </div>
 
       <div style="margin-top:12px">
-        <div class="badge">S → 积分对照</div>
+        <div class="badge" id="scoreBadge">S → 积分对照</div>
         <div id="pairs" class="list" style="margin-top:8px"></div>
       </div>
 
       <div id="lines" style="margin-top:12px;display:none">
-        <div class="badge">各线路期望（仅用于“最佳线路”计算）</div>
+        <div class="badge" id="lineBadge">各线路期望（仅用于“最佳线路”计算）</div>
         <div id="lineList" class="list" style="margin-top:8px"></div>
       </div>
     </div>
@@ -188,20 +205,101 @@
 (function(){
   const SUM_TO_SCORE = {6:1680,7:84,8:630,9:280,10:42,11:34,12:180,13:120,14:53,15:105,16:53,17:144,18:48,19:202,20:105,21:51,22:420,23:840,24:1008};
   const LINES = [
-    { name: "第1行", cells: [[0,0],[0,1],[0,2]] },
-    { name: "第2行", cells: [[1,0],[1,1],[1,2]] },
-    { name: "第3行", cells: [[2,0],[2,1],[2,2]] },
-    { name: "第1列", cells: [[0,0],[1,0],[2,0]] },
-    { name: "第2列", cells: [[0,1],[1,1],[2,1]] },
-    { name: "第3列", cells: [[0,2],[1,2],[2,2]] },
-    { name: "主对角线", cells: [[0,0],[1,1],[2,2]] },
-    { name: "副对角线", cells: [[0,2],[1,1],[2,0]] },
+    { key: "line_row1", cells: [[0,0],[0,1],[0,2]] },
+    { key: "line_row2", cells: [[1,0],[1,1],[1,2]] },
+    { key: "line_row3", cells: [[2,0],[2,1],[2,2]] },
+    { key: "line_col1", cells: [[0,0],[1,0],[2,0]] },
+    { key: "line_col2", cells: [[0,1],[1,1],[2,1]] },
+    { key: "line_col3", cells: [[0,2],[1,2],[2,2]] },
+    { key: "line_diag_main", cells: [[0,0],[1,1],[2,2]] },
+    { key: "line_diag_anti", cells: [[0,2],[1,1],[2,0]] },
   ];
   const TARGET_OPEN = 4; // 开局1 + 可再翻3
   const BONUS_GROUPS = [
     [1,2,3],
     [7,8,9],
   ];
+
+  const I18N = {
+    zh: {
+      title: "九宫格翻牌 · 手动输入版（自动剩余次数 & 自动最佳线路）",
+      home: "回到主页",
+      core_calc: "核心计算器",
+      update_pill: "更新",
+      update_text: "更新内容：新添加20%几率出现小精灵",
+      board_title: "输入当前棋面（1–9，不重复；未知留空）",
+      result_title: "结果",
+      status_label: "状态：",
+      advice_label: "建议：",
+      score_badge: "S → 积分对照",
+      line_badge: "各线路期望（仅用于“最佳线路”计算）",
+      btn_best_next: "计算最佳下一步",
+      btn_best_line: "计算最佳线路",
+      btn_clear: "清空",
+      counter: "已打开：{opened}/{total} · 剩余：{left}",
+      duplicate: "⚠️ 输入重复：已有数字{v}",
+      too_many: "⚠️ 已超过4张：请保持总共只填 4 格",
+      status_opened: "已开 {opened} 张 · 请继续翻牌",
+      status_progress: "样本数 {samples} · 已开 {opened} 张 · 剩余 {left}",
+      status_end: "样本数 {samples} · 已开 {opened} 张 · 翻牌结束",
+      advice_best_line: "最佳线路：<b>{line}</b>（期望积分≈ <b>{ev}</b>）",
+      advice_best_next: "下一步建议翻：<b>({r}, {c})</b>；预计最高期望积分≈ <b>{ev}</b>",
+      advice_all_known: "所有格子都已确定，直接选择最佳线路即可。",
+      banner_best_line: "最佳线路：{line} · 期望积分≈{ev}",
+      ev_tag: "EV≈{ev}",
+      cleared: "已清空",
+      line_row1: "第 1 行",
+      line_row2: "第 2 行",
+      line_row3: "第 3 行",
+      line_col1: "第 1 列",
+      line_col2: "第 2 列",
+      line_col3: "第 3 列",
+      line_diag_main: "主对角线",
+      line_diag_anti: "副对角线",
+      lang_toggle_en: "EN",
+      lang_toggle_zh: "中文",
+      dash: "—"
+    },
+    en: {
+      title: "3x3 Flip Cards · Manual Input (Auto Remaining & Best Line)",
+      home: "Home",
+      core_calc: "Core Calculator",
+      update_pill: "Update",
+      update_text: "Update: 20% chance for the sprite to appear",
+      board_title: "Enter the current board (1–9, no repeats; leave unknowns empty)",
+      result_title: "Results",
+      status_label: "Status:",
+      advice_label: "Advice:",
+      score_badge: "S → Score Table",
+      line_badge: "Line expectations (for “Best Line” only)",
+      btn_best_next: "Best Next Flip",
+      btn_best_line: "Best Line",
+      btn_clear: "Clear",
+      counter: "Opened: {opened}/{total} · Left: {left}",
+      duplicate: "⚠️ Duplicate input: number {v} already used",
+      too_many: "⚠️ More than 4 cards opened: keep total at 4",
+      status_opened: "Opened {opened} · Keep flipping",
+      status_progress: "Samples {samples} · Opened {opened} · Left {left}",
+      status_end: "Samples {samples} · Opened {opened} · Flips complete",
+      advice_best_line: "Best line: <b>{line}</b> (expected ≈ <b>{ev}</b>)",
+      advice_best_next: "Recommended flip: <b>({r}, {c})</b>; expected max ≈ <b>{ev}</b>",
+      advice_all_known: "All cells are known. Pick the best line directly.",
+      banner_best_line: "Best line: {line} · Expected ≈{ev}",
+      ev_tag: "EV≈{ev}",
+      cleared: "Cleared",
+      line_row1: "Row 1",
+      line_row2: "Row 2",
+      line_row3: "Row 3",
+      line_col1: "Col 1",
+      line_col2: "Col 2",
+      line_col3: "Col 3",
+      line_diag_main: "Main diagonal",
+      line_diag_anti: "Anti-diagonal",
+      lang_toggle_en: "EN",
+      lang_toggle_zh: "中文",
+      dash: "—"
+    }
+  };
 
   const grid = document.getElementById('grid');
   const pairs = document.getElementById('pairs');
@@ -212,9 +310,68 @@
   const clearBtn = document.getElementById('clearBtn');
   const advBtn = document.getElementById('advBtn');
   const lineBtn = document.getElementById('lineBtn');
+  const clearBtnInline = document.getElementById('clearBtnInline');
   const msg = document.getElementById('msg');
   const banner = document.getElementById('boardBanner');
   const counterEl = document.getElementById('autoCounter');
+  const homeLink = document.getElementById('homeLink');
+  const coreLink = document.getElementById('coreLink');
+  const updatePill = document.getElementById('updatePill');
+  const updateText = document.getElementById('updateText');
+  const boardTitle = document.getElementById('boardTitle');
+  const resultTitle = document.getElementById('resultTitle');
+  const statusLabel = document.getElementById('statusLabel');
+  const adviceLabel = document.getElementById('adviceLabel');
+  const scoreBadge = document.getElementById('scoreBadge');
+  const lineBadge = document.getElementById('lineBadge');
+  const langToggle = document.getElementById('langToggle');
+
+  let currentLang = (localStorage.getItem('flipgame_lang') || '').toLowerCase();
+  if(currentLang !== 'zh' && currentLang !== 'en'){
+    const navLang = (navigator.language || '').toLowerCase();
+    currentLang = navLang.startsWith('zh') ? 'zh' : 'en';
+  }
+
+  function t(key, vars){
+    const dict = I18N[currentLang] || I18N.zh;
+    let str = dict[key] || I18N.zh[key] || '';
+    if(vars){
+      str = str.replace(/\{(\w+)\}/g, (_, k)=> (vars[k] !== undefined ? vars[k] : ''));
+    }
+    return str;
+  }
+
+  function lineName(idx){
+    return t(LINES[idx].key);
+  }
+
+  function setStaticText(){
+    document.title = t('title');
+    document.documentElement.lang = currentLang === 'zh' ? 'zh-CN' : 'en';
+    if(homeLink) homeLink.textContent = t('home');
+    if(coreLink) coreLink.textContent = t('core_calc');
+    if(updatePill) updatePill.textContent = t('update_pill');
+    if(updateText) updateText.textContent = t('update_text');
+    if(boardTitle) boardTitle.textContent = t('board_title');
+    if(resultTitle) resultTitle.textContent = t('result_title');
+    if(statusLabel) statusLabel.textContent = t('status_label');
+    if(adviceLabel) adviceLabel.textContent = t('advice_label');
+    if(scoreBadge) scoreBadge.textContent = t('score_badge');
+    if(lineBadge) lineBadge.textContent = t('line_badge');
+    if(advBtn) advBtn.textContent = t('btn_best_next');
+    if(lineBtn) lineBtn.textContent = t('btn_best_line');
+    if(clearBtn) clearBtn.textContent = t('btn_clear');
+    if(clearBtnInline) clearBtnInline.textContent = t('btn_clear');
+    if(langToggle) langToggle.textContent = currentLang === 'zh' ? t('lang_toggle_en') : t('lang_toggle_zh');
+  }
+
+  function setLang(lang){
+    currentLang = lang;
+    localStorage.setItem('flipgame_lang', lang);
+    setStaticText();
+    updateCounter();
+    pipeline();
+  }
 
   // Build inputs
   const inputs = [];
@@ -242,7 +399,10 @@
 
   clearBtn.addEventListener('click', ()=>{
     inputs.forEach(i=>i.value='');
-    statusEl.textContent='—'; adviceEl.textContent='—'; linesWrap.style.display='none'; msg.textContent='已清空';
+    statusEl.textContent = t('dash');
+    adviceEl.textContent = t('dash');
+    linesWrap.style.display='none';
+    msg.textContent = t('cleared');
     clearHighlights(); updateCounter();
   });
 
@@ -272,7 +432,15 @@
 
   function validateUnique(board){
     const used = new Set();
-    for(let r=0;r<3;r++){ for(let c=0;c<3;c++){ const v=board[r][c]; if(v!=null){ if(used.has(v)){ return {ok:false, msg:`⚠️ 输入重复：已有数字 ${v}`}; } used.add(v);} }}
+    for(let r=0;r<3;r++){
+      for(let c=0;c<3;c++){
+        const v=board[r][c];
+        if(v!=null){
+          if(used.has(v)){ return {ok:false, msg:t('duplicate', {v})}; }
+          used.add(v);
+        }
+      }
+    }
     return {ok:true};
   }
 
@@ -280,7 +448,7 @@
     const st = getState();
     const opened = st.opened;
     const left = Math.max(0, TARGET_OPEN - opened);
-    counterEl.textContent = `已打开：${Math.min(opened,TARGET_OPEN)}/${TARGET_OPEN} · 剩余：${left}`;
+    counterEl.textContent = t('counter', {opened: Math.min(opened, TARGET_OPEN), total: TARGET_OPEN, left});
     return {opened, left};
   }
 
@@ -385,7 +553,7 @@
     try { el.focus({preventScroll:true}); el.select(); } catch(e) { try { el.focus(); el.select(); } catch(e2) {} }
     const tag = document.createElement('div');
     tag.className='tag';
-    tag.textContent = `EV≈${ev.toFixed(1)}`;
+    tag.textContent = t('ev_tag', {ev: ev.toFixed(1)});
     el.parentElement ? el.parentElement.appendChild(tag) : el.appendChild(tag);
   }
 
@@ -394,7 +562,7 @@
     for(const [r,c] of LINES[bestIdx].cells){
       inputs[r*3+c].classList.add('bestline');
     }
-    banner.textContent = `最佳线路：${LINES[bestIdx].name} · 期望积分≈ ${ev.toFixed(1)}`;
+    banner.textContent = t('banner_best_line', {line: lineName(bestIdx), ev: ev.toFixed(1)});
     banner.style.display='block';
   }
 
@@ -405,15 +573,19 @@
 
     if(!uniq.ok){
       msg.textContent = uniq.msg;
-      adviceEl.textContent='—'; statusEl.textContent='—'; linesWrap.style.display='none';
+      adviceEl.textContent = t('dash');
+      statusEl.textContent = t('dash');
+      linesWrap.style.display='none';
       clearHighlights();
       return;
     }
     msg.textContent='';
 
     if(opened > TARGET_OPEN){
-      msg.innerHTML = '<span class="warn">⚠️ 已超过 4 张：请保持总共只填 4 格</span>';
-      adviceEl.textContent='—'; statusEl.textContent='—'; linesWrap.style.display='none';
+      msg.innerHTML = `<span class="warn">${t('too_many')}</span>`;
+      adviceEl.textContent = t('dash');
+      statusEl.textContent = t('dash');
+      linesWrap.style.display='none';
       clearHighlights();
       return;
     }
@@ -422,14 +594,14 @@
       // 自动计算最佳线路（无额外翻牌）
       const samples = sampleBoards(st, 4000);
       const {best, bestIdx, perLine} = expectedBestScore_noFlip(samples, st.revealed);
-      adviceEl.innerHTML = `最佳线路：<b>${LINES[bestIdx].name}</b>（期望积分≈ <b>${best.toFixed(1)}</b>）`;
-      statusEl.textContent = `样本数 4000 · 已开 4 张 · 翻牌结束`;
+      adviceEl.innerHTML = t('advice_best_line', {line: lineName(bestIdx), ev: best.toFixed(1)});
+      statusEl.textContent = t('status_end', {samples: 4000, opened});
       linesWrap.style.display='block';
       lineList.innerHTML = '';
       for(let i=0;i<8;i++){
         const div=document.createElement('div');
         div.className='pair';
-        div.innerHTML=`<span>${LINES[i].name}</span><span style="font-weight:600">${perLine[i].toFixed(1)}</span>`;
+        div.innerHTML=`<span>${lineName(i)}</span><span style="font-weight:600">${perLine[i].toFixed(1)}</span>`;
         if(i===bestIdx){ div.style.borderColor='#6366f1'; div.style.background='#eef2ff'; }
         lineList.appendChild(div);
       }
@@ -440,8 +612,8 @@
     // 未满 4 张：给最佳下一步建议
     if(opened < TARGET_OPEN){
       if (opened === 0) {
-        adviceEl.textContent = '—';
-        statusEl.textContent = `已开 ${opened} 张 · 请继续翻牌`;
+        adviceEl.textContent = t('dash');
+        statusEl.textContent = t('status_opened', {opened});
         linesWrap.style.display='none';
         try { clearHighlights(); } catch(e) {}
         return;
@@ -449,13 +621,14 @@
 
       const {ev, cell} = bestNextFlip(st, TARGET_OPEN - opened);
       if(!cell){
-        adviceEl.textContent='所有格子都已确定，直接选择最佳线路即可。';
-        statusEl.textContent='—'; linesWrap.style.display='none';
+        adviceEl.textContent = t('advice_all_known');
+        statusEl.textContent = t('dash');
+        linesWrap.style.display='none';
         return;
       }
       const [r,c]=cell;
-      adviceEl.innerHTML = `下一步建议翻：<b>(${r+1}, ${c+1})</b>；预计最高期望积分≈ <b>${ev.toFixed(1)}</b>`;
-      statusEl.textContent = `样本数 2500 · 已开 ${opened} 张 · 剩余 ${TARGET_OPEN-opened}`;
+      adviceEl.innerHTML = t('advice_best_next', {r: r+1, c: c+1, ev: ev.toFixed(1)});
+      statusEl.textContent = t('status_progress', {samples: 2500, opened, left: TARGET_OPEN-opened});
       linesWrap.style.display='none';
       applyBestNextHighlight(cell, ev);
     }
@@ -464,10 +637,15 @@
   // manual buttons still available
   document.getElementById('advBtn').addEventListener('click', pipeline);
   document.getElementById('lineBtn').addEventListener('click', pipeline);
+  if(langToggle){
+    langToggle.addEventListener('click', ()=>{ setLang(currentLang === 'zh' ? 'en' : 'zh'); });
+  }
 
   // init
+  setStaticText();
   updateCounter();
   pipeline();
+  window.flipgameI18n = { t: t };
 })();
 
 // inline clear next to '计算最佳线路'
@@ -481,9 +659,11 @@
         var inputs = document.querySelectorAll('#grid input.cell');
         inputs.forEach(i=>i.value='');
         var msg = document.getElementById('msg'), statusEl = document.getElementById('status'), adviceEl = document.getElementById('advice');
-        if(msg) msg.textContent='已清空';
-        if(statusEl) statusEl.textContent='—';
-        if(adviceEl) adviceEl.textContent='—';
+        var i18n = window.flipgameI18n;
+        var t = i18n && typeof i18n.t === 'function' ? i18n.t : null;
+        if(msg) msg.textContent = t ? t('cleared') : '已清空';
+        if(statusEl) statusEl.textContent = t ? t('dash') : '—';
+        if(adviceEl) adviceEl.textContent = t ? t('dash') : '—';
         var linesWrap = document.getElementById('lines'); if(linesWrap) linesWrap.style.display='none';
         if(typeof clearHighlights === 'function') clearHighlights();
         if(typeof updateCounter === 'function') updateCounter();

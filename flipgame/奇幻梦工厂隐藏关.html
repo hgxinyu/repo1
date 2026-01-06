@@ -33,6 +33,15 @@
     }
     #topbar-nav .btn{padding:8px 12px; border-radius:12px; font-size:13px; white-space:nowrap;}
     @media (max-width:480px){ #topbar-nav{ left:8px; top:8px; right:8px; } }
+    .langbar{
+      position:fixed; right:12px; top:12px; z-index:1100;
+      display:inline-flex; align-items:center;
+      background:rgba(255,255,255,.9);
+      border:1px solid #e5e7eb;
+      padding:6px 8px; border-radius:999px; box-shadow:var(--shadow);
+      backdrop-filter:saturate(140%) blur(4px);
+    }
+    .langbar .btn{padding:8px 12px; border-radius:999px; font-size:13px; white-space:nowrap;}
     /* bottom-left logo */
     .logo-bottom-left{
       position:fixed; left:12px; bottom:12px; z-index:1000;
@@ -48,23 +57,27 @@
 </head>
 <body>
   <div id="topbar-nav">
-    <a href="index.html" class="btn" style="text-decoration:none;">回到主页</a>
-    <a href="flipgame.html" class="btn" style="text-decoration:none;">九宫格翻牌</a>
-    <a href="CoreCalculator.html" class="btn" style="text-decoration:none;">核心计算器</a>
-    <a href="StarDiamondCalculator.html" class="btn" style="text-decoration:none;">星钻计算器</a>
+    <a href="index.html" class="btn" style="text-decoration:none;" id="navHome">回到主页</a>
+    <a href="flipgame.html" class="btn" style="text-decoration:none;" id="navFlip">九宫格翻牌</a>
+    <a href="CoreCalculator.html" class="btn" style="text-decoration:none;" id="navCore">核心计算器</a>
+    <a href="StarDiamondCalculator.html" class="btn" style="text-decoration:none;" id="navStar">星钻计算器</a>
+  </div>
+
+  <div class="langbar">
+    <button class="btn" id="langToggle" type="button">EN</button>
   </div>
 
   <div class="wrap">
     <header class="site-header">
-      <div class="title"><h1>奇幻梦工厂隐藏关</h1></div>
-      <div class="tools"><span class="muted">点击图片可在新窗口查看原图</span></div>
+      <div class="title"><h1 id="pageTitle">奇幻梦工厂隐藏关</h1></div>
+      <div class="tools"><span class="muted" id="pageHint">点击图片可在新窗口查看原图</span></div>
     </header>
 
     <main class="main">
       <div class="card">
         <div class="preview">
           <a href="qihuan.jpg" target="_blank" rel="noopener">
-            <img src="qihuan.jpg" alt="奇幻梦工厂隐藏关参考图" />
+            <img src="qihuan.jpg" alt="奇幻梦工厂隐藏关参考图" id="previewImg" />
           </a>
         </div>
       </div>
@@ -74,5 +87,86 @@
   <div class="logo-bottom-left">
     <span class="logo-dot"></span> By ShinE
   </div>
+
+  <script>
+    (function () {
+      const langToggle = document.getElementById('langToggle');
+      const navHome = document.getElementById('navHome');
+      const navFlip = document.getElementById('navFlip');
+      const navCore = document.getElementById('navCore');
+      const navStar = document.getElementById('navStar');
+      const pageTitle = document.getElementById('pageTitle');
+      const pageHint = document.getElementById('pageHint');
+      const previewImg = document.getElementById('previewImg');
+      const topbarNav = document.getElementById('topbar-nav');
+
+      const I18N = {
+        zh: {
+          title: '奇幻梦工厂隐藏关 · ShinE',
+          nav_label: '页面导航',
+          nav_home: '回到主页',
+          nav_flip: '九宫格翻牌',
+          nav_core: '核心计算器',
+          nav_star: '星钻计算器',
+          page_title: '奇幻梦工厂隐藏关',
+          page_hint: '点击图片可在新窗口查看原图',
+          img_alt: '奇幻梦工厂隐藏关参考图',
+          lang_toggle_en: 'EN',
+          lang_toggle_zh: '中文'
+        },
+        en: {
+          title: 'Fantasy Factory Secret Stage · ShinE',
+          nav_label: 'Page Navigation',
+          nav_home: 'Home',
+          nav_flip: '3x3 Flip Cards',
+          nav_core: 'Core Calculator',
+          nav_star: 'Star Diamond Calculator',
+          page_title: 'Fantasy Factory Secret Stage',
+          page_hint: 'Click the image to open the original in a new tab',
+          img_alt: 'Fantasy Factory secret stage reference',
+          lang_toggle_en: 'EN',
+          lang_toggle_zh: '中文'
+        }
+      };
+
+      let currentLang = (localStorage.getItem('flipgame_lang') || '').toLowerCase();
+      if (currentLang !== 'zh' && currentLang !== 'en') {
+        const navLang = (navigator.language || '').toLowerCase();
+        currentLang = navLang.startsWith('zh') ? 'zh' : 'en';
+      }
+
+      function t(key) {
+        return (I18N[currentLang] && I18N[currentLang][key]) || I18N.zh[key] || '';
+      }
+
+      function setStaticText() {
+        document.title = t('title');
+        document.documentElement.lang = currentLang === 'zh' ? 'zh' : 'en';
+        if (topbarNav) topbarNav.setAttribute('aria-label', t('nav_label'));
+        if (navHome) navHome.textContent = t('nav_home');
+        if (navFlip) navFlip.textContent = t('nav_flip');
+        if (navCore) navCore.textContent = t('nav_core');
+        if (navStar) navStar.textContent = t('nav_star');
+        if (pageTitle) pageTitle.textContent = t('page_title');
+        if (pageHint) pageHint.textContent = t('page_hint');
+        if (previewImg) previewImg.setAttribute('alt', t('img_alt'));
+        if (langToggle) langToggle.textContent = currentLang === 'zh' ? t('lang_toggle_en') : t('lang_toggle_zh');
+      }
+
+      function setLang(lang) {
+        currentLang = lang;
+        localStorage.setItem('flipgame_lang', lang);
+        setStaticText();
+      }
+
+      if (langToggle) {
+        langToggle.addEventListener('click', () => {
+          setLang(currentLang === 'zh' ? 'en' : 'zh');
+        });
+      }
+
+      setStaticText();
+    })();
+  </script>
 </body>
 </html>

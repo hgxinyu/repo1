@@ -73,6 +73,26 @@
       outline: 2px solid var(--brand);
       outline-offset: 2px;
     }
+    .langbar {
+      position: fixed;
+      right: 12px;
+      top: 12px;
+      z-index: 120;
+      display: inline-flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid var(--border);
+      padding: 6px 8px;
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+      backdrop-filter: saturate(140%) blur(6px);
+    }
+    .langbar .btn {
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      box-shadow: none;
+    }
     .wrap {
       width: min(960px, 100%);
       margin: 12px auto 32px;
@@ -290,40 +310,44 @@
 </head>
 <body>
   <nav id="topbar-nav" aria-label="页面导航">
-    <a href="index.html">回到主页</a>
-    <a href="flipgame.html">九宫格翻牌</a>
-    <a href="CoreCalculator.html">核心计算器</a>
-    <a href="StarDiamondCalculator.html">星钻计算器</a>
+    <a href="index.html" id="navHome">回到主页</a>
+    <a href="flipgame.html" id="navFlip">九宫格翻牌</a>
+    <a href="CoreCalculator.html" id="navCore">核心计算器</a>
+    <a href="StarDiamondCalculator.html" id="navStar">星钻计算器</a>
   </nav>
+
+  <div class="langbar">
+    <button class="btn" id="langToggle" type="button">EN</button>
+  </div>
 
   <div class="wrap">
     <header class="site-header">
       <div class="title">
-        <h1>凝魂升格计算器（A+ → S）</h1>
-        <p>输入当前属性估算升格需求，平均值与所需次数即时更新。</p>
+        <h1 id="pageTitle">凝魂升格计算器（A+ → S）</h1>
+        <p id="pageDesc">输入当前属性估算升格需求，平均值与所需次数即时更新。</p>
       </div>
       <div class="tools">
         <button class="btn" id="clearBtn" type="button">清空</button>
       </div>
     </header>
 
-    <div class="hint">升格材料要求：<strong>3 × A-</strong>、<strong>2 × A</strong>、<strong>1 × A+</strong></div>
+    <div class="hint" id="hintText">升格材料要求：<strong>3 × A-</strong>、<strong>2 × A</strong>、<strong>1 × A+</strong></div>
 
     <main class="main">
       <section class="card" aria-labelledby="calc-title">
         <h2 id="calc-title">填写基础属性</h2>
-        <p class="muted" style="margin:-4px 0 4px;">数值支持小数，编辑后自动校验区间并刷新结果。</p>
+        <p class="muted" style="margin:-4px 0 4px;" id="calcDesc">数值支持小数，编辑后自动校验区间并刷新结果。</p>
         <div class="row">
           <div class="col">
-            <label for="atk">攻击 x</label>
+            <label for="atk" id="atkLabel">攻击 x</label>
             <input id="atk" type="number" inputmode="decimal" value="0" aria-label="攻击数值" />
           </div>
           <div class="col">
-            <label for="hp">血量 y</label>
+            <label for="hp" id="hpLabel">血量 y</label>
             <input id="hp" type="number" inputmode="decimal" value="0" aria-label="血量数值" />
           </div>
           <div class="col">
-            <label for="spd">速度 z</label>
+            <label for="spd" id="spdLabel">速度 z</label>
             <input id="spd" type="number" inputmode="decimal" value="0" aria-label="速度数值" />
           </div>
         </div>
@@ -332,11 +356,11 @@
 
         <div class="out" aria-live="polite">
           <div class="box">
-            <div class="kv"><span>Average</span><span class="v" id="avgValue">0.00</span></div>
+            <div class="kv"><span id="avgLabel">Average</span><span class="v" id="avgValue">0.00</span></div>
                       </div>
           <div class="box">
-            <div class="kv"><span>凝魂次数</span><span class="v" id="times">0</span></div>
-            <span class="muted">仅在区间有效时显示</span>
+            <div class="kv"><span id="timesLabel">凝魂次数</span><span class="v" id="times">0</span></div>
+            <span class="muted" id="timesDesc">仅在区间有效时显示</span>
           </div>
         </div>
       </section>
@@ -349,6 +373,23 @@
 
   <script>
     (function () {
+      const langToggle = document.getElementById('langToggle');
+      const navHome = document.getElementById('navHome');
+      const navFlip = document.getElementById('navFlip');
+      const navCore = document.getElementById('navCore');
+      const navStar = document.getElementById('navStar');
+      const pageTitle = document.getElementById('pageTitle');
+      const pageDesc = document.getElementById('pageDesc');
+      const hintText = document.getElementById('hintText');
+      const calcTitle = document.getElementById('calc-title');
+      const calcDesc = document.getElementById('calcDesc');
+      const atkLabel = document.getElementById('atkLabel');
+      const hpLabel = document.getElementById('hpLabel');
+      const spdLabel = document.getElementById('spdLabel');
+      const avgLabel = document.getElementById('avgLabel');
+      const timesLabel = document.getElementById('timesLabel');
+      const timesDesc = document.getElementById('timesDesc');
+      const topbarNav = document.getElementById('topbar-nav');
       const atk = document.getElementById('atk');
       const hp = document.getElementById('hp');
       const spd = document.getElementById('spd');
@@ -356,6 +397,107 @@
       const times = document.getElementById('times');
       const warn = document.getElementById('warn');
       const clearBtn = document.getElementById('clearBtn');
+
+      const I18N = {
+        zh: {
+          title: '凝魂升格计算器 · ShinE',
+          nav_label: '页面导航',
+          nav_home: '回到主页',
+          nav_flip: '九宫格翻牌',
+          nav_core: '核心计算器',
+          nav_star: '星钻计算器',
+          page_title: '凝魂升格计算器（A+ → S）',
+          page_desc: '输入当前属性估算升格需求，平均值与所需次数即时更新。',
+          hint: '升格材料要求：<strong>3 × A-</strong>、<strong>2 × A</strong>、<strong>1 × A+</strong>',
+          calc_title: '填写基础属性',
+          calc_desc: '数值支持小数，编辑后自动校验区间并刷新结果。',
+          atk_label: '攻击 x',
+          hp_label: '血量 y',
+          spd_label: '速度 z',
+          atk_aria: '攻击数值',
+          hp_aria: '血量数值',
+          spd_aria: '速度数值',
+          warn: '输入错误：x + y + 100 × z 必须在 <strong>21600 ~ 24297</strong> 区间内。',
+          avg_label: '平均值',
+          times_label: '凝魂次数',
+          times_desc: '仅在区间有效时显示',
+          clear: '清空',
+          dash: '—',
+          lang_toggle_en: 'EN',
+          lang_toggle_zh: '中文'
+        },
+        en: {
+          title: 'Soul Ascension Calculator · ShinE',
+          nav_label: 'Page Navigation',
+          nav_home: 'Home',
+          nav_flip: '3x3 Flip Cards',
+          nav_core: 'Core Calculator',
+          nav_star: 'Star Diamond Calculator',
+          page_title: 'Soul Ascension Calculator (A+ → S)',
+          page_desc: 'Enter your stats to estimate ascension needs. The average and count update instantly.',
+          hint: 'Materials required: <strong>3 × A-</strong>, <strong>2 × A</strong>, <strong>1 × A+</strong>',
+          calc_title: 'Enter base stats',
+          calc_desc: 'Decimals supported. Results update automatically after edits.',
+          atk_label: 'Attack x',
+          hp_label: 'HP y',
+          spd_label: 'Speed z',
+          atk_aria: 'Attack value',
+          hp_aria: 'HP value',
+          spd_aria: 'Speed value',
+          warn: 'Invalid input: x + y + 100 × z must be within <strong>21600 ~ 24297</strong>.',
+          avg_label: 'Average',
+          times_label: 'Ascension Count',
+          times_desc: 'Shown only when within range',
+          clear: 'Clear',
+          dash: '—',
+          lang_toggle_en: 'EN',
+          lang_toggle_zh: '中文'
+        }
+      };
+
+      let currentLang = (localStorage.getItem('flipgame_lang') || '').toLowerCase();
+      if (currentLang !== 'zh' && currentLang !== 'en') {
+        const navLang = (navigator.language || '').toLowerCase();
+        currentLang = navLang.startsWith('zh') ? 'zh' : 'en';
+      }
+
+      function t(key) {
+        return (I18N[currentLang] && I18N[currentLang][key]) || I18N.zh[key] || '';
+      }
+
+      function setStaticText() {
+        document.title = t('title');
+        document.documentElement.lang = currentLang === 'zh' ? 'zh-Hans' : 'en';
+        if (topbarNav) topbarNav.setAttribute('aria-label', t('nav_label'));
+        if (navHome) navHome.textContent = t('nav_home');
+        if (navFlip) navFlip.textContent = t('nav_flip');
+        if (navCore) navCore.textContent = t('nav_core');
+        if (navStar) navStar.textContent = t('nav_star');
+        if (pageTitle) pageTitle.textContent = t('page_title');
+        if (pageDesc) pageDesc.textContent = t('page_desc');
+        if (hintText) hintText.innerHTML = t('hint');
+        if (calcTitle) calcTitle.textContent = t('calc_title');
+        if (calcDesc) calcDesc.textContent = t('calc_desc');
+        if (atkLabel) atkLabel.textContent = t('atk_label');
+        if (hpLabel) hpLabel.textContent = t('hp_label');
+        if (spdLabel) spdLabel.textContent = t('spd_label');
+        if (atk) atk.setAttribute('aria-label', t('atk_aria'));
+        if (hp) hp.setAttribute('aria-label', t('hp_aria'));
+        if (spd) spd.setAttribute('aria-label', t('spd_aria'));
+        if (warn) warn.innerHTML = t('warn');
+        if (avgLabel) avgLabel.textContent = t('avg_label');
+        if (timesLabel) timesLabel.textContent = t('times_label');
+        if (timesDesc) timesDesc.textContent = t('times_desc');
+        if (clearBtn) clearBtn.textContent = t('clear');
+        if (langToggle) langToggle.textContent = currentLang === 'zh' ? t('lang_toggle_en') : t('lang_toggle_zh');
+      }
+
+      function setLang(lang) {
+        currentLang = lang;
+        localStorage.setItem('flipgame_lang', lang);
+        setStaticText();
+        update();
+      }
 
       let touched = false;
       let debounceTimer = null;
@@ -382,7 +524,7 @@
           const count = Math.ceil(need);
           times.textContent = count < 0 ? 0 : count;
         } else {
-          times.textContent = '—';
+          times.textContent = t('dash');
         }
       }
 
@@ -411,6 +553,13 @@
         update();
       });
 
+      if (langToggle) {
+        langToggle.addEventListener('click', () => {
+          setLang(currentLang === 'zh' ? 'en' : 'zh');
+        });
+      }
+
+      setStaticText();
       update();
     })();
   </script>

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-Hans">
 <head>
   <meta charset="UTF-8">
@@ -59,6 +59,30 @@
       max-width: 520px;
       font-size: clamp(14px, 4vw, 16px);
       color: var(--muted);
+    }
+    .langbar {
+      position: fixed;
+      right: 18px;
+      top: 18px;
+      z-index: 30;
+      display: inline-flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid var(--border);
+      padding: 6px 8px;
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+      backdrop-filter: saturate(140%) blur(4px);
+    }
+    .langbar .lang-btn {
+      border: none;
+      background: #111827;
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      cursor: pointer;
+      letter-spacing: 0.2px;
     }
     .card-grid {
       display: grid;
@@ -265,61 +289,64 @@
   </style>
 </head>
 <body>
+  <div class="langbar">
+    <button class="lang-btn" id="langToggle" type="button">EN</button>
+  </div>
   <div class="wrap">
     <header>
-      <h1>放置工具集</h1>
-      <p>自用的放置类工具合集，涵盖九宫格翻牌、核心换算、星钻计算和凝魂升格等功能。</p>
+      <h1 id="pageTitle">放置工具集</h1>
+      <p id="pageDesc">自用的放置类工具合集，涵盖九宫格翻牌、核心换算、星钻计算和凝魂升格等功能。</p>
     </header>
 
-    <nav class="card-grid" aria-label="工具导航">
+    <nav class="card-grid" aria-label="工具导航" id="navGrid">
       <a class="card-link" href="flipgame.html">
-        <span class="title">九宫格翻牌</span>
-        <span class="subtitle">模拟翻牌流程，记录并计算最佳组合。</span>
+        <span class="title" id="cardFlipTitle">九宫格翻牌</span>
+        <span class="subtitle" id="cardFlipSub">模拟翻牌流程，记录并计算最佳组合。</span>
       </a>
       <a class="card-link" href="CoreCalculator.html">
-        <span class="title">核心计算器</span>
-        <span class="subtitle">输入各资源数量，一键估算总核心需求。</span>
+        <span class="title" id="cardCoreTitle">核心计算器</span>
+        <span class="subtitle" id="cardCoreSub">输入各资源数量，一键估算总核心需求。</span>
       </a>
       <a class="card-link" href="StarDiamondCalculator.html">
-        <span class="title">星钻计算器</span>
-        <span class="subtitle">按比例换算金额与赠送额度。</span>
+        <span class="title" id="cardStarTitle">星钻计算器</span>
+        <span class="subtitle" id="cardStarSub">按比例换算金额与赠送额度。</span>
       </a>
       <a class="card-link" href="奇幻梦工厂隐藏关.html">
-        <span class="title">奇幻梦工厂隐藏关</span>
-        <span class="subtitle">隐藏关卡资料与攻略整理。</span>
+        <span class="title" id="cardHiddenTitle">奇幻梦工厂隐藏关</span>
+        <span class="subtitle" id="cardHiddenSub">隐藏关卡资料与攻略整理。</span>
       </a>
       <a class="card-link" href="SoulAscensionCalculator.html">
-        <span class="title">凝魂升格计算器</span>
-        <span class="subtitle">检验属性区间并估算升级次数。</span>
+        <span class="title" id="cardSoulTitle">凝魂升格计算器</span>
+        <span class="subtitle" id="cardSoulSub">检验属性区间并估算升级次数。</span>
       </a>
     </nav>
   </div>
 
   <button class="feedback-toggle" id="feedbackToggle" type="button">
-    <span class="icon">✉</span> 反馈建议
+    <span class="icon">✉</span> <span id="feedbackToggleText">反馈建议</span>
   </button>
 
   <section class="feedback-panel" id="feedbackPanel" aria-hidden="true">
-    <button class="close-btn" type="button" aria-label="关闭反馈面板">×</button>
+    <button class="close-btn" type="button" aria-label="关闭反馈面板" id="feedbackClose">×</button>
     <header>
-      <h2>反馈中心</h2>
-      <p>欢迎留言提供建议或问题反馈。</p>
+      <h2 id="feedbackTitle">反馈中心</h2>
+      <p id="feedbackDesc">欢迎留言提供建议或问题反馈。</p>
     </header>
     <form id="feedbackForm" autocomplete="on">
-      <label for="fbTopic">反馈类型</label>
+      <label for="fbTopic" id="fbTopicLabel">反馈类型</label>
       <select id="fbTopic" name="topic" required>
-        <option value="建议">建议</option>
-        <option value="问题">问题反馈</option>
-        <option value="其他">其他</option>
+        <option value="建议" id="fbTopicOptSuggestion">建议</option>
+        <option value="问题" id="fbTopicOptIssue">问题反馈</option>
+        <option value="其他" id="fbTopicOptOther">其他</option>
       </select>
 
-      <label for="fbDetail">详细描述</label>
+      <label for="fbDetail" id="fbDetailLabel">详细描述</label>
       <textarea id="fbDetail" name="detail" placeholder="请输入具体情况…" required></textarea>
 
-      <label for="fbContact">联系方式或放置ID（必填）</label>
+      <label for="fbContact" id="fbContactLabel">联系方式或放置ID（必填）</label>
       <input id="fbContact" name="contact" type="text" placeholder="请输入邮箱或微信或放置ID" required />
 
-      <button type="submit">发送反馈</button>
+      <button type="submit" id="fbSubmit">发送反馈</button>
       <div class="status" id="fbStatus" role="status"></div>
     </form>
   </section>
@@ -338,6 +365,158 @@
       const closeBtn = panel.querySelector('.close-btn');
       const form = document.getElementById('feedbackForm');
       const statusEl = document.getElementById('fbStatus');
+      const langToggle = document.getElementById('langToggle');
+      const pageTitle = document.getElementById('pageTitle');
+      const pageDesc = document.getElementById('pageDesc');
+      const navGrid = document.getElementById('navGrid');
+      const cardFlipTitle = document.getElementById('cardFlipTitle');
+      const cardFlipSub = document.getElementById('cardFlipSub');
+      const cardCoreTitle = document.getElementById('cardCoreTitle');
+      const cardCoreSub = document.getElementById('cardCoreSub');
+      const cardStarTitle = document.getElementById('cardStarTitle');
+      const cardStarSub = document.getElementById('cardStarSub');
+      const cardHiddenTitle = document.getElementById('cardHiddenTitle');
+      const cardHiddenSub = document.getElementById('cardHiddenSub');
+      const cardSoulTitle = document.getElementById('cardSoulTitle');
+      const cardSoulSub = document.getElementById('cardSoulSub');
+      const feedbackToggleText = document.getElementById('feedbackToggleText');
+      const feedbackTitle = document.getElementById('feedbackTitle');
+      const feedbackDesc = document.getElementById('feedbackDesc');
+      const fbTopicLabel = document.getElementById('fbTopicLabel');
+      const fbTopicOptSuggestion = document.getElementById('fbTopicOptSuggestion');
+      const fbTopicOptIssue = document.getElementById('fbTopicOptIssue');
+      const fbTopicOptOther = document.getElementById('fbTopicOptOther');
+      const fbDetailLabel = document.getElementById('fbDetailLabel');
+      const fbDetail = document.getElementById('fbDetail');
+      const fbContactLabel = document.getElementById('fbContactLabel');
+      const fbContact = document.getElementById('fbContact');
+      const fbSubmit = document.getElementById('fbSubmit');
+      const feedbackClose = document.getElementById('feedbackClose');
+
+      const I18N = {
+        zh: {
+          title: '放置工具集 · ShinE',
+          page_title: '放置工具集',
+          page_desc: '自用的放置类工具合集，涵盖九宫格翻牌、核心换算、星钻计算和凝魂升格等功能。',
+          nav_label: '工具导航',
+          card_flip_title: '九宫格翻牌',
+          card_flip_sub: '模拟翻牌流程，记录并计算最佳组合。',
+          card_core_title: '核心计算器',
+          card_core_sub: '输入各资源数量，一键估算总核心需求。',
+          card_star_title: '星钻计算器',
+          card_star_sub: '按比例换算金额与赠送额度。',
+          card_hidden_title: '奇幻梦工厂隐藏关',
+          card_hidden_sub: '隐藏关卡资料与攻略整理。',
+          card_soul_title: '凝魂升格计算器',
+          card_soul_sub: '检验属性区间并估算升级次数。',
+          feedback_toggle: '反馈建议',
+          feedback_title: '反馈中心',
+          feedback_desc: '欢迎留言提供建议或问题反馈。',
+          fb_topic_label: '反馈类型',
+          fb_topic_suggestion: '建议',
+          fb_topic_issue: '问题反馈',
+          fb_topic_other: '其他',
+          fb_detail_label: '详细描述',
+          fb_detail_placeholder: '请输入具体情况…',
+          fb_contact_label: '联系方式或放置ID（必填）',
+          fb_contact_placeholder: '请输入邮箱或微信或放置ID',
+          fb_submit: '发送反馈',
+          fb_close_label: '关闭反馈面板',
+          status_sending: '正在发送，请稍候…',
+          status_success: '感谢反馈！我们会尽快查看。',
+          status_verify: '首次使用需到邮箱点击 FormSubmit 的确认邮件，确认后即可正常接收。若未看到，请检查垃圾箱。',
+          status_captcha: '提交过于频繁，请稍后再试或直接联系我们。',
+          status_fail_prefix: '发送失败：',
+          status_fail_generic: '发送失败，请稍后再试或直接联系我们。',
+          lang_toggle_en: 'EN',
+          lang_toggle_zh: '中文'
+        },
+        en: {
+          title: 'Idle Tools · ShinE',
+          page_title: 'Idle Tools',
+          page_desc: 'A personal collection of idle tools: flip game, core converter, star diamond, and soul ascension.',
+          nav_label: 'Tool Navigation',
+          card_flip_title: '3x3 Flip Cards',
+          card_flip_sub: 'Simulate flips, track cards, and compute the best line.',
+          card_core_title: 'Core Calculator',
+          card_core_sub: 'Enter resources and estimate total core needs.',
+          card_star_title: 'Star Diamond Calculator',
+          card_star_sub: 'Convert amounts and bonus ratios.',
+          card_hidden_title: 'Fantasy Factory Secret Stage',
+          card_hidden_sub: 'Secret stage data and strategy notes.',
+          card_soul_title: 'Soul Ascension Calculator',
+          card_soul_sub: 'Check stat ranges and estimate upgrade steps.',
+          feedback_toggle: 'Feedback',
+          feedback_title: 'Feedback Center',
+          feedback_desc: 'Leave suggestions or report issues.',
+          fb_topic_label: 'Topic',
+          fb_topic_suggestion: 'Suggestion',
+          fb_topic_issue: 'Issue',
+          fb_topic_other: 'Other',
+          fb_detail_label: 'Details',
+          fb_detail_placeholder: 'Describe the situation…',
+          fb_contact_label: 'Contact or ID (required)',
+          fb_contact_placeholder: 'Email / WeChat / ID',
+          fb_submit: 'Send',
+          fb_close_label: 'Close feedback panel',
+          status_sending: 'Sending, please wait…',
+          status_success: 'Thanks for your feedback! We will review it soon.',
+          status_verify: 'First-time use requires FormSubmit email verification. Check your inbox or spam folder.',
+          status_captcha: 'Too many requests. Please try again later.',
+          status_fail_prefix: 'Failed: ',
+          status_fail_generic: 'Failed. Please try again later or contact us directly.',
+          lang_toggle_en: 'EN',
+          lang_toggle_zh: '中文'
+        }
+      };
+
+      let currentLang = (localStorage.getItem('flipgame_lang') || '').toLowerCase();
+      if (currentLang !== 'zh' && currentLang !== 'en') {
+        const navLang = (navigator.language || '').toLowerCase();
+        currentLang = navLang.startsWith('zh') ? 'zh' : 'en';
+      }
+
+      function t(key) {
+        return (I18N[currentLang] && I18N[currentLang][key]) || I18N.zh[key] || '';
+      }
+
+      function setStaticText() {
+        document.title = t('title');
+        document.documentElement.lang = currentLang === 'zh' ? 'zh-Hans' : 'en';
+        if (pageTitle) pageTitle.textContent = t('page_title');
+        if (pageDesc) pageDesc.textContent = t('page_desc');
+        if (navGrid) navGrid.setAttribute('aria-label', t('nav_label'));
+        if (cardFlipTitle) cardFlipTitle.textContent = t('card_flip_title');
+        if (cardFlipSub) cardFlipSub.textContent = t('card_flip_sub');
+        if (cardCoreTitle) cardCoreTitle.textContent = t('card_core_title');
+        if (cardCoreSub) cardCoreSub.textContent = t('card_core_sub');
+        if (cardStarTitle) cardStarTitle.textContent = t('card_star_title');
+        if (cardStarSub) cardStarSub.textContent = t('card_star_sub');
+        if (cardHiddenTitle) cardHiddenTitle.textContent = t('card_hidden_title');
+        if (cardHiddenSub) cardHiddenSub.textContent = t('card_hidden_sub');
+        if (cardSoulTitle) cardSoulTitle.textContent = t('card_soul_title');
+        if (cardSoulSub) cardSoulSub.textContent = t('card_soul_sub');
+        if (feedbackToggleText) feedbackToggleText.textContent = t('feedback_toggle');
+        if (feedbackTitle) feedbackTitle.textContent = t('feedback_title');
+        if (feedbackDesc) feedbackDesc.textContent = t('feedback_desc');
+        if (fbTopicLabel) fbTopicLabel.textContent = t('fb_topic_label');
+        if (fbTopicOptSuggestion) { fbTopicOptSuggestion.textContent = t('fb_topic_suggestion'); fbTopicOptSuggestion.value = t('fb_topic_suggestion'); }
+        if (fbTopicOptIssue) { fbTopicOptIssue.textContent = t('fb_topic_issue'); fbTopicOptIssue.value = t('fb_topic_issue'); }
+        if (fbTopicOptOther) { fbTopicOptOther.textContent = t('fb_topic_other'); fbTopicOptOther.value = t('fb_topic_other'); }
+        if (fbDetailLabel) fbDetailLabel.textContent = t('fb_detail_label');
+        if (fbDetail) fbDetail.setAttribute('placeholder', t('fb_detail_placeholder'));
+        if (fbContactLabel) fbContactLabel.textContent = t('fb_contact_label');
+        if (fbContact) fbContact.setAttribute('placeholder', t('fb_contact_placeholder'));
+        if (fbSubmit) fbSubmit.textContent = t('fb_submit');
+        if (feedbackClose) feedbackClose.setAttribute('aria-label', t('fb_close_label'));
+        if (langToggle) langToggle.textContent = currentLang === 'zh' ? t('lang_toggle_en') : t('lang_toggle_zh');
+      }
+
+      function setLang(lang) {
+        currentLang = lang;
+        localStorage.setItem('flipgame_lang', lang);
+        setStaticText();
+      }
 
       function setPanel(open) {
         panel.style.display = open ? 'flex' : 'none';
@@ -379,7 +558,7 @@
 
       form.addEventListener('submit', async (event) => {
         event.preventDefault();
-        statusEl.textContent = '正在发送，请稍候…';
+        statusEl.textContent = t('status_sending');
 
         const formData = new FormData(form);
         formData.append('_honey', '');
@@ -404,7 +583,7 @@
 
           const success = data && String(data.success).toLowerCase() === 'true';
           if (response.ok && success) {
-            statusEl.textContent = '感谢反馈！我们会尽快查看。';
+            statusEl.textContent = t('status_success');
             form.reset();
             setTimeout(() => {
               statusEl.textContent = '';
@@ -419,16 +598,24 @@
           const fullMessage = String(error && error.message ? error.message : error || '').trim();
           const message = fullMessage.toLowerCase();
           if (message.includes('verify') || message.includes('confirmation')) {
-            statusEl.textContent = '首次使用需到邮箱点击 FormSubmit 的确认邮件，确认后即可正常接收。若未看到，请检查垃圾箱。';
+            statusEl.textContent = t('status_verify');
           } else if (message.includes('captcha')) {
-            statusEl.textContent = '提交过于频繁，请稍后再试或直接联系我们。';
+            statusEl.textContent = t('status_captcha');
           } else if (fullMessage) {
-            statusEl.textContent = '发送失败：' + fullMessage;
+            statusEl.textContent = t('status_fail_prefix') + fullMessage;
           } else {
-            statusEl.textContent = '发送失败，请稍后再试或直接联系我们。';
+            statusEl.textContent = t('status_fail_generic');
           }
         }
       });
+
+      if (langToggle) {
+        langToggle.addEventListener('click', () => {
+          setLang(currentLang === 'zh' ? 'en' : 'zh');
+        });
+      }
+
+      setStaticText();
     })();
   </script>
 </body>

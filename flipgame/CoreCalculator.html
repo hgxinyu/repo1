@@ -73,6 +73,26 @@
       outline: 2px solid var(--brand);
       outline-offset: 2px;
     }
+    .langbar {
+      position: fixed;
+      right: 12px;
+      top: 12px;
+      z-index: 120;
+      display: inline-flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid var(--border);
+      padding: 6px 8px;
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+      backdrop-filter: saturate(140%) blur(6px);
+    }
+    .langbar .btn {
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      box-shadow: none;
+    }
     .wrap {
       width: min(980px, 100%);
       margin: 12px auto 28px;
@@ -300,16 +320,20 @@
 </head>
 <body>
   <nav id="topbar-nav" aria-label="页面导航">
-    <a href="index.html">回到主页</a>
-    <a href="flipgame.html">九宫格翻牌</a>
-    <a href="StarDiamondCalculator.html">星钻计算器</a>
+    <a href="index.html" id="navHome">回到主页</a>
+    <a href="flipgame.html" id="navFlip">九宫格翻牌</a>
+    <a href="StarDiamondCalculator.html" id="navStar">星钻计算器</a>
   </nav>
+
+  <div class="langbar">
+    <button class="btn" id="langToggle" type="button">EN</button>
+  </div>
 
   <div class="wrap">
     <header class="site-header">
       <div class="title">
-        <h1>核心计算器</h1>
-        <p>输入各项资源数量，实时估算所需核心总量。</p>
+        <h1 id="pageTitle">核心计算器</h1>
+        <p id="pageDesc">输入各项资源数量，实时估算所需核心总量。</p>
       </div>
       <div class="tools">
         <button class="btn" id="clearBtn" type="button">清空</button>
@@ -320,7 +344,7 @@
     <main class="main">
       <section class="card" aria-labelledby="calculator-title">
         <h2 id="calculator-title">填写参数</h2>
-        <p class="muted" style="margin: -2px 0 6px; font-size: 13px;">
+        <p class="muted" style="margin: -2px 0 6px; font-size: 13px;" id="calculator-desc">
           数值可填小数，修改后自动刷新结果。
         </p>
 
@@ -329,8 +353,8 @@
             <table id="inputTable">
               <thead>
                 <tr>
-                  <th scope="col">项目</th>
-                  <th scope="col">数量</th>
+                  <th scope="col" id="tableColItem">项目</th>
+                  <th scope="col" id="tableColAmount">数量</th>
                 </tr>
               </thead>
               <tbody>
@@ -340,8 +364,8 @@
         </div>
 
         <div class="result-card" aria-live="polite">
-          <span>总核心：<span id="totalCore">0.00</span></span>
-          <small style="color: var(--muted);">实时更新 · 单位：核心</small>
+          <span id="totalLabel">总核心：<span id="totalCore">0.00</span></span>
+          <small style="color: var(--muted);" id="totalNote">实时更新 · 单位：核心</small>
         </div>
       </section>
     </main>
@@ -353,18 +377,32 @@
 
   <script>
     (function () {
+      const langToggle = document.getElementById('langToggle');
+      const navHome = document.getElementById('navHome');
+      const navFlip = document.getElementById('navFlip');
+      const navStar = document.getElementById('navStar');
+      const pageTitle = document.getElementById('pageTitle');
+      const pageDesc = document.getElementById('pageDesc');
+      const calculatorTitle = document.getElementById('calculator-title');
+      const calculatorDesc = document.getElementById('calculator-desc');
+      const tableColItem = document.getElementById('tableColItem');
+      const tableColAmount = document.getElementById('tableColAmount');
+      const totalLabel = document.getElementById('totalLabel');
+      const totalNote = document.getElementById('totalNote');
+      const topbarNav = document.getElementById('topbar-nav');
+
       const data = [
-        { label: "E8.3", multiplier: 0.63 },
-        { label: "E9", multiplier: 1 },
-        { label: "400", multiplier: 2.3 },
-        { label: "420", multiplier: 3.03 },
-        { label: "飞1-100", multiplier: 3.2 },
-        { label: "飞2-100", multiplier: 3.43 },
-        { label: "飞3-100", multiplier: 3.73 },
-        { label: "飞4-100", multiplier: 4.1 },
-        { label: "飞5-100", multiplier: 4.53 },
-        { label: "飞6-100", multiplier: 5.06 },
-        { label: "额外蓝碎（K）", multiplier: 0.0002 }
+        { key: "e8_3", multiplier: 0.63 },
+        { key: "e9", multiplier: 1 },
+        { key: "v400", multiplier: 2.3 },
+        { key: "v420", multiplier: 3.03 },
+        { key: "fly1_100", multiplier: 3.2 },
+        { key: "fly2_100", multiplier: 3.43 },
+        { key: "fly3_100", multiplier: 3.73 },
+        { key: "fly4_100", multiplier: 4.1 },
+        { key: "fly5_100", multiplier: 4.53 },
+        { key: "fly6_100", multiplier: 5.06 },
+        { key: "extra_blue_k", multiplier: 0.0002 }
       ].map((item, index) => ({
         ...item,
         id: `input-${index}`
@@ -375,16 +413,126 @@
       const calcBtn = document.getElementById('calcBtn');
       const clearBtn = document.getElementById('clearBtn');
 
-      data.forEach(({ id, label }) => {
+      const I18N = {
+        zh: {
+          title: '核心计算器 · ShinE',
+          nav_label: '页面导航',
+          nav_home: '回到主页',
+          nav_flip: '九宫格翻牌',
+          nav_star: '星钻计算器',
+          page_title: '核心计算器',
+          page_desc: '输入各项资源数量，实时估算所需核心总量。',
+          calc_title: '填写参数',
+          calc_desc: '数值可填小数，修改后自动刷新结果。',
+          col_item: '项目',
+          col_amount: '数量',
+          total_label: '总核心：',
+          total_note: '实时更新 · 单位：核心',
+          clear: '清空',
+          calc: '计算总核心',
+          input_suffix: '投入数量',
+          item_e8_3: 'E8.3',
+          item_e9: 'E9',
+          item_v400: '400',
+          item_v420: '420',
+          item_fly1_100: '飞1-100',
+          item_fly2_100: '飞2-100',
+          item_fly3_100: '飞3-100',
+          item_fly4_100: '飞4-100',
+          item_fly5_100: '飞5-100',
+          item_fly6_100: '飞6-100',
+          item_extra_blue_k: '额外蓝碎（K）',
+          lang_toggle_en: 'EN',
+          lang_toggle_zh: '中文'
+        },
+        en: {
+          title: 'Core Calculator · ShinE',
+          nav_label: 'Page Navigation',
+          nav_home: 'Home',
+          nav_flip: '3x3 Flip Cards',
+          nav_star: 'Star Diamond Calculator',
+          page_title: 'Core Calculator',
+          page_desc: 'Enter resources to estimate the total core needed.',
+          calc_title: 'Parameters',
+          calc_desc: 'Decimals are supported. Results update automatically.',
+          col_item: 'Item',
+          col_amount: 'Amount',
+          total_label: 'Total Core: ',
+          total_note: 'Live update · Unit: Core',
+          clear: 'Clear',
+          calc: 'Calculate Total',
+          input_suffix: 'input amount',
+          item_e8_3: 'E8.3',
+          item_e9: 'E9',
+          item_v400: '400',
+          item_v420: '420',
+          item_fly1_100: 'Flight 1-100',
+          item_fly2_100: 'Flight 2-100',
+          item_fly3_100: 'Flight 3-100',
+          item_fly4_100: 'Flight 4-100',
+          item_fly5_100: 'Flight 5-100',
+          item_fly6_100: 'Flight 6-100',
+          item_extra_blue_k: 'Extra Blue Shards (K)',
+          lang_toggle_en: 'EN',
+          lang_toggle_zh: '中文'
+        }
+      };
+
+      let currentLang = (localStorage.getItem('flipgame_lang') || '').toLowerCase();
+      if (currentLang !== 'zh' && currentLang !== 'en') {
+        const navLang = (navigator.language || '').toLowerCase();
+        currentLang = navLang.startsWith('zh') ? 'zh' : 'en';
+      }
+
+      function t(key) {
+        return (I18N[currentLang] && I18N[currentLang][key]) || I18N.zh[key] || '';
+      }
+
+      const rowRefs = [];
+      data.forEach(({ id, key }) => {
         const row = document.createElement('tr');
         row.innerHTML = `
-          <td>${label}</td>
-          <td><input type="number" inputmode="decimal" min="0" value="0" id="${id}" aria-label="${label} 投入数量"></td>
+          <td></td>
+          <td><input type="number" inputmode="decimal" min="0" value="0" id="${id}"></td>
         `;
         tbody.appendChild(row);
+        const labelCell = row.querySelector('td');
+        const input = row.querySelector('input');
+        rowRefs.push({ key, labelCell, input });
       });
 
       const inputs = Array.from(tbody.querySelectorAll('input[type="number"]'));
+
+      function setStaticText() {
+        document.title = t('title');
+        document.documentElement.lang = currentLang === 'zh' ? 'zh-Hans' : 'en';
+        if (topbarNav) topbarNav.setAttribute('aria-label', t('nav_label'));
+        if (navHome) navHome.textContent = t('nav_home');
+        if (navFlip) navFlip.textContent = t('nav_flip');
+        if (navStar) navStar.textContent = t('nav_star');
+        if (pageTitle) pageTitle.textContent = t('page_title');
+        if (pageDesc) pageDesc.textContent = t('page_desc');
+        if (calculatorTitle) calculatorTitle.textContent = t('calc_title');
+        if (calculatorDesc) calculatorDesc.textContent = t('calc_desc');
+        if (tableColItem) tableColItem.textContent = t('col_item');
+        if (tableColAmount) tableColAmount.textContent = t('col_amount');
+        if (totalLabel) totalLabel.firstChild.nodeValue = t('total_label');
+        if (totalNote) totalNote.textContent = t('total_note');
+        if (clearBtn) clearBtn.textContent = t('clear');
+        if (calcBtn) calcBtn.textContent = t('calc');
+        if (langToggle) langToggle.textContent = currentLang === 'zh' ? t('lang_toggle_en') : t('lang_toggle_zh');
+        rowRefs.forEach(({ key, labelCell, input }) => {
+          const label = t(`item_${key}`);
+          if (labelCell) labelCell.textContent = label;
+          if (input) input.setAttribute('aria-label', `${label} ${t('input_suffix')}`);
+        });
+      }
+
+      function setLang(lang) {
+        currentLang = lang;
+        localStorage.setItem('flipgame_lang', lang);
+        setStaticText();
+      }
 
       function toNum(value) {
         const parsed = parseFloat(value);
@@ -423,6 +571,13 @@
       calcBtn.addEventListener('click', calcTotal);
       clearBtn.addEventListener('click', clearAll);
 
+      if (langToggle) {
+        langToggle.addEventListener('click', () => {
+          setLang(currentLang === 'zh' ? 'en' : 'zh');
+        });
+      }
+
+      setStaticText();
       calcTotal();
     })();
   </script>
