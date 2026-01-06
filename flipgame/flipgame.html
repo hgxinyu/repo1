@@ -99,6 +99,25 @@
 }
 .logo-bottom-left .logo-dot{width:8px;height:8px;border-radius:999px;background:linear-gradient(135deg,#6366f1,#22c55e)}
 
+.update-note{
+  max-width:980px;margin:0 auto;padding:10px 20px;
+  border-radius:14px;border:1px solid #e8e8ff;
+  background:linear-gradient(90deg,#fff7ed 0%, #f0f9ff 45%, #fff1f2 100%);
+  color:#111827;font-size:13px;
+  box-shadow:0 6px 16px rgba(0,0,0,.06);
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+}
+.update-note .pill{
+  font-weight:700;letter-spacing:.2px;
+  background:#111827;color:#fff;border-radius:999px;padding:3px 8px;font-size:11px;
+}
+.update-note .date{font-weight:700}
+.update-note .spark{
+  width:8px;height:8px;border-radius:999px;
+  background:radial-gradient(circle at 30% 30%, #fff, #f59e0b 60%, #ef4444 100%);
+  box-shadow:0 0 6px rgba(245,158,11,.7);
+}
+@media (max-width:600px){ .update-note{font-size:12px;padding:8px 12px} }
 </style>
 </head>
 <body>
@@ -106,6 +125,14 @@
 <div class="topbar">
   <a href="index.html" class="btn" style="text-decoration:none;">回到主页</a>
   <a href="CoreCalculator.html" class="btn" style="text-decoration:none;">核心计算器</a>
+</div>
+
+</span>
+<div class="update-note">
+  <span class="spark" aria-hidden="true"></span>
+  <span class="pill">Update</span>
+  <span class="date">2026/1/6</span>
+  <span>更新内容：新添加20%几率出现小精灵</span>
 </div>
 
 </span>
@@ -355,6 +382,7 @@
     const [r,c]=cell, idx=r*3+c;
     const el = inputs[idx];
     el.classList.add('rec');
+    try { el.focus({preventScroll:true}); el.select(); } catch(e) { try { el.focus(); el.select(); } catch(e2) {} }
     const tag = document.createElement('div');
     tag.className='tag';
     tag.textContent = `EV≈${ev.toFixed(1)}`;
