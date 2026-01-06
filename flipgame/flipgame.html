@@ -171,6 +171,10 @@
     { name: "副对角线", cells: [[0,2],[1,1],[2,0]] },
   ];
   const TARGET_OPEN = 4; // 开局1 + 可再翻3
+  const BONUS_GROUPS = [
+    [1,2,3],
+    [7,8,9],
+  ];
 
   const grid = document.getElementById('grid');
   const pairs = document.getElementById('pairs');
@@ -267,18 +271,50 @@
   }
   function lineSum(b, idx){ return LINES[idx].cells.map(([r,c])=>b[r][c]).reduce((a,b)=>a+b,0); }
 
-  function expectedBestScore_noFlip(samples){
+  function expectedLineScoreWithBonus(b, revealed, idx){
+    const cells = LINES[idx].cells;
+    const values = cells.map(([r,c])=>b[r][c]);
+    const baseSum = values[0] + values[1] + values[2];
+    const baseScore = SUM_TO_SCORE[baseSum] || 0;
+    for(const group of BONUS_GROUPS){
+      const inGroup = values.map(v=>group.includes(v));
+      const count = inGroup.filter(Boolean).length;
+      if(count === 2){
+        const missing = group.find(n=>!values.includes(n));
+        let missingRevealed = false;
+        for(let r=0;r<3;r++){
+          for(let c=0;c<3;c++){
+            if(revealed[r][c] && b[r][c] === missing){ missingRevealed = true; break; }
+          }
+          if(missingRevealed) break;
+        }
+        if(missingRevealed){ return baseScore; }
+        const thirdIdx = inGroup.findIndex(x=>!x);
+        const [r,c] = cells[thirdIdx];
+        const current = values[thirdIdx];
+        const newSum = baseSum + (missing - current);
+        const newScore = SUM_TO_SCORE[newSum] || 0;
+        return 0.8 * baseScore + 0.2 * newScore;
+      }
+    }
+    return baseScore;
+  }
+
+  function expectedBestScore_noFlip(samples, revealed){
     let best = -Infinity, bestIdx = 0, perLine = new Array(8).fill(0);
     for(let l=0;l<8;l++){
-      let acc=0; for(const s of samples){ acc += SUM_TO_SCORE[lineSum(s,l)] || 0; }
+      let acc=0;
+      for(const s of samples){
+        const score = expectedLineScoreWithBonus(s, revealed, l);
+        acc += score;
+      }
       const avg = acc / samples.length; perLine[l]=avg;
       if(avg>best){ best=avg; bestIdx=l; }
     }
     return {best, bestIdx, perLine};
   }
-
   function planEV(samples, flips, revealed){
-    if(flips<=0){ return expectedBestScore_noFlip(samples).best; }
+    if(flips<=0){ return expectedBestScore_noFlip(samples, revealed).best; }
     const unknown=[]; for(let r=0;r<3;r++){ for(let c=0;c<3;c++){ if(!revealed[r][c]) unknown.push([r,c]); }}
     let best=-Infinity;
     for(const [r,c] of unknown){
@@ -298,7 +334,7 @@
     const samples = sampleBoards(state, 2500);
     const {revealed} = state;
     const unknown=[]; for(let r=0;r<3;r++){ for(let c=0;c<3;c++){ if(!revealed[r][c]) unknown.push([r,c]); }}
-    if(unknown.length===0){ return {ev: expectedBestScore_noFlip(samples).best, cell: null}; }
+    if(unknown.length===0){ return {ev: expectedBestScore_noFlip(samples, revealed).best, cell: null}; }
     let globalBest=-Infinity, bestCell=null;
     for(const [r,c] of unknown){
       const buckets=new Map(); for(const b of samples){ const v=b[r][c]; if(!buckets.has(v)) buckets.set(v,[]); buckets.get(v).push(b); }
@@ -357,7 +393,7 @@
     if(opened === TARGET_OPEN){
       // 自动计算最佳线路（无额外翻牌）
       const samples = sampleBoards(st, 4000);
-      const {best, bestIdx, perLine} = expectedBestScore_noFlip(samples);
+      const {best, bestIdx, perLine} = expectedBestScore_noFlip(samples, st.revealed);
       adviceEl.innerHTML = `最佳线路：<b>${LINES[bestIdx].name}</b>（期望积分≈ <b>${best.toFixed(1)}</b>）`;
       statusEl.textContent = `样本数 4000 · 已开 4 张 · 翻牌结束`;
       linesWrap.style.display='block';
