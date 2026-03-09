@@ -44,19 +44,19 @@
     }
     nav#topbar-nav {
       position: fixed;
-      left: 12px;
+      right: 12px;
       top: 12px;
       z-index: 100;
       margin: 0;
-      width: min(220px, calc(100% - 96px));
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
+      width: auto;
+      display: inline-flex;
+      flex-direction: row;
+      align-items: center;
       gap: 8px;
-      padding: 8px;
+      padding: 6px 8px;
       background: rgba(255, 255, 255, 0.92);
       border: 1px solid var(--border);
-      border-radius: 14px;
+      border-radius: 999px;
       box-shadow: var(--shadow);
       backdrop-filter: saturate(140%) blur(6px);
     }
@@ -82,7 +82,7 @@
     }
     .langbar {
       position: fixed;
-      right: 12px;
+      left: 12px;
       top: 12px;
       z-index: 120;
       display: inline-flex;
@@ -250,9 +250,8 @@
     }
     @media (max-width: 720px) {
       nav#topbar-nav {
-        left: 8px;
+        right: 8px;
         top: 8px;
-        width: min(180px, calc(100% - 80px));
       }
       .site-header {
         flex-direction: column;
@@ -300,8 +299,6 @@
 <body>
   <nav id="topbar-nav" aria-label="页面导航">
     <a href="index.html" id="navHome">回到主页</a>
-    <a href="flipgame.html" id="navFlip">九宫格翻牌</a>
-    <a href="CoreCalculator.html" id="navCore">核心计算器</a>
   </nav>
 
   <div class="langbar">

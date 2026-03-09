@@ -29,18 +29,18 @@
     .preview img{max-width:100%;height:auto;border-radius:12px;border:1px solid var(--border);box-shadow:var(--shadow)}
     /* floating nav */
     #topbar-nav{
-      position:fixed; left:12px; top:12px; z-index:1000;
-      width:min(220px, calc(100% - 96px));
-      display:flex; flex-direction:column; gap:8px; align-items:stretch;
+      position:fixed; right:12px; top:12px; z-index:1000;
+      width:auto;
+      display:inline-flex; flex-direction:row; gap:8px; align-items:center;
       background:rgba(255,255,255,.9);
       border:1px solid #e5e7eb;
-      padding:8px; border-radius:16px; box-shadow:0 10px 24px rgba(15,23,42,.12);
+      padding:6px 8px; border-radius:999px; box-shadow:0 10px 24px rgba(15,23,42,.12);
       backdrop-filter:saturate(140%) blur(4px);
     }
     #topbar-nav .btn{padding:8px 12px; border-radius:999px; font-size:13px; white-space:nowrap; text-align:center;}
-    @media (max-width:480px){ #topbar-nav{ left:8px; top:8px; width:min(180px, calc(100% - 80px)); } }
+    @media (max-width:480px){ #topbar-nav{ right:8px; top:8px; } }
     .langbar{
-      position:fixed; right:12px; top:12px; z-index:1100;
+      position:fixed; left:12px; top:12px; z-index:1100;
       display:inline-flex; align-items:center;
       background:rgba(255,255,255,.9);
       border:1px solid #e5e7eb;
@@ -64,9 +64,6 @@
 <body>
   <div id="topbar-nav">
     <a href="index.html" class="btn" style="text-decoration:none;" id="navHome">回到主页</a>
-    <a href="flipgame.html" class="btn" style="text-decoration:none;" id="navFlip">九宫格翻牌</a>
-    <a href="CoreCalculator.html" class="btn" style="text-decoration:none;" id="navCore">核心计算器</a>
-    <a href="StarDiamondCalculator.html" class="btn" style="text-decoration:none;" id="navStar">星钻计算器</a>
   </div>
 
   <div class="langbar">

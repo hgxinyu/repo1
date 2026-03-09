@@ -31,3 +31,9 @@ TODO / notes:
 - Regenerated SVG/PNG/ICO logo set and verified edge pixels are non-black.
 - Added strict ascension total-cost guard: total cost is hidden unless A-/A/A+ unit prices are all available.
 - If any of A-/A/A+ prices are missing, the UI now shows a reminder message and keeps ascension/total cost as `—`.
+- Added app-mode UI override (`display-mode: standalone/fullscreen`) across pages.
+- In app mode, navigation is fixed as a top bar and only keeps the Home link; other nav buttons are hidden.
+- Added top padding in content areas to prevent overlap, and hid floating bottom logos/feedback overlays in app mode.
+- Unified navigation to a single Home button fixed at top-right on main tool pages (web + app modes).
+- Moved language switchers to top-left to avoid overlap with Home navigation.
+- Soul page: removed bottom ascension material price inputs; ascension cost now strictly uses top A-/A/A+ prices only.

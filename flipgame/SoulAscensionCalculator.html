@@ -45,19 +45,19 @@
     }
     nav#topbar-nav {
       position: fixed;
-      left: 12px;
+      right: 12px;
       top: 12px;
       z-index: 100;
       margin: 0;
-      width: min(220px, calc(100% - 96px));
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
+      width: auto;
+      display: inline-flex;
+      flex-direction: row;
+      align-items: center;
       gap: 8px;
-      padding: 8px;
+      padding: 6px 8px;
       background: rgba(255, 255, 255, 0.94);
       border: 1px solid var(--border);
-      border-radius: 16px;
+      border-radius: 999px;
       box-shadow: var(--shadow);
       backdrop-filter: saturate(140%) blur(6px);
     }
@@ -83,7 +83,7 @@
     }
     .langbar {
       position: fixed;
-      right: 12px;
+      left: 12px;
       top: 12px;
       z-index: 120;
       display: inline-flex;
@@ -285,9 +285,8 @@
     }
     @media (max-width: 720px) {
       nav#topbar-nav {
-        left: 8px;
+        right: 8px;
         top: 8px;
-        width: min(180px, calc(100% - 80px));
       }
     }
     @media (max-width: 480px) {
@@ -320,9 +319,6 @@
 <body>
   <nav id="topbar-nav" aria-label="页面导航">
     <a href="index.html" id="navHome">回到主页</a>
-    <a href="flipgame.html" id="navFlip">九宫格翻牌</a>
-    <a href="CoreCalculator.html" id="navCore">核心计算器</a>
-    <a href="StarDiamondCalculator.html" id="navStar">星钻计算器</a>
   </nav>
 
   <div class="langbar">
@@ -405,20 +401,6 @@
             <input id="priceAPlus" type="number" inputmode="decimal" min="0" step="any" placeholder="留空=忽略" />
           </div>
         </div>
-        <div class="row">
-          <div class="col">
-            <label for="matPriceAMinus" id="matPriceAMinusLabel">升格材料 A- 单价（需求3个）</label>
-            <input id="matPriceAMinus" type="number" inputmode="decimal" min="0" step="any" placeholder="留空=使用上方A-单价" />
-          </div>
-          <div class="col">
-            <label for="matPriceA" id="matPriceALabel">升格材料 A 单价（需求2个）</label>
-            <input id="matPriceA" type="number" inputmode="decimal" min="0" step="any" placeholder="留空=使用上方A单价" />
-          </div>
-          <div class="col">
-            <label for="matPriceAPlus" id="matPriceAPlusLabel">升格材料 A+ 单价（需求1个）</label>
-            <input id="matPriceAPlus" type="number" inputmode="decimal" min="0" step="any" placeholder="留空=使用上方A+单价" />
-          </div>
-        </div>
 
         <div class="out" aria-live="polite">
           <div class="box">
@@ -482,9 +464,6 @@
       const bestComboDesc = document.getElementById('bestComboDesc');
       const bestCostDesc = document.getElementById('bestCostDesc');
       const bestEffDesc = document.getElementById('bestEffDesc');
-      const matPriceAMinusLabel = document.getElementById('matPriceAMinusLabel');
-      const matPriceALabel = document.getElementById('matPriceALabel');
-      const matPriceAPlusLabel = document.getElementById('matPriceAPlusLabel');
       const ascCostLabel = document.getElementById('ascCostLabel');
       const ascCostDesc = document.getElementById('ascCostDesc');
       const totalCostLabel = document.getElementById('totalCostLabel');
@@ -499,9 +478,6 @@
       const priceAMinus = document.getElementById('priceAMinus');
       const priceA = document.getElementById('priceA');
       const priceAPlus = document.getElementById('priceAPlus');
-      const matPriceAMinus = document.getElementById('matPriceAMinus');
-      const matPriceA = document.getElementById('matPriceA');
-      const matPriceAPlus = document.getElementById('matPriceAPlus');
       const avgValue = document.getElementById('avgValue');
       const times = document.getElementById('times');
       const warn = document.getElementById('warn');
@@ -544,10 +520,6 @@
           price_a_label: 'A 单价（1150+4600经验）',
           price_aplus_label: 'A+ 单价（10000经验）',
           price_placeholder: '留空=忽略',
-          mat_aminus_label: '升格材料 A- 单价（需求3个）',
-          mat_a_label: '升格材料 A 单价（需求2个）',
-          mat_aplus_label: '升格材料 A+ 单价（需求1个）',
-          mat_placeholder: '留空=使用上方对应单价',
           best_combo_label: '最优组合',
           best_cost_label: '凝魂成本',
           best_exp_label: '总经验',
@@ -598,10 +570,6 @@
           price_a_label: 'A Price (1150+4600 EXP)',
           price_aplus_label: 'A+ Price (10000 EXP)',
           price_placeholder: 'Blank = ignore',
-          mat_aminus_label: 'Ascension A- Price (need 3)',
-          mat_a_label: 'Ascension A Price (need 2)',
-          mat_aplus_label: 'Ascension A+ Price (need 1)',
-          mat_placeholder: 'Blank = use top price',
           best_combo_label: 'Best Combo',
           best_cost_label: 'Feeding Cost',
           best_exp_label: 'Total EXP',
@@ -670,12 +638,6 @@
         if (priceAMinus) priceAMinus.setAttribute('placeholder', t('price_placeholder'));
         if (priceA) priceA.setAttribute('placeholder', t('price_placeholder'));
         if (priceAPlus) priceAPlus.setAttribute('placeholder', t('price_placeholder'));
-        if (matPriceAMinusLabel) matPriceAMinusLabel.textContent = t('mat_aminus_label');
-        if (matPriceALabel) matPriceALabel.textContent = t('mat_a_label');
-        if (matPriceAPlusLabel) matPriceAPlusLabel.textContent = t('mat_aplus_label');
-        if (matPriceAMinus) matPriceAMinus.setAttribute('placeholder', t('mat_placeholder'));
-        if (matPriceA) matPriceA.setAttribute('placeholder', t('mat_placeholder'));
-        if (matPriceAPlus) matPriceAPlus.setAttribute('placeholder', t('mat_placeholder'));
         if (bestComboLabel) bestComboLabel.textContent = t('best_combo_label');
         if (bestCostLabel) bestCostLabel.textContent = t('best_cost_label');
         if (bestExpLabel) bestExpLabel.textContent = t('best_exp_label');
@@ -715,13 +677,9 @@
         const topAMinus = parsePrice(priceAMinus.value);
         const topA = parsePrice(priceA.value);
         const topAPlus = parsePrice(priceAPlus.value);
-        const matAMinus = parsePrice(matPriceAMinus.value);
-        const matA = parsePrice(matPriceA.value);
-        const matAPlus = parsePrice(matPriceAPlus.value);
-
-        const useAMinus = matAMinus !== null ? matAMinus : topAMinus;
-        const useA = matA !== null ? matA : topA;
-        const useAPlus = matAPlus !== null ? matAPlus : topAPlus;
+        const useAMinus = topAMinus;
+        const useA = topA;
+        const useAPlus = topAPlus;
         const hasAllAscPrices = useAMinus !== null && useA !== null && useAPlus !== null;
         const ascCost = hasAllAscPrices ? ((useAMinus * 3) + (useA * 2) + useAPlus) : null;
         totalCostDesc.textContent = hasAllAscPrices ? t('total_cost_desc') : t('need_asc_prices');
@@ -866,7 +824,7 @@
         });
       });
 
-      [priceBMinus, priceB, priceBPlus, priceAMinus, priceA, priceAPlus, matPriceAMinus, matPriceA, matPriceAPlus].forEach((input) => {
+      [priceBMinus, priceB, priceBPlus, priceAMinus, priceA, priceAPlus].forEach((input) => {
         input.addEventListener('input', debouncedUpdate);
         input.addEventListener('change', update);
       });
@@ -881,9 +839,6 @@
         priceAMinus.value = '';
         priceA.value = '';
         priceAPlus.value = '';
-        matPriceAMinus.value = '';
-        matPriceA.value = '';
-        matPriceAPlus.value = '';
         touched = false;
         atk.focus();
         update();

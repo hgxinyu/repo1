@@ -292,6 +292,20 @@
         width: auto;
       }
     }
+    @media (display-mode: standalone), (display-mode: fullscreen) {
+      .langbar {
+        right: 8px;
+        top: 6px;
+      }
+      .wrap {
+        padding-top: 56px;
+      }
+      .logo-bottom-right,
+      .feedback-toggle,
+      .feedback-panel {
+        display: none !important;
+      }
+    }
   </style>
 </head>
 <body>
