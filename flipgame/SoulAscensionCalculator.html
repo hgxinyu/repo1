@@ -4,6 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>凝魂升格计算器 · ShinE</title>
+  <link rel="icon" type="image/svg+xml" href="assets/shine-logo.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/shine-logo-32.png">
+  <link rel="shortcut icon" href="assets/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/shine-logo-180.png">
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="theme-color" content="#6366f1">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
   <style>
@@ -38,16 +44,17 @@
       align-items: center;
     }
     nav#topbar-nav {
-      position: sticky;
+      position: fixed;
+      left: 12px;
       top: 12px;
       z-index: 100;
-      margin: 12px auto 0;
-      width: min(100% - 24px, 720px);
+      margin: 0;
+      width: min(220px, calc(100% - 96px));
       display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 10px;
-      padding: 8px 14px;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 8px;
+      padding: 8px;
       background: rgba(255, 255, 255, 0.94);
       border: 1px solid var(--border);
       border-radius: 16px;
@@ -64,6 +71,7 @@
       text-decoration: none;
       transition: background 0.2s ease, box-shadow 0.2s ease;
       white-space: nowrap;
+      text-align: center;
     }
     nav#topbar-nav a:hover {
       background: rgba(99, 102, 241, 0.16);
@@ -244,6 +252,14 @@
       color: var(--muted);
       font-size: 13px;
     }
+    .box.highlight {
+      background: #fff7ed;
+      border: 2px solid #fb923c;
+      box-shadow: 0 8px 18px rgba(251, 146, 60, 0.2);
+    }
+    .box.highlight .v {
+      color: #c2410c;
+    }
     .logo-bottom-left {
       position: fixed;
       left: 12px;
@@ -269,16 +285,9 @@
     }
     @media (max-width: 720px) {
       nav#topbar-nav {
-        justify-content: flex-start;
-        overflow-x: auto;
-        scrollbar-width: thin;
-      }
-      nav#topbar-nav::-webkit-scrollbar {
-        height: 4px;
-      }
-      nav#topbar-nav::-webkit-scrollbar-thumb {
-        background: rgba(99, 102, 241, 0.45);
-        border-radius: 999px;
+        left: 8px;
+        top: 8px;
+        width: min(180px, calc(100% - 80px));
       }
     }
     @media (max-width: 480px) {
@@ -364,6 +373,76 @@
           </div>
         </div>
       </section>
+
+      <section class="card" aria-labelledby="price-title">
+        <h2 id="price-title">A+凝魂性价比（所需总经验）</h2>
+        <p class="muted" style="margin:-4px 0 4px;" id="priceDesc">下方输入框只填各资质单价（不是经验）。所需总经验自动取上方凝魂次数 × 1200，留空表示忽略该资质。</p>
+        <div class="row">
+          <div class="col">
+            <label for="priceBMinus" id="priceBMinusLabel">B- 单价（50经验）</label>
+            <input id="priceBMinus" type="number" inputmode="decimal" min="0" step="any" placeholder="留空=忽略" />
+          </div>
+          <div class="col">
+            <label for="priceB" id="priceBLabel">B 单价（140经验）</label>
+            <input id="priceB" type="number" inputmode="decimal" min="0" step="any" placeholder="留空=忽略" />
+          </div>
+          <div class="col">
+            <label for="priceBPlus" id="priceBPlusLabel">B+ 单价（340经验）</label>
+            <input id="priceBPlus" type="number" inputmode="decimal" min="0" step="any" placeholder="留空=忽略" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <label for="priceAMinus" id="priceAMinusLabel">A- 单价（610+2440经验）</label>
+            <input id="priceAMinus" type="number" inputmode="decimal" min="0" step="any" placeholder="留空=忽略" />
+          </div>
+          <div class="col">
+            <label for="priceA" id="priceALabel">A 单价（1150+4600经验）</label>
+            <input id="priceA" type="number" inputmode="decimal" min="0" step="any" placeholder="留空=忽略" />
+          </div>
+          <div class="col">
+            <label for="priceAPlus" id="priceAPlusLabel">A+ 单价（10000经验）</label>
+            <input id="priceAPlus" type="number" inputmode="decimal" min="0" step="any" placeholder="留空=忽略" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <label for="matPriceAMinus" id="matPriceAMinusLabel">升格材料 A- 单价（需求3个）</label>
+            <input id="matPriceAMinus" type="number" inputmode="decimal" min="0" step="any" placeholder="留空=使用上方A-单价" />
+          </div>
+          <div class="col">
+            <label for="matPriceA" id="matPriceALabel">升格材料 A 单价（需求2个）</label>
+            <input id="matPriceA" type="number" inputmode="decimal" min="0" step="any" placeholder="留空=使用上方A单价" />
+          </div>
+          <div class="col">
+            <label for="matPriceAPlus" id="matPriceAPlusLabel">升格材料 A+ 单价（需求1个）</label>
+            <input id="matPriceAPlus" type="number" inputmode="decimal" min="0" step="any" placeholder="留空=使用上方A+单价" />
+          </div>
+        </div>
+
+        <div class="out" aria-live="polite">
+          <div class="box">
+            <div class="kv"><span id="bestComboLabel">最优组合</span><span class="v" id="bestComboValue">—</span></div>
+            <span class="muted" id="bestComboDesc">达到1200经验的最低成本吃法</span>
+          </div>
+          <div class="box">
+            <div class="kv"><span id="bestCostLabel">凝魂成本</span><span class="v" id="bestCostValue">—</span></div>
+            <span class="muted" id="bestCostDesc">仅根据已填写价格计算</span>
+          </div>
+          <div class="box">
+            <div class="kv"><span id="bestExpLabel">总经验</span><span class="v" id="bestExpValue">—</span></div>
+            <span class="muted" id="bestEffDesc">成本/所需总经验：—</span>
+          </div>
+          <div class="box">
+            <div class="kv"><span id="ascCostLabel">升格成本</span><span class="v" id="ascCostValue">—</span></div>
+            <span class="muted" id="ascCostDesc">3×A- + 2×A + 1×A+</span>
+          </div>
+          <div class="box highlight">
+            <div class="kv"><span id="totalCostLabel">总成本（高亮）</span><span class="v" id="totalCostValue">—</span></div>
+            <span class="muted" id="totalCostDesc">总成本 = 凝魂成本 + 升格成本</span>
+          </div>
+        </div>
+      </section>
     </main>
   </div>
 
@@ -389,14 +468,49 @@
       const avgLabel = document.getElementById('avgLabel');
       const timesLabel = document.getElementById('timesLabel');
       const timesDesc = document.getElementById('timesDesc');
+      const priceTitle = document.getElementById('price-title');
+      const priceDesc = document.getElementById('priceDesc');
+      const priceBMinusLabel = document.getElementById('priceBMinusLabel');
+      const priceBLabel = document.getElementById('priceBLabel');
+      const priceBPlusLabel = document.getElementById('priceBPlusLabel');
+      const priceAMinusLabel = document.getElementById('priceAMinusLabel');
+      const priceALabel = document.getElementById('priceALabel');
+      const priceAPlusLabel = document.getElementById('priceAPlusLabel');
+      const bestComboLabel = document.getElementById('bestComboLabel');
+      const bestCostLabel = document.getElementById('bestCostLabel');
+      const bestExpLabel = document.getElementById('bestExpLabel');
+      const bestComboDesc = document.getElementById('bestComboDesc');
+      const bestCostDesc = document.getElementById('bestCostDesc');
+      const bestEffDesc = document.getElementById('bestEffDesc');
+      const matPriceAMinusLabel = document.getElementById('matPriceAMinusLabel');
+      const matPriceALabel = document.getElementById('matPriceALabel');
+      const matPriceAPlusLabel = document.getElementById('matPriceAPlusLabel');
+      const ascCostLabel = document.getElementById('ascCostLabel');
+      const ascCostDesc = document.getElementById('ascCostDesc');
+      const totalCostLabel = document.getElementById('totalCostLabel');
+      const totalCostDesc = document.getElementById('totalCostDesc');
       const topbarNav = document.getElementById('topbar-nav');
       const atk = document.getElementById('atk');
       const hp = document.getElementById('hp');
       const spd = document.getElementById('spd');
+      const priceBMinus = document.getElementById('priceBMinus');
+      const priceB = document.getElementById('priceB');
+      const priceBPlus = document.getElementById('priceBPlus');
+      const priceAMinus = document.getElementById('priceAMinus');
+      const priceA = document.getElementById('priceA');
+      const priceAPlus = document.getElementById('priceAPlus');
+      const matPriceAMinus = document.getElementById('matPriceAMinus');
+      const matPriceA = document.getElementById('matPriceA');
+      const matPriceAPlus = document.getElementById('matPriceAPlus');
       const avgValue = document.getElementById('avgValue');
       const times = document.getElementById('times');
       const warn = document.getElementById('warn');
       const clearBtn = document.getElementById('clearBtn');
+      const bestComboValue = document.getElementById('bestComboValue');
+      const bestCostValue = document.getElementById('bestCostValue');
+      const bestExpValue = document.getElementById('bestExpValue');
+      const ascCostValue = document.getElementById('ascCostValue');
+      const totalCostValue = document.getElementById('totalCostValue');
 
       const I18N = {
         zh: {
@@ -421,6 +535,33 @@
           avg_label: '平均值',
           times_label: '凝魂次数',
           times_desc: '仅在区间有效时显示',
+          price_title: 'A+凝魂性价比（所需总经验）',
+          price_desc: '下方输入框只填各资质单价（不是经验）。所需总经验自动取上方凝魂次数 × 1200，留空表示忽略该资质。',
+          price_bminus_label: 'B- 单价（50经验）',
+          price_b_label: 'B 单价（140经验）',
+          price_bplus_label: 'B+ 单价（340经验）',
+          price_aminus_label: 'A- 单价（610+2440经验）',
+          price_a_label: 'A 单价（1150+4600经验）',
+          price_aplus_label: 'A+ 单价（10000经验）',
+          price_placeholder: '留空=忽略',
+          mat_aminus_label: '升格材料 A- 单价（需求3个）',
+          mat_a_label: '升格材料 A 单价（需求2个）',
+          mat_aplus_label: '升格材料 A+ 单价（需求1个）',
+          mat_placeholder: '留空=使用上方对应单价',
+          best_combo_label: '最优组合',
+          best_cost_label: '凝魂成本',
+          best_exp_label: '总经验',
+          best_combo_desc: '达到所需总经验的最低成本吃法',
+          best_cost_desc: '仅根据已填写价格计算',
+          best_eff_desc: '成本/所需总经验：',
+          asc_cost_label: '升格成本',
+          asc_cost_desc: '3×A- + 2×A + 1×A+',
+          total_cost_label: '总成本（高亮）',
+          total_cost_desc: '总成本 = 凝魂成本 + 升格成本',
+          need_asc_prices: '请先填写 A- / A / A+ 单价后再显示总价',
+          need_valid_stats: '请先在上方输入有效属性',
+          no_price: '未填写任何价格',
+          no_solution: '无法凑满所需总经验',
           clear: '清空',
           dash: '—',
           lang_toggle_en: 'EN',
@@ -448,6 +589,33 @@
           avg_label: 'Average',
           times_label: 'Ascension Count',
           times_desc: 'Shown only when within range',
+          price_title: 'A+ Cost Efficiency (Required Total EXP)',
+          price_desc: 'Price inputs only (not EXP). Required EXP is auto-derived from the top result: Ascension Count × 1200. Blank means ignored.',
+          price_bminus_label: 'B- Price (50 EXP)',
+          price_b_label: 'B Price (140 EXP)',
+          price_bplus_label: 'B+ Price (340 EXP)',
+          price_aminus_label: 'A- Price (610+2440 EXP)',
+          price_a_label: 'A Price (1150+4600 EXP)',
+          price_aplus_label: 'A+ Price (10000 EXP)',
+          price_placeholder: 'Blank = ignore',
+          mat_aminus_label: 'Ascension A- Price (need 3)',
+          mat_a_label: 'Ascension A Price (need 2)',
+          mat_aplus_label: 'Ascension A+ Price (need 1)',
+          mat_placeholder: 'Blank = use top price',
+          best_combo_label: 'Best Combo',
+          best_cost_label: 'Feeding Cost',
+          best_exp_label: 'Total EXP',
+          best_combo_desc: 'Lowest cost way to reach the required EXP',
+          best_cost_desc: 'Computed from entered prices only',
+          best_eff_desc: 'Cost / Required EXP:',
+          asc_cost_label: 'Ascension Cost',
+          asc_cost_desc: '3×A- + 2×A + 1×A+',
+          total_cost_label: 'Total Cost (Highlight)',
+          total_cost_desc: 'Total Cost = Feeding Cost + Ascension Cost',
+          need_asc_prices: 'Enter A- / A / A+ prices to show total cost',
+          need_valid_stats: 'Enter valid stats above first',
+          no_price: 'No prices entered',
+          no_solution: 'Cannot reach required EXP',
           clear: 'Clear',
           dash: '—',
           lang_toggle_en: 'EN',
@@ -488,6 +656,35 @@
         if (avgLabel) avgLabel.textContent = t('avg_label');
         if (timesLabel) timesLabel.textContent = t('times_label');
         if (timesDesc) timesDesc.textContent = t('times_desc');
+        if (priceTitle) priceTitle.textContent = t('price_title');
+        if (priceDesc) priceDesc.textContent = t('price_desc');
+        if (priceBMinusLabel) priceBMinusLabel.textContent = t('price_bminus_label');
+        if (priceBLabel) priceBLabel.textContent = t('price_b_label');
+        if (priceBPlusLabel) priceBPlusLabel.textContent = t('price_bplus_label');
+        if (priceAMinusLabel) priceAMinusLabel.textContent = t('price_aminus_label');
+        if (priceALabel) priceALabel.textContent = t('price_a_label');
+        if (priceAPlusLabel) priceAPlusLabel.textContent = t('price_aplus_label');
+        if (priceBMinus) priceBMinus.setAttribute('placeholder', t('price_placeholder'));
+        if (priceB) priceB.setAttribute('placeholder', t('price_placeholder'));
+        if (priceBPlus) priceBPlus.setAttribute('placeholder', t('price_placeholder'));
+        if (priceAMinus) priceAMinus.setAttribute('placeholder', t('price_placeholder'));
+        if (priceA) priceA.setAttribute('placeholder', t('price_placeholder'));
+        if (priceAPlus) priceAPlus.setAttribute('placeholder', t('price_placeholder'));
+        if (matPriceAMinusLabel) matPriceAMinusLabel.textContent = t('mat_aminus_label');
+        if (matPriceALabel) matPriceALabel.textContent = t('mat_a_label');
+        if (matPriceAPlusLabel) matPriceAPlusLabel.textContent = t('mat_aplus_label');
+        if (matPriceAMinus) matPriceAMinus.setAttribute('placeholder', t('mat_placeholder'));
+        if (matPriceA) matPriceA.setAttribute('placeholder', t('mat_placeholder'));
+        if (matPriceAPlus) matPriceAPlus.setAttribute('placeholder', t('mat_placeholder'));
+        if (bestComboLabel) bestComboLabel.textContent = t('best_combo_label');
+        if (bestCostLabel) bestCostLabel.textContent = t('best_cost_label');
+        if (bestExpLabel) bestExpLabel.textContent = t('best_exp_label');
+        if (bestComboDesc) bestComboDesc.textContent = t('best_combo_desc');
+        if (bestCostDesc) bestCostDesc.textContent = t('best_cost_desc');
+        if (ascCostLabel) ascCostLabel.textContent = t('asc_cost_label');
+        if (ascCostDesc) ascCostDesc.textContent = t('asc_cost_desc');
+        if (totalCostLabel) totalCostLabel.textContent = t('total_cost_label');
+        if (totalCostDesc) totalCostDesc.textContent = t('total_cost_desc');
         if (clearBtn) clearBtn.textContent = t('clear');
         if (langToggle) langToggle.textContent = currentLang === 'zh' ? t('lang_toggle_en') : t('lang_toggle_zh');
       }
@@ -507,6 +704,126 @@
         return Number.isFinite(parsed) ? parsed : 0;
       }
 
+      function parsePrice(value) {
+        const raw = String(value || '').trim();
+        if (!raw) return null;
+        const parsed = parseFloat(raw);
+        return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
+      }
+
+      function calcBestFeedPlan(targetExp) {
+        const topAMinus = parsePrice(priceAMinus.value);
+        const topA = parsePrice(priceA.value);
+        const topAPlus = parsePrice(priceAPlus.value);
+        const matAMinus = parsePrice(matPriceAMinus.value);
+        const matA = parsePrice(matPriceA.value);
+        const matAPlus = parsePrice(matPriceAPlus.value);
+
+        const useAMinus = matAMinus !== null ? matAMinus : topAMinus;
+        const useA = matA !== null ? matA : topA;
+        const useAPlus = matAPlus !== null ? matAPlus : topAPlus;
+        const hasAllAscPrices = useAMinus !== null && useA !== null && useAPlus !== null;
+        const ascCost = hasAllAscPrices ? ((useAMinus * 3) + (useA * 2) + useAPlus) : null;
+        totalCostDesc.textContent = hasAllAscPrices ? t('total_cost_desc') : t('need_asc_prices');
+
+        if (!Number.isFinite(targetExp) || targetExp <= 0) {
+          bestComboValue.textContent = t('need_valid_stats');
+          bestCostValue.textContent = t('dash');
+          bestExpValue.textContent = t('dash');
+          ascCostValue.textContent = hasAllAscPrices ? ascCost.toFixed(2) : t('dash');
+          totalCostValue.textContent = t('dash');
+          bestEffDesc.textContent = `${t('best_eff_desc')} ${t('dash')}`;
+          return;
+        }
+
+        const options = [
+          { key: 'B-', exp: 50, price: parsePrice(priceBMinus.value) },
+          { key: 'B', exp: 140, price: parsePrice(priceB.value) },
+          { key: 'B+', exp: 340, price: parsePrice(priceBPlus.value) },
+          { key: 'A-', exp: 3050, price: parsePrice(priceAMinus.value) },
+          { key: 'A', exp: 5750, price: parsePrice(priceA.value) },
+          { key: 'A+', exp: 10000, price: parsePrice(priceAPlus.value) }
+        ].filter((item) => item.price !== null);
+
+        if (!options.length) {
+          bestComboValue.textContent = t('no_price');
+          bestCostValue.textContent = t('dash');
+          bestExpValue.textContent = t('dash');
+          ascCostValue.textContent = hasAllAscPrices ? ascCost.toFixed(2) : t('dash');
+          totalCostValue.textContent = t('dash');
+          bestEffDesc.textContent = `${t('best_eff_desc')} ${t('dash')}`;
+          return;
+        }
+
+        const maxExp = Math.max(...options.map((item) => item.exp));
+        const cap = targetExp + maxExp;
+        const dpCost = Array(cap + 1).fill(Infinity);
+        const dpCount = Array(cap + 1).fill(Infinity);
+        const prevExp = Array(cap + 1).fill(-1);
+        const prevOpt = Array(cap + 1).fill(-1);
+        dpCost[0] = 0;
+        dpCount[0] = 0;
+
+        for (let exp = 0; exp <= cap; exp += 1) {
+          if (!Number.isFinite(dpCost[exp])) continue;
+          for (let i = 0; i < options.length; i += 1) {
+            const nextExp = exp + options[i].exp;
+            if (nextExp > cap) continue;
+            const nextCost = dpCost[exp] + options[i].price;
+            const nextCount = dpCount[exp] + 1;
+            const betterCost = nextCost < dpCost[nextExp];
+            const sameCostLessItems = nextCost === dpCost[nextExp] && nextCount < dpCount[nextExp];
+            if (betterCost || sameCostLessItems) {
+              dpCost[nextExp] = nextCost;
+              dpCount[nextExp] = nextCount;
+              prevExp[nextExp] = exp;
+              prevOpt[nextExp] = i;
+            }
+          }
+        }
+
+        let bestExp = -1;
+        let bestCost = Infinity;
+        let bestCount = Infinity;
+        for (let exp = targetExp; exp <= cap; exp += 1) {
+          if (!Number.isFinite(dpCost[exp])) continue;
+          const lowerCost = dpCost[exp] < bestCost;
+          const sameCostLowerOverflow = dpCost[exp] === bestCost && exp < bestExp;
+          const sameCostOverflowLessItems = dpCost[exp] === bestCost && exp === bestExp && dpCount[exp] < bestCount;
+          if (lowerCost || sameCostLowerOverflow || sameCostOverflowLessItems) {
+            bestExp = exp;
+            bestCost = dpCost[exp];
+            bestCount = dpCount[exp];
+          }
+        }
+
+        if (bestExp < 0) {
+          bestComboValue.textContent = t('no_solution');
+          bestCostValue.textContent = t('dash');
+          bestExpValue.textContent = t('dash');
+          ascCostValue.textContent = hasAllAscPrices ? ascCost.toFixed(2) : t('dash');
+          totalCostValue.textContent = t('dash');
+          bestEffDesc.textContent = `${t('best_eff_desc')} ${t('dash')}`;
+          return;
+        }
+
+        const counts = {};
+        let cursor = bestExp;
+        while (cursor > 0 && prevOpt[cursor] !== -1) {
+          const opt = options[prevOpt[cursor]];
+          counts[opt.key] = (counts[opt.key] || 0) + 1;
+          cursor = prevExp[cursor];
+        }
+
+        const parts = Object.keys(counts).sort().map((key) => `${key}×${counts[key]}`);
+        bestComboValue.textContent = parts.length ? parts.join(' + ') : t('dash');
+        bestCostValue.textContent = Number.isFinite(bestCost) ? bestCost.toFixed(2) : t('dash');
+        bestExpValue.textContent = bestExp >= 0 ? String(bestExp) : t('dash');
+        ascCostValue.textContent = hasAllAscPrices ? ascCost.toFixed(2) : t('dash');
+        totalCostValue.textContent = hasAllAscPrices ? (bestCost + ascCost).toFixed(2) : t('dash');
+        bestEffDesc.textContent = `${t('best_eff_desc')} ${(bestCost / targetExp).toFixed(4)}`;
+      }
+
       function update() {
         const x = toNum(atk.value);
         const y = toNum(hp.value);
@@ -519,13 +836,18 @@
         const valid = total >= 21600 && total <= 24297;
         warn.style.display = (!touched || valid) ? 'none' : 'block';
 
+        let requiredTotalExp = 0;
         if (valid) {
           const need = (24300 - total) / 135;
           const count = Math.ceil(need);
-          times.textContent = count < 0 ? 0 : count;
+          const safeCount = count < 0 ? 0 : count;
+          times.textContent = safeCount;
+          requiredTotalExp = safeCount * 1200;
         } else {
           times.textContent = t('dash');
         }
+
+        calcBestFeedPlan(requiredTotalExp);
       }
 
       function debouncedUpdate() {
@@ -544,10 +866,24 @@
         });
       });
 
+      [priceBMinus, priceB, priceBPlus, priceAMinus, priceA, priceAPlus, matPriceAMinus, matPriceA, matPriceAPlus].forEach((input) => {
+        input.addEventListener('input', debouncedUpdate);
+        input.addEventListener('change', update);
+      });
+
       clearBtn.addEventListener('click', () => {
         atk.value = '0';
         hp.value = '0';
         spd.value = '0';
+        priceBMinus.value = '';
+        priceB.value = '';
+        priceBPlus.value = '';
+        priceAMinus.value = '';
+        priceA.value = '';
+        priceAPlus.value = '';
+        matPriceAMinus.value = '';
+        matPriceA.value = '';
+        matPriceAPlus.value = '';
         touched = false;
         atk.focus();
         update();

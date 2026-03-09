@@ -1,0 +1,33 @@
+Original prompt: 需要改进一下放置工具箱的凝魂页面，A+凝魂的话，每次消耗1200经验，下面是吃具体每种资质的所得经验，B- 50，B 140，B+ 340， A- 610+2440， A 1150+4600， A+ 10000， 提供输入框输入每种资质的价格，你帮我算哪种组合性价比最高。如果改资质输入框空白表示在忽略改资质
+
+- Added a new A+ feed cost-efficiency module in `flipgame/SoulAscensionCalculator.html`.
+- Added six price inputs (B-, B, B+, A-, A, A+). Blank input is treated as ignored.
+- Implemented DP-based minimum-cost combination solver to reach at least 1200 EXP.
+- Added outputs for best combo, total cost, total EXP, and cost per 1200 EXP.
+- Integrated all new text labels into existing zh/en I18N and language toggle behavior.
+- Updated Clear button to reset both stat fields and new price fields.
+
+TODO / notes:
+- Current implementation treats A- EXP as 3050 (=610+2440) and A EXP as 5750 (=1150+4600), based on the provided expression.
+- If user wants to separate those two values into distinct feeding modes, split each into two independent options in UI and DP input.
+- Updated optimizer target EXP: now derives from top result (`凝魂次数 × 1200`) instead of fixed 1200.
+- Added validation state for optimizer when top stats are invalid or required EXP is 0.
+- Updated zh/en copy to reflect dynamic required total EXP and adjusted efficiency metric to `cost / required EXP`.
+- Clarified price section copy: inputs are unit prices only, EXP values are fixed constants from user-provided rules.
+- Added ascension material price inputs (A-/A/A+) and ascension cost output (3*A- + 2*A + 1*A+).
+- Added highlighted total cost box showing `总成本 = 凝魂成本 + 升格成本`.
+- Material price blanks are treated as 0 for ascension cost calculation.
+- Unified top floating controls across pages: moved nav controls to fixed top-left and language toggle to fixed top-right style.
+- Updated pages: SoulAscensionCalculator, CoreCalculator, StarDiamondCalculator, flipgame, 奇幻梦工厂隐藏关, and index language button style.
+- Removed center sticky top nav pattern on calculator pages to avoid blocking while scrolling.
+- Created a simple brand logo set for browser/app usage: SVG + PNG(32/180/192/512) + favicon.ico under `flipgame/assets/`.
+- Added `flipgame/site.webmanifest` for installable app icon support.
+- Linked favicon, apple-touch-icon, manifest, and theme-color in all main `flipgame/*.html` pages.
+- Updated ascension cost fallback: if dedicated ascension material price is blank, it now falls back to the corresponding top A-/A/A+ price.
+- Ascension formula remains fixed: `3×A- + 2×A + 1×A+` and contributes to highlighted total cost.
+- Recentered logo glyph `S` in both SVG and raster icon outputs; regenerated favicon and PNG icon set.
+- Verified 512 icon white glyph center is now vertically centered (y offset 0px).
+- Removed black edge from logo assets by replacing dark background with a full gradient rounded-rectangle base.
+- Regenerated SVG/PNG/ICO logo set and verified edge pixels are non-black.
+- Added strict ascension total-cost guard: total cost is hidden unless A-/A/A+ unit prices are all available.
+- If any of A-/A/A+ prices are missing, the UI now shows a reminder message and keeps ascension/total cost as `—`.
