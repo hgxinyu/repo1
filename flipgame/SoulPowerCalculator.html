@@ -424,7 +424,8 @@
           const minAvg = Number((cols[1] || '').trim());
           const upperCap = Number((cols[2] || '').trim());
           if (!level || !Number.isFinite(minAvg) || !Number.isFinite(upperCap)) continue;
-          parsed.push({ level, minAvg, upperCap });
+          const maxAvg = String(level).toLowerCase() === 'sss' ? 9900 : null;
+          parsed.push({ level, minAvg, upperCap, maxAvg });
         }
         parsed.sort((a, b) => a.minAvg - b.minAvg);
         return parsed;
@@ -433,15 +434,15 @@
       function loadFallbackTiers() {
         // Deployment fallback if CSV path/encoding causes fetch parse failure.
         tiers = [
-          { level: 'b-', minAvg: 2700, upperCap: 600 },
-          { level: 'b', minAvg: 3500, upperCap: 1200 },
-          { level: 'b+', minAvg: 4400, upperCap: 2000 },
-          { level: 'a-', minAvg: 5400, upperCap: 3000 },
-          { level: 'a', minAvg: 6300, upperCap: 4000 },
-          { level: 'a+', minAvg: 7200, upperCap: 5000 },
-          { level: 's', minAvg: 8100, upperCap: 6500 },
-          { level: 'ss', minAvg: 8700, upperCap: 8000 },
-          { level: 'sss', minAvg: 9300, upperCap: 9900 }
+          { level: 'b-', minAvg: 2700, upperCap: 600, maxAvg: null },
+          { level: 'b', minAvg: 3500, upperCap: 1200, maxAvg: null },
+          { level: 'b+', minAvg: 4400, upperCap: 2000, maxAvg: null },
+          { level: 'a-', minAvg: 5400, upperCap: 3000, maxAvg: null },
+          { level: 'a', minAvg: 6300, upperCap: 4000, maxAvg: null },
+          { level: 'a+', minAvg: 7200, upperCap: 5000, maxAvg: null },
+          { level: 's', minAvg: 8100, upperCap: 6500, maxAvg: null },
+          { level: 'ss', minAvg: 8700, upperCap: 8000, maxAvg: null },
+          { level: 'sss', minAvg: 9300, upperCap: 9900, maxAvg: 9900 }
         ];
       }
 
@@ -496,34 +497,64 @@
         return String(level || '').toUpperCase();
       }
 
+      function estimateBySpeed(x, y, speed) {
+        const avg = (x + y + speed * 100) / 3;
+        const tierIndex = findTier(avg);
+        if (tierIndex === null || !tiers.length) {
+          return { avg, tier: null, power: null };
+        }
+
+        const tier = tiers[tierIndex];
+        const prevUpper = tierIndex > 0 ? tiers[tierIndex - 1].upperCap : 0;
+        const nextMin = tierIndex < tiers.length - 1 ? tiers[tierIndex + 1].minAvg : tier.minAvg;
+        const upperAvg = Number.isFinite(tier.maxAvg) ? tier.maxAvg : nextMin;
+        let power = tier.upperCap;
+
+        if (upperAvg > tier.minAvg) {
+          const ratio = Math.max(0, Math.min(1, (avg - tier.minAvg) / (upperAvg - tier.minAvg)));
+          power = prevUpper + ratio * (tier.upperCap - prevUpper);
+        }
+
+        return { avg, tier, power };
+      }
+
       function update() {
         const x = toNum(atk.value);
         const y = toNum(hp.value);
         const z = toNum(spd.value);
-        const avg = (x + y + z * 100) / 3;
-        avgValue.textContent = avg.toFixed(2);
+        const resultA = estimateBySpeed(x, y, z);
+        const resultB = estimateBySpeed(x, y, z + 1);
 
-        const tierIndex = findTier(avg);
-        if (tierIndex === null || !tiers.length) {
+        const avgMin = Math.min(resultA.avg, resultB.avg);
+        const avgMax = Math.max(resultA.avg, resultB.avg);
+        avgValue.textContent = `${Math.round(avgMin)} ~ ${Math.round(avgMax)}`;
+
+        if (!resultA.tier && !resultB.tier) {
           warn.style.display = 'block';
           gradeValue.textContent = t('dash');
           powerValue.textContent = t('dash');
           return;
         }
 
-        const tier = tiers[tierIndex];
-        const prevUpper = tierIndex > 0 ? tiers[tierIndex - 1].upperCap : 0;
-        const nextMin = tierIndex < tiers.length - 1 ? tiers[tierIndex + 1].minAvg : tier.minAvg;
-        let power = tier.upperCap;
-
-        if (nextMin > tier.minAvg) {
-          const ratio = Math.max(0, Math.min(1, (avg - tier.minAvg) / (nextMin - tier.minAvg)));
-          power = prevUpper + ratio * (tier.upperCap - prevUpper);
+        warn.style.display = 'none';
+        const tierA = resultA.tier ? formatLevel(resultA.tier.level) : null;
+        const tierB = resultB.tier ? formatLevel(resultB.tier.level) : null;
+        if (tierA && tierB) {
+          gradeValue.textContent = tierA === tierB ? tierA : `${tierA} ~ ${tierB}`;
+        } else {
+          gradeValue.textContent = tierA || tierB || t('dash');
         }
 
-        warn.style.display = 'none';
-        gradeValue.textContent = formatLevel(tier.level);
-        powerValue.textContent = power.toFixed(2);
+        const powers = [resultA.power, resultB.power].filter((v) => Number.isFinite(v));
+        if (!powers.length) {
+          powerValue.textContent = t('dash');
+        } else {
+          const pMin = Math.min(...powers);
+          const pMax = Math.max(...powers);
+          powerValue.textContent = pMin === pMax
+            ? String(Math.round(pMin))
+            : `${Math.round(pMin)} ~ ${Math.round(pMax)}`;
+        }
       }
 
       let debounceTimer = null;
