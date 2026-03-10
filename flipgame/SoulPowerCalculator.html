@@ -418,10 +418,11 @@
       let tiers = [];
 
       function parseTierData(csvText) {
-        const lines = csvText.split(/\r?\n/).filter(Boolean);
+        const normalized = String(csvText || '').replace(/^\uFEFF/, '');
+        const lines = normalized.split(/\r?\n/).filter((line) => String(line).trim().length > 0);
         const parsed = [];
         for (let i = 1; i < lines.length; i += 1) {
-          const cols = lines[i].split(',');
+          const cols = lines[i].split(/[,\t，]/);
           const level = (cols[0] || '').trim();
           const minAvg = Number((cols[1] || '').trim());
           const upperCap = Number((cols[2] || '').trim());
@@ -432,8 +433,30 @@
         return parsed;
       }
 
+      function loadFallbackTiers() {
+        // Deployment fallback if CSV path/encoding causes fetch parse failure.
+        tiers = [
+          { level: 'b-', minAvg: 2700, upperCap: 600 },
+          { level: 'b', minAvg: 3500, upperCap: 1200 },
+          { level: 'b+', minAvg: 4400, upperCap: 2000 },
+          { level: 'a-', minAvg: 5400, upperCap: 3000 },
+          { level: 'a', minAvg: 6300, upperCap: 4000 },
+          { level: 'a+', minAvg: 7200, upperCap: 5000 },
+          { level: 's', minAvg: 8100, upperCap: 6500 },
+          { level: 'ss', minAvg: 8700, upperCap: 8000 },
+          { level: 'sss', minAvg: 9300, upperCap: 9900 }
+        ];
+      }
+
       async function loadTiers() {
-        const candidates = ['凝魂.csv', '../凝魂.csv'];
+        const candidates = [
+          'soul_tiers.csv',
+          './soul_tiers.csv',
+          '/flipgame/soul_tiers.csv',
+          '凝魂.csv',
+          './凝魂.csv',
+          '../凝魂.csv'
+        ];
         let lastErr = null;
         for (const p of candidates) {
           try {
@@ -453,7 +476,10 @@
             lastErr = err;
           }
         }
-        throw lastErr || new Error('Failed to load tier data');
+        loadFallbackTiers();
+        if (!tiers.length) {
+          throw lastErr || new Error('Failed to load tier data');
+        }
       }
 
       function toNum(value) {
