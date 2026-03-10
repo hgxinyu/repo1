@@ -522,6 +522,8 @@
           window.navigator.standalone === true
         );
         if (!isAppMode) return;
+        const hasTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+        if (!hasTouch) return;
         if (navHome) navHome.style.display = 'none';
         if (topbarNav) topbarNav.style.display = 'none';
         let startX = 0;

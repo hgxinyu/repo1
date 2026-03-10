@@ -375,15 +375,15 @@
         <div class="row">
           <div class="col">
             <label for="atk" id="atkLabel">攻击 x</label>
-            <input id="atk" type="number" inputmode="decimal" value="0" aria-label="攻击数值" />
+            <input id="atk" type="number" inputmode="decimal" min="1" max="9900" value="1" aria-label="攻击数值" />
           </div>
           <div class="col">
             <label for="hp" id="hpLabel">血量 y</label>
-            <input id="hp" type="number" inputmode="decimal" value="0" aria-label="血量数值" />
+            <input id="hp" type="number" inputmode="decimal" min="1" max="9900" value="1" aria-label="血量数值" />
           </div>
           <div class="col">
             <label for="spd" id="spdLabel">速度 z</label>
-            <input id="spd" type="number" inputmode="decimal" value="0" aria-label="速度数值" />
+            <input id="spd" type="number" inputmode="decimal" min="1" max="99" value="1" aria-label="速度数值" />
           </div>
         </div>
 
@@ -743,6 +743,17 @@
         return Number.isFinite(parsed) ? parsed : 0;
       }
 
+      function clampInputValue(input, min, max) {
+        const raw = String(input.value || '').trim();
+        if (!raw) return;
+        const n = parseFloat(raw);
+        if (!Number.isFinite(n)) return;
+        const clamped = Math.min(max, Math.max(min, n));
+        if (clamped !== n) {
+          input.value = String(clamped);
+        }
+      }
+
       function parsePrice(value) {
         const raw = String(value || '').trim();
         if (!raw) return null;
@@ -895,10 +906,23 @@
 
       [atk, hp, spd].forEach((input) => {
         input.addEventListener('input', () => {
+          if (input === spd) {
+            clampInputValue(input, 1, 99);
+          } else {
+            clampInputValue(input, 1, 9900);
+          }
           touched = true;
           debouncedUpdate();
         });
         input.addEventListener('change', () => {
+          if (!String(input.value || '').trim()) {
+            input.value = '1';
+          }
+          if (input === spd) {
+            clampInputValue(input, 1, 99);
+          } else {
+            clampInputValue(input, 1, 9900);
+          }
           touched = true;
           update();
         });
@@ -910,7 +934,7 @@
       });
       [atk, hp, spd, priceBMinus, priceB, priceBPlus, priceAMinus, priceA, priceAPlus].forEach((input) => {
         input.addEventListener('focus', () => {
-          if (String(input.value).trim() === '0') {
+          if (String(input.value).trim() === '0' || String(input.value).trim() === '1') {
             input.select();
           }
         });
@@ -924,9 +948,9 @@
       }
 
       clearBtn.addEventListener('click', () => {
-        atk.value = '0';
-        hp.value = '0';
-        spd.value = '0';
+        atk.value = '1';
+        hp.value = '1';
+        spd.value = '1';
         priceBMinus.value = '';
         priceB.value = '';
         priceBPlus.value = '';
@@ -953,6 +977,8 @@
           window.navigator.standalone === true
         );
         if (!isAppMode) return;
+        const hasTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+        if (!hasTouch) return;
         if (navHome) navHome.style.display = 'none';
         if (topbarNav) topbarNav.style.display = 'none';
         let startX = 0;

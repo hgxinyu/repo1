@@ -274,16 +274,16 @@
         <h2 id="calc-title">填写基础属性</h2>
         <div class="row">
           <div class="col">
-            <label for="atk" id="atkLabel">攻击 x</label>
-            <input id="atk" type="number" inputmode="decimal" value="0" aria-label="攻击数值" />
+            <label for="atk" id="atkLabel">攻击</label>
+            <input id="atk" type="number" inputmode="decimal" min="1" max="9900" value="1" aria-label="攻击数值" />
           </div>
           <div class="col">
-            <label for="hp" id="hpLabel">血量 y</label>
-            <input id="hp" type="number" inputmode="decimal" value="0" aria-label="血量数值" />
+            <label for="hp" id="hpLabel">血量</label>
+            <input id="hp" type="number" inputmode="decimal" min="1" max="9900" value="1" aria-label="血量数值" />
           </div>
           <div class="col">
-            <label for="spd" id="spdLabel">速度 z</label>
-            <input id="spd" type="number" inputmode="decimal" value="0" aria-label="速度数值" />
+            <label for="spd" id="spdLabel">速度</label>
+            <input id="spd" type="number" inputmode="decimal" min="1" max="99" value="1" aria-label="速度数值" />
           </div>
         </div>
 
@@ -296,11 +296,11 @@
           </div>
           <div class="box">
             <div class="kv"><span id="gradeLabel">资质等级</span><span class="v" id="gradeValue">—</span></div>
-            <span class="muted" id="gradeDesc">按“平均分值(最小值)”区间判定</span>
+            <span class="muted" id="gradeDesc"></span>
           </div>
           <div class="box highlight">
             <div class="kv"><span id="powerLabel">魂力值</span><span class="v" id="powerValue">—</span></div>
-            <span class="muted" id="powerDesc">按上下限比例分摊</span>
+            <span class="muted" id="powerDesc"></span>
           </div>
         </div>
       </section>
@@ -342,11 +342,11 @@
           hint: '',
           notice: '提示：因为速度的四舍五入，魂力计算有一定误差。',
           calc_title: '填写基础属性',
-          atk: '攻击 x', hp: '血量 y', spd: '速度 z',
+          atk: '攻击', hp: '血量', spd: '速度',
           warn: '当前三维均值不在可计算区间（B- ~ SSS）内，无法估算魂力。',
           avg: '三维均值', avg_desc: '',
-          grade: '资质等级', grade_desc: '按“平均分值(最小值)”区间判定',
-          power: '魂力值', power_desc: '按上下限比例分摊',
+          grade: '资质等级', grade_desc: '',
+          power: '魂力值', power_desc: '',
           clear: '清空', dash: '—',
           lang_toggle_en: 'EN', lang_toggle_zh: '中文'
         },
@@ -358,11 +358,11 @@
           hint: '',
           notice: 'Note: Due to speed rounding, soul power has minor estimation error.',
           calc_title: 'Enter Base Stats',
-          atk: 'Attack x', hp: 'HP y', spd: 'Speed z',
+          atk: 'Attack', hp: 'HP', spd: 'Speed',
           warn: 'Average value is out of calculable range (B- ~ SSS).',
           avg: 'Average', avg_desc: '',
-          grade: 'Tier', grade_desc: 'Determined by minimum average thresholds',
-          power: 'Soul Power', power_desc: 'Linear interpolation by cap range',
+          grade: 'Tier', grade_desc: '',
+          power: 'Soul Power', power_desc: '',
           clear: 'Clear', dash: '—',
           lang_toggle_en: 'EN', lang_toggle_zh: '中文'
         }
@@ -486,6 +486,17 @@
         return Number.isFinite(parsed) ? parsed : 0;
       }
 
+      function clampInputValue(input, min, max) {
+        const raw = String(input.value || '').trim();
+        if (!raw) return;
+        const n = parseFloat(raw);
+        if (!Number.isFinite(n)) return;
+        const clamped = Math.min(max, Math.max(min, n));
+        if (clamped !== n) {
+          input.value = String(clamped);
+        }
+      }
+
       function findTier(avg) {
         if (!tiers.length) return null;
         for (let i = tiers.length - 1; i >= 0; i -= 1) {
@@ -565,17 +576,34 @@
       }
 
       [atk, hp, spd].forEach((input) => {
-        input.addEventListener('input', debouncedUpdate);
-        input.addEventListener('change', update);
+        input.addEventListener('input', () => {
+          if (input === spd) {
+            clampInputValue(input, 1, 99);
+          } else {
+            clampInputValue(input, 1, 9900);
+          }
+          debouncedUpdate();
+        });
+        input.addEventListener('change', () => {
+          if (!String(input.value || '').trim()) {
+            input.value = '1';
+          }
+          if (input === spd) {
+            clampInputValue(input, 1, 99);
+          } else {
+            clampInputValue(input, 1, 9900);
+          }
+          update();
+        });
         input.addEventListener('focus', () => {
-          if (String(input.value).trim() === '0') input.select();
+          if (String(input.value).trim() === '0' || String(input.value).trim() === '1') input.select();
         });
       });
 
       clearBtn.addEventListener('click', () => {
-        atk.value = '0';
-        hp.value = '0';
-        spd.value = '0';
+        atk.value = '1';
+        hp.value = '1';
+        spd.value = '1';
         atk.focus();
         update();
       });
@@ -598,6 +626,8 @@
           window.navigator.standalone === true
         );
         if (!isAppMode) return;
+        const hasTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+        if (!hasTouch) return;
         if (refs.navHome) refs.navHome.style.display = 'none';
         if (topbarNav) topbarNav.style.display = 'none';
         let startX = 0;

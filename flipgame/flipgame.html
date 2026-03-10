@@ -661,6 +661,8 @@
       window.navigator.standalone === true
     );
     if(!isAppMode) return;
+    const hasTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+    if(!hasTouch) return;
     if(homeLink) homeLink.style.display = 'none';
     let startX = 0;
     let startY = 0;
