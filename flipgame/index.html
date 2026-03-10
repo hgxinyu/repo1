@@ -2,7 +2,7 @@
 <html lang="zh-Hans">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1" id="viewportMeta">
   <title>放置工具集 · ShinE</title>
   <link rel="icon" type="image/svg+xml" href="assets/shine-logo.svg">
   <link rel="icon" type="image/png" sizes="32x32" href="assets/shine-logo-32.png">
@@ -425,6 +425,13 @@
         padding-top: 56px;
       }
     }
+    html.app-mode .feedback-panel input,
+    html.app-mode .feedback-panel textarea,
+    html.app-mode .feedback-panel select,
+    html.app-mode .recruit-panel input,
+    html.app-mode .recruit-panel textarea {
+      font-size: 16px;
+    }
   </style>
 </head>
 <body>
@@ -788,7 +795,18 @@
         );
         return standalone || window.navigator.standalone === true;
       })();
+      if (isAppMode && helpLink) {
+        helpLink.style.display = 'none';
+      }
       if (isAppMode) {
+        const viewportMeta = document.getElementById('viewportMeta');
+        document.documentElement.classList.add('app-mode');
+        if (viewportMeta) {
+          viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover');
+        }
+        document.addEventListener('gesturestart', (event) => event.preventDefault(), { passive: false });
+        document.addEventListener('gesturechange', (event) => event.preventDefault(), { passive: false });
+        document.addEventListener('gestureend', (event) => event.preventDefault(), { passive: false });
         document.addEventListener('pointerdown', (event) => {
           const target = event.target;
           const feedbackOpen = panel.getAttribute('aria-hidden') === 'false';
