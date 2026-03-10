@@ -321,7 +321,7 @@
     <a href="index.html" id="navHome">回到主页</a>
   </nav>
 
-  <div class="langbar">
+  <div class="langbar" style="display:none;">
     <button class="btn" id="langToggle" type="button">EN</button>
   </div>
 
@@ -513,6 +513,38 @@
         });
       }
 
+      function enableAppSwipeHome() {
+        const isAppMode = (
+          (window.matchMedia && (
+            window.matchMedia('(display-mode: standalone)').matches ||
+            window.matchMedia('(display-mode: fullscreen)').matches
+          )) ||
+          window.navigator.standalone === true
+        );
+        if (!isAppMode) return;
+        if (navHome) navHome.style.display = 'none';
+        if (topbarNav) topbarNav.style.display = 'none';
+        let startX = 0;
+        let startY = 0;
+        let active = false;
+        document.addEventListener('touchstart', (event) => {
+          if (!event.touches || event.touches.length !== 1) return;
+          startX = event.touches[0].clientX;
+          startY = event.touches[0].clientY;
+          active = true;
+        }, { passive: true });
+        document.addEventListener('touchend', (event) => {
+          if (!active || !event.changedTouches || !event.changedTouches.length) return;
+          active = false;
+          const dx = event.changedTouches[0].clientX - startX;
+          const dy = event.changedTouches[0].clientY - startY;
+          if (Math.abs(dx) >= 80 && Math.abs(dy) <= 50) {
+            window.location.href = 'index.html';
+          }
+        }, { passive: true });
+      }
+
+      enableAppSwipeHome();
       setStaticText();
       calc();
     })();

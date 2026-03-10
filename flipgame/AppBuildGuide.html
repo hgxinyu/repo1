@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>建APP帮助 · ShinE</title>
+  <link rel="icon" type="image/svg+xml" href="assets/shine-logo.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/shine-logo-32.png">
+  <link rel="shortcut icon" href="assets/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/shine-logo-180.png">
+  <meta name="theme-color" content="#6366f1">
+  <style>
+    :root {
+      --border: #e2e8f0;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --brand: #6366f1;
+      --surface: #ffffff;
+      --bg: #f8fafc;
+      --shadow: 0 14px 30px rgba(15, 23, 42, 0.12);
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Segoe UI", "Microsoft YaHei", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.65;
+    }
+    nav#topbar-nav {
+      position: fixed;
+      right: 12px;
+      top: 12px;
+      z-index: 40;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+      backdrop-filter: saturate(140%) blur(6px);
+    }
+    nav#topbar-nav a {
+      border: 1px solid transparent;
+      background: rgba(99, 102, 241, 0.08);
+      color: var(--brand);
+      padding: 9px 16px;
+      border-radius: 999px;
+      font-size: 14px;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .wrap {
+      width: min(980px, 100%);
+      margin: 0 auto;
+      padding: 72px clamp(16px, 5vw, 36px) 34px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .hero, .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: clamp(18px, 4vw, 28px);
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(22px, 5vw, 32px);
+      letter-spacing: 0.02em;
+    }
+    .hero p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+    h2 {
+      margin: 0 0 10px;
+      font-size: clamp(18px, 4vw, 24px);
+    }
+    ol {
+      margin: 0;
+      padding-left: 20px;
+      display: grid;
+      gap: 8px;
+    }
+    .tip {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(99, 102, 241, 0.25);
+      background: rgba(99, 102, 241, 0.08);
+      color: #312e81;
+      font-size: 14px;
+    }
+    code {
+      background: #eef2ff;
+      padding: 2px 6px;
+      border-radius: 8px;
+    }
+    @media (max-width: 560px) {
+      .wrap { padding-top: 64px; }
+      nav#topbar-nav { right: 8px; top: 8px; }
+      nav#topbar-nav a { padding: 8px 12px; font-size: 13px; }
+    }
+  </style>
+</head>
+<body>
+  <nav id="topbar-nav" aria-label="页面导航">
+    <a href="index.html">回到主页</a>
+  </nav>
+
+  <div class="wrap">
+    <section class="hero">
+      <h1>建APP帮助（PWA安装指南）</h1>
+      <p>按你的设备选择对应步骤，把工具站添加到主屏或桌面，像 APP 一样直接打开。</p>
+    </section>
+
+    <section class="card">
+      <h2>iOS（Safari）</h2>
+      <ol>
+        <li>用 Safari 打开网站主页（不是微信内置浏览器）。</li>
+        <li>点击底部“分享”按钮（方框+向上箭头）。</li>
+        <li>下拉找到并点击“添加到主屏幕”。</li>
+        <li>确认名称后点“添加”。</li>
+        <li>回到桌面，点击图标即可 APP 模式打开。</li>
+      </ol>
+      <div class="tip">如果看不到“添加到主屏幕”，先确认：使用的是 Safari；网址是 HTTPS；页面已完整加载。</div>
+    </section>
+
+    <section class="card">
+      <h2>Android（Chrome）</h2>
+      <ol>
+        <li>用 Chrome 打开网站主页。</li>
+        <li>点右上角菜单（三个点）。</li>
+        <li>选择“安装应用”或“添加到主屏幕”。</li>
+        <li>确认后安装。</li>
+        <li>从桌面或应用列表打开，即可全屏/独立窗口使用。</li>
+      </ol>
+      <div class="tip">不同品牌手机文案可能是“Install app / Add to Home screen / 安装”。</div>
+    </section>
+
+    <section class="card">
+      <h2>Windows（Chrome / Edge）</h2>
+      <ol>
+        <li>在 Chrome 或 Edge 打开网站主页。</li>
+        <li>地址栏右侧点“安装应用”图标，或菜单里选“安装此站点为应用”。</li>
+        <li>确认安装。</li>
+        <li>之后可从开始菜单、桌面快捷方式打开。</li>
+        <li>需要卸载时，在浏览器“应用”管理中删除即可。</li>
+      </ol>
+      <div class="tip">如果图标没出现，先刷新页面一次，或确认站点不是本地 <code>http://</code> 地址。</div>
+    </section>
+
+    <section class="card">
+      <h2>常见问题</h2>
+      <ol>
+        <li>安装后还是浏览器标签页：先删掉旧快捷方式，再重新安装。</li>
+        <li>页面更新不及时：强制刷新一次（iOS 可关闭后重开；桌面按 <code>Ctrl+F5</code>）。</li>
+        <li>按钮挡住内容：APP 模式会自动启用简化导航和滑动返回主页。</li>
+      </ol>
+    </section>
+  </div>
+</body>
+</html>

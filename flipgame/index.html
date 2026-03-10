@@ -91,6 +91,12 @@
       cursor: pointer;
       letter-spacing: 0.2px;
     }
+    .langbar .help-link {
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
     .card-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -423,6 +429,7 @@
 </head>
 <body>
   <div class="langbar">
+    <a class="lang-btn help-link" id="helpLink" href="AppBuildGuide.html">安装APP帮助</a>
     <button class="lang-btn" id="langToggle" type="button">EN</button>
   </div>
   <div class="wrap">
@@ -531,6 +538,7 @@
       const form = document.getElementById('feedbackForm');
       const statusEl = document.getElementById('fbStatus');
       const langToggle = document.getElementById('langToggle');
+      const helpLink = document.getElementById('helpLink');
       const pageTitle = document.getElementById('pageTitle');
       const pageDesc = document.getElementById('pageDesc');
       const navGrid = document.getElementById('navGrid');
@@ -581,6 +589,7 @@
           title: '放置工具集 · ShinE',
           page_title: '放置工具集',
           page_desc: '自用的放置类工具合集，涵盖九宫格翻牌、核心换算、星钻计算和凝魂升格等功能。',
+          help_link: '安装APP帮助',
           nav_label: '工具导航',
           card_flip_title: '九宫格翻牌',
           card_flip_sub: '模拟翻牌流程，记录并计算最佳组合。',
@@ -632,6 +641,7 @@
           title: 'Idle Tools · ShinE',
           page_title: 'Idle Tools',
           page_desc: 'A personal collection of idle tools: flip game, core converter, star diamond, and soul ascension.',
+          help_link: 'PWA Guide',
           nav_label: 'Tool Navigation',
           card_flip_title: '3x3 Flip Cards',
           card_flip_sub: 'Simulate flips, track cards, and compute the best line.',
@@ -696,6 +706,7 @@
         document.documentElement.lang = currentLang === 'zh' ? 'zh-Hans' : 'en';
         if (pageTitle) pageTitle.textContent = t('page_title');
         if (pageDesc) pageDesc.textContent = t('page_desc');
+        if (helpLink) helpLink.textContent = t('help_link');
         if (navGrid) navGrid.setAttribute('aria-label', t('nav_label'));
         if (cardFlipTitle) cardFlipTitle.textContent = t('card_flip_title');
         if (cardFlipSub) cardFlipSub.textContent = t('card_flip_sub');
@@ -769,6 +780,27 @@
         setRecruitPanel(true);
       });
       recruitClose.addEventListener('click', () => setRecruitPanel(false));
+
+      const isAppMode = (() => {
+        const standalone = window.matchMedia && (
+          window.matchMedia('(display-mode: standalone)').matches ||
+          window.matchMedia('(display-mode: fullscreen)').matches
+        );
+        return standalone || window.navigator.standalone === true;
+      })();
+      if (isAppMode) {
+        document.addEventListener('pointerdown', (event) => {
+          const target = event.target;
+          const feedbackOpen = panel.getAttribute('aria-hidden') === 'false';
+          const recruitOpen = recruitPanel.getAttribute('aria-hidden') === 'false';
+          if (feedbackOpen && !panel.contains(target) && !toggle.contains(target)) {
+            setPanel(false);
+          }
+          if (recruitOpen && !recruitPanel.contains(target) && !recruitCard.contains(target)) {
+            setRecruitPanel(false);
+          }
+        });
+      }
 
       document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape') {
