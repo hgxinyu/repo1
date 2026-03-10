@@ -58,3 +58,7 @@ TODO / notes:
 - Recruitment popup fields: account summary (ascend/star soul/infusion/PVP-PVE), WeChat ID, and game ID.
 - Wired recruitment form submission to existing FormSubmit flow with topic tagging (`工会招募` / `Guild Recruitment`).
 - Added zh/en i18n copy for recruit card and panel.
+- Added new page `flipgame/SoulPowerCalculator.html`.
+- Soul power calculator reads `凝魂.csv` and computes tier + soul power from x/y/z via average `(x + y + 100*z)/3`.
+- Tier determination uses CSV `平均分值` (minimum threshold) and interpolation uses previous/current `魂点上限`.
+- Added homepage card entry for Soul Power calculator with zh/en i18n text.

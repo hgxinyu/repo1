@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>魂力计算器 · ShinE</title>
+  <link rel="icon" type="image/svg+xml" href="assets/shine-logo.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/shine-logo-32.png">
+  <link rel="shortcut icon" href="assets/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/shine-logo-180.png">
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="theme-color" content="#6366f1">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gap: 12px;
+      --radius: 16px;
+      --shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+      --border: #e2e8f0;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --brand: #6366f1;
+      --danger: #ef4444;
+      --surface: #ffffff;
+      --bg: #f8fafc;
+      --good: #16a34a;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Segoe UI", "Microsoft YaHei", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+    body {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    nav#topbar-nav {
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      z-index: 100;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+      backdrop-filter: saturate(140%) blur(6px);
+    }
+    nav#topbar-nav a {
+      border: 1px solid transparent;
+      background: rgba(99, 102, 241, 0.08);
+      color: var(--brand);
+      padding: 9px 16px;
+      border-radius: 999px;
+      font-size: 14px;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .langbar {
+      position: absolute;
+      left: 12px;
+      top: 12px;
+      z-index: 120;
+      display: inline-flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid var(--border);
+      padding: 6px 8px;
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+      backdrop-filter: saturate(140%) blur(6px);
+    }
+    .btn {
+      border: 1px solid rgba(99, 102, 241, 0.35);
+      background: var(--surface);
+      color: var(--brand);
+      padding: 10px 14px;
+      border-radius: 16px;
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(99, 102, 241, 0.18);
+    }
+    .langbar .btn {
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      box-shadow: none;
+    }
+    .wrap {
+      width: min(960px, 100%);
+      margin: 12px auto 32px;
+      padding: clamp(20px, 4vw, 36px);
+      display: flex;
+      flex-direction: column;
+      gap: clamp(18px, 4vw, 28px);
+      flex: 1 0 auto;
+    }
+    .site-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+    .title h1 {
+      margin: 0;
+      font-size: clamp(22px, 5.6vw, 32px);
+      letter-spacing: 0.03em;
+    }
+    .title p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .hint {
+      padding: 12px 16px;
+      background: rgba(99, 102, 241, 0.08);
+      border: 1px solid rgba(99, 102, 241, 0.18);
+      border-radius: 14px;
+      color: #312e81;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+    .warn {
+      display: none;
+      padding: 12px 16px;
+      border-radius: 14px;
+      background: rgba(254, 226, 226, 0.9);
+      border: 1px solid #fecaca;
+      color: var(--danger);
+      font-size: 14px;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: clamp(18px, 4vw, 28px);
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: clamp(16px, 4vw, 24px);
+    }
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--gap);
+      align-items: flex-start;
+    }
+    .col {
+      flex: 1 1 220px;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    label {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    input[type="number"] {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 16px;
+      background: #fff;
+      color: var(--ink);
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+      -moz-appearance: textfield;
+    }
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    .out {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: var(--gap);
+    }
+    .box {
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .box.highlight {
+      background: #f0fdf4;
+      border: 2px solid #22c55e;
+      box-shadow: 0 8px 18px rgba(34, 197, 94, 0.2);
+    }
+    .kv {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 15px;
+    }
+    .v {
+      font-weight: 700;
+      font-size: clamp(18px, 5vw, 24px);
+      color: #1d4ed8;
+    }
+    .box.highlight .v { color: var(--good); }
+    .muted { color: var(--muted); font-size: 13px; }
+    .logo-bottom-left {
+      position: fixed;
+      left: 12px;
+      bottom: 12px;
+      z-index: 10;
+      font-size: 20px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      color: #111827;
+    }
+    .logo-bottom-left .logo-by { font-weight: 700; font-size: 20px; line-height: 1; font-family: 'Pacifico', cursive; }
+    .logo-bottom-left .logo-cn,
+    .logo-bottom-left .logo-en { font-size: 20px; line-height: 1; }
+    .logo-bottom-left .logo-cn { font-weight: 700; font-family: "Noto Serif SC", "Songti SC", "STSong", serif; }
+    .logo-bottom-left .logo-en { font-weight: 700; font-family: 'Pacifico', cursive; }
+    .logo-bottom-left .logo-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #6366f1, #22c55e);
+    }
+  </style>
+</head>
+<body>
+  <nav id="topbar-nav" aria-label="页面导航">
+    <a href="index.html" id="navHome">回到主页</a>
+  </nav>
+
+  <div class="langbar">
+    <button class="btn" id="langToggle" type="button">EN</button>
+  </div>
+
+  <div class="wrap">
+    <header class="site-header">
+      <div class="title">
+        <h1 id="pageTitle">魂力计算器</h1>
+        <p id="pageDesc">输入基础属性 x / y / z，按凝魂表自动判定资质并估算魂力值。</p>
+      </div>
+      <div class="tools">
+        <button class="btn" id="clearBtn" type="button">清空</button>
+      </div>
+    </header>
+
+    <div class="hint" id="hintText">计算公式：三维均值 = (x + y + 100×z) / 3；魂力按当前资质区间做线性比例分摊。</div>
+    <div class="hint" id="noticeText" style="background: rgba(34, 197, 94, 0.08); border-color: rgba(34, 197, 94, 0.2); color:#14532d;">提示：因为速度的四舍五入，魂力计算有一定误差。</div>
+
+    <main class="main">
+      <section class="card" aria-labelledby="calc-title">
+        <h2 id="calc-title">填写基础属性</h2>
+        <div class="row">
+          <div class="col">
+            <label for="atk" id="atkLabel">攻击 x</label>
+            <input id="atk" type="number" inputmode="decimal" value="0" aria-label="攻击数值" />
+          </div>
+          <div class="col">
+            <label for="hp" id="hpLabel">血量 y</label>
+            <input id="hp" type="number" inputmode="decimal" value="0" aria-label="血量数值" />
+          </div>
+          <div class="col">
+            <label for="spd" id="spdLabel">速度 z</label>
+            <input id="spd" type="number" inputmode="decimal" value="0" aria-label="速度数值" />
+          </div>
+        </div>
+
+        <div id="warn" class="warn" role="alert">当前三维均值不在可计算区间（B- ~ SSS）内，无法估算魂力。</div>
+
+        <div class="out" aria-live="polite">
+          <div class="box">
+            <div class="kv"><span id="avgLabel">三维均值</span><span class="v" id="avgValue">0.00</span></div>
+            <span class="muted" id="avgDesc">(x + y + 100×z) / 3</span>
+          </div>
+          <div class="box">
+            <div class="kv"><span id="gradeLabel">资质等级</span><span class="v" id="gradeValue">—</span></div>
+            <span class="muted" id="gradeDesc">按“平均分值(最小值)”区间判定</span>
+          </div>
+          <div class="box highlight">
+            <div class="kv"><span id="powerLabel">魂力值</span><span class="v" id="powerValue">—</span></div>
+            <span class="muted" id="powerDesc">按上下限比例分摊</span>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="logo-bottom-left">
+    <span class="logo-dot"></span>
+    <span class="logo-by">By</span>
+    <span class="logo-cn">国风*</span>
+    <span class="logo-en">ShinE</span>
+  </div>
+
+  <script>
+    (function () {
+      const atk = document.getElementById('atk');
+      const hp = document.getElementById('hp');
+      const spd = document.getElementById('spd');
+      const avgValue = document.getElementById('avgValue');
+      const gradeValue = document.getElementById('gradeValue');
+      const powerValue = document.getElementById('powerValue');
+      const warn = document.getElementById('warn');
+      const clearBtn = document.getElementById('clearBtn');
+      const langToggle = document.getElementById('langToggle');
+
+      let currentLang = (localStorage.getItem('flipgame_lang') || '').toLowerCase();
+      if (currentLang !== 'zh' && currentLang !== 'en') {
+        const navLang = (navigator.language || '').toLowerCase();
+        currentLang = navLang.startsWith('zh') ? 'zh' : 'en';
+      }
+
+      const I18N = {
+        zh: {
+          title: '魂力计算器 · ShinE',
+          nav_home: '回到主页',
+          page_title: '魂力计算器',
+          page_desc: '输入基础属性 x / y / z，按凝魂表自动判定资质并估算魂力值。',
+          hint: '计算公式：三维均值 = (x + y + 100×z) / 3；魂力按当前资质区间做线性比例分摊。',
+          notice: '提示：因为速度的四舍五入，魂力计算有一定误差。',
+          calc_title: '填写基础属性',
+          atk: '攻击 x', hp: '血量 y', spd: '速度 z',
+          warn: '当前三维均值不在可计算区间（B- ~ SSS）内，无法估算魂力。',
+          avg: '三维均值', avg_desc: '(x + y + 100×z) / 3',
+          grade: '资质等级', grade_desc: '按“平均分值(最小值)”区间判定',
+          power: '魂力值', power_desc: '按上下限比例分摊',
+          clear: '清空', dash: '—',
+          lang_toggle_en: 'EN', lang_toggle_zh: '中文'
+        },
+        en: {
+          title: 'Soul Power Calculator · ShinE',
+          nav_home: 'Home',
+          page_title: 'Soul Power Calculator',
+          page_desc: 'Enter base stats x / y / z to detect tier and estimate soul power from CSV.',
+          hint: 'Formula: Avg = (x + y + 100×z) / 3; Soul power is linearly distributed within the current tier range.',
+          notice: 'Note: Due to speed rounding, soul power has minor estimation error.',
+          calc_title: 'Enter Base Stats',
+          atk: 'Attack x', hp: 'HP y', spd: 'Speed z',
+          warn: 'Average value is out of calculable range (B- ~ SSS).',
+          avg: 'Average', avg_desc: '(x + y + 100×z) / 3',
+          grade: 'Tier', grade_desc: 'Determined by minimum average thresholds',
+          power: 'Soul Power', power_desc: 'Linear interpolation by cap range',
+          clear: 'Clear', dash: '—',
+          lang_toggle_en: 'EN', lang_toggle_zh: '中文'
+        }
+      };
+
+      const refs = {
+        navHome: document.getElementById('navHome'),
+        pageTitle: document.getElementById('pageTitle'),
+        pageDesc: document.getElementById('pageDesc'),
+        hintText: document.getElementById('hintText'),
+        noticeText: document.getElementById('noticeText'),
+        calcTitle: document.getElementById('calc-title'),
+        atkLabel: document.getElementById('atkLabel'),
+        hpLabel: document.getElementById('hpLabel'),
+        spdLabel: document.getElementById('spdLabel'),
+        warn,
+        avgLabel: document.getElementById('avgLabel'),
+        avgDesc: document.getElementById('avgDesc'),
+        gradeLabel: document.getElementById('gradeLabel'),
+        gradeDesc: document.getElementById('gradeDesc'),
+        powerLabel: document.getElementById('powerLabel'),
+        powerDesc: document.getElementById('powerDesc'),
+        clearBtn
+      };
+
+      function t(key) {
+        return (I18N[currentLang] && I18N[currentLang][key]) || I18N.zh[key] || '';
+      }
+
+      function setStaticText() {
+        document.title = t('title');
+        document.documentElement.lang = currentLang === 'zh' ? 'zh-Hans' : 'en';
+        refs.navHome.textContent = t('nav_home');
+        refs.pageTitle.textContent = t('page_title');
+        refs.pageDesc.textContent = t('page_desc');
+        refs.hintText.textContent = t('hint');
+        refs.noticeText.textContent = t('notice');
+        refs.calcTitle.textContent = t('calc_title');
+        refs.atkLabel.textContent = t('atk');
+        refs.hpLabel.textContent = t('hp');
+        refs.spdLabel.textContent = t('spd');
+        refs.warn.textContent = t('warn');
+        refs.avgLabel.textContent = t('avg');
+        refs.avgDesc.textContent = t('avg_desc');
+        refs.gradeLabel.textContent = t('grade');
+        refs.gradeDesc.textContent = t('grade_desc');
+        refs.powerLabel.textContent = t('power');
+        refs.powerDesc.textContent = t('power_desc');
+        refs.clearBtn.textContent = t('clear');
+        langToggle.textContent = currentLang === 'zh' ? t('lang_toggle_en') : t('lang_toggle_zh');
+      }
+
+      let tiers = [];
+
+      function parseTierData(csvText) {
+        const lines = csvText.split(/\r?\n/).filter(Boolean);
+        const parsed = [];
+        for (let i = 1; i < lines.length; i += 1) {
+          const cols = lines[i].split(',');
+          const level = (cols[0] || '').trim();
+          const minAvg = Number((cols[1] || '').trim());
+          const upperCap = Number((cols[2] || '').trim());
+          if (!level || !Number.isFinite(minAvg) || !Number.isFinite(upperCap)) continue;
+          parsed.push({ level, minAvg, upperCap });
+        }
+        parsed.sort((a, b) => a.minAvg - b.minAvg);
+        return parsed;
+      }
+
+      async function loadTiers() {
+        const candidates = ['凝魂.csv', '../凝魂.csv'];
+        let lastErr = null;
+        for (const p of candidates) {
+          try {
+            const response = await fetch(p, { cache: 'no-cache' });
+            if (!response.ok) {
+              lastErr = new Error(`HTTP ${response.status} for ${p}`);
+              continue;
+            }
+            const text = await response.text();
+            const parsed = parseTierData(text);
+            if (parsed.length) {
+              tiers = parsed;
+              return;
+            }
+            lastErr = new Error(`No valid tiers in ${p}`);
+          } catch (err) {
+            lastErr = err;
+          }
+        }
+        throw lastErr || new Error('Failed to load tier data');
+      }
+
+      function toNum(value) {
+        const parsed = parseFloat(value);
+        return Number.isFinite(parsed) ? parsed : 0;
+      }
+
+      function findTier(avg) {
+        if (!tiers.length) return null;
+        for (let i = tiers.length - 1; i >= 0; i -= 1) {
+          if (avg >= tiers[i].minAvg) return i;
+        }
+        return null;
+      }
+
+      function formatLevel(level) {
+        return String(level || '').toUpperCase();
+      }
+
+      function update() {
+        const x = toNum(atk.value);
+        const y = toNum(hp.value);
+        const z = toNum(spd.value);
+        const avg = (x + y + z * 100) / 3;
+        avgValue.textContent = avg.toFixed(2);
+
+        const tierIndex = findTier(avg);
+        if (tierIndex === null || !tiers.length) {
+          warn.style.display = 'block';
+          gradeValue.textContent = t('dash');
+          powerValue.textContent = t('dash');
+          return;
+        }
+
+        const tier = tiers[tierIndex];
+        const prevUpper = tierIndex > 0 ? tiers[tierIndex - 1].upperCap : 0;
+        const nextMin = tierIndex < tiers.length - 1 ? tiers[tierIndex + 1].minAvg : tier.minAvg;
+        let power = tier.upperCap;
+
+        if (nextMin > tier.minAvg) {
+          const ratio = Math.max(0, Math.min(1, (avg - tier.minAvg) / (nextMin - tier.minAvg)));
+          power = prevUpper + ratio * (tier.upperCap - prevUpper);
+        }
+
+        warn.style.display = 'none';
+        gradeValue.textContent = formatLevel(tier.level);
+        powerValue.textContent = power.toFixed(2);
+      }
+
+      let debounceTimer = null;
+      function debouncedUpdate() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(update, 140);
+      }
+
+      [atk, hp, spd].forEach((input) => {
+        input.addEventListener('input', debouncedUpdate);
+        input.addEventListener('change', update);
+        input.addEventListener('focus', () => {
+          if (String(input.value).trim() === '0') input.select();
+        });
+      });
+
+      clearBtn.addEventListener('click', () => {
+        atk.value = '0';
+        hp.value = '0';
+        spd.value = '0';
+        atk.focus();
+        update();
+      });
+
+      langToggle.addEventListener('click', () => {
+        currentLang = currentLang === 'zh' ? 'en' : 'zh';
+        localStorage.setItem('flipgame_lang', currentLang);
+        setStaticText();
+        update();
+      });
+
+      setStaticText();
+      loadTiers().then(update).catch(() => {
+        warn.style.display = 'block';
+      });
+    })();
+  </script>
+</body>
+</html>

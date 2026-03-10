@@ -452,6 +452,10 @@
         <span class="title" id="cardSoulTitle">凝魂升格计算器</span>
         <span class="subtitle" id="cardSoulSub">检验属性区间并估算升级次数。</span>
       </a>
+      <a class="card-link" href="SoulPowerCalculator.html">
+        <span class="title" id="cardPowerTitle">魂力计算器</span>
+        <span class="subtitle" id="cardPowerSub">根据三维均值和资质区间估算魂力值。</span>
+      </a>
       <button class="card-link card-button" id="recruitCard" type="button">
         <span class="title" id="cardRecruitTitle">公会招募</span>
         <span class="subtitle" id="cardRecruitSub">欢迎加入 iOS 国风大家庭，点击填写招募信息。</span>
@@ -540,6 +544,8 @@
       const cardHiddenSub = document.getElementById('cardHiddenSub');
       const cardSoulTitle = document.getElementById('cardSoulTitle');
       const cardSoulSub = document.getElementById('cardSoulSub');
+      const cardPowerTitle = document.getElementById('cardPowerTitle');
+      const cardPowerSub = document.getElementById('cardPowerSub');
       const recruitCard = document.getElementById('recruitCard');
       const cardRecruitTitle = document.getElementById('cardRecruitTitle');
       const cardRecruitSub = document.getElementById('cardRecruitSub');
@@ -586,6 +592,8 @@
           card_hidden_sub: '隐藏关卡资料与攻略整理。',
           card_soul_title: '凝魂升格计算器',
           card_soul_sub: '检验属性区间并估算升级次数。',
+          card_power_title: '魂力计算器',
+          card_power_sub: '根据三维均值和资质区间估算魂力值。',
           card_recruit_title: '公会招募',
           card_recruit_sub: '欢迎加入 iOS 国风大家庭，点击填写招募信息。',
           feedback_toggle: '反馈建议',
@@ -635,6 +643,8 @@
           card_hidden_sub: 'Secret stage data and strategy notes.',
           card_soul_title: 'Soul Ascension Calculator',
           card_soul_sub: 'Check stat ranges and estimate upgrade steps.',
+          card_power_title: 'Soul Power Calculator',
+          card_power_sub: 'Estimate soul power using average stats and tier ranges.',
           card_recruit_title: 'Guild Recruitment',
           card_recruit_sub: 'Join the iOS Guofeng family. Click to submit your profile.',
           feedback_toggle: 'Feedback',
@@ -697,6 +707,8 @@
         if (cardHiddenSub) cardHiddenSub.textContent = t('card_hidden_sub');
         if (cardSoulTitle) cardSoulTitle.textContent = t('card_soul_title');
         if (cardSoulSub) cardSoulSub.textContent = t('card_soul_sub');
+        if (cardPowerTitle) cardPowerTitle.textContent = t('card_power_title');
+        if (cardPowerSub) cardPowerSub.textContent = t('card_power_sub');
         if (cardRecruitTitle) cardRecruitTitle.textContent = t('card_recruit_title');
         if (cardRecruitSub) cardRecruitSub.textContent = t('card_recruit_sub');
         if (feedbackToggleText) feedbackToggleText.textContent = t('feedback_toggle');
