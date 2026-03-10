@@ -12,6 +12,7 @@
   <meta name="theme-color" content="#6366f1">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700&display=swap" rel="stylesheet">
   <style>
     :root {
       --radius: 18px;
@@ -126,12 +127,17 @@
     .card-link:focus-visible {
       box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
     }
+    .card-link.card-button {
+      width: 100%;
+      text-align: left;
+      cursor: pointer;
+      font: inherit;
+    }
     .logo-bottom-right {
       position: fixed;
       right: 16px;
       bottom: 16px;
       z-index: 10;
-      font-family: 'Pacifico', cursive;
       font-size: 20px;
       display: inline-flex;
       align-items: center;
@@ -142,6 +148,25 @@
       border: 1px solid var(--border);
       box-shadow: var(--shadow);
       color: #111827;
+    }
+    .logo-bottom-right .logo-by {
+      font-weight: 700;
+      font-size: 20px;
+      line-height: 1;
+      font-family: 'Pacifico', cursive;
+    }
+    .logo-bottom-right .logo-cn,
+    .logo-bottom-right .logo-en {
+      font-size: 20px;
+      line-height: 1;
+    }
+    .logo-bottom-right .logo-cn {
+      font-weight: 700;
+      font-family: "Noto Serif SC", "Songti SC", "STSong", serif;
+    }
+    .logo-bottom-right .logo-en {
+      font-weight: 700;
+      font-family: 'Pacifico', cursive;
     }
     .logo-bottom-right .logo-dot {
       width: 8px;
@@ -191,6 +216,93 @@
       gap: 14px;
       overflow: hidden;
       z-index: 20;
+    }
+    .recruit-panel {
+      position: fixed;
+      right: 16px;
+      bottom: 170px;
+      width: min(380px, calc(100% - 32px));
+      max-height: 72vh;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: 0 24px 48px rgba(15, 23, 42, 0.28);
+      padding: 22px 22px 18px;
+      display: none;
+      flex-direction: column;
+      gap: 14px;
+      overflow: hidden;
+      z-index: 21;
+    }
+    .recruit-panel header {
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .recruit-panel header h2 {
+      margin: 0;
+      font-size: 18px;
+    }
+    .recruit-panel header p {
+      margin: 0;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .recruit-panel form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .recruit-panel label {
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .recruit-panel input,
+    .recruit-panel textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      font-size: 14px;
+      background: #fff;
+      color: var(--ink);
+      box-shadow: inset 0 1px 0 rgba(148, 163, 184, 0.16);
+    }
+    .recruit-panel textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+    .recruit-panel button[type="submit"] {
+      margin-top: 6px;
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.95), rgba(16, 185, 129, 0.95));
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      padding: 11px 16px;
+      font-size: 15px;
+      cursor: pointer;
+      box-shadow: 0 18px 36px rgba(16, 185, 129, 0.28);
+      transition: transform 0.2s ease;
+    }
+    .recruit-panel button[type="submit"]:hover {
+      transform: translateY(-1px);
+    }
+    .recruit-panel .status {
+      font-size: 13px;
+      color: var(--muted);
+      min-height: 18px;
+    }
+    .recruit-panel .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      background: none;
+      border: none;
+      font-size: 18px;
+      line-height: 1;
+      cursor: pointer;
+      color: var(--muted);
     }
     .feedback-panel header {
       text-align: left;
@@ -291,6 +403,12 @@
         bottom: 96px;
         width: auto;
       }
+      .recruit-panel {
+        right: 16px;
+        left: 16px;
+        bottom: 96px;
+        width: auto;
+      }
     }
     @media (display-mode: standalone), (display-mode: fullscreen) {
       .langbar {
@@ -299,11 +417,6 @@
       }
       .wrap {
         padding-top: 56px;
-      }
-      .logo-bottom-right,
-      .feedback-toggle,
-      .feedback-panel {
-        display: none !important;
       }
     }
   </style>
@@ -339,6 +452,10 @@
         <span class="title" id="cardSoulTitle">凝魂升格计算器</span>
         <span class="subtitle" id="cardSoulSub">检验属性区间并估算升级次数。</span>
       </a>
+      <button class="card-link card-button" id="recruitCard" type="button">
+        <span class="title" id="cardRecruitTitle">公会招募</span>
+        <span class="subtitle" id="cardRecruitSub">欢迎加入 iOS 国风大家庭，点击填写招募信息。</span>
+      </button>
     </nav>
   </div>
 
@@ -371,8 +488,32 @@
     </form>
   </section>
 
+  <section class="recruit-panel" id="recruitPanel" aria-hidden="true">
+    <button class="close-btn" type="button" aria-label="关闭招募面板" id="recruitClose">×</button>
+    <header>
+      <h2 id="recruitTitle">iOS国风公会招募</h2>
+      <p id="recruitDesc">欢迎加入 iOS 国风大家庭，提交信息后会尽快联系你。</p>
+    </header>
+    <form id="recruitForm" autocomplete="on">
+      <label for="recruitAccount" id="recruitAccountLabel">账号概况（飞升/星魂/灌注/PVP-PVE）</label>
+      <textarea id="recruitAccount" name="account_summary" placeholder="例如：飞升15，求知20，圣焰24，灌注12，主C暗战A，主玩PVE" required></textarea>
+
+      <label for="recruitWechat" id="recruitWechatLabel">微信ID</label>
+      <input id="recruitWechat" name="wechat_id" type="text" placeholder="请输入微信ID" required />
+
+      <label for="recruitGameId" id="recruitGameIdLabel">游戏ID</label>
+      <input id="recruitGameId" name="game_id" type="text" placeholder="请输入游戏ID" required />
+
+      <button type="submit" id="recruitSubmit">提交招募信息</button>
+      <div class="status" id="recruitStatus" role="status"></div>
+    </form>
+  </section>
+
   <div class="logo-bottom-right">
-    <span class="logo-dot"></span> By ShinE
+    <span class="logo-dot"></span>
+    <span class="logo-by">By</span>
+    <span class="logo-cn">国风*</span>
+    <span class="logo-en">ShinE</span>
   </div>
 
   <footer>
@@ -399,6 +540,9 @@
       const cardHiddenSub = document.getElementById('cardHiddenSub');
       const cardSoulTitle = document.getElementById('cardSoulTitle');
       const cardSoulSub = document.getElementById('cardSoulSub');
+      const recruitCard = document.getElementById('recruitCard');
+      const cardRecruitTitle = document.getElementById('cardRecruitTitle');
+      const cardRecruitSub = document.getElementById('cardRecruitSub');
       const feedbackToggleText = document.getElementById('feedbackToggleText');
       const feedbackTitle = document.getElementById('feedbackTitle');
       const feedbackDesc = document.getElementById('feedbackDesc');
@@ -412,6 +556,19 @@
       const fbContact = document.getElementById('fbContact');
       const fbSubmit = document.getElementById('fbSubmit');
       const feedbackClose = document.getElementById('feedbackClose');
+      const recruitPanel = document.getElementById('recruitPanel');
+      const recruitClose = document.getElementById('recruitClose');
+      const recruitForm = document.getElementById('recruitForm');
+      const recruitStatus = document.getElementById('recruitStatus');
+      const recruitTitle = document.getElementById('recruitTitle');
+      const recruitDesc = document.getElementById('recruitDesc');
+      const recruitAccountLabel = document.getElementById('recruitAccountLabel');
+      const recruitAccount = document.getElementById('recruitAccount');
+      const recruitWechatLabel = document.getElementById('recruitWechatLabel');
+      const recruitWechat = document.getElementById('recruitWechat');
+      const recruitGameIdLabel = document.getElementById('recruitGameIdLabel');
+      const recruitGameId = document.getElementById('recruitGameId');
+      const recruitSubmit = document.getElementById('recruitSubmit');
 
       const I18N = {
         zh: {
@@ -429,6 +586,8 @@
           card_hidden_sub: '隐藏关卡资料与攻略整理。',
           card_soul_title: '凝魂升格计算器',
           card_soul_sub: '检验属性区间并估算升级次数。',
+          card_recruit_title: '公会招募',
+          card_recruit_sub: '欢迎加入 iOS 国风大家庭，点击填写招募信息。',
           feedback_toggle: '反馈建议',
           feedback_title: '反馈中心',
           feedback_desc: '欢迎留言提供建议或问题反馈。',
@@ -442,6 +601,16 @@
           fb_contact_placeholder: '请输入邮箱或微信或放置ID',
           fb_submit: '发送反馈',
           fb_close_label: '关闭反馈面板',
+          recruit_title: 'iOS国风公会招募',
+          recruit_desc: '欢迎加入 iOS 国风大家庭，提交信息后会尽快联系你。',
+          recruit_account_label: '账号概况（飞升/星魂/灌注/PVP-PVE）',
+          recruit_account_placeholder: '例如：飞升15，求知20，圣焰24，灌注12，主C暗战A，主玩PVE',
+          recruit_wechat_label: '微信ID',
+          recruit_wechat_placeholder: '请输入微信ID',
+          recruit_gameid_label: '游戏ID',
+          recruit_gameid_placeholder: '请输入游戏ID',
+          recruit_submit: '提交招募信息',
+          recruit_close_label: '关闭招募面板',
           status_sending: '正在发送，请稍候…',
           status_success: '感谢反馈！我们会尽快查看。',
           status_verify: '首次使用需到邮箱点击 FormSubmit 的确认邮件，确认后即可正常接收。若未看到，请检查垃圾箱。',
@@ -466,6 +635,8 @@
           card_hidden_sub: 'Secret stage data and strategy notes.',
           card_soul_title: 'Soul Ascension Calculator',
           card_soul_sub: 'Check stat ranges and estimate upgrade steps.',
+          card_recruit_title: 'Guild Recruitment',
+          card_recruit_sub: 'Join the iOS Guofeng family. Click to submit your profile.',
           feedback_toggle: 'Feedback',
           feedback_title: 'Feedback Center',
           feedback_desc: 'Leave suggestions or report issues.',
@@ -479,6 +650,16 @@
           fb_contact_placeholder: 'Email / WeChat / ID',
           fb_submit: 'Send',
           fb_close_label: 'Close feedback panel',
+          recruit_title: 'iOS Guofeng Guild Recruitment',
+          recruit_desc: 'Welcome to join our iOS Guofeng family. We will contact you after submission.',
+          recruit_account_label: 'Account Summary (ascend/star soul/infusion/PVP-PVE)',
+          recruit_account_placeholder: 'e.g. Ascend 3, Star Soul 8, Infusion 5, mainly PVP',
+          recruit_wechat_label: 'WeChat ID',
+          recruit_wechat_placeholder: 'Enter your WeChat ID',
+          recruit_gameid_label: 'Game ID',
+          recruit_gameid_placeholder: 'Enter your game ID',
+          recruit_submit: 'Submit Recruitment Info',
+          recruit_close_label: 'Close recruitment panel',
           status_sending: 'Sending, please wait…',
           status_success: 'Thanks for your feedback! We will review it soon.',
           status_verify: 'First-time use requires FormSubmit email verification. Check your inbox or spam folder.',
@@ -516,6 +697,8 @@
         if (cardHiddenSub) cardHiddenSub.textContent = t('card_hidden_sub');
         if (cardSoulTitle) cardSoulTitle.textContent = t('card_soul_title');
         if (cardSoulSub) cardSoulSub.textContent = t('card_soul_sub');
+        if (cardRecruitTitle) cardRecruitTitle.textContent = t('card_recruit_title');
+        if (cardRecruitSub) cardRecruitSub.textContent = t('card_recruit_sub');
         if (feedbackToggleText) feedbackToggleText.textContent = t('feedback_toggle');
         if (feedbackTitle) feedbackTitle.textContent = t('feedback_title');
         if (feedbackDesc) feedbackDesc.textContent = t('feedback_desc');
@@ -529,6 +712,16 @@
         if (fbContact) fbContact.setAttribute('placeholder', t('fb_contact_placeholder'));
         if (fbSubmit) fbSubmit.textContent = t('fb_submit');
         if (feedbackClose) feedbackClose.setAttribute('aria-label', t('fb_close_label'));
+        if (recruitTitle) recruitTitle.textContent = t('recruit_title');
+        if (recruitDesc) recruitDesc.textContent = t('recruit_desc');
+        if (recruitAccountLabel) recruitAccountLabel.textContent = t('recruit_account_label');
+        if (recruitAccount) recruitAccount.setAttribute('placeholder', t('recruit_account_placeholder'));
+        if (recruitWechatLabel) recruitWechatLabel.textContent = t('recruit_wechat_label');
+        if (recruitWechat) recruitWechat.setAttribute('placeholder', t('recruit_wechat_placeholder'));
+        if (recruitGameIdLabel) recruitGameIdLabel.textContent = t('recruit_gameid_label');
+        if (recruitGameId) recruitGameId.setAttribute('placeholder', t('recruit_gameid_placeholder'));
+        if (recruitSubmit) recruitSubmit.textContent = t('recruit_submit');
+        if (recruitClose) recruitClose.setAttribute('aria-label', t('recruit_close_label'));
         if (langToggle) langToggle.textContent = currentLang === 'zh' ? t('lang_toggle_en') : t('lang_toggle_zh');
       }
 
@@ -545,6 +738,13 @@
           panel.querySelector('textarea').focus();
         }
       }
+      function setRecruitPanel(open) {
+        recruitPanel.style.display = open ? 'flex' : 'none';
+        recruitPanel.setAttribute('aria-hidden', open ? 'false' : 'true');
+        if (open) {
+          recruitPanel.querySelector('textarea').focus();
+        }
+      }
 
       toggle.addEventListener('click', () => {
         const isHidden = panel.getAttribute('aria-hidden') !== 'false';
@@ -552,10 +752,16 @@
       });
 
       closeBtn.addEventListener('click', () => setPanel(false));
+      recruitCard.addEventListener('click', () => {
+        setPanel(false);
+        setRecruitPanel(true);
+      });
+      recruitClose.addEventListener('click', () => setRecruitPanel(false));
 
       document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape') {
           setPanel(false);
+          setRecruitPanel(false);
         }
       });
 
@@ -625,6 +831,58 @@
             statusEl.textContent = t('status_fail_prefix') + fullMessage;
           } else {
             statusEl.textContent = t('status_fail_generic');
+          }
+        }
+      });
+
+      recruitForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        recruitStatus.textContent = t('status_sending');
+
+        const formData = new FormData(recruitForm);
+        formData.append('_honey', '');
+        formData.append('_captcha', 'false');
+        formData.append('topic', currentLang === 'zh' ? '公会招募' : 'Guild Recruitment');
+
+        try {
+          const response = await submitFeedback(formData);
+          const contentType = (response.headers.get('content-type') || '').toLowerCase();
+          let data = null;
+          let rawText = '';
+          if (contentType.includes('application/json')) {
+            data = await response.json();
+          } else {
+            rawText = await response.text();
+            try {
+              data = rawText ? JSON.parse(rawText) : null;
+            } catch (parseErr) {
+            }
+          }
+
+          const success = data && String(data.success).toLowerCase() === 'true';
+          if (response.ok && success) {
+            recruitStatus.textContent = t('status_success');
+            recruitForm.reset();
+            setTimeout(() => {
+              recruitStatus.textContent = '';
+              setRecruitPanel(false);
+            }, 2000);
+            return;
+          }
+
+          const detail = (data && (data.message || data.error)) || rawText || `HTTP ${response.status}`;
+          throw new Error(detail);
+        } catch (error) {
+          const fullMessage = String(error && error.message ? error.message : error || '').trim();
+          const message = fullMessage.toLowerCase();
+          if (message.includes('verify') || message.includes('confirmation')) {
+            recruitStatus.textContent = t('status_verify');
+          } else if (message.includes('captcha')) {
+            recruitStatus.textContent = t('status_captcha');
+          } else if (fullMessage) {
+            recruitStatus.textContent = t('status_fail_prefix') + fullMessage;
+          } else {
+            recruitStatus.textContent = t('status_fail_generic');
           }
         }
       });

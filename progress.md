@@ -47,3 +47,14 @@ TODO / notes:
   - A->A+: `3*B+ + 2*A- + 2*A`
   - A+->S: `3*A- + 2*A + 1*A+`
 - Stage switch now updates hint text, ascension cost formula description, and missing-price reminder accordingly.
+- Index page now keeps feedback entry/panel and bottom signature visible in standalone app mode.
+- Added `game_id` field to feedback form (optional) with zh/en i18n labels/placeholders.
+- Updated homepage signature text to `By 国风*ShinE`.
+- Homepage logo CN text font updated to a serif Chinese style (`Noto Serif SC`) for better appearance.
+- Removed optional `game_id` field from feedback form and cleaned related i18n/script bindings.
+- Applied homepage signature style (`By 国风*ShinE`) to other pages: Soul/Core/Star/Flipgame/Hidden-stage.
+- Added `Noto Serif SC` font import and split signature spans (`logo-by/logo-cn/logo-en`) for consistent styling.
+- Added homepage guild recruitment card and popup form.
+- Recruitment popup fields: account summary (ascend/star soul/infusion/PVP-PVE), WeChat ID, and game ID.
+- Wired recruitment form submission to existing FormSubmit flow with topic tagging (`工会招募` / `Guild Recruitment`).
+- Added zh/en i18n copy for recruit card and panel.

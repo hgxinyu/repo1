@@ -2,6 +2,7 @@
 <html lang="zh-CN">
 <head>
 <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700&display=swap" rel="stylesheet">
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>九宫格翻牌 · 手动输入版（自动剩余次数 & 自动最佳线路）</title>
@@ -110,12 +111,16 @@
 /* bottom-left logo with text */
 .logo-bottom-left{
   position:fixed; left:12px; bottom:12px; z-index:1000;
-  font-family:'Pacifico',cursive; font-size:20px; font-weight:400;
+  font-size:20px; font-weight:400;
   display:inline-flex; align-items:center; gap:6px;
   padding:8px 14px; border-radius:999px;
   background:#fff; border:1px solid #e5e7eb; box-shadow:0 6px 16px rgba(0,0,0,.06);
   color:#111827;
 }
+.logo-bottom-left .logo-by{font-weight:700;font-size:20px;line-height:1;font-family:'Pacifico',cursive;}
+.logo-bottom-left .logo-cn,.logo-bottom-left .logo-en{font-size:20px;line-height:1;}
+.logo-bottom-left .logo-cn{font-weight:700;font-family:"Noto Serif SC","Songti SC","STSong",serif;}
+.logo-bottom-left .logo-en{font-weight:700;font-family:'Pacifico',cursive;}
 .logo-bottom-left .logo-dot{width:8px;height:8px;border-radius:999px;background:linear-gradient(135deg,#6366f1,#22c55e)}
 
 .update-note{
@@ -688,7 +693,10 @@
 
 
 <div class="logo-bottom-left">
-  <span class="logo-dot"></span> By ShinE
+  <span class="logo-dot"></span>
+  <span class="logo-by">By</span>
+  <span class="logo-cn">国风*</span>
+  <span class="logo-en">ShinE</span>
 </div>
 
 </body>
