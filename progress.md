@@ -37,3 +37,13 @@ TODO / notes:
 - Unified navigation to a single Home button fixed at top-right on main tool pages (web + app modes).
 - Moved language switchers to top-left to avoid overlap with Home navigation.
 - Soul page: removed bottom ascension material price inputs; ascension cost now strictly uses top A-/A/A+ prices only.
+- Changed Home and language controls from viewport-fixed to page-anchored absolute positioning on tool pages.
+- Result: controls no longer follow scroll; they move with page content.
+- Added stage switch (`A -> A+` / `A+ -> S`) to Soul calculator via dropdown in-page.
+- Added dual-mode config for stat ranges and EXP-per-soul: A->A+ uses 6300-7199(avg), target 7200(avg), 1000 EXP per soul; A+->S uses 7200-8099(avg), target 8100(avg), 1200 EXP per soul.
+- Reused existing feed-exp optimizer and pricing inputs for both stages; required total EXP now follows selected stage (`times × expPerSoul`).
+- Warn text and price section title/description are now template-based and update when stage changes.
+- Split ascension material rules by stage on Soul page:
+  - A->A+: `3*B+ + 2*A- + 2*A`
+  - A+->S: `3*A- + 2*A + 1*A+`
+- Stage switch now updates hint text, ascension cost formula description, and missing-price reminder accordingly.
