@@ -260,14 +260,13 @@
     <header class="site-header">
       <div class="title">
         <h1 id="pageTitle">魂力计算器</h1>
-        <p id="pageDesc">输入基础属性 x / y / z，按凝魂表自动判定资质并估算魂力值。</p>
+        <p id="pageDesc">输入攻击血量速度，自动判定资质并估算魂力值。</p>
       </div>
       <div class="tools">
         <button class="btn" id="clearBtn" type="button">清空</button>
       </div>
     </header>
 
-    <div class="hint" id="hintText">计算公式：三维均值 = (x + y + 100×z) / 3；魂力按当前资质区间做线性比例分摊。</div>
     <div class="hint" id="noticeText" style="background: rgba(34, 197, 94, 0.08); border-color: rgba(34, 197, 94, 0.2); color:#14532d;">提示：因为速度的四舍五入，魂力计算有一定误差。</div>
 
     <main class="main">
@@ -293,7 +292,7 @@
         <div class="out" aria-live="polite">
           <div class="box">
             <div class="kv"><span id="avgLabel">三维均值</span><span class="v" id="avgValue">0.00</span></div>
-            <span class="muted" id="avgDesc">(x + y + 100×z) / 3</span>
+            <span class="muted" id="avgDesc"></span>
           </div>
           <div class="box">
             <div class="kv"><span id="gradeLabel">资质等级</span><span class="v" id="gradeValue">—</span></div>
@@ -338,13 +337,13 @@
           title: '魂力计算器 · ShinE',
           nav_home: '回到主页',
           page_title: '魂力计算器',
-          page_desc: '输入基础属性 x / y / z，按凝魂表自动判定资质并估算魂力值。',
-          hint: '计算公式：三维均值 = (x + y + 100×z) / 3；魂力按当前资质区间做线性比例分摊。',
+          page_desc: '输入攻击血量速度，自动判定资质并估算魂力值。',
+          hint: '',
           notice: '提示：因为速度的四舍五入，魂力计算有一定误差。',
           calc_title: '填写基础属性',
           atk: '攻击 x', hp: '血量 y', spd: '速度 z',
           warn: '当前三维均值不在可计算区间（B- ~ SSS）内，无法估算魂力。',
-          avg: '三维均值', avg_desc: '(x + y + 100×z) / 3',
+          avg: '三维均值', avg_desc: '',
           grade: '资质等级', grade_desc: '按“平均分值(最小值)”区间判定',
           power: '魂力值', power_desc: '按上下限比例分摊',
           clear: '清空', dash: '—',
@@ -354,13 +353,13 @@
           title: 'Soul Power Calculator · ShinE',
           nav_home: 'Home',
           page_title: 'Soul Power Calculator',
-          page_desc: 'Enter base stats x / y / z to detect tier and estimate soul power from CSV.',
-          hint: 'Formula: Avg = (x + y + 100×z) / 3; Soul power is linearly distributed within the current tier range.',
+          page_desc: 'Enter Attack / HP / Speed',
+          hint: '',
           notice: 'Note: Due to speed rounding, soul power has minor estimation error.',
           calc_title: 'Enter Base Stats',
           atk: 'Attack x', hp: 'HP y', spd: 'Speed z',
           warn: 'Average value is out of calculable range (B- ~ SSS).',
-          avg: 'Average', avg_desc: '(x + y + 100×z) / 3',
+          avg: 'Average', avg_desc: '',
           grade: 'Tier', grade_desc: 'Determined by minimum average thresholds',
           power: 'Soul Power', power_desc: 'Linear interpolation by cap range',
           clear: 'Clear', dash: '—',
@@ -372,7 +371,6 @@
         navHome: document.getElementById('navHome'),
         pageTitle: document.getElementById('pageTitle'),
         pageDesc: document.getElementById('pageDesc'),
-        hintText: document.getElementById('hintText'),
         noticeText: document.getElementById('noticeText'),
         calcTitle: document.getElementById('calc-title'),
         atkLabel: document.getElementById('atkLabel'),
@@ -398,7 +396,6 @@
         refs.navHome.textContent = t('nav_home');
         refs.pageTitle.textContent = t('page_title');
         refs.pageDesc.textContent = t('page_desc');
-        refs.hintText.textContent = t('hint');
         refs.noticeText.textContent = t('notice');
         refs.calcTitle.textContent = t('calc_title');
         refs.atkLabel.textContent = t('atk');
