@@ -90,6 +90,11 @@
       font-size: clamp(24px, 6vw, 36px);
       letter-spacing: 0.03em;
     }
+    .hero .credit {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
     .hero p {
       margin: 8px 0 0;
       color: var(--muted);
@@ -139,14 +144,6 @@
       box-shadow: 0 18px 36px rgba(99, 102, 241, 0.25);
       outline: none;
     }
-    .hint {
-      font-size: 13px;
-      color: var(--muted);
-      background: rgba(99, 102, 241, 0.07);
-      border: 1px solid rgba(99, 102, 241, 0.22);
-      border-radius: 12px;
-      padding: 10px 12px;
-    }
     .image-overlay {
       position: fixed;
       inset: 0;
@@ -193,7 +190,7 @@
   <div class="wrap">
     <section class="hero">
       <h1 id="pageTitle">攻略图片</h1>
-      <p id="pageDesc">把攻略图集中到一个页面，后续新增图片会统一放在 <code>flipgame/images/</code> 文件夹。</p>
+      <p class="credit" id="creditText">部分图片收集于网络、公众号，特此感谢作者！</p>
     </section>
 
     <div class="cards" aria-label="攻略图片列表">
@@ -222,20 +219,59 @@
         <span class="title" id="cardMapTitle">远征推图</span>
         <span class="subtitle" id="cardMapSub">查看远征推图攻略图</span>
       </a>
+      <a class="card-link" href="images/juexingailv.jpg" target="_blank" rel="noopener" data-image="images/juexingailv.jpg">
+        <span class="thumb"><img src="images/juexingailv.jpg" alt="觉醒概率" id="awakenImg" /></span>
+        <span class="title" id="cardAwakenTitle">觉醒概率</span>
+        <span class="subtitle" id="cardAwakenSub">查看觉醒概率攻略图</span>
+      </a>
+      <a class="card-link" href="images/shengexuqiu.jpg" target="_blank" rel="noopener" data-image="images/shengexuqiu.jpg">
+        <span class="thumb"><img src="images/shengexuqiu.jpg" alt="升格需求" id="mergeNeedImg" /></span>
+        <span class="title" id="cardMergeNeedTitle">升格需求</span>
+        <span class="subtitle" id="cardMergeNeedSub">查看升格需求攻略图</span>
+      </a>
+      <a class="card-link" href="images/fengjiehunli.png" target="_blank" rel="noopener" data-image="images/fengjiehunli.png">
+        <span class="thumb"><img src="images/fengjiehunli.png" alt="分解资质所得魂力性价比" id="breakdownImg" /></span>
+        <span class="title" id="cardBreakdownTitle">分解资质所得魂力性价比</span>
+        <span class="subtitle" id="cardBreakdownSub">查看分解资质魂力性价比攻略图</span>
+      </a>
+      <a class="card-link" href="images/funengguanzhu.jpg" target="_blank" rel="noopener" data-image="images/funengguanzhu.jpg">
+        <span class="thumb"><img src="images/funengguanzhu.jpg" alt="赋能灌注" id="empowerImg" /></span>
+        <span class="title" id="cardEmpowerTitle">赋能灌注</span>
+        <span class="subtitle" id="cardEmpowerSub">查看赋能灌注攻略图</span>
+      </a>
+      <a class="card-link" href="images/tubiao.jpg" target="_blank" rel="noopener" data-image="images/tubiao.jpg">
+        <span class="thumb"><img src="images/tubiao.jpg" alt="战斗Buff/Debuff图标" id="iconImg" /></span>
+        <span class="title" id="cardIconTitle">战斗Buff/Debuff图标</span>
+        <span class="subtitle" id="cardIconSub">查看战斗Buff/Debuff图标攻略图</span>
+      </a>
+      <a class="card-link" href="images/%E7%8F%8D%E5%AE%9D.jpg" target="_blank" rel="noopener" data-image="images/珍宝.jpg">
+        <span class="thumb"><img src="images/珍宝.jpg" alt="珍宝升级" id="treasureImg" /></span>
+        <span class="title" id="cardTreasureTitle">珍宝升级</span>
+        <span class="subtitle" id="cardTreasureSub">查看珍宝升级攻略图</span>
+      </a>
+      <a class="card-link" href="images/%E9%A3%9E%E5%8D%871.jpg" target="_blank" rel="noopener" data-images="images/飞升1.jpg|images/飞升2.jpg">
+        <span class="thumb"><img src="images/飞升1.jpg" alt="飞升升级资源" id="ascendResImg" /></span>
+        <span class="title" id="cardAscendResTitle">飞升升级资源</span>
+        <span class="subtitle" id="cardAscendResSub">查看飞升1 / 飞升2攻略图</span>
+      </a>
+      <a class="card-link" href="images/%E5%B1%9E%E6%80%A7%E8%A7%A3%E9%87%8A.jpg" target="_blank" rel="noopener" data-image="images/属性解释.jpg">
+        <span class="thumb"><img src="images/属性解释.jpg" alt="属性具体解释和算法" id="attrExplainImg" /></span>
+        <span class="title" id="cardAttrExplainTitle">属性具体解释和算法</span>
+        <span class="subtitle" id="cardAttrExplainSub">查看属性解释攻略图</span>
+      </a>
     </div>
 
-    <div class="hint" id="folderHint">图片目录：<code>flipgame/images/</code>。后续你放新图后，我可以继续帮你把卡片自动加到这里。</div>
   </div>
   <div class="image-overlay" id="imageOverlay" aria-hidden="true">
     <button class="overlay-close" id="overlayClose" type="button">关闭</button>
-    <img id="overlayImg" alt="" />
+    <div id="overlayImages"></div>
   </div>
 
   <script>
     (function () {
       const navHome = document.getElementById('navHome');
       const pageTitle = document.getElementById('pageTitle');
-      const pageDesc = document.getElementById('pageDesc');
+      const creditText = document.getElementById('creditText');
       const cardQihuanTitle = document.getElementById('cardQihuanTitle');
       const cardQihuanSub = document.getElementById('cardQihuanSub');
       const qihuanImg = document.getElementById('qihuanImg');
@@ -251,9 +287,32 @@
       const cardMapTitle = document.getElementById('cardMapTitle');
       const cardMapSub = document.getElementById('cardMapSub');
       const mapImg = document.getElementById('mapImg');
-      const folderHint = document.getElementById('folderHint');
+      const cardAwakenTitle = document.getElementById('cardAwakenTitle');
+      const cardAwakenSub = document.getElementById('cardAwakenSub');
+      const awakenImg = document.getElementById('awakenImg');
+      const cardMergeNeedTitle = document.getElementById('cardMergeNeedTitle');
+      const cardMergeNeedSub = document.getElementById('cardMergeNeedSub');
+      const mergeNeedImg = document.getElementById('mergeNeedImg');
+      const cardBreakdownTitle = document.getElementById('cardBreakdownTitle');
+      const cardBreakdownSub = document.getElementById('cardBreakdownSub');
+      const breakdownImg = document.getElementById('breakdownImg');
+      const cardEmpowerTitle = document.getElementById('cardEmpowerTitle');
+      const cardEmpowerSub = document.getElementById('cardEmpowerSub');
+      const empowerImg = document.getElementById('empowerImg');
+      const cardIconTitle = document.getElementById('cardIconTitle');
+      const cardIconSub = document.getElementById('cardIconSub');
+      const iconImg = document.getElementById('iconImg');
+      const cardTreasureTitle = document.getElementById('cardTreasureTitle');
+      const cardTreasureSub = document.getElementById('cardTreasureSub');
+      const treasureImg = document.getElementById('treasureImg');
+      const cardAscendResTitle = document.getElementById('cardAscendResTitle');
+      const cardAscendResSub = document.getElementById('cardAscendResSub');
+      const ascendResImg = document.getElementById('ascendResImg');
+      const cardAttrExplainTitle = document.getElementById('cardAttrExplainTitle');
+      const cardAttrExplainSub = document.getElementById('cardAttrExplainSub');
+      const attrExplainImg = document.getElementById('attrExplainImg');
       const imageOverlay = document.getElementById('imageOverlay');
-      const overlayImg = document.getElementById('overlayImg');
+      const overlayImages = document.getElementById('overlayImages');
       const overlayClose = document.getElementById('overlayClose');
 
       let currentLang = (localStorage.getItem('flipgame_lang') || '').toLowerCase();
@@ -267,7 +326,7 @@
           title: '攻略图片 · ShinE',
           nav_home: '回到主页',
           page_title: '攻略图片',
-          page_desc: '把攻略图集中到一个页面，后续新增图片会统一放在 flipgame/images/ 文件夹。',
+          credit_text: '部分图片收集于网络、公众号，特此感谢作者！',
           card_qihuan_title: '奇幻梦工厂隐藏关',
           card_qihuan_sub: '查看隐藏关参考图与说明',
           img_alt: '奇幻梦工厂隐藏关',
@@ -283,29 +342,75 @@
           card_map_title: '远征推图',
           card_map_sub: '查看远征推图攻略图',
           map_alt: '远征推图',
-          folder_hint: '图片目录：flipgame/images/。后续你放新图后，我可以继续帮你把卡片自动加到这里。'
+          card_awaken_title: '觉醒概率',
+          card_awaken_sub: '查看觉醒概率攻略图',
+          awaken_alt: '觉醒概率',
+          card_mergeneed_title: '升格需求',
+          card_mergeneed_sub: '查看升格需求攻略图',
+          mergeneed_alt: '升格需求',
+          card_breakdown_title: '分解资质所得魂力性价比',
+          card_breakdown_sub: '查看分解资质魂力性价比攻略图',
+          breakdown_alt: '分解资质所得魂力性价比',
+          card_empower_title: '赋能灌注',
+          card_empower_sub: '查看赋能灌注攻略图',
+          empower_alt: '赋能灌注',
+          card_icon_title: '战斗Buff/Debuff图标',
+          card_icon_sub: '查看战斗Buff/Debuff图标攻略图',
+          icon_alt: '战斗Buff/Debuff图标',
+          card_treasure_title: '珍宝升级',
+          card_treasure_sub: '查看珍宝升级攻略图',
+          treasure_alt: '珍宝升级',
+          card_ascendres_title: '飞升升级资源',
+          card_ascendres_sub: '查看飞升1 / 飞升2攻略图',
+          ascendres_alt: '飞升升级资源',
+          card_attrexplain_title: '属性具体解释和算法',
+          card_attrexplain_sub: '查看属性解释攻略图',
+          attrexplain_alt: '属性具体解释和算法'
         },
         en: {
           title: 'Guide Images · ShinE',
           nav_home: 'Home',
           page_title: 'Guide Images',
-          page_desc: 'Collect strategy images in one page. New images will be organized under flipgame/images/.',
+          credit_text: 'Some images are collected from online sources and public accounts. Special thanks to the original authors.',
           card_qihuan_title: 'Fantasy Factory Secret Stage',
           card_qihuan_sub: 'Open the secret stage reference image and notes',
           img_alt: 'Fantasy Factory secret stage',
           card_genyuan_title: 'Origin Level',
           card_genyuan_sub: 'Open the origin level guide image',
           genyuan_alt: 'Origin level guide',
-          card_guanzhu_title: 'Insignia Infusion',
-          card_guanzhu_sub: 'Open the insignia infusion guide image',
-          guanzhu_alt: 'Insignia infusion guide',
+          card_guanzhu_title: 'Imprint Grimoire',
+          card_guanzhu_sub: 'Open the Imprint Grimoire guide image',
+          guanzhu_alt: 'Imprint Grimoire guide',
           card_boss_title: 'Expedition Boss HP',
           card_boss_sub: 'Open the expedition boss HP guide image',
           boss_alt: 'Expedition boss HP guide',
           card_map_title: 'Expedition Stage Map',
           card_map_sub: 'Open the expedition stage map guide image',
           map_alt: 'Expedition stage map guide',
-          folder_hint: 'Image folder: flipgame/images/. Add new images there and I can keep updating this card list for you.'
+          card_awaken_title: 'Awakening Rate',
+          card_awaken_sub: 'Open the awakening rate guide image',
+          awaken_alt: 'Awakening rate guide',
+          card_mergeneed_title: 'Merge Requirements',
+          card_mergeneed_sub: 'Open the merge requirements guide image',
+          mergeneed_alt: 'Merge requirements guide',
+          card_breakdown_title: 'Soul Power Value by Dismantle Tier',
+          card_breakdown_sub: 'Open the dismantle tier soul power value guide image',
+          breakdown_alt: 'Dismantle tier soul power value guide',
+          card_empower_title: 'Enabling Grimoire',
+          card_empower_sub: 'Open the Enabling Grimoire guide image',
+          empower_alt: 'Enabling Grimoire guide',
+          card_icon_title: 'Battle Buff/Debuff Icons',
+          card_icon_sub: 'Open the battle Buff/Debuff icon guide image',
+          icon_alt: 'Battle Buff and Debuff icon guide',
+          card_treasure_title: 'Treasure Upgrade',
+          card_treasure_sub: 'Open the treasure upgrade guide image',
+          treasure_alt: 'Treasure upgrade guide',
+          card_ascendres_title: 'Destiny Upgrade Resources',
+          card_ascendres_sub: 'Open Destiny 1 / Destiny 2 guide images',
+          ascendres_alt: 'Destiny upgrade resources',
+          card_attrexplain_title: 'Attribute Explanation & Formula',
+          card_attrexplain_sub: 'Open the attribute explanation guide image',
+          attrexplain_alt: 'Attribute explanation and formula guide'
         }
       };
 
@@ -318,7 +423,7 @@
         document.documentElement.lang = currentLang === 'zh' ? 'zh-Hans' : 'en';
         if (navHome) navHome.textContent = t('nav_home');
         if (pageTitle) pageTitle.textContent = t('page_title');
-        if (pageDesc) pageDesc.textContent = t('page_desc');
+        if (creditText) creditText.textContent = t('credit_text');
         if (cardQihuanTitle) cardQihuanTitle.textContent = t('card_qihuan_title');
         if (cardQihuanSub) cardQihuanSub.textContent = t('card_qihuan_sub');
         if (qihuanImg) qihuanImg.setAttribute('alt', t('img_alt'));
@@ -334,7 +439,30 @@
         if (cardMapTitle) cardMapTitle.textContent = t('card_map_title');
         if (cardMapSub) cardMapSub.textContent = t('card_map_sub');
         if (mapImg) mapImg.setAttribute('alt', t('map_alt'));
-        if (folderHint) folderHint.textContent = t('folder_hint');
+        if (cardAwakenTitle) cardAwakenTitle.textContent = t('card_awaken_title');
+        if (cardAwakenSub) cardAwakenSub.textContent = t('card_awaken_sub');
+        if (awakenImg) awakenImg.setAttribute('alt', t('awaken_alt'));
+        if (cardMergeNeedTitle) cardMergeNeedTitle.textContent = t('card_mergeneed_title');
+        if (cardMergeNeedSub) cardMergeNeedSub.textContent = t('card_mergeneed_sub');
+        if (mergeNeedImg) mergeNeedImg.setAttribute('alt', t('mergeneed_alt'));
+        if (cardBreakdownTitle) cardBreakdownTitle.textContent = t('card_breakdown_title');
+        if (cardBreakdownSub) cardBreakdownSub.textContent = t('card_breakdown_sub');
+        if (breakdownImg) breakdownImg.setAttribute('alt', t('breakdown_alt'));
+        if (cardEmpowerTitle) cardEmpowerTitle.textContent = t('card_empower_title');
+        if (cardEmpowerSub) cardEmpowerSub.textContent = t('card_empower_sub');
+        if (empowerImg) empowerImg.setAttribute('alt', t('empower_alt'));
+        if (cardIconTitle) cardIconTitle.textContent = t('card_icon_title');
+        if (cardIconSub) cardIconSub.textContent = t('card_icon_sub');
+        if (iconImg) iconImg.setAttribute('alt', t('icon_alt'));
+        if (cardTreasureTitle) cardTreasureTitle.textContent = t('card_treasure_title');
+        if (cardTreasureSub) cardTreasureSub.textContent = t('card_treasure_sub');
+        if (treasureImg) treasureImg.setAttribute('alt', t('treasure_alt'));
+        if (cardAscendResTitle) cardAscendResTitle.textContent = t('card_ascendres_title');
+        if (cardAscendResSub) cardAscendResSub.textContent = t('card_ascendres_sub');
+        if (ascendResImg) ascendResImg.setAttribute('alt', t('ascendres_alt'));
+        if (cardAttrExplainTitle) cardAttrExplainTitle.textContent = t('card_attrexplain_title');
+        if (cardAttrExplainSub) cardAttrExplainSub.textContent = t('card_attrexplain_sub');
+        if (attrExplainImg) attrExplainImg.setAttribute('alt', t('attrexplain_alt'));
       }
 
       function isStandaloneApp() {
@@ -347,36 +475,43 @@
         );
       }
 
-      function openImageOverlay(imageUrl, title) {
-        if (!imageOverlay || !overlayImg) return;
-        const resolved = new URL(imageUrl, window.location.href).href;
-        overlayImg.setAttribute('src', resolved);
-        overlayImg.setAttribute('alt', String(title || ''));
+      function openImageOverlay(imageUrls, title) {
+        if (!imageOverlay || !overlayImages) return;
+        const urls = Array.isArray(imageUrls) ? imageUrls : [imageUrls];
+        overlayImages.innerHTML = '';
+        urls.forEach((u, i) => {
+          const img = document.createElement('img');
+          img.src = new URL(u, window.location.href).href;
+          img.alt = `${String(title || '')} ${i + 1}`;
+          overlayImages.appendChild(img);
+        });
         imageOverlay.classList.add('is-open');
         imageOverlay.setAttribute('aria-hidden', 'false');
       }
 
       function closeImageOverlay() {
-        if (!imageOverlay || !overlayImg) return;
+        if (!imageOverlay || !overlayImages) return;
         imageOverlay.classList.remove('is-open');
         imageOverlay.setAttribute('aria-hidden', 'true');
-        overlayImg.removeAttribute('src');
+        overlayImages.innerHTML = '';
       }
 
-      function openImageWindow(imageUrl, title) {
+      function openImageWindow(imageUrls, title) {
+        const urls = Array.isArray(imageUrls) ? imageUrls : [imageUrls];
         if (isStandaloneApp()) {
-          openImageOverlay(imageUrl, title);
+          openImageOverlay(urls, title);
           return;
         }
-        const resolved = new URL(imageUrl, window.location.href).href;
+        const resolvedList = urls.map((u) => new URL(u, window.location.href).href);
         const width = Math.max(640, Math.floor(window.innerWidth * 0.9));
         const height = Math.max(480, Math.floor(window.innerHeight * 0.9));
         const win = window.open('', '_blank', `noopener,noreferrer,width=${width},height=${height}`);
         if (!win) {
-          window.open(resolved, '_blank');
+          window.open(resolvedList[0], '_blank');
           return;
         }
         const safeTitle = String(title || '');
+        const imagesHtml = resolvedList.map((u, i) => `<img src="${u}" alt="${safeTitle} ${i + 1}" />`).join('');
         win.document.open();
         win.document.write(`<!DOCTYPE html>
 <html lang="zh-Hans">
@@ -390,7 +525,7 @@
   </style>
 </head>
 <body>
-  <img src="${resolved}" alt="${safeTitle}" />
+  ${imagesHtml}
 </body>
 </html>`);
         win.document.close();
@@ -424,13 +559,15 @@
         }, { passive: true });
       }
 
-      document.querySelectorAll('.card-link[data-image]').forEach((el) => {
+      document.querySelectorAll('.card-link[data-image], .card-link[data-images]').forEach((el) => {
         el.addEventListener('click', (event) => {
           event.preventDefault();
+          const list = el.getAttribute('data-images');
           const imagePath = el.getAttribute('data-image');
+          const images = list ? list.split('|').map((s) => s.trim()).filter(Boolean) : [imagePath];
           const titleEl = el.querySelector('.title');
           const title = titleEl ? titleEl.textContent : '';
-          openImageWindow(imagePath, title);
+          openImageWindow(images, title);
         });
       });
       if (overlayClose) {
