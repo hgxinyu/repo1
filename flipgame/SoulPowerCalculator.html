@@ -3,13 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>魂力计算器 · ShinE</title>
-  <link rel="icon" type="image/svg+xml" href="assets/shine-logo.svg">
-  <link rel="icon" type="image/png" sizes="32x32" href="assets/shine-logo-32.png">
-  <link rel="shortcut icon" href="assets/favicon.ico">
-  <link rel="apple-touch-icon" sizes="180x180" href="assets/shine-logo-180.png">
-  <link rel="manifest" href="site.webmanifest">
-  <meta name="theme-color" content="#6366f1">
+  <title>魂力计算器 · ShinE</title>  <script>
+    (function () {
+      var host = (window.location.hostname || '').toLowerCase();
+      var isLocal = host === 'localhost' || host === '127.0.0.1' || host === '::1';
+      var svg = isLocal ? 'assets/local-logo.svg' : 'assets/shine-logo.svg';
+      var png32 = isLocal ? 'assets/local-logo-32.png' : 'assets/shine-logo-32.png';
+      var ico = isLocal ? 'assets/local-favicon.ico' : 'assets/favicon.ico';
+      var apple = isLocal ? 'assets/local-logo-180.png' : 'assets/shine-logo-180.png';
+      var manifest = isLocal ? 'site.local.webmanifest' : 'site.webmanifest';
+      var theme = isLocal ? '#fb7185' : '#6366f1';
+      document.write('<link rel="icon" type="image/svg+xml" href="' + svg + '">');
+      document.write('<link rel="icon" type="image/png" sizes="32x32" href="' + png32 + '">');
+      document.write('<link rel="shortcut icon" href="' + ico + '">');
+      document.write('<link rel="apple-touch-icon" sizes="180x180" href="' + apple + '">');
+      document.write('<link rel="manifest" href="' + manifest + '">');
+      document.write('<meta name="theme-color" content="' + theme + '">');
+    })();
+  </script>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700&display=swap" rel="stylesheet">
@@ -172,19 +183,26 @@
     }
     input[type="number"] {
       width: 100%;
-      border: 1px solid var(--border);
+      border: 2px solid rgba(99, 102, 241, 0.35);
       border-radius: 12px;
       padding: 12px 14px;
       font-size: 16px;
-      background: #fff;
+      background: rgba(99, 102, 241, 0.06);
       color: var(--ink);
-      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+      box-shadow: 0 8px 18px rgba(99, 102, 241, 0.14);
+      transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
       -moz-appearance: textfield;
     }
     input[type="number"]::-webkit-outer-spin-button,
     input[type="number"]::-webkit-inner-spin-button {
       -webkit-appearance: none;
       margin: 0;
+    }
+    input[type="number"]:focus-visible {
+      outline: none;
+      border-color: rgba(99, 102, 241, 0.9);
+      background: rgba(99, 102, 241, 0.11);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2), 0 12px 24px rgba(99, 102, 241, 0.2);
     }
     .out {
       display: grid;

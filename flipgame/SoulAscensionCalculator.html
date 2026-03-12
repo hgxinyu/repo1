@@ -3,13 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>凝魂升格计算器 · ShinE</title>
-  <link rel="icon" type="image/svg+xml" href="assets/shine-logo.svg">
-  <link rel="icon" type="image/png" sizes="32x32" href="assets/shine-logo-32.png">
-  <link rel="shortcut icon" href="assets/favicon.ico">
-  <link rel="apple-touch-icon" sizes="180x180" href="assets/shine-logo-180.png">
-  <link rel="manifest" href="site.webmanifest">
-  <meta name="theme-color" content="#6366f1">
+  <title>凝魂升格计算器 · ShinE</title>  <script>
+    (function () {
+      var host = (window.location.hostname || '').toLowerCase();
+      var isLocal = host === 'localhost' || host === '127.0.0.1' || host === '::1';
+      var svg = isLocal ? 'assets/local-logo.svg' : 'assets/shine-logo.svg';
+      var png32 = isLocal ? 'assets/local-logo-32.png' : 'assets/shine-logo-32.png';
+      var ico = isLocal ? 'assets/local-favicon.ico' : 'assets/favicon.ico';
+      var apple = isLocal ? 'assets/local-logo-180.png' : 'assets/shine-logo-180.png';
+      var manifest = isLocal ? 'site.local.webmanifest' : 'site.webmanifest';
+      var theme = isLocal ? '#fb7185' : '#6366f1';
+      document.write('<link rel="icon" type="image/svg+xml" href="' + svg + '">');
+      document.write('<link rel="icon" type="image/png" sizes="32x32" href="' + png32 + '">');
+      document.write('<link rel="shortcut icon" href="' + ico + '">');
+      document.write('<link rel="apple-touch-icon" sizes="180x180" href="' + apple + '">');
+      document.write('<link rel="manifest" href="' + manifest + '">');
+      document.write('<meta name="theme-color" content="' + theme + '">');
+    })();
+  </script>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700&display=swap" rel="stylesheet">
@@ -208,12 +219,26 @@
       box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
       -moz-appearance: textfield;
     }
+    input[type="number"] {
+      border: 2px solid rgba(99, 102, 241, 0.35);
+      background: rgba(99, 102, 241, 0.06);
+      box-shadow: 0 8px 18px rgba(99, 102, 241, 0.14);
+      transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    }
     input[type="number"]::-webkit-outer-spin-button,
     input[type="number"]::-webkit-inner-spin-button {
       -webkit-appearance: none;
       margin: 0;
     }
     input[type="number"]:focus-visible,
+    select:focus-visible {
+      outline: none;
+    }
+    input[type="number"]:focus-visible {
+      border-color: rgba(99, 102, 241, 0.9);
+      background: rgba(99, 102, 241, 0.11);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2), 0 12px 24px rgba(99, 102, 241, 0.2);
+    }
     select:focus-visible {
       outline: 2px solid rgba(99, 102, 241, 0.35);
       outline-offset: 2px;
@@ -581,13 +606,13 @@
           lang_toggle_zh: '中文'
         },
         en: {
-          title: 'Soul Ascension Calculator · ShinE',
+          title: 'Soul Perfection & Merge Calculator · ShinE',
           nav_label: 'Page Navigation',
           nav_home: 'Home',
           nav_flip: '3x3 Flip Cards',
           nav_core: 'Core Calculator',
           nav_star: 'Star Diamond Calculator',
-          page_title: 'Soul Ascension Calculator (A → A+ / A+ → S)',
+          page_title: 'Soul Perfection & Merge Calculator (A → A+ / A+ → S)',
           page_desc: 'Enter your stats to estimate ascension needs. The average and count update instantly.',
           stage_mode_label: 'Stage',
           mode_a_to_aplus: 'A → A+',
@@ -604,10 +629,10 @@
           spd_aria: 'Speed value',
           warn_tpl: 'Invalid input: x + y + 100 × z must be within <strong>{min} ~ {max}</strong>.',
           avg_label: 'Average',
-          times_label: 'Ascension Count',
+          times_label: 'Soul Perfection Count',
           times_desc: 'Shown only when within range',
-          price_title_tpl: '{mode} Cost Efficiency (Required Total EXP)',
-          price_desc_tpl: 'Price inputs only (not EXP). Required EXP is auto-derived from the top result: Ascension Count × {exp}. Blank means ignored.',
+          price_title_tpl: '{mode} Soul Perfection Cost Efficiency (Required Total EXP)',
+          price_desc_tpl: 'Price inputs only (not EXP). Required EXP is auto-derived from the top result: Soul Perfection Count × {exp}. Blank means ignored.',
           price_bminus_label: 'B- Price (50 EXP)',
           price_b_label: 'B Price (140 EXP)',
           price_bplus_label: 'B+ Price (340 EXP)',
@@ -616,16 +641,16 @@
           price_aplus_label: 'A+ Price (10000 EXP)',
           price_placeholder: 'Blank = ignore',
           best_combo_label: 'Best Combo',
-          best_cost_label: 'Feeding Cost',
+          best_cost_label: 'Soul Perfection Cost',
           best_exp_label: 'Total EXP',
           best_combo_desc: 'Lowest cost way to reach the required EXP',
           best_cost_desc: 'Computed from entered prices only',
           best_eff_desc: 'Cost / Required EXP:',
-          asc_cost_label: 'Ascension Cost',
+          asc_cost_label: 'Soul Merge Cost',
           asc_cost_desc_aplus_to_s: '3×A- + 2×A + 1×A+',
           asc_cost_desc_a_to_aplus: '3×B+ + 2×A- + 2×A',
           total_cost_label: 'Total Cost (Highlight)',
-          total_cost_desc: 'Total Cost = Feeding Cost + Ascension Cost',
+          total_cost_desc: 'Total Cost = Soul Perfection Cost + Soul Merge Cost',
           need_asc_prices_aplus_to_s: 'Enter A- / A / A+ prices to show total cost',
           need_asc_prices_a_to_aplus: 'Enter B+ / A- / A prices to show total cost',
           need_valid_stats: 'Enter valid stats above first',
@@ -877,21 +902,35 @@
         const x = toNum(atk.value);
         const y = toNum(hp.value);
         const z = toNum(spd.value);
-        const total = x + y + (100 * z);
-        const average = (x + y + z*100) / 3;
+        const totalA = x + y + (100 * z);
+        const totalB = x + y + (100 * (z + 1));
+        const avgA = totalA / 3;
+        const avgB = totalB / 3;
+        const avgMin = Math.min(avgA, avgB);
+        const avgMax = Math.max(avgA, avgB);
+        avgValue.textContent = avgMin === avgMax ? avgMin.toFixed(2) : `${avgMin.toFixed(2)} ~ ${avgMax.toFixed(2)}`;
 
-        avgValue.textContent = average.toFixed(2);
-
-        const valid = total >= mode.minTotal && total <= mode.maxTotal;
-        warn.style.display = (!touched || valid) ? 'none' : 'block';
+        const validA = totalA >= mode.minTotal && totalA <= mode.maxTotal;
+        const validB = totalB >= mode.minTotal && totalB <= mode.maxTotal;
+        const validAny = validA || validB;
+        warn.style.display = (!touched || validAny) ? 'none' : 'block';
 
         let requiredTotalExp = 0;
-        if (valid) {
-          const need = (mode.targetTotal - total) / 135;
-          const count = Math.ceil(need);
-          const safeCount = count < 0 ? 0 : count;
-          times.textContent = safeCount;
-          requiredTotalExp = safeCount * mode.expPerSoul;
+        if (validAny) {
+          const counts = [];
+          if (validA) {
+            const needA = (mode.targetTotal - totalA) / 135;
+            counts.push(Math.max(0, Math.ceil(needA)));
+          }
+          if (validB) {
+            const needB = (mode.targetTotal - totalB) / 135;
+            counts.push(Math.max(0, Math.ceil(needB)));
+          }
+          const minCount = Math.min(...counts);
+          const maxCount = Math.max(...counts);
+          times.textContent = minCount === maxCount ? String(minCount) : `${minCount} ~ ${maxCount}`;
+          // Use upper bound so cost planning won't underestimate required exp.
+          requiredTotalExp = maxCount * mode.expPerSoul;
         } else {
           times.textContent = t('dash');
         }

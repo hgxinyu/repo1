@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>攻略图片 · ShinE</title>
+  <script>
+    (function () {
+      var host = (window.location.hostname || '').toLowerCase();
+      var isLocal = host === 'localhost' || host === '127.0.0.1' || host === '::1';
+      var svg = isLocal ? 'assets/local-logo.svg' : 'assets/shine-logo.svg';
+      var png32 = isLocal ? 'assets/local-logo-32.png' : 'assets/shine-logo-32.png';
+      var ico = isLocal ? 'assets/local-favicon.ico' : 'assets/favicon.ico';
+      var apple = isLocal ? 'assets/local-logo-180.png' : 'assets/shine-logo-180.png';
+      var manifest = isLocal ? 'site.local.webmanifest' : 'site.webmanifest';
+      var theme = isLocal ? '#fb7185' : '#6366f1';
+      document.write('<link rel="icon" type="image/svg+xml" href="' + svg + '">');
+      document.write('<link rel="icon" type="image/png" sizes="32x32" href="' + png32 + '">');
+      document.write('<link rel="shortcut icon" href="' + ico + '">');
+      document.write('<link rel="apple-touch-icon" sizes="180x180" href="' + apple + '">');
+      document.write('<link rel="manifest" href="' + manifest + '">');
+      document.write('<meta name="theme-color" content="' + theme + '">');
+    })();
+  </script>
+  <style>
+    :root {
+      --border: #e2e8f0;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --brand: #6366f1;
+      --surface: #ffffff;
+      --bg: #f8fafc;
+      --shadow: 0 14px 30px rgba(15, 23, 42, 0.12);
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Segoe UI", "Microsoft YaHei", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+    body { display: flex; flex-direction: column; align-items: center; }
+    nav#topbar-nav {
+      position: fixed;
+      right: 12px;
+      top: 12px;
+      z-index: 40;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+      backdrop-filter: saturate(140%) blur(6px);
+    }
+    nav#topbar-nav a {
+      border: 1px solid transparent;
+      background: rgba(99, 102, 241, 0.08);
+      color: var(--brand);
+      padding: 9px 16px;
+      border-radius: 999px;
+      font-size: 14px;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .wrap {
+      width: min(980px, 100%);
+      padding: clamp(28px, 6vw, 56px) clamp(18px, 5vw, 48px) 88px;
+      display: flex;
+      flex-direction: column;
+      gap: clamp(20px, 4vw, 28px);
+      flex: 1 0 auto;
+    }
+    .hero {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: clamp(18px, 4vw, 26px);
+    }
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(24px, 6vw, 36px);
+      letter-spacing: 0.03em;
+    }
+    .hero p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: clamp(16px, 4vw, 24px);
+    }
+    .card-link {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: clamp(16px, 4vw, 24px);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      text-decoration: none;
+      color: var(--ink);
+      box-shadow: var(--shadow);
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    }
+    .card-link img {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      object-fit: cover;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+    .thumb {
+      position: relative;
+      display: block;
+    }
+    .card-link .title {
+      font-size: clamp(18px, 5vw, 22px);
+      font-weight: 600;
+    }
+    .card-link .subtitle {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .card-link:hover,
+    .card-link:focus-visible {
+      transform: translateY(-2px);
+      border-color: rgba(99, 102, 241, 0.35);
+      box-shadow: 0 18px 36px rgba(99, 102, 241, 0.25);
+      outline: none;
+    }
+    .hint {
+      font-size: 13px;
+      color: var(--muted);
+      background: rgba(99, 102, 241, 0.07);
+      border: 1px solid rgba(99, 102, 241, 0.22);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+    .image-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 120;
+      display: none;
+      background: rgba(2, 6, 23, 0.92);
+      align-items: flex-start;
+      justify-content: center;
+      overflow: auto;
+      padding: 0;
+    }
+    .image-overlay.is-open { display: flex; }
+    .image-overlay img {
+      width: 100vw;
+      max-width: 100vw;
+      height: auto;
+      display: block;
+    }
+    .image-overlay .overlay-close {
+      position: fixed;
+      right: 12px;
+      top: 12px;
+      z-index: 130;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      background: rgba(15, 23, 42, 0.6);
+      color: #fff;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    @media (max-width: 560px) {
+      nav#topbar-nav { right: 8px; top: 8px; }
+      nav#topbar-nav a { padding: 8px 12px; font-size: 13px; }
+      .wrap { padding-top: 56px; }
+    }
+  </style>
+</head>
+<body>
+  <nav id="topbar-nav" aria-label="页面导航">
+    <a href="index.html" id="navHome">回到主页</a>
+  </nav>
+
+  <div class="wrap">
+    <section class="hero">
+      <h1 id="pageTitle">攻略图片</h1>
+      <p id="pageDesc">把攻略图集中到一个页面，后续新增图片会统一放在 <code>flipgame/images/</code> 文件夹。</p>
+    </section>
+
+    <div class="cards" aria-label="攻略图片列表">
+      <a class="card-link" href="images/qihuan.jpg" target="_blank" rel="noopener" data-image="images/qihuan.jpg">
+        <span class="thumb"><img src="images/qihuan.jpg" alt="奇幻梦工厂隐藏关" id="qihuanImg" /></span>
+        <span class="title" id="cardQihuanTitle">奇幻梦工厂隐藏关</span>
+        <span class="subtitle" id="cardQihuanSub">查看隐藏关参考图与说明</span>
+      </a>
+      <a class="card-link" href="images/genyuan.jpeg" target="_blank" rel="noopener" data-image="images/genyuan.jpeg">
+        <span class="thumb"><img src="images/genyuan.jpeg" alt="根源等级" id="genyuanImg" /></span>
+        <span class="title" id="cardGenyuanTitle">根源等级</span>
+        <span class="subtitle" id="cardGenyuanSub">查看根源等级攻略图</span>
+      </a>
+      <a class="card-link" href="images/guanzhu.png" target="_blank" rel="noopener" data-image="images/guanzhu.png">
+        <span class="thumb"><img src="images/guanzhu.png" alt="印痕灌注" id="guanzhuImg" /></span>
+        <span class="title" id="cardGuanzhuTitle">印痕灌注</span>
+        <span class="subtitle" id="cardGuanzhuSub">查看印痕灌注攻略图</span>
+      </a>
+      <a class="card-link" href="images/se%20boss%20hp.png" target="_blank" rel="noopener" data-image="images/se boss hp.png">
+        <span class="thumb"><img src="images/se boss hp.png" alt="远征BOSS血量" id="bossHpImg" /></span>
+        <span class="title" id="cardBossTitle">远征BOSS血量</span>
+        <span class="subtitle" id="cardBossSub">查看远征BOSS血量攻略图</span>
+      </a>
+      <a class="card-link" href="images/%E8%BF%9C%E5%BE%81%E6%8E%A8%E5%9B%BE.jpeg" target="_blank" rel="noopener" data-image="images/远征推图.jpeg">
+        <span class="thumb"><img src="images/远征推图.jpeg" alt="远征推图" id="mapImg" /></span>
+        <span class="title" id="cardMapTitle">远征推图</span>
+        <span class="subtitle" id="cardMapSub">查看远征推图攻略图</span>
+      </a>
+    </div>
+
+    <div class="hint" id="folderHint">图片目录：<code>flipgame/images/</code>。后续你放新图后，我可以继续帮你把卡片自动加到这里。</div>
+  </div>
+  <div class="image-overlay" id="imageOverlay" aria-hidden="true">
+    <button class="overlay-close" id="overlayClose" type="button">关闭</button>
+    <img id="overlayImg" alt="" />
+  </div>
+
+  <script>
+    (function () {
+      const navHome = document.getElementById('navHome');
+      const pageTitle = document.getElementById('pageTitle');
+      const pageDesc = document.getElementById('pageDesc');
+      const cardQihuanTitle = document.getElementById('cardQihuanTitle');
+      const cardQihuanSub = document.getElementById('cardQihuanSub');
+      const qihuanImg = document.getElementById('qihuanImg');
+      const cardGenyuanTitle = document.getElementById('cardGenyuanTitle');
+      const cardGenyuanSub = document.getElementById('cardGenyuanSub');
+      const genyuanImg = document.getElementById('genyuanImg');
+      const cardGuanzhuTitle = document.getElementById('cardGuanzhuTitle');
+      const cardGuanzhuSub = document.getElementById('cardGuanzhuSub');
+      const guanzhuImg = document.getElementById('guanzhuImg');
+      const cardBossTitle = document.getElementById('cardBossTitle');
+      const cardBossSub = document.getElementById('cardBossSub');
+      const bossHpImg = document.getElementById('bossHpImg');
+      const cardMapTitle = document.getElementById('cardMapTitle');
+      const cardMapSub = document.getElementById('cardMapSub');
+      const mapImg = document.getElementById('mapImg');
+      const folderHint = document.getElementById('folderHint');
+      const imageOverlay = document.getElementById('imageOverlay');
+      const overlayImg = document.getElementById('overlayImg');
+      const overlayClose = document.getElementById('overlayClose');
+
+      let currentLang = (localStorage.getItem('flipgame_lang') || '').toLowerCase();
+      if (currentLang !== 'zh' && currentLang !== 'en') {
+        const navLang = (navigator.language || '').toLowerCase();
+        currentLang = navLang.startsWith('zh') ? 'zh' : 'en';
+      }
+
+      const I18N = {
+        zh: {
+          title: '攻略图片 · ShinE',
+          nav_home: '回到主页',
+          page_title: '攻略图片',
+          page_desc: '把攻略图集中到一个页面，后续新增图片会统一放在 flipgame/images/ 文件夹。',
+          card_qihuan_title: '奇幻梦工厂隐藏关',
+          card_qihuan_sub: '查看隐藏关参考图与说明',
+          img_alt: '奇幻梦工厂隐藏关',
+          card_genyuan_title: '根源等级',
+          card_genyuan_sub: '查看根源等级攻略图',
+          genyuan_alt: '根源等级',
+          card_guanzhu_title: '印痕灌注',
+          card_guanzhu_sub: '查看印痕灌注攻略图',
+          guanzhu_alt: '印痕灌注',
+          card_boss_title: '远征BOSS血量',
+          card_boss_sub: '查看远征BOSS血量攻略图',
+          boss_alt: '远征BOSS血量',
+          card_map_title: '远征推图',
+          card_map_sub: '查看远征推图攻略图',
+          map_alt: '远征推图',
+          folder_hint: '图片目录：flipgame/images/。后续你放新图后，我可以继续帮你把卡片自动加到这里。'
+        },
+        en: {
+          title: 'Guide Images · ShinE',
+          nav_home: 'Home',
+          page_title: 'Guide Images',
+          page_desc: 'Collect strategy images in one page. New images will be organized under flipgame/images/.',
+          card_qihuan_title: 'Fantasy Factory Secret Stage',
+          card_qihuan_sub: 'Open the secret stage reference image and notes',
+          img_alt: 'Fantasy Factory secret stage',
+          card_genyuan_title: 'Origin Level',
+          card_genyuan_sub: 'Open the origin level guide image',
+          genyuan_alt: 'Origin level guide',
+          card_guanzhu_title: 'Insignia Infusion',
+          card_guanzhu_sub: 'Open the insignia infusion guide image',
+          guanzhu_alt: 'Insignia infusion guide',
+          card_boss_title: 'Expedition Boss HP',
+          card_boss_sub: 'Open the expedition boss HP guide image',
+          boss_alt: 'Expedition boss HP guide',
+          card_map_title: 'Expedition Stage Map',
+          card_map_sub: 'Open the expedition stage map guide image',
+          map_alt: 'Expedition stage map guide',
+          folder_hint: 'Image folder: flipgame/images/. Add new images there and I can keep updating this card list for you.'
+        }
+      };
+
+      function t(key) {
+        return (I18N[currentLang] && I18N[currentLang][key]) || I18N.zh[key] || '';
+      }
+
+      function setStaticText() {
+        document.title = t('title');
+        document.documentElement.lang = currentLang === 'zh' ? 'zh-Hans' : 'en';
+        if (navHome) navHome.textContent = t('nav_home');
+        if (pageTitle) pageTitle.textContent = t('page_title');
+        if (pageDesc) pageDesc.textContent = t('page_desc');
+        if (cardQihuanTitle) cardQihuanTitle.textContent = t('card_qihuan_title');
+        if (cardQihuanSub) cardQihuanSub.textContent = t('card_qihuan_sub');
+        if (qihuanImg) qihuanImg.setAttribute('alt', t('img_alt'));
+        if (cardGenyuanTitle) cardGenyuanTitle.textContent = t('card_genyuan_title');
+        if (cardGenyuanSub) cardGenyuanSub.textContent = t('card_genyuan_sub');
+        if (genyuanImg) genyuanImg.setAttribute('alt', t('genyuan_alt'));
+        if (cardGuanzhuTitle) cardGuanzhuTitle.textContent = t('card_guanzhu_title');
+        if (cardGuanzhuSub) cardGuanzhuSub.textContent = t('card_guanzhu_sub');
+        if (guanzhuImg) guanzhuImg.setAttribute('alt', t('guanzhu_alt'));
+        if (cardBossTitle) cardBossTitle.textContent = t('card_boss_title');
+        if (cardBossSub) cardBossSub.textContent = t('card_boss_sub');
+        if (bossHpImg) bossHpImg.setAttribute('alt', t('boss_alt'));
+        if (cardMapTitle) cardMapTitle.textContent = t('card_map_title');
+        if (cardMapSub) cardMapSub.textContent = t('card_map_sub');
+        if (mapImg) mapImg.setAttribute('alt', t('map_alt'));
+        if (folderHint) folderHint.textContent = t('folder_hint');
+      }
+
+      function isStandaloneApp() {
+        return (
+          (window.matchMedia && (
+            window.matchMedia('(display-mode: standalone)').matches ||
+            window.matchMedia('(display-mode: fullscreen)').matches
+          )) ||
+          window.navigator.standalone === true
+        );
+      }
+
+      function openImageOverlay(imageUrl, title) {
+        if (!imageOverlay || !overlayImg) return;
+        const resolved = new URL(imageUrl, window.location.href).href;
+        overlayImg.setAttribute('src', resolved);
+        overlayImg.setAttribute('alt', String(title || ''));
+        imageOverlay.classList.add('is-open');
+        imageOverlay.setAttribute('aria-hidden', 'false');
+      }
+
+      function closeImageOverlay() {
+        if (!imageOverlay || !overlayImg) return;
+        imageOverlay.classList.remove('is-open');
+        imageOverlay.setAttribute('aria-hidden', 'true');
+        overlayImg.removeAttribute('src');
+      }
+
+      function openImageWindow(imageUrl, title) {
+        if (isStandaloneApp()) {
+          openImageOverlay(imageUrl, title);
+          return;
+        }
+        const resolved = new URL(imageUrl, window.location.href).href;
+        const width = Math.max(640, Math.floor(window.innerWidth * 0.9));
+        const height = Math.max(480, Math.floor(window.innerHeight * 0.9));
+        const win = window.open('', '_blank', `noopener,noreferrer,width=${width},height=${height}`);
+        if (!win) {
+          window.open(resolved, '_blank');
+          return;
+        }
+        const safeTitle = String(title || '');
+        win.document.open();
+        win.document.write(`<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>${safeTitle}</title>
+  <style>
+    html, body { margin: 0; padding: 0; background: #0f172a; }
+    img { display: block; width: 100vw; max-width: 100vw; height: auto; margin: 0; }
+  </style>
+</head>
+<body>
+  <img src="${resolved}" alt="${safeTitle}" />
+</body>
+</html>`);
+        win.document.close();
+      }
+
+      function enableAppSwipeHome() {
+        const isAppMode = isStandaloneApp();
+        if (!isAppMode) return;
+        const hasTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+        if (!hasTouch) return;
+        const topbar = document.getElementById('topbar-nav');
+        if (navHome) navHome.style.display = 'none';
+        if (topbar) topbar.style.display = 'none';
+        let startX = 0;
+        let startY = 0;
+        let active = false;
+        document.addEventListener('touchstart', (event) => {
+          if (!event.touches || event.touches.length !== 1) return;
+          startX = event.touches[0].clientX;
+          startY = event.touches[0].clientY;
+          active = true;
+        }, { passive: true });
+        document.addEventListener('touchend', (event) => {
+          if (!active || !event.changedTouches || !event.changedTouches.length) return;
+          active = false;
+          const dx = event.changedTouches[0].clientX - startX;
+          const dy = event.changedTouches[0].clientY - startY;
+          if (Math.abs(dx) >= 80 && Math.abs(dy) <= 50) {
+            window.location.href = 'index.html';
+          }
+        }, { passive: true });
+      }
+
+      document.querySelectorAll('.card-link[data-image]').forEach((el) => {
+        el.addEventListener('click', (event) => {
+          event.preventDefault();
+          const imagePath = el.getAttribute('data-image');
+          const titleEl = el.querySelector('.title');
+          const title = titleEl ? titleEl.textContent : '';
+          openImageWindow(imagePath, title);
+        });
+      });
+      if (overlayClose) {
+        overlayClose.addEventListener('click', closeImageOverlay);
+      }
+      if (imageOverlay) {
+        imageOverlay.addEventListener('click', (event) => {
+          if (event.target === imageOverlay) closeImageOverlay();
+        });
+      }
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') closeImageOverlay();
+      });
+
+      setStaticText();
+      enableAppSwipeHome();
+    })();
+  </script>
+</body>
+</html>

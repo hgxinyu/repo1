@@ -3,13 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1" id="viewportMeta">
-  <title>放置工具集 · ShinE</title>
-  <link rel="icon" type="image/svg+xml" href="assets/shine-logo.svg">
-  <link rel="icon" type="image/png" sizes="32x32" href="assets/shine-logo-32.png">
-  <link rel="shortcut icon" href="assets/favicon.ico">
-  <link rel="apple-touch-icon" sizes="180x180" href="assets/shine-logo-180.png">
-  <link rel="manifest" href="site.webmanifest">
-  <meta name="theme-color" content="#6366f1">
+  <title>放置工具集 · ShinE</title>  <script>
+    (function () {
+      var host = (window.location.hostname || '').toLowerCase();
+      var isLocal = host === 'localhost' || host === '127.0.0.1' || host === '::1';
+      var svg = isLocal ? 'assets/local-logo.svg' : 'assets/shine-logo.svg';
+      var png32 = isLocal ? 'assets/local-logo-32.png' : 'assets/shine-logo-32.png';
+      var ico = isLocal ? 'assets/local-favicon.ico' : 'assets/favicon.ico';
+      var apple = isLocal ? 'assets/local-logo-180.png' : 'assets/shine-logo-180.png';
+      var manifest = isLocal ? 'site.local.webmanifest' : 'site.webmanifest';
+      var theme = isLocal ? '#fb7185' : '#6366f1';
+      document.write('<link rel="icon" type="image/svg+xml" href="' + svg + '">');
+      document.write('<link rel="icon" type="image/png" sizes="32x32" href="' + png32 + '">');
+      document.write('<link rel="shortcut icon" href="' + ico + '">');
+      document.write('<link rel="apple-touch-icon" sizes="180x180" href="' + apple + '">');
+      document.write('<link rel="manifest" href="' + manifest + '">');
+      document.write('<meta name="theme-color" content="' + theme + '">');
+    })();
+  </script>
+  
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700&display=swap" rel="stylesheet">
@@ -458,9 +470,9 @@
         <span class="title" id="cardStarTitle">星钻计算器</span>
         <span class="subtitle" id="cardStarSub">按比例换算金额与赠送额度。</span>
       </a>
-      <a class="card-link" href="奇幻梦工厂隐藏关.html">
-        <span class="title" id="cardHiddenTitle">奇幻梦工厂隐藏关</span>
-        <span class="subtitle" id="cardHiddenSub">隐藏关卡资料与攻略整理。</span>
+      <a class="card-link" href="GuideImages.html">
+        <span class="title" id="cardHiddenTitle">攻略图片</span>
+        <span class="subtitle" id="cardHiddenSub">集中查看各类攻略图，持续更新。</span>
       </a>
       <a class="card-link" href="SoulAscensionCalculator.html">
         <span class="title" id="cardSoulTitle">凝魂升格计算器</span>
@@ -604,8 +616,8 @@
           card_core_sub: '输入各资源数量，一键估算总核心需求。',
           card_star_title: '星钻计算器',
           card_star_sub: '按比例换算金额与赠送额度。',
-          card_hidden_title: '奇幻梦工厂隐藏关',
-          card_hidden_sub: '隐藏关卡资料与攻略整理。',
+          card_hidden_title: '攻略图片',
+          card_hidden_sub: '集中查看各类攻略图，持续更新。',
           card_soul_title: '凝魂升格计算器',
           card_soul_sub: '检验属性区间并估算升级次数。',
           card_power_title: '魂力计算器',
@@ -647,7 +659,7 @@
         en: {
           title: 'Idle Tools · ShinE',
           page_title: 'Idle Tools',
-          page_desc: 'A personal collection of idle tools: flip game, core converter, star diamond, and soul ascension.',
+          page_desc: 'A personal collection of idle tools: flip game, core converter, star diamond, and soul perfection/soul merge.',
           help_link: 'PWA Guide',
           nav_label: 'Tool Navigation',
           card_flip_title: '3x3 Flip Cards',
@@ -656,10 +668,10 @@
           card_core_sub: 'Enter resources and estimate total core needs.',
           card_star_title: 'Star Diamond Calculator',
           card_star_sub: 'Convert amounts and bonus ratios.',
-          card_hidden_title: 'Fantasy Factory Secret Stage',
-          card_hidden_sub: 'Secret stage data and strategy notes.',
-          card_soul_title: 'Soul Ascension Calculator',
-          card_soul_sub: 'Check stat ranges and estimate upgrade steps.',
+          card_hidden_title: 'Guide Images',
+          card_hidden_sub: 'Browse strategy images in one place.',
+          card_soul_title: 'Soul Perfection & Merge Calculator',
+          card_soul_sub: 'Check stat ranges and estimate soul perfection steps.',
           card_power_title: 'Soul Power Calculator',
           card_power_sub: 'Estimate soul power using average stats and tier ranges.',
           card_recruit_title: 'Guild Recruitment',

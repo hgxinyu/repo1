@@ -1,0 +1,20 @@
+{
+  "name": "放置工具集 Local · ShinE",
+  "short_name": "ShinE Local",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#1f2937",
+  "theme_color": "#fb7185",
+  "icons": [
+    {
+      "src": "./assets/local-logo-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./assets/local-logo-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
