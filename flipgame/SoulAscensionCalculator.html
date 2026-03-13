@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>凝魂升格计算器 · ShinE</title>  <script>
+  <title>凝魂升格 & 魂力计算器 · ShinE</title>  <script>
     (function () {
       var host = (window.location.hostname || '').toLowerCase();
       var isLocal = host === 'localhost' || host === '127.0.0.1' || host === '::1';
@@ -376,8 +376,8 @@
   <div class="wrap">
     <header class="site-header">
       <div class="title">
-        <h1 id="pageTitle">凝魂升格计算器（A → A+ / A+ → S）</h1>
-        <p id="pageDesc">输入当前属性估算升格需求，平均值与所需次数即时更新。</p>
+        <h1 id="pageTitle">凝魂升格 & 魂力计算器</h1>
+        <p id="pageDesc">输入当前属性并计算结果。</p>
       </div>
       <div class="tools">
         <div class="col" style="flex: 0 0 220px; gap: 4px;">
@@ -396,7 +396,7 @@
     <main class="main">
       <section class="card" aria-labelledby="calc-title">
         <h2 id="calc-title">填写基础属性</h2>
-        <p class="muted" style="margin:-4px 0 4px;" id="calcDesc">数值支持小数，编辑后自动校验区间并刷新结果。</p>
+        <p class="muted" style="margin:-4px 0 4px;" id="calcDesc"></p>
         <div class="row">
           <div class="col">
             <label for="atk" id="atkLabel">攻击 x</label>
@@ -417,43 +417,61 @@
         <div class="out" aria-live="polite">
           <div class="box">
             <div class="kv"><span id="avgLabel">Average</span><span class="v" id="avgValue">0.00</span></div>
-                      </div>
+          </div>
           <div class="box">
             <div class="kv"><span id="timesLabel">凝魂次数</span><span class="v" id="times">0</span></div>
-            <span class="muted" id="timesDesc">仅在区间有效时显示</span>
+            <span class="muted" id="timesDesc"></span>
+          </div>
+          <div class="box highlight">
+            <div class="kv"><span id="powerLabel">魂力值</span><span class="v" id="powerValue">—</span></div>
+            <span class="muted" id="powerDesc"></span>
           </div>
         </div>
       </section>
 
       <section class="card" aria-labelledby="price-title">
-        <h2 id="price-title">A+凝魂性价比（所需总经验）</h2>
-        <p class="muted" style="margin:-4px 0 4px;" id="priceDesc">下方输入框只填各资质单价（不是经验）。所需总经验自动取上方凝魂次数 × 1200，留空表示忽略该资质。</p>
+        <h2 id="price-title">凝魂性价比</h2>
+        <p class="muted" style="margin:-4px 0 4px;" id="priceDesc">下方输入框只填各资质单价，留空表示忽略该资质。</p>
         <div class="row">
           <div class="col">
-            <label for="priceBMinus" id="priceBMinusLabel">B- 单价（50经验）</label>
+            <label for="priceBMinus" id="priceBMinusLabel">B- 单价</label>
             <input id="priceBMinus" type="number" inputmode="decimal" min="0" step="any" placeholder="留空=忽略" />
           </div>
           <div class="col">
-            <label for="priceB" id="priceBLabel">B 单价（140经验）</label>
+            <label for="priceB" id="priceBLabel">B 单价</label>
             <input id="priceB" type="number" inputmode="decimal" min="0" step="any" placeholder="留空=忽略" />
           </div>
           <div class="col">
-            <label for="priceBPlus" id="priceBPlusLabel">B+ 单价（340经验）</label>
+            <label for="priceBPlus" id="priceBPlusLabel">B+ 单价</label>
             <input id="priceBPlus" type="number" inputmode="decimal" min="0" step="any" placeholder="留空=忽略" />
           </div>
         </div>
         <div class="row">
           <div class="col">
-            <label for="priceAMinus" id="priceAMinusLabel">A- 单价（610+2440经验）</label>
+            <label for="priceAMinus" id="priceAMinusLabel">A- 单价</label>
             <input id="priceAMinus" type="number" inputmode="decimal" min="0" step="any" placeholder="留空=忽略" />
           </div>
           <div class="col">
-            <label for="priceA" id="priceALabel">A 单价（1150+4600经验）</label>
+            <label for="priceA" id="priceALabel">A 单价</label>
             <input id="priceA" type="number" inputmode="decimal" min="0" step="any" placeholder="留空=忽略" />
           </div>
           <div class="col">
-            <label for="priceAPlus" id="priceAPlusLabel">A+ 单价（10000经验）</label>
+            <label for="priceAPlus" id="priceAPlusLabel">A+ 单价</label>
             <input id="priceAPlus" type="number" inputmode="decimal" min="0" step="any" placeholder="留空=忽略" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <label for="priceS" id="priceSLabel">S 单价</label>
+            <input id="priceS" type="number" inputmode="decimal" min="0" step="any" placeholder="留空=忽略" />
+          </div>
+          <div class="col">
+            <label for="priceSS" id="priceSSLabel">SS 单价</label>
+            <input id="priceSS" type="number" inputmode="decimal" min="0" step="any" placeholder="留空=忽略" />
+          </div>
+          <div class="col">
+            <label for="priceSSS" id="priceSSSLabel">SSS 单价</label>
+            <input id="priceSSS" type="number" inputmode="decimal" min="0" step="any" placeholder="留空=忽略" />
           </div>
         </div>
 
@@ -476,7 +494,7 @@
           </div>
           <div class="box highlight">
             <div class="kv"><span id="totalCostLabel">总成本（高亮）</span><span class="v" id="totalCostValue">—</span></div>
-            <span class="muted" id="totalCostDesc">总成本 = 凝魂成本 + 升格成本</span>
+            <span class="muted" id="totalCostDesc"></span>
           </div>
         </div>
       </section>
@@ -510,6 +528,8 @@
       const avgLabel = document.getElementById('avgLabel');
       const timesLabel = document.getElementById('timesLabel');
       const timesDesc = document.getElementById('timesDesc');
+      const powerLabel = document.getElementById('powerLabel');
+      const powerDesc = document.getElementById('powerDesc');
       const priceTitle = document.getElementById('price-title');
       const priceDesc = document.getElementById('priceDesc');
       const priceBMinusLabel = document.getElementById('priceBMinusLabel');
@@ -518,6 +538,9 @@
       const priceAMinusLabel = document.getElementById('priceAMinusLabel');
       const priceALabel = document.getElementById('priceALabel');
       const priceAPlusLabel = document.getElementById('priceAPlusLabel');
+      const priceSLabel = document.getElementById('priceSLabel');
+      const priceSSLabel = document.getElementById('priceSSLabel');
+      const priceSSSLabel = document.getElementById('priceSSSLabel');
       const bestComboLabel = document.getElementById('bestComboLabel');
       const bestCostLabel = document.getElementById('bestCostLabel');
       const bestExpLabel = document.getElementById('bestExpLabel');
@@ -538,8 +561,12 @@
       const priceAMinus = document.getElementById('priceAMinus');
       const priceA = document.getElementById('priceA');
       const priceAPlus = document.getElementById('priceAPlus');
+      const priceS = document.getElementById('priceS');
+      const priceSS = document.getElementById('priceSS');
+      const priceSSS = document.getElementById('priceSSS');
       const avgValue = document.getElementById('avgValue');
       const times = document.getElementById('times');
+      const powerValue = document.getElementById('powerValue');
       const warn = document.getElementById('warn');
       const clearBtn = document.getElementById('clearBtn');
       const bestComboValue = document.getElementById('bestComboValue');
@@ -550,21 +577,21 @@
 
       const I18N = {
         zh: {
-          title: '凝魂升格计算器 · ShinE',
+          title: '凝魂升格 & 魂力计算器 · ShinE',
           nav_label: '页面导航',
           nav_home: '回到主页',
           nav_flip: '九宫格翻牌',
           nav_core: '核心计算器',
           nav_star: '星钻计算器',
-          page_title: '凝魂升格计算器（A → A+ / A+ → S）',
-          page_desc: '输入当前属性估算升格需求，平均值与所需次数即时更新。',
+          page_title: '凝魂升格 & 魂力计算器',
+          page_desc: '输入当前属性并计算结果。',
           stage_mode_label: '升格阶段',
           mode_a_to_aplus: 'A → A+',
           mode_aplus_to_s: 'A+ → S',
           hint_aplus_to_s: '升格材料要求：<strong>3 × A-</strong>、<strong>2 × A</strong>、<strong>1 × A+</strong>',
           hint_a_to_aplus: '升格材料要求：<strong>3 × B+</strong>、<strong>2 × A-</strong>、<strong>2 × A</strong>',
           calc_title: '填写基础属性',
-          calc_desc: '数值支持小数，编辑后自动校验区间并刷新结果。',
+          calc_desc: '',
           atk_label: '攻击 x',
           hp_label: '血量 y',
           spd_label: '速度 z',
@@ -574,15 +601,20 @@
           warn_tpl: '输入错误：x + y + 100 × z 必须在 <strong>{min} ~ {max}</strong> 区间内。',
           avg_label: '平均值',
           times_label: '凝魂次数',
-          times_desc: '仅在区间有效时显示',
-          price_title_tpl: '{mode}凝魂性价比（所需总经验）',
-          price_desc_tpl: '下方输入框只填各资质单价（不是经验）。所需总经验自动取上方凝魂次数 × {exp}，留空表示忽略该资质。',
-          price_bminus_label: 'B- 单价（50经验）',
-          price_b_label: 'B 单价（140经验）',
-          price_bplus_label: 'B+ 单价（340经验）',
-          price_aminus_label: 'A- 单价（610+2440经验）',
-          price_a_label: 'A 单价（1150+4600经验）',
-          price_aplus_label: 'A+ 单价（10000经验）',
+          times_desc: '',
+          power_label: '魂力值',
+          power_desc: '',
+          price_title_tpl: '凝魂性价比',
+          price_desc_tpl: '下方输入框只填各资质单价，留空表示忽略该资质。',
+          price_bminus_label: 'B- 单价',
+          price_b_label: 'B 单价',
+          price_bplus_label: 'B+ 单价',
+          price_aminus_label: 'A- 单价',
+          price_a_label: 'A 单价',
+          price_aplus_label: 'A+ 单价',
+          price_s_label: 'S 单价',
+          price_ss_label: 'SS 单价',
+          price_sss_label: 'SSS 单价',
           price_placeholder: '留空=忽略',
           best_combo_label: '最优组合',
           best_cost_label: '凝魂成本',
@@ -591,13 +623,14 @@
           best_cost_desc: '仅根据已填写价格计算',
           best_eff_desc: '成本/所需总经验：',
           asc_cost_label: '升格成本',
-          asc_cost_desc_aplus_to_s: '3×A- + 2×A + 1×A+',
-          asc_cost_desc_a_to_aplus: '3×B+ + 2×A- + 2×A',
+          asc_cost_desc_aplus_to_s: '自动读取当前资质的升格需求',
+          asc_cost_desc_a_to_aplus: '自动读取当前资质的升格需求',
           total_cost_label: '总成本（高亮）',
-          total_cost_desc: '总成本 = 凝魂成本 + 升格成本',
+          total_cost_desc: '',
           need_asc_prices_aplus_to_s: '请先填写 A- / A / A+ 单价后再显示总价',
           need_asc_prices_a_to_aplus: '请先填写 B+ / A- / A 单价后再显示总价',
           need_valid_stats: '请先在上方输入有效属性',
+          need_merge_prices: '请补全升格材料单价',
           no_price: '未填写任何价格',
           no_solution: '无法凑满所需总经验',
           clear: '清空',
@@ -606,21 +639,21 @@
           lang_toggle_zh: '中文'
         },
         en: {
-          title: 'Soul Perfection & Merge Calculator · ShinE',
+          title: 'Soul Perfection & Merge + Soul Power Calculator · ShinE',
           nav_label: 'Page Navigation',
           nav_home: 'Home',
           nav_flip: '3x3 Flip Cards',
           nav_core: 'Core Calculator',
           nav_star: 'Star Diamond Calculator',
-          page_title: 'Soul Perfection & Merge Calculator (A → A+ / A+ → S)',
-          page_desc: 'Enter your stats to estimate ascension needs. The average and count update instantly.',
+          page_title: 'Soul Perfection & Merge + Soul Power Calculator',
+          page_desc: 'Enter stats to calculate results.',
           stage_mode_label: 'Stage',
           mode_a_to_aplus: 'A → A+',
           mode_aplus_to_s: 'A+ → S',
           hint_aplus_to_s: 'Materials required: <strong>3 × A-</strong>, <strong>2 × A</strong>, <strong>1 × A+</strong>',
           hint_a_to_aplus: 'Materials required: <strong>3 × B+</strong>, <strong>2 × A-</strong>, <strong>2 × A</strong>',
           calc_title: 'Enter base stats',
-          calc_desc: 'Decimals supported. Results update automatically after edits.',
+          calc_desc: '',
           atk_label: 'Attack x',
           hp_label: 'HP y',
           spd_label: 'Speed z',
@@ -630,15 +663,20 @@
           warn_tpl: 'Invalid input: x + y + 100 × z must be within <strong>{min} ~ {max}</strong>.',
           avg_label: 'Average',
           times_label: 'Soul Perfection Count',
-          times_desc: 'Shown only when within range',
-          price_title_tpl: '{mode} Soul Perfection Cost Efficiency (Required Total EXP)',
-          price_desc_tpl: 'Price inputs only (not EXP). Required EXP is auto-derived from the top result: Soul Perfection Count × {exp}. Blank means ignored.',
-          price_bminus_label: 'B- Price (50 EXP)',
-          price_b_label: 'B Price (140 EXP)',
-          price_bplus_label: 'B+ Price (340 EXP)',
-          price_aminus_label: 'A- Price (610+2440 EXP)',
-          price_a_label: 'A Price (1150+4600 EXP)',
-          price_aplus_label: 'A+ Price (10000 EXP)',
+          times_desc: '',
+          power_label: 'Soul Power',
+          power_desc: '',
+          price_title_tpl: 'Soul Perfection Cost Efficiency',
+          price_desc_tpl: 'Enter unit prices only. Blank means ignored.',
+          price_bminus_label: 'B- Price',
+          price_b_label: 'B Price',
+          price_bplus_label: 'B+ Price',
+          price_aminus_label: 'A- Price',
+          price_a_label: 'A Price',
+          price_aplus_label: 'A+ Price',
+          price_s_label: 'S Price',
+          price_ss_label: 'SS Price',
+          price_sss_label: 'SSS Price',
           price_placeholder: 'Blank = ignore',
           best_combo_label: 'Best Combo',
           best_cost_label: 'Soul Perfection Cost',
@@ -647,13 +685,14 @@
           best_cost_desc: 'Computed from entered prices only',
           best_eff_desc: 'Cost / Required EXP:',
           asc_cost_label: 'Soul Merge Cost',
-          asc_cost_desc_aplus_to_s: '3×A- + 2×A + 1×A+',
-          asc_cost_desc_a_to_aplus: '3×B+ + 2×A- + 2×A',
+          asc_cost_desc_aplus_to_s: 'Auto read from current tier merge requirements',
+          asc_cost_desc_a_to_aplus: 'Auto read from current tier merge requirements',
           total_cost_label: 'Total Cost (Highlight)',
-          total_cost_desc: 'Total Cost = Soul Perfection Cost + Soul Merge Cost',
+          total_cost_desc: '',
           need_asc_prices_aplus_to_s: 'Enter A- / A / A+ prices to show total cost',
           need_asc_prices_a_to_aplus: 'Enter B+ / A- / A prices to show total cost',
           need_valid_stats: 'Enter valid stats above first',
+          need_merge_prices: 'Please fill required merge material prices',
           no_price: 'No prices entered',
           no_solution: 'Cannot reach required EXP',
           clear: 'Clear',
@@ -669,32 +708,11 @@
         currentLang = navLang.startsWith('zh') ? 'zh' : 'en';
       }
 
-      const MODE_CONFIG = {
-        a_to_aplus: {
-          key: 'a_to_aplus',
-          minTotal: 6300 * 3,
-          maxTotal: 7199 * 3,
-          targetTotal: 7200 * 3,
-          expPerSoul: 1000,
-          modeLabelKey: 'mode_a_to_aplus'
-        },
-        aplus_to_s: {
-          key: 'aplus_to_s',
-          minTotal: 7200 * 3,
-          maxTotal: 8099 * 3,
-          targetTotal: 8100 * 3,
-          expPerSoul: 1200,
-          modeLabelKey: 'mode_aplus_to_s'
-        }
-      };
+      const SSS_TOP_AVG = 9900;
+      let tiers = [];
 
       function t(key) {
         return (I18N[currentLang] && I18N[currentLang][key]) || I18N.zh[key] || '';
-      }
-
-      function getMode() {
-        const modeKey = (stageMode && stageMode.value) || 'aplus_to_s';
-        return MODE_CONFIG[modeKey] || MODE_CONFIG.aplus_to_s;
       }
 
       function fillTemplate(template, vars) {
@@ -702,8 +720,8 @@
       }
 
       function setStaticText() {
-        const mode = getMode();
-        const modeLabel = t(mode.modeLabelKey);
+        const minTotal = tiers.length ? Math.round(tiers[0].minAvg * 3) : '--';
+        const maxTotal = SSS_TOP_AVG * 3;
         document.title = t('title');
         document.documentElement.lang = currentLang === 'zh' ? 'zh-Hans' : 'en';
         if (topbarNav) topbarNav.setAttribute('aria-label', t('nav_label'));
@@ -711,9 +729,8 @@
         if (pageTitle) pageTitle.textContent = t('page_title');
         if (pageDesc) pageDesc.textContent = t('page_desc');
         if (stageModeLabel) stageModeLabel.textContent = t('stage_mode_label');
-        if (stageMode && stageMode.options[0]) stageMode.options[0].textContent = t('mode_a_to_aplus');
-        if (stageMode && stageMode.options[1]) stageMode.options[1].textContent = t('mode_aplus_to_s');
-        if (hintText) hintText.innerHTML = mode.key === 'a_to_aplus' ? t('hint_a_to_aplus') : t('hint_aplus_to_s');
+        if (stageMode && stageMode.parentElement) stageMode.parentElement.style.display = 'none';
+        if (hintText) hintText.textContent = t('asc_cost_desc_aplus_to_s');
         if (calcTitle) calcTitle.textContent = t('calc_title');
         if (calcDesc) calcDesc.textContent = t('calc_desc');
         if (atkLabel) atkLabel.textContent = t('atk_label');
@@ -722,31 +739,39 @@
         if (atk) atk.setAttribute('aria-label', t('atk_aria'));
         if (hp) hp.setAttribute('aria-label', t('hp_aria'));
         if (spd) spd.setAttribute('aria-label', t('spd_aria'));
-        if (warn) warn.innerHTML = fillTemplate(t('warn_tpl'), { min: mode.minTotal, max: mode.maxTotal });
+        if (warn) warn.innerHTML = fillTemplate(t('warn_tpl'), { min: minTotal, max: maxTotal });
         if (avgLabel) avgLabel.textContent = t('avg_label');
         if (timesLabel) timesLabel.textContent = t('times_label');
         if (timesDesc) timesDesc.textContent = t('times_desc');
-        if (priceTitle) priceTitle.textContent = fillTemplate(t('price_title_tpl'), { mode: modeLabel });
-        if (priceDesc) priceDesc.textContent = fillTemplate(t('price_desc_tpl'), { exp: mode.expPerSoul });
+        if (powerLabel) powerLabel.textContent = t('power_label');
+        if (powerDesc) powerDesc.textContent = t('power_desc');
+        if (priceTitle) priceTitle.textContent = t('price_title_tpl');
+        if (priceDesc) priceDesc.textContent = t('price_desc_tpl');
         if (priceBMinusLabel) priceBMinusLabel.textContent = t('price_bminus_label');
         if (priceBLabel) priceBLabel.textContent = t('price_b_label');
         if (priceBPlusLabel) priceBPlusLabel.textContent = t('price_bplus_label');
         if (priceAMinusLabel) priceAMinusLabel.textContent = t('price_aminus_label');
         if (priceALabel) priceALabel.textContent = t('price_a_label');
         if (priceAPlusLabel) priceAPlusLabel.textContent = t('price_aplus_label');
+        if (priceSLabel) priceSLabel.textContent = t('price_s_label');
+        if (priceSSLabel) priceSSLabel.textContent = t('price_ss_label');
+        if (priceSSSLabel) priceSSSLabel.textContent = t('price_sss_label');
         if (priceBMinus) priceBMinus.setAttribute('placeholder', t('price_placeholder'));
         if (priceB) priceB.setAttribute('placeholder', t('price_placeholder'));
         if (priceBPlus) priceBPlus.setAttribute('placeholder', t('price_placeholder'));
         if (priceAMinus) priceAMinus.setAttribute('placeholder', t('price_placeholder'));
         if (priceA) priceA.setAttribute('placeholder', t('price_placeholder'));
         if (priceAPlus) priceAPlus.setAttribute('placeholder', t('price_placeholder'));
+        if (priceS) priceS.setAttribute('placeholder', t('price_placeholder'));
+        if (priceSS) priceSS.setAttribute('placeholder', t('price_placeholder'));
+        if (priceSSS) priceSSS.setAttribute('placeholder', t('price_placeholder'));
         if (bestComboLabel) bestComboLabel.textContent = t('best_combo_label');
         if (bestCostLabel) bestCostLabel.textContent = t('best_cost_label');
         if (bestExpLabel) bestExpLabel.textContent = t('best_exp_label');
         if (bestComboDesc) bestComboDesc.textContent = t('best_combo_desc');
         if (bestCostDesc) bestCostDesc.textContent = t('best_cost_desc');
         if (ascCostLabel) ascCostLabel.textContent = t('asc_cost_label');
-        if (ascCostDesc) ascCostDesc.textContent = mode.key === 'a_to_aplus' ? t('asc_cost_desc_a_to_aplus') : t('asc_cost_desc_aplus_to_s');
+        if (ascCostDesc) ascCostDesc.textContent = t('asc_cost_desc_aplus_to_s');
         if (totalCostLabel) totalCostLabel.textContent = t('total_cost_label');
         if (totalCostDesc) totalCostDesc.textContent = t('total_cost_desc');
         if (clearBtn) clearBtn.textContent = t('clear');
@@ -779,6 +804,96 @@
         }
       }
 
+      function parseCsvLine(line) {
+        const out = [];
+        let cur = '';
+        let inQuote = false;
+        for (let i = 0; i < line.length; i += 1) {
+          const ch = line[i];
+          if (ch === '"') {
+            if (inQuote && line[i + 1] === '"') {
+              cur += '"';
+              i += 1;
+            } else {
+              inQuote = !inQuote;
+            }
+          } else if (ch === ',' && !inQuote) {
+            out.push(cur);
+            cur = '';
+          } else {
+            cur += ch;
+          }
+        }
+        out.push(cur);
+        return out;
+      }
+
+      function parseTierData(csvText) {
+        const normalized = String(csvText || '').replace(/^\uFEFF/, '');
+        const lines = normalized.split(/\r?\n/).filter((line) => String(line).trim().length > 0);
+        if (!lines.length) return [];
+        const headers = parseCsvLine(lines[0]).map((h) => String(h || '').trim());
+        const idxLevel = headers.indexOf('级别');
+        const idxMinAvg = headers.indexOf('平均分值');
+        const idxAscNeed = headers.indexOf('升格需求');
+        const idxSoulProgress = headers.indexOf('凝魂进度');
+        const idxSoulEnhance = headers.indexOf('凝魂强化');
+        const idxUpperCap = headers.indexOf('魂点上限');
+        if ([idxLevel, idxMinAvg, idxAscNeed, idxSoulProgress, idxSoulEnhance, idxUpperCap].some((idx) => idx < 0)) {
+          return [];
+        }
+        const parsed = [];
+        for (let i = 1; i < lines.length; i += 1) {
+          const cols = parseCsvLine(lines[i]);
+          const level = String(cols[idxLevel] || '').trim();
+          const minAvg = Number(String(cols[idxMinAvg] || '').trim());
+          const ascNeed = String(cols[idxAscNeed] || '').trim();
+          const soulProgress = Number(String(cols[idxSoulProgress] || '').trim());
+          const soulEnhance = Number(String(cols[idxSoulEnhance] || '').trim());
+          const upperCap = Number(String(cols[idxUpperCap] || '').trim());
+          if (!level || !Number.isFinite(minAvg) || minAvg <= 0) continue;
+          if (!Number.isFinite(soulProgress) || soulProgress <= 0) continue;
+          if (!Number.isFinite(soulEnhance) || soulEnhance <= 0) continue;
+          if (!Number.isFinite(upperCap) || upperCap < 0) continue;
+          const maxAvg = String(level).toLowerCase() === 'sss' ? SSS_TOP_AVG : null;
+          parsed.push({ level, minAvg, ascNeed, soulProgress, soulEnhance, upperCap, maxAvg });
+        }
+        parsed.sort((a, b) => a.minAvg - b.minAvg);
+        return parsed;
+      }
+
+      async function loadTiers() {
+        const candidates = ['soul_tiers.csv', './soul_tiers.csv', '/flipgame/soul_tiers.csv', '凝魂.csv', './凝魂.csv', '../凝魂.csv'];
+        let lastErr = null;
+        for (const p of candidates) {
+          try {
+            const response = await fetch(p, { cache: 'no-cache' });
+            if (!response.ok) {
+              lastErr = new Error(`HTTP ${response.status} for ${p}`);
+              continue;
+            }
+            const text = await response.text();
+            const parsed = parseTierData(text);
+            if (parsed.length) {
+              tiers = parsed;
+              return;
+            }
+            lastErr = new Error(`No valid tiers in ${p}`);
+          } catch (err) {
+            lastErr = err;
+          }
+        }
+        throw lastErr || new Error('Failed to load tier data');
+      }
+
+      function findTierIndex(avg) {
+        if (!tiers.length) return null;
+        for (let i = tiers.length - 1; i >= 0; i -= 1) {
+          if (avg >= tiers[i].minAvg) return i;
+        }
+        return null;
+      }
+
       function parsePrice(value) {
         const raw = String(value || '').trim();
         if (!raw) return null;
@@ -786,27 +901,74 @@
         return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
       }
 
+      function getPriceByTier(level) {
+        const normalized = String(level || '').trim().toUpperCase();
+        if (normalized === 'B-') return parsePrice(priceBMinus.value);
+        if (normalized === 'B') return parsePrice(priceB.value);
+        if (normalized === 'B+') return parsePrice(priceBPlus.value);
+        if (normalized === 'A-') return parsePrice(priceAMinus.value);
+        if (normalized === 'A') return parsePrice(priceA.value);
+        if (normalized === 'A+') return parsePrice(priceAPlus.value);
+        if (normalized === 'S') return parsePrice(priceS.value);
+        if (normalized === 'SS') return parsePrice(priceSS.value);
+        if (normalized === 'SSS') return parsePrice(priceSSS.value);
+        return null;
+      }
+
+      function calculateMergeCost(requirementText) {
+        const reqRaw = String(requirementText || '').trim();
+        if (!reqRaw || reqRaw === '/' || reqRaw === '无') {
+          return { calculable: false, missingPrice: false, cost: null };
+        }
+        const normalized = reqRaw.replace(/[，]/g, ',');
+        const regex = /(\d+)\s*([A-Za-z][A-Za-z+\-]*)/g;
+        let matched = false;
+        let missingPrice = false;
+        let total = 0;
+        let m;
+        while ((m = regex.exec(normalized)) !== null) {
+          matched = true;
+          const count = Number(m[1]);
+          const tier = String(m[2] || '').toUpperCase();
+          const price = getPriceByTier(tier);
+          if (!Number.isFinite(price)) {
+            missingPrice = true;
+            continue;
+          }
+          total += count * price;
+        }
+        if (!matched) {
+          return { calculable: false, missingPrice: false, cost: null };
+        }
+        if (missingPrice) {
+          return { calculable: true, missingPrice: true, cost: null };
+        }
+        return { calculable: true, missingPrice: false, cost: total };
+      }
+
+      function estimatePower(avg, tierIndex) {
+        if (tierIndex === null || tierIndex < 0 || !tiers.length) return null;
+        const tier = tiers[tierIndex];
+        const prevUpper = tierIndex > 0 ? tiers[tierIndex - 1].upperCap : 0;
+        const nextMin = tierIndex < tiers.length - 1 ? tiers[tierIndex + 1].minAvg : tier.minAvg;
+        const upperAvg = Number.isFinite(tier.maxAvg) ? tier.maxAvg : nextMin;
+        if (!Number.isFinite(tier.upperCap) || !Number.isFinite(prevUpper)) return null;
+        if (!(upperAvg > tier.minAvg)) return tier.upperCap;
+        const ratio = Math.max(0, Math.min(1, (avg - tier.minAvg) / (upperAvg - tier.minAvg)));
+        return prevUpper + ratio * (tier.upperCap - prevUpper);
+      }
+
       function calcBestFeedPlan(targetExp) {
-        const mode = getMode();
-        const topBPlus = parsePrice(priceBPlus.value);
-        const topAMinus = parsePrice(priceAMinus.value);
-        const topA = parsePrice(priceA.value);
-        const topAPlus = parsePrice(priceAPlus.value);
-        const ascRule = mode.key === 'a_to_aplus'
-          ? { hasAll: topBPlus !== null && topAMinus !== null && topA !== null, cost: topBPlus * 3 + topAMinus * 2 + topA * 2, needKey: 'need_asc_prices_a_to_aplus' }
-          : { hasAll: topAMinus !== null && topA !== null && topAPlus !== null, cost: topAMinus * 3 + topA * 2 + topAPlus, needKey: 'need_asc_prices_aplus_to_s' };
-        const hasAllAscPrices = ascRule.hasAll;
-        const ascCost = hasAllAscPrices ? ascRule.cost : null;
-        totalCostDesc.textContent = hasAllAscPrices ? t('total_cost_desc') : t(ascRule.needKey);
+        totalCostDesc.textContent = t('total_cost_desc');
 
         if (!Number.isFinite(targetExp) || targetExp <= 0) {
           bestComboValue.textContent = t('need_valid_stats');
           bestCostValue.textContent = t('dash');
           bestExpValue.textContent = t('dash');
-          ascCostValue.textContent = hasAllAscPrices ? ascCost.toFixed(2) : t('dash');
+          ascCostValue.textContent = t('dash');
           totalCostValue.textContent = t('dash');
           bestEffDesc.textContent = `${t('best_eff_desc')} ${t('dash')}`;
-          return;
+          return { ok: false, bestCost: null, bestExp: null };
         }
 
         const options = [
@@ -815,17 +977,20 @@
           { key: 'B+', exp: 340, price: parsePrice(priceBPlus.value) },
           { key: 'A-', exp: 3050, price: parsePrice(priceAMinus.value) },
           { key: 'A', exp: 5750, price: parsePrice(priceA.value) },
-          { key: 'A+', exp: 10000, price: parsePrice(priceAPlus.value) }
+          { key: 'A+', exp: 10000, price: parsePrice(priceAPlus.value) },
+          { key: 'S', exp: 26750, price: parsePrice(priceS.value) },
+          { key: 'SS', exp: 37750, price: parsePrice(priceSS.value) },
+          { key: 'SSS', exp: 72000, price: parsePrice(priceSSS.value) }
         ].filter((item) => item.price !== null);
 
         if (!options.length) {
           bestComboValue.textContent = t('no_price');
           bestCostValue.textContent = t('dash');
           bestExpValue.textContent = t('dash');
-          ascCostValue.textContent = hasAllAscPrices ? ascCost.toFixed(2) : t('dash');
+          ascCostValue.textContent = t('dash');
           totalCostValue.textContent = t('dash');
           bestEffDesc.textContent = `${t('best_eff_desc')} ${t('dash')}`;
-          return;
+          return { ok: false, bestCost: null, bestExp: null };
         }
 
         const maxExp = Math.max(...options.map((item) => item.exp));
@@ -874,10 +1039,10 @@
           bestComboValue.textContent = t('no_solution');
           bestCostValue.textContent = t('dash');
           bestExpValue.textContent = t('dash');
-          ascCostValue.textContent = hasAllAscPrices ? ascCost.toFixed(2) : t('dash');
+          ascCostValue.textContent = t('dash');
           totalCostValue.textContent = t('dash');
           bestEffDesc.textContent = `${t('best_eff_desc')} ${t('dash')}`;
-          return;
+          return { ok: false, bestCost: null, bestExp: null };
         }
 
         const counts = {};
@@ -892,13 +1057,21 @@
         bestComboValue.textContent = parts.length ? parts.join(' + ') : t('dash');
         bestCostValue.textContent = Number.isFinite(bestCost) ? bestCost.toFixed(2) : t('dash');
         bestExpValue.textContent = bestExp >= 0 ? String(bestExp) : t('dash');
-        ascCostValue.textContent = hasAllAscPrices ? ascCost.toFixed(2) : t('dash');
-        totalCostValue.textContent = hasAllAscPrices ? (bestCost + ascCost).toFixed(2) : t('dash');
+        ascCostValue.textContent = t('dash');
+        totalCostValue.textContent = t('dash');
         bestEffDesc.textContent = `${t('best_eff_desc')} ${(bestCost / targetExp).toFixed(4)}`;
+        return { ok: true, bestCost, bestExp };
       }
 
       function update() {
-        const mode = getMode();
+        if (!tiers.length) {
+          warn.style.display = 'block';
+          times.textContent = t('dash');
+          avgValue.textContent = t('dash');
+          powerValue.textContent = t('dash');
+          calcBestFeedPlan(0);
+          return;
+        }
         const x = toNum(atk.value);
         const y = toNum(hp.value);
         const z = toNum(spd.value);
@@ -908,34 +1081,111 @@
         const avgB = totalB / 3;
         const avgMin = Math.min(avgA, avgB);
         const avgMax = Math.max(avgA, avgB);
-        avgValue.textContent = avgMin === avgMax ? avgMin.toFixed(2) : `${avgMin.toFixed(2)} ~ ${avgMax.toFixed(2)}`;
+        avgValue.textContent = Math.round(avgMin) === Math.round(avgMax)
+          ? `${Math.round(avgMin)}`
+          : `${Math.round(avgMin)} ~ ${Math.round(avgMax)}`;
 
-        const validA = totalA >= mode.minTotal && totalA <= mode.maxTotal;
-        const validB = totalB >= mode.minTotal && totalB <= mode.maxTotal;
+        function calcVariant(total) {
+          const avg = total / 3;
+          const tierIndex = findTierIndex(avg);
+          if (tierIndex === null) return null;
+          const tier = tiers[tierIndex];
+          const targetAvg = tierIndex < tiers.length - 1 ? tiers[tierIndex + 1].minAvg : SSS_TOP_AVG;
+          const enhance = tier.soulEnhance;
+          const progress = tier.soulProgress;
+          if (!Number.isFinite(enhance) || enhance <= 0) return null;
+          if (!Number.isFinite(progress) || progress <= 0) return null;
+          const need = (targetAvg * 3 - total) / enhance;
+          const count = Math.max(0, Math.ceil(need));
+          const power = estimatePower(avg, tierIndex);
+          return { avg, tier, tierIndex, targetAvg, count, requiredExp: count * progress, power };
+        }
+
+        const vA = calcVariant(totalA);
+        const vB = calcVariant(totalB);
+        const variants = [vA, vB].filter(Boolean);
+        const validA = Boolean(vA);
+        const validB = Boolean(vB);
         const validAny = validA || validB;
         warn.style.display = (!touched || validAny) ? 'none' : 'block';
 
         let requiredTotalExp = 0;
         if (validAny) {
-          const counts = [];
-          if (validA) {
-            const needA = (mode.targetTotal - totalA) / 135;
-            counts.push(Math.max(0, Math.ceil(needA)));
-          }
-          if (validB) {
-            const needB = (mode.targetTotal - totalB) / 135;
-            counts.push(Math.max(0, Math.ceil(needB)));
-          }
+          const counts = variants.map((v) => v.count);
           const minCount = Math.min(...counts);
           const maxCount = Math.max(...counts);
           times.textContent = minCount === maxCount ? String(minCount) : `${minCount} ~ ${maxCount}`;
-          // Use upper bound so cost planning won't underestimate required exp.
-          requiredTotalExp = maxCount * mode.expPerSoul;
+          requiredTotalExp = Math.max(...variants.map((v) => v.requiredExp));
+
+          const levels = [...new Set(variants.map((v) => String(v.tier.level || '').toUpperCase()))];
+          const needs = [...new Set(variants.map((v) => String(v.tier.ascNeed || '/').replace(/^\//, '无')))];
+          const progressSet = [...new Set(variants.map((v) => Number(v.tier.soulProgress)))];
+          const enhanceSet = [...new Set(variants.map((v) => Number(v.tier.soulEnhance)))];
+          const progressText = progressSet.length === 1 ? `${progressSet[0]}` : `${Math.min(...progressSet)} ~ ${Math.max(...progressSet)}`;
+          const enhanceText = enhanceSet.length === 1 ? `${enhanceSet[0]}` : `${Math.min(...enhanceSet)} ~ ${Math.max(...enhanceSet)}`;
+          const needText = needs.join(' / ');
+          const levelText = levels.join(' ~ ');
+          const targetAvgSet = [...new Set(variants.map((v) => v.targetAvg))];
+          const targetText = targetAvgSet.length === 1 ? `${targetAvgSet[0]}` : `${Math.min(...targetAvgSet)} ~ ${Math.max(...targetAvgSet)}`;
+          const powers = variants.map((v) => v.power).filter((v) => Number.isFinite(v));
+          if (powers.length) {
+            const pMin = Math.min(...powers);
+            const pMax = Math.max(...powers);
+            powerValue.textContent = Math.round(pMin) === Math.round(pMax)
+              ? `${Math.round(pMin)}`
+              : `${Math.round(pMin)} ~ ${Math.round(pMax)}`;
+          } else {
+            powerValue.textContent = t('dash');
+          }
+          hintText.innerHTML = currentLang === 'zh'
+            ? `当前资质：<strong>${levelText}</strong>；升格需求：<strong>${needText}</strong>；每次凝魂经验：<strong>${progressText}</strong>；每次凝魂强化总额：<strong>${enhanceText}</strong>；目标均值：<strong>${targetText}</strong>`
+            : `Current Tier: <strong>${levelText}</strong>; Merge Needs: <strong>${needText}</strong>; EXP per Soul Perfection: <strong>${progressText}</strong>; Soul Enhance per time: <strong>${enhanceText}</strong>; Target Avg: <strong>${targetText}</strong>`;
+          ascCostDesc.textContent = needText;
+          priceDesc.textContent = currentLang === 'zh'
+            ? '下方输入框只填各资质单价，留空表示忽略该资质。'
+            : 'Enter unit prices only. Blank means ignored.';
         } else {
           times.textContent = t('dash');
+          powerValue.textContent = t('dash');
+          hintText.textContent = t('asc_cost_desc_aplus_to_s');
+          ascCostDesc.textContent = t('asc_cost_desc_aplus_to_s');
         }
 
-        calcBestFeedPlan(requiredTotalExp);
+        const feedPlan = calcBestFeedPlan(requiredTotalExp);
+        if (!feedPlan.ok || !Number.isFinite(feedPlan.bestCost) || !validAny) {
+          return;
+        }
+
+        const mergeResults = variants.map((v) => calculateMergeCost(v.tier.ascNeed));
+        const hasMergePath = mergeResults.some((r) => r.calculable);
+        if (!hasMergePath) {
+          ascCostValue.textContent = t('dash');
+          totalCostValue.textContent = t('dash');
+          return;
+        }
+        if (mergeResults.some((r) => r.missingPrice)) {
+          ascCostValue.textContent = t('need_merge_prices');
+          totalCostValue.textContent = t('dash');
+          return;
+        }
+
+        const ascCosts = mergeResults.map((r) => r.cost).filter((v) => Number.isFinite(v));
+        if (!ascCosts.length) {
+          ascCostValue.textContent = t('dash');
+          totalCostValue.textContent = t('dash');
+          return;
+        }
+        const ascMin = Math.min(...ascCosts);
+        const ascMax = Math.max(...ascCosts);
+        ascCostValue.textContent = ascMin === ascMax
+          ? ascMin.toFixed(2)
+          : `${ascMin.toFixed(2)} ~ ${ascMax.toFixed(2)}`;
+
+        const totalMin = feedPlan.bestCost + ascMin;
+        const totalMax = feedPlan.bestCost + ascMax;
+        totalCostValue.textContent = totalMin === totalMax
+          ? totalMin.toFixed(2)
+          : `${totalMin.toFixed(2)} ~ ${totalMax.toFixed(2)}`;
       }
 
       function debouncedUpdate() {
@@ -967,25 +1217,17 @@
         });
       });
 
-      [priceBMinus, priceB, priceBPlus, priceAMinus, priceA, priceAPlus].forEach((input) => {
+      [priceBMinus, priceB, priceBPlus, priceAMinus, priceA, priceAPlus, priceS, priceSS, priceSSS].forEach((input) => {
         input.addEventListener('input', debouncedUpdate);
         input.addEventListener('change', update);
       });
-      [atk, hp, spd, priceBMinus, priceB, priceBPlus, priceAMinus, priceA, priceAPlus].forEach((input) => {
+      [atk, hp, spd, priceBMinus, priceB, priceBPlus, priceAMinus, priceA, priceAPlus, priceS, priceSS, priceSSS].forEach((input) => {
         input.addEventListener('focus', () => {
           if (String(input.value).trim() === '0' || String(input.value).trim() === '1') {
             input.select();
           }
         });
       });
-      if (stageMode) {
-        stageMode.addEventListener('change', () => {
-          touched = false;
-          setStaticText();
-          update();
-        });
-      }
-
       clearBtn.addEventListener('click', () => {
         atk.value = '1';
         hp.value = '1';
@@ -996,6 +1238,9 @@
         priceAMinus.value = '';
         priceA.value = '';
         priceAPlus.value = '';
+        priceS.value = '';
+        priceSS.value = '';
+        priceSSS.value = '';
         touched = false;
         atk.focus();
         update();
@@ -1023,26 +1268,60 @@
         let startX = 0;
         let startY = 0;
         let active = false;
+        let horizontalIntent = false;
+        let dx = 0;
+        let dy = 0;
         document.addEventListener('touchstart', (event) => {
           if (!event.touches || event.touches.length !== 1) return;
           startX = event.touches[0].clientX;
           startY = event.touches[0].clientY;
+          dx = 0;
+          dy = 0;
+          horizontalIntent = false;
           active = true;
         }, { passive: true });
-        document.addEventListener('touchend', (event) => {
-          if (!active || !event.changedTouches || !event.changedTouches.length) return;
-          active = false;
-          const dx = event.changedTouches[0].clientX - startX;
-          const dy = event.changedTouches[0].clientY - startY;
-          if (Math.abs(dx) >= 80 && Math.abs(dy) <= 50) {
-            window.location.href = 'index.html';
+        document.addEventListener('touchmove', (event) => {
+          if (!active || !event.touches || !event.touches.length) return;
+          dx = event.touches[0].clientX - startX;
+          dy = event.touches[0].clientY - startY;
+          if (!horizontalIntent && Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy) * 1.15) {
+            horizontalIntent = true;
           }
+          if (horizontalIntent) {
+            event.preventDefault();
+          }
+        }, { passive: false });
+        document.addEventListener('touchend', () => {
+          if (!active) return;
+          active = false;
+          if (horizontalIntent && Math.abs(dx) >= 70 && Math.abs(dy) <= 60) {
+            requestAnimationFrame(() => {
+              window.location.replace('index.html');
+            });
+          }
+          horizontalIntent = false;
+          dx = 0;
+          dy = 0;
         }, { passive: true });
       }
 
       enableAppSwipeHome();
       setStaticText();
-      update();
+      loadTiers()
+        .then(() => {
+          setStaticText();
+          update();
+        })
+        .catch((err) => {
+          console.error('Failed to load soul tiers:', err);
+          warn.style.display = 'block';
+          times.textContent = t('dash');
+          avgValue.textContent = t('dash');
+          hintText.textContent = currentLang === 'zh'
+            ? '未能加载资质数据（soul_tiers.csv），请确认文件路径。'
+            : 'Failed to load tier data (soul_tiers.csv). Please verify file path.';
+          calcBestFeedPlan(0);
+        });
     })();
   </script>
 </body>

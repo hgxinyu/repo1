@@ -625,20 +625,40 @@
         let startX = 0;
         let startY = 0;
         let active = false;
+        let horizontalIntent = false;
+        let dx = 0;
+        let dy = 0;
         document.addEventListener('touchstart', (event) => {
           if (!event.touches || event.touches.length !== 1) return;
           startX = event.touches[0].clientX;
           startY = event.touches[0].clientY;
+          dx = 0;
+          dy = 0;
+          horizontalIntent = false;
           active = true;
         }, { passive: true });
-        document.addEventListener('touchend', (event) => {
-          if (!active || !event.changedTouches || !event.changedTouches.length) return;
-          active = false;
-          const dx = event.changedTouches[0].clientX - startX;
-          const dy = event.changedTouches[0].clientY - startY;
-          if (Math.abs(dx) >= 80 && Math.abs(dy) <= 50) {
-            window.location.href = 'index.html';
+        document.addEventListener('touchmove', (event) => {
+          if (!active || !event.touches || !event.touches.length) return;
+          dx = event.touches[0].clientX - startX;
+          dy = event.touches[0].clientY - startY;
+          if (!horizontalIntent && Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy) * 1.15) {
+            horizontalIntent = true;
           }
+          if (horizontalIntent) {
+            event.preventDefault();
+          }
+        }, { passive: false });
+        document.addEventListener('touchend', () => {
+          if (!active) return;
+          active = false;
+          if (horizontalIntent && Math.abs(dx) >= 70 && Math.abs(dy) <= 60) {
+            requestAnimationFrame(() => {
+              window.location.replace('index.html');
+            });
+          }
+          horizontalIntent = false;
+          dx = 0;
+          dy = 0;
         }, { passive: true });
       }
 
