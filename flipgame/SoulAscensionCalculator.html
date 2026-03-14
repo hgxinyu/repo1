@@ -281,6 +281,9 @@
       color: var(--muted);
       font-size: 13px;
     }
+    .muted:empty {
+      display: none;
+    }
     .box.highlight {
       background: #fff7ed;
       border: 2px solid #fb923c;
@@ -396,7 +399,6 @@
     <main class="main">
       <section class="card" aria-labelledby="calc-title">
         <h2 id="calc-title">填写基础属性</h2>
-        <p class="muted" style="margin:-4px 0 4px;" id="calcDesc"></p>
         <div class="row">
           <div class="col">
             <label for="atk" id="atkLabel">攻击 x</label>
@@ -1261,6 +1263,14 @@
           window.navigator.standalone === true
         );
         if (!isAppMode) return;
+        const viewportMeta = document.querySelector('meta[name="viewport"]');
+        if (viewportMeta) {
+          viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover');
+        }
+        document.documentElement.classList.add('app-mode');
+        document.addEventListener('gesturestart', (event) => event.preventDefault(), { passive: false });
+        document.addEventListener('gesturechange', (event) => event.preventDefault(), { passive: false });
+        document.addEventListener('gestureend', (event) => event.preventDefault(), { passive: false });
         const hasTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
         if (!hasTouch) return;
         if (navHome) navHome.style.display = 'none';
