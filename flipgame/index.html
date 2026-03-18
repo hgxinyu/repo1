@@ -478,6 +478,10 @@
         <span class="title" id="cardSoulTitle">凝魂升格 & 魂力计算器</span>
         <span class="subtitle" id="cardSoulSub">检验属性区间并估算凝魂次数与魂力值。</span>
       </a>
+      <a class="card-link" href="ExpeditionCalculator.html">
+        <span class="title" id="cardExpeditionTitle">远征积分计算器</span>
+        <span class="subtitle" id="cardExpeditionSub">按层数和剩余血量快速估算剩余积分（万亿）。</span>
+      </a>
       <button class="card-link card-button" id="recruitCard" type="button">
         <span class="title" id="cardRecruitTitle">公会招募</span>
         <span class="subtitle" id="cardRecruitSub">欢迎加入 iOS 国风大家庭，点击填写招募信息。</span>
@@ -567,6 +571,8 @@
       const cardHiddenSub = document.getElementById('cardHiddenSub');
       const cardSoulTitle = document.getElementById('cardSoulTitle');
       const cardSoulSub = document.getElementById('cardSoulSub');
+      const cardExpeditionTitle = document.getElementById('cardExpeditionTitle');
+      const cardExpeditionSub = document.getElementById('cardExpeditionSub');
       const cardPowerTitle = document.getElementById('cardPowerTitle');
       const cardPowerSub = document.getElementById('cardPowerSub');
       const recruitCard = document.getElementById('recruitCard');
@@ -616,6 +622,8 @@
           card_hidden_sub: '集中查看各类攻略图，持续更新。',
           card_soul_title: '凝魂升格 & 魂力计算器',
           card_soul_sub: '检验属性区间并估算凝魂次数与魂力值。',
+          card_expedition_title: '远征积分计算器',
+          card_expedition_sub: '按层数和剩余血量快速估算剩余积分（万亿）。',
           card_power_title: '魂力计算器',
           card_power_sub: '根据三维均值和资质区间估算魂力值。',
           card_recruit_title: '公会招募',
@@ -668,6 +676,8 @@
           card_hidden_sub: 'Browse strategy images in one place.',
           card_soul_title: 'Soul Perfection & Merge + Soul Power Calculator',
           card_soul_sub: 'Check stat ranges and estimate soul perfection count and soul power.',
+          card_expedition_title: 'Start Expedition Score Calculator',
+          card_expedition_sub: 'Estimate remaining score by floor and remaining HP (trillion).',
           card_power_title: 'Soul Power Calculator',
           card_power_sub: 'Estimate soul power using average stats and tier ranges.',
           card_recruit_title: 'Guild Recruitment',
@@ -733,6 +743,8 @@
         if (cardHiddenSub) cardHiddenSub.textContent = t('card_hidden_sub');
         if (cardSoulTitle) cardSoulTitle.textContent = t('card_soul_title');
         if (cardSoulSub) cardSoulSub.textContent = t('card_soul_sub');
+        if (cardExpeditionTitle) cardExpeditionTitle.textContent = t('card_expedition_title');
+        if (cardExpeditionSub) cardExpeditionSub.textContent = t('card_expedition_sub');
         if (cardPowerTitle) cardPowerTitle.textContent = t('card_power_title');
         if (cardPowerSub) cardPowerSub.textContent = t('card_power_sub');
         if (cardRecruitTitle) cardRecruitTitle.textContent = t('card_recruit_title');

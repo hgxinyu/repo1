@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>远征积分计算器 · ShinE</title>
+  <script>
+    (function () {
+      var host = (window.location.hostname || '').toLowerCase();
+      var isLocal = host === 'localhost' || host === '127.0.0.1' || host === '::1';
+      var svg = isLocal ? 'assets/local-logo.svg' : 'assets/shine-logo.svg';
+      var png32 = isLocal ? 'assets/local-logo-32.png' : 'assets/shine-logo-32.png';
+      var ico = isLocal ? 'assets/local-favicon.ico' : 'assets/favicon.ico';
+      var apple = isLocal ? 'assets/local-logo-180.png' : 'assets/shine-logo-180.png';
+      var manifest = isLocal ? 'site.local.webmanifest' : 'site.webmanifest';
+      var theme = isLocal ? '#fb7185' : '#6366f1';
+      document.write('<link rel="icon" type="image/svg+xml" href="' + svg + '">');
+      document.write('<link rel="icon" type="image/png" sizes="32x32" href="' + png32 + '">');
+      document.write('<link rel="shortcut icon" href="' + ico + '">');
+      document.write('<link rel="apple-touch-icon" sizes="180x180" href="' + apple + '">');
+      document.write('<link rel="manifest" href="' + manifest + '">');
+      document.write('<meta name="theme-color" content="' + theme + '">');
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gap: 12px;
+      --radius: 16px;
+      --shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+      --border: #e2e8f0;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --brand: #6366f1;
+      --surface: #ffffff;
+      --bg: #f8fafc;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Segoe UI", "Microsoft YaHei", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+    body {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    nav#topbar-nav {
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      z-index: 100;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+      backdrop-filter: saturate(140%) blur(6px);
+    }
+    nav#topbar-nav a {
+      border: 1px solid transparent;
+      background: rgba(99, 102, 241, 0.08);
+      color: var(--brand);
+      padding: 9px 16px;
+      border-radius: 999px;
+      font-size: 14px;
+      text-decoration: none;
+      white-space: nowrap;
+      text-align: center;
+    }
+    .wrap {
+      width: min(900px, 100%);
+      margin: 12px auto 32px;
+      padding: clamp(20px, 4vw, 36px);
+      display: flex;
+      flex-direction: column;
+      gap: clamp(18px, 4vw, 28px);
+      flex: 1 0 auto;
+    }
+    .title h1 {
+      margin: 0;
+      font-size: clamp(22px, 5.6vw, 32px);
+      letter-spacing: 0.03em;
+    }
+    .title p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: clamp(18px, 4vw, 28px);
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: clamp(16px, 4vw, 22px);
+    }
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--gap);
+      align-items: flex-start;
+    }
+    .col {
+      flex: 1 1 240px;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    label {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    select, input[type="number"] {
+      width: 100%;
+      border: 2px solid rgba(99, 102, 241, 0.35);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 16px;
+      background: rgba(99, 102, 241, 0.06);
+      color: var(--ink);
+      box-shadow: 0 8px 18px rgba(99, 102, 241, 0.14);
+      -moz-appearance: textfield;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    }
+    select:focus-visible, input[type="number"]:focus-visible {
+      outline: none;
+      border-color: rgba(99, 102, 241, 0.9);
+      background: rgba(99, 102, 241, 0.11);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2), 0 12px 24px rgba(99, 102, 241, 0.2);
+    }
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    .out {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: var(--gap);
+    }
+    .box {
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .box.highlight {
+      background: #fff7ed;
+      border: 2px solid #fb923c;
+      box-shadow: 0 8px 18px rgba(251, 146, 60, 0.2);
+    }
+    .kv {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 15px;
+    }
+    .kv.stack {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .v {
+      font-weight: 700;
+      font-size: clamp(18px, 5vw, 24px);
+      color: #1d4ed8;
+    }
+    .box.highlight .v { color: #c2410c; }
+    .hint {
+      padding: 12px 16px;
+      background: rgba(99, 102, 241, 0.08);
+      border: 1px solid rgba(99, 102, 241, 0.18);
+      border-radius: 14px;
+      color: #312e81;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+    .warn {
+      display: none;
+      padding: 12px 16px;
+      border-radius: 14px;
+      background: rgba(254, 226, 226, 0.9);
+      border: 1px solid #fecaca;
+      color: #ef4444;
+      font-size: 14px;
+    }
+    .logo-bottom-left {
+      position: fixed;
+      left: 12px;
+      bottom: 12px;
+      z-index: 10;
+      font-size: 20px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      color: #111827;
+    }
+    .logo-bottom-left .logo-by {
+      font-weight: 700;
+      font-size: 20px;
+      line-height: 1;
+      font-family: 'Pacifico', cursive;
+    }
+    .logo-bottom-left .logo-cn,
+    .logo-bottom-left .logo-en {
+      font-size: 20px;
+      line-height: 1;
+    }
+    .logo-bottom-left .logo-cn {
+      font-weight: 700;
+      font-family: "Noto Serif SC", "Songti SC", "STSong", serif;
+    }
+    .logo-bottom-left .logo-en {
+      font-weight: 700;
+      font-family: 'Pacifico', cursive;
+    }
+    .logo-bottom-left .logo-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #6366f1, #22c55e);
+    }
+    @media (max-width: 480px) {
+      .logo-bottom-left {
+        position: static;
+        margin: 28px auto 16px;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav id="topbar-nav" aria-label="页面导航">
+    <a href="index.html" id="navHome">回到主页</a>
+  </nav>
+  <div class="wrap">
+    <header class="title">
+      <h1 id="pageTitle">远征积分计算器</h1>
+      <p id="pageDesc">按层数与剩余血量百分比估算章鱼 Boss 剩余积分（单位：万亿）。</p>
+    </header>
+    <section class="card">
+      <div class="hint" id="hintText">仅使用 165 层及以下数据（已忽略 165 层以上）。</div>
+      <div id="warn" class="warn" role="alert">数据加载失败，请检查 `seboss_165.json`。</div>
+      <div class="row">
+        <div class="col">
+          <label for="layerSelect" id="layerLabel">选择层数</label>
+          <select id="layerSelect" aria-label="选择层数"></select>
+        </div>
+        <div class="col">
+          <label for="remainPercent" id="remainLabel">剩余血量百分比（0~100）</label>
+          <input id="remainPercent" type="number" inputmode="decimal" min="0" max="100" step="any" value="100" />
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <label for="guildTotal" id="guildTotalLabel">公会总分（万亿）</label>
+          <input id="guildTotal" type="number" inputmode="decimal" min="0" step="any" value="0" />
+        </div>
+      </div>
+      <div class="out" aria-live="polite">
+        <div class="box">
+          <div class="kv"><span id="totalLabel">总积分（万亿）</span><span class="v" id="totalValue">—</span></div>
+        </div>
+        <div class="box">
+          <div class="kv"><span id="per1Label">1%血量积分（万亿）</span><span class="v" id="per1Value">—</span></div>
+        </div>
+        <div class="box highlight">
+          <div class="kv"><span id="remainScoreLabel">剩余积分（万亿）</span><span class="v" id="remainScoreValue">—</span></div>
+        </div>
+        <div class="box">
+          <div class="kv stack"><span id="guildLayerLabel">公会总分所在层数</span><span class="v" id="guildLayerValue">—</span></div>
+        </div>
+        <div class="box">
+          <div class="kv stack"><span id="guildProgressLabel">该层进度</span><span class="v" id="guildProgressValue">—</span></div>
+        </div>
+      </div>
+    </section>
+  </div>
+  <div class="logo-bottom-left">
+    <span class="logo-dot"></span>
+    <span class="logo-by">By</span>
+    <span class="logo-cn">国风*</span>
+    <span class="logo-en">ShinE</span>
+  </div>
+  <script>
+    (function () {
+      const navHome = document.getElementById('navHome');
+      const pageTitle = document.getElementById('pageTitle');
+      const pageDesc = document.getElementById('pageDesc');
+      const hintText = document.getElementById('hintText');
+      const warn = document.getElementById('warn');
+      const layerLabel = document.getElementById('layerLabel');
+      const remainLabel = document.getElementById('remainLabel');
+      const totalLabel = document.getElementById('totalLabel');
+      const per1Label = document.getElementById('per1Label');
+      const remainScoreLabel = document.getElementById('remainScoreLabel');
+      const guildTotalLabel = document.getElementById('guildTotalLabel');
+      const guildLayerLabel = document.getElementById('guildLayerLabel');
+      const guildProgressLabel = document.getElementById('guildProgressLabel');
+      const layerSelect = document.getElementById('layerSelect');
+      const remainPercent = document.getElementById('remainPercent');
+      const guildTotal = document.getElementById('guildTotal');
+      const totalValue = document.getElementById('totalValue');
+      const per1Value = document.getElementById('per1Value');
+      const remainScoreValue = document.getElementById('remainScoreValue');
+      const guildLayerValue = document.getElementById('guildLayerValue');
+      const guildProgressValue = document.getElementById('guildProgressValue');
+
+      const I18N = {
+        zh: {
+          title: '远征积分计算器 · ShinE',
+          nav_home: '回到主页',
+          page_title: '远征积分计算器',
+          page_desc: '按层数与剩余血量百分比估算章鱼 Boss 剩余积分（单位：万亿），并按公会总分估算所在层。',
+          hint: '已包含 200~1 层；1~179 层显示万亿，180~200 层显示原始分数。',
+          warn: '数据加载失败，请检查 `seboss_all.json`。',
+          layer_label: '选择层数',
+          remain_label: '剩余血量百分比（0~100）',
+          guild_total_label: '公会总分（万亿）',
+          total_label: '总积分（万亿）',
+          per1_label: '1%血量积分（万亿）',
+          remain_score_label: '剩余积分（万亿）',
+          total_label_raw: '总积分',
+          per1_label_raw: '1%血量积分',
+          remain_score_label_raw: '剩余积分',
+          guild_layer_label: '公会总分所在层数',
+          guild_progress_label: '该层进度',
+          guild_estimate_empty: '输入公会总分后显示',
+          guild_estimate_over: '超过 1 层总积分，已超出表内估算范围'
+        },
+        en: {
+          title: 'Start Expedition Score Calculator · ShinE',
+          nav_home: 'Home',
+          page_title: 'Start Expedition Score Calculator',
+          page_desc: 'Estimate Octopus Boss remaining score by floor and HP%, and estimate current floor from guild total score (unit: trillion).',
+          hint: 'Covers floors 200~1; floors 1~179 show trillion, floors 180~200 show raw score.',
+          warn: 'Failed to load data. Please check `seboss_all.json`.',
+          layer_label: 'Floor',
+          remain_label: 'Remaining HP % (0~100)',
+          guild_total_label: 'Guild Total Score (trillion)',
+          total_label: 'Total Score (trillion)',
+          per1_label: 'Score Per 1% HP (trillion)',
+          remain_score_label: 'Remaining Score (trillion)',
+          total_label_raw: 'Total Score',
+          per1_label_raw: 'Score Per 1% HP',
+          remain_score_label_raw: 'Remaining Score',
+          guild_layer_label: 'Estimated Floor',
+          guild_progress_label: 'Floor Progress',
+          guild_estimate_empty: 'Enter guild total score to estimate',
+          guild_estimate_over: 'Above floor 1 total score; out of table range'
+        }
+      };
+
+      let currentLang = (localStorage.getItem('flipgame_lang') || '').toLowerCase();
+      if (currentLang !== 'zh' && currentLang !== 'en') {
+        const navLang = (navigator.language || '').toLowerCase();
+        currentLang = navLang.startsWith('zh') ? 'zh' : 'en';
+      }
+
+      function t(key) {
+        return (I18N[currentLang] && I18N[currentLang][key]) || I18N.zh[key] || '';
+      }
+
+      function setStaticText() {
+        document.title = t('title');
+        document.documentElement.lang = currentLang === 'zh' ? 'zh-Hans' : 'en';
+        if (navHome) navHome.textContent = t('nav_home');
+        if (pageTitle) pageTitle.textContent = t('page_title');
+        if (pageDesc) pageDesc.textContent = t('page_desc');
+        if (hintText) hintText.textContent = t('hint');
+        if (warn) warn.textContent = t('warn');
+        if (layerLabel) layerLabel.textContent = t('layer_label');
+        if (remainLabel) remainLabel.textContent = t('remain_label');
+        if (guildTotalLabel) guildTotalLabel.textContent = t('guild_total_label');
+        if (totalLabel) totalLabel.textContent = t('total_label');
+        if (per1Label) per1Label.textContent = t('per1_label');
+        if (remainScoreLabel) remainScoreLabel.textContent = t('remain_score_label');
+        if (guildLayerLabel) guildLayerLabel.textContent = t('guild_layer_label');
+        if (guildProgressLabel) guildProgressLabel.textContent = t('guild_progress_label');
+      }
+
+      function updateScoreLabelsByFloor(floor) {
+        const useRaw = Number(floor) >= 180;
+        if (totalLabel) totalLabel.textContent = useRaw ? t('total_label_raw') : t('total_label');
+        if (per1Label) per1Label.textContent = useRaw ? t('per1_label_raw') : t('per1_label');
+        if (remainScoreLabel) remainScoreLabel.textContent = useRaw ? t('remain_score_label_raw') : t('remain_score_label');
+      }
+
+      function formatWanYi(value) {
+        const n = Number(value);
+        if (!Number.isFinite(n)) return '—';
+        const abs = Math.abs(n);
+        const digits = abs >= 1 ? 2 : 8;
+        return n.toLocaleString('en-US', { maximumFractionDigits: digits });
+      }
+
+      function formatRawScoreFromWanYi(valueWanYi) {
+        const raw = Number(valueWanYi) * 1000000000000;
+        if (!Number.isFinite(raw)) return '—';
+        const digits = Math.abs(raw - Math.round(raw)) < 1e-9 ? 0 : 2;
+        return raw.toLocaleString('en-US', { maximumFractionDigits: digits });
+      }
+
+      function clampPercent(value) {
+        const n = Number(value);
+        if (!Number.isFinite(n)) return 0;
+        return Math.max(0, Math.min(100, n));
+      }
+
+      function clampNonNegative(value) {
+        const n = Number(value);
+        if (!Number.isFinite(n)) return 0;
+        return Math.max(0, n);
+      }
+
+      let rows = [];
+      function estimateFloorByGuildTotal(totalScore) {
+        let remain = clampNonNegative(totalScore);
+        if (!rows.length) return { layerText: '—', progressText: t('guild_estimate_empty') };
+        if (remain <= 0) {
+          const top = rows[0];
+          const layerText = currentLang === 'zh' ? `约 ${top.layer} 层` : `~Floor ${top.layer}`;
+          const progressText = '0.0%';
+          return { layerText, progressText };
+        }
+        for (let i = 0; i < rows.length; i += 1) {
+          const row = rows[i];
+          if (remain <= row.total) {
+            const pct = row.total > 0 ? (remain / row.total) * 100 : 0;
+            const layerText = currentLang === 'zh' ? `约 ${row.layer} 层` : `~Floor ${row.layer}`;
+            const progressText = `${pct.toFixed(1)}%`;
+            return { layerText, progressText };
+          }
+          remain -= row.total;
+        }
+        return { layerText: '—', progressText: t('guild_estimate_over') };
+      }
+
+      function render() {
+        if (!rows.length) return;
+        const floor = Number(layerSelect.value);
+        const row = rows.find((r) => r.layer === floor);
+        if (!row) return;
+        updateScoreLabelsByFloor(floor);
+        const remain = clampPercent(remainPercent.value);
+        if (String(remainPercent.value || '').trim() === '' || Number.isNaN(Number(remainPercent.value))) {
+          remainPercent.value = '0';
+        } else {
+          remainPercent.value = String(remain);
+        }
+        totalValue.textContent = formatWanYi(row.total);
+        per1Value.textContent = formatWanYi(row.per1);
+        remainScoreValue.textContent = formatWanYi((row.total * remain) / 100);
+        if (row.layer >= 180) {
+          totalValue.textContent = formatRawScoreFromWanYi(row.total);
+          per1Value.textContent = formatRawScoreFromWanYi(row.per1);
+          remainScoreValue.textContent = formatRawScoreFromWanYi((row.total * remain) / 100);
+        }
+        const guildScore = clampNonNegative(guildTotal.value);
+        if (String(guildTotal.value || '').trim() === '' || Number.isNaN(Number(guildTotal.value))) {
+          guildTotal.value = '0';
+        } else {
+          guildTotal.value = String(guildScore);
+        }
+        const estimate = estimateFloorByGuildTotal(guildScore);
+        guildLayerValue.textContent = estimate.layerText;
+        guildProgressValue.textContent = estimate.progressText;
+      }
+
+      function fillOptions() {
+        layerSelect.innerHTML = '';
+        rows.forEach((r) => {
+          const opt = document.createElement('option');
+          opt.value = String(r.layer);
+          opt.textContent = String(r.layer);
+          layerSelect.appendChild(opt);
+        });
+      }
+
+      async function loadData() {
+        try {
+          const resp = await fetch('seboss_all.json', { cache: 'no-cache' });
+          if (!resp.ok) throw new Error('http');
+          const raw = await resp.json();
+          rows = Array.isArray(raw)
+            ? raw.map((r) => ({
+              layer: Number(r.layer),
+              total: Number(r.total),
+              per1: Number(r.per1)
+            })).filter((r) => Number.isFinite(r.layer) && Number.isFinite(r.total) && Number.isFinite(r.per1))
+            : [];
+          rows.sort((a, b) => b.layer - a.layer);
+          if (!rows.length) throw new Error('empty');
+          fillOptions();
+          const defaultFloor = rows.find((r) => r.layer === 100) ? 100 : rows[0].layer;
+          layerSelect.value = String(defaultFloor);
+          warn.style.display = 'none';
+          render();
+        } catch (e) {
+          warn.style.display = 'block';
+        }
+      }
+
+      layerSelect.addEventListener('change', render);
+      remainPercent.addEventListener('input', render);
+      remainPercent.addEventListener('change', render);
+      guildTotal.addEventListener('input', render);
+      guildTotal.addEventListener('change', render);
+
+      function enableAppSwipeHome() {
+        const isAppMode = (
+          (window.matchMedia && (
+            window.matchMedia('(display-mode: standalone)').matches ||
+            window.matchMedia('(display-mode: fullscreen)').matches
+          )) ||
+          window.navigator.standalone === true
+        );
+        if (!isAppMode) return;
+        const viewportMeta = document.querySelector('meta[name="viewport"]');
+        if (viewportMeta) {
+          viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover');
+        }
+        document.documentElement.classList.add('app-mode');
+        document.addEventListener('gesturestart', (event) => event.preventDefault(), { passive: false });
+        document.addEventListener('gesturechange', (event) => event.preventDefault(), { passive: false });
+        document.addEventListener('gestureend', (event) => event.preventDefault(), { passive: false });
+        const hasTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+        if (!hasTouch) return;
+        const topbar = document.getElementById('topbar-nav');
+        if (navHome) navHome.style.display = 'none';
+        if (topbar) topbar.style.display = 'none';
+        let startX = 0;
+        let startY = 0;
+        let active = false;
+        let horizontalIntent = false;
+        let dx = 0;
+        let dy = 0;
+        document.addEventListener('touchstart', (event) => {
+          if (!event.touches || event.touches.length !== 1) return;
+          startX = event.touches[0].clientX;
+          startY = event.touches[0].clientY;
+          dx = 0;
+          dy = 0;
+          horizontalIntent = false;
+          active = true;
+        }, { passive: true });
+        document.addEventListener('touchmove', (event) => {
+          if (!active || !event.touches || !event.touches.length) return;
+          dx = event.touches[0].clientX - startX;
+          dy = event.touches[0].clientY - startY;
+          if (!horizontalIntent && Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy) * 1.15) {
+            horizontalIntent = true;
+          }
+          if (horizontalIntent) event.preventDefault();
+        }, { passive: false });
+        document.addEventListener('touchend', () => {
+          if (!active) return;
+          active = false;
+          if (horizontalIntent && Math.abs(dx) >= 70 && Math.abs(dy) <= 60) {
+            requestAnimationFrame(() => {
+              window.location.replace('index.html');
+            });
+          }
+          horizontalIntent = false;
+          dx = 0;
+          dy = 0;
+        }, { passive: true });
+      }
+
+      setStaticText();
+      enableAppSwipeHome();
+      loadData();
+    })();
+  </script>
+</body>
+</html>
