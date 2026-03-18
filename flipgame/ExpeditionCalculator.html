@@ -366,13 +366,13 @@
           title: 'Start Expedition Score Calculator · ShinE',
           nav_home: 'Home',
           page_title: 'Start Expedition Score Calculator',
-          page_desc: 'Estimate Octopus Boss remaining score by floor and HP%, and estimate current floor from guild total score (unit: trillion).',
-          hint: 'Covers floors 200~1; floors 1~179 show trillion, floors 180~200 show raw score.',
+          page_desc: 'Estimate Octopus Boss remaining score by level and HP%, and estimate current level from guild total score (unit: trillion).',
+          hint: 'Covers levels 200~1; levels 1~179 show trillion, levels 180~200 show raw score.',
           warn: 'Failed to load data. Please check `seboss_all.json`.',
-          layer_label: 'Floor',
+          layer_label: 'Level',
           remain_label: 'Remaining HP % (0~100)',
           guild_total_label: 'Guild Total Score (trillion)',
-          guild_estimate_title: 'Estimate Guild Expedition Floor & Progress',
+          guild_estimate_title: 'Estimate Guild Expedition Level & Progress',
           guild_estimate_note: 'Note: based on manually collected data; estimation error is possible.',
           total_label: 'Total Score (trillion)',
           per1_label: 'Score Per 1% HP (trillion)',
@@ -380,10 +380,10 @@
           total_label_raw: 'Total Score',
           per1_label_raw: 'Score Per 1% HP',
           remain_score_label_raw: 'Remaining Score',
-          guild_layer_label: 'Estimated Floor',
-          guild_progress_label: 'Floor Progress',
+          guild_layer_label: 'Estimated Level',
+          guild_progress_label: 'Level Progress',
           guild_estimate_empty: 'Enter guild total score to estimate',
-          guild_estimate_over: 'Above floor 1 total score; out of table range'
+          guild_estimate_over: 'Above level 1 total score; out of table range'
         }
       };
 
@@ -457,7 +457,7 @@
         if (!rows.length) return { layerText: '—', progressText: t('guild_estimate_empty') };
         if (remain <= 0) {
           const top = rows[0];
-          const layerText = currentLang === 'zh' ? `约 ${top.layer} 层` : `~Floor ${top.layer}`;
+          const layerText = currentLang === 'zh' ? `约 ${top.layer} 层` : `~Level ${top.layer}`;
           const progressText = '0.0%';
           return { layerText, progressText };
         }
@@ -465,7 +465,7 @@
           const row = rows[i];
           if (remain <= row.total) {
             const pct = row.total > 0 ? (remain / row.total) * 100 : 0;
-            const layerText = currentLang === 'zh' ? `约 ${row.layer} 层` : `~Floor ${row.layer}`;
+            const layerText = currentLang === 'zh' ? `约 ${row.layer} 层` : `~Level ${row.layer}`;
             const progressText = `${pct.toFixed(1)}%`;
             return { layerText, progressText };
           }
