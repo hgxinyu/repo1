@@ -275,22 +275,28 @@
           <input id="remainPercent" type="number" inputmode="decimal" min="0" max="100" step="any" value="100" />
         </div>
       </div>
+      <div class="out" aria-live="polite">
+        <div class="box">
+          <div class="kv stack"><span id="totalLabel">总积分（万亿）</span><span class="v" id="totalValue">—</span></div>
+        </div>
+        <div class="box">
+          <div class="kv stack"><span id="per1Label">1%血量积分（万亿）</span><span class="v" id="per1Value">—</span></div>
+        </div>
+        <div class="box highlight">
+          <div class="kv stack"><span id="remainScoreLabel">剩余积分（万亿）</span><span class="v" id="remainScoreValue">—</span></div>
+        </div>
+      </div>
+    </section>
+    <section class="card">
+      <h2 id="guildEstimateTitle" style="margin:0; font-size:18px; color:var(--muted);">估算公会远征层数和进度</h2>
+      <p id="guildEstimateNote" style="margin:-8px 0 4px; color:var(--muted); font-size:13px;">提示：根据手动收集的数据估算，可能会有误差。</p>
       <div class="row">
         <div class="col">
           <label for="guildTotal" id="guildTotalLabel">公会总分（万亿）</label>
-          <input id="guildTotal" type="number" inputmode="decimal" min="0" step="any" value="0" />
+          <input id="guildTotal" type="number" inputmode="numeric" min="0" step="1" value="0" />
         </div>
       </div>
       <div class="out" aria-live="polite">
-        <div class="box">
-          <div class="kv"><span id="totalLabel">总积分（万亿）</span><span class="v" id="totalValue">—</span></div>
-        </div>
-        <div class="box">
-          <div class="kv"><span id="per1Label">1%血量积分（万亿）</span><span class="v" id="per1Value">—</span></div>
-        </div>
-        <div class="box highlight">
-          <div class="kv"><span id="remainScoreLabel">剩余积分（万亿）</span><span class="v" id="remainScoreValue">—</span></div>
-        </div>
         <div class="box">
           <div class="kv stack"><span id="guildLayerLabel">公会总分所在层数</span><span class="v" id="guildLayerValue">—</span></div>
         </div>
@@ -318,6 +324,8 @@
       const totalLabel = document.getElementById('totalLabel');
       const per1Label = document.getElementById('per1Label');
       const remainScoreLabel = document.getElementById('remainScoreLabel');
+      const guildEstimateTitle = document.getElementById('guildEstimateTitle');
+      const guildEstimateNote = document.getElementById('guildEstimateNote');
       const guildTotalLabel = document.getElementById('guildTotalLabel');
       const guildLayerLabel = document.getElementById('guildLayerLabel');
       const guildProgressLabel = document.getElementById('guildProgressLabel');
@@ -341,6 +349,8 @@
           layer_label: '选择层数',
           remain_label: '剩余血量百分比（0~100）',
           guild_total_label: '公会总分（万亿）',
+          guild_estimate_title: '估算公会远征层数和进度',
+          guild_estimate_note: '提示：根据手动收集的数据估算，可能会有误差。',
           total_label: '总积分（万亿）',
           per1_label: '1%血量积分（万亿）',
           remain_score_label: '剩余积分（万亿）',
@@ -362,6 +372,8 @@
           layer_label: 'Floor',
           remain_label: 'Remaining HP % (0~100)',
           guild_total_label: 'Guild Total Score (trillion)',
+          guild_estimate_title: 'Estimate Guild Expedition Floor & Progress',
+          guild_estimate_note: 'Note: based on manually collected data; estimation error is possible.',
           total_label: 'Total Score (trillion)',
           per1_label: 'Score Per 1% HP (trillion)',
           remain_score_label: 'Remaining Score (trillion)',
@@ -395,6 +407,8 @@
         if (warn) warn.textContent = t('warn');
         if (layerLabel) layerLabel.textContent = t('layer_label');
         if (remainLabel) remainLabel.textContent = t('remain_label');
+        if (guildEstimateTitle) guildEstimateTitle.textContent = t('guild_estimate_title');
+        if (guildEstimateNote) guildEstimateNote.textContent = t('guild_estimate_note');
         if (guildTotalLabel) guildTotalLabel.textContent = t('guild_total_label');
         if (totalLabel) totalLabel.textContent = t('total_label');
         if (per1Label) per1Label.textContent = t('per1_label');
@@ -480,12 +494,8 @@
           per1Value.textContent = formatRawScoreFromWanYi(row.per1);
           remainScoreValue.textContent = formatRawScoreFromWanYi((row.total * remain) / 100);
         }
-        const guildScore = clampNonNegative(guildTotal.value);
-        if (String(guildTotal.value || '').trim() === '' || Number.isNaN(Number(guildTotal.value))) {
-          guildTotal.value = '0';
-        } else {
-          guildTotal.value = String(guildScore);
-        }
+        const guildScore = Math.floor(clampNonNegative(guildTotal.value));
+        guildTotal.value = String(guildScore);
         const estimate = estimateFloorByGuildTotal(guildScore);
         guildLayerValue.textContent = estimate.layerText;
         guildProgressValue.textContent = estimate.progressText;
