@@ -264,7 +264,7 @@
     </header>
     <section class="card">
       <div class="hint" id="hintText">仅使用 165 层及以下数据（已忽略 165 层以上）。</div>
-      <div id="warn" class="warn" role="alert">数据加载失败，请检查 `seboss_165.json`。</div>
+      <div id="warn" class="warn" role="alert">数据加载失败，请检查 `seboss_all.json`。</div>
       <div class="row">
         <div class="col">
           <label for="layerSelect" id="layerLabel">选择层数</label>
@@ -301,7 +301,7 @@
           <div class="kv stack"><span id="guildLayerLabel">公会总分所在层数</span><span class="v" id="guildLayerValue">—</span></div>
         </div>
         <div class="box">
-          <div class="kv stack"><span id="guildProgressLabel">该层进度</span><span class="v" id="guildProgressValue">—</span></div>
+          <div class="kv stack"><span id="guildProgressLabel">该层剩余进度</span><span class="v" id="guildProgressValue">—</span></div>
         </div>
       </div>
     </section>
@@ -358,7 +358,7 @@
           per1_label_raw: '1%血量积分',
           remain_score_label_raw: '剩余积分',
           guild_layer_label: '公会总分所在层数',
-          guild_progress_label: '该层进度',
+          guild_progress_label: '该层剩余进度',
           guild_estimate_empty: '输入公会总分后显示',
           guild_estimate_over: '超过 1 层总积分，已超出表内估算范围'
         },
@@ -381,7 +381,7 @@
           per1_label_raw: 'Score Per 1% HP',
           remain_score_label_raw: 'Remaining Score',
           guild_layer_label: 'Estimated Level',
-          guild_progress_label: 'Level Progress',
+          guild_progress_label: 'Remaining Progress',
           guild_estimate_empty: 'Enter guild total score to estimate',
           guild_estimate_over: 'Above level 1 total score; out of table range'
         }
@@ -432,6 +432,12 @@
         return n.toLocaleString('en-US', { maximumFractionDigits: digits });
       }
 
+      function formatInteger(value) {
+        const n = Number(value);
+        if (!Number.isFinite(n)) return '—';
+        return Math.round(n).toLocaleString('en-US');
+      }
+
       function formatRawScoreFromWanYi(valueWanYi) {
         const raw = Number(valueWanYi) * 1000000000000;
         if (!Number.isFinite(raw)) return '—';
@@ -458,15 +464,16 @@
         if (remain <= 0) {
           const top = rows[0];
           const layerText = currentLang === 'zh' ? `约 ${top.layer} 层` : `~Level ${top.layer}`;
-          const progressText = '0.0%';
+          const progressText = currentLang === 'zh' ? '约 100.0%' : '~100.0%';
           return { layerText, progressText };
         }
         for (let i = 0; i < rows.length; i += 1) {
           const row = rows[i];
           if (remain <= row.total) {
-            const pct = row.total > 0 ? (remain / row.total) * 100 : 0;
+            const pctDone = row.total > 0 ? (remain / row.total) * 100 : 0;
+            const pctRemain = Math.max(0, Math.min(100, 100 - pctDone));
             const layerText = currentLang === 'zh' ? `约 ${row.layer} 层` : `~Level ${row.layer}`;
-            const progressText = `${pct.toFixed(1)}%`;
+            const progressText = currentLang === 'zh' ? `约 ${pctRemain.toFixed(1)}%` : `~${pctRemain.toFixed(1)}%`;
             return { layerText, progressText };
           }
           remain -= row.total;
@@ -486,11 +493,11 @@
         } else {
           remainPercent.value = String(remain);
         }
-        totalValue.textContent = formatWanYi(row.total);
+        totalValue.textContent = formatInteger(row.total);
         per1Value.textContent = formatWanYi(row.per1);
         remainScoreValue.textContent = formatWanYi((row.total * remain) / 100);
         if (row.layer >= 180) {
-          totalValue.textContent = formatRawScoreFromWanYi(row.total);
+          totalValue.textContent = formatInteger(Number(row.total) * 1000000000000);
           per1Value.textContent = formatRawScoreFromWanYi(row.per1);
           remainScoreValue.textContent = formatRawScoreFromWanYi((row.total * remain) / 100);
         }
