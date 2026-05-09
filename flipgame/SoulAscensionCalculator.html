@@ -402,19 +402,19 @@
         <div class="row">
           <div class="col">
             <label for="atk" id="atkLabel">攻击 x</label>
-            <input id="atk" type="number" inputmode="decimal" min="1" max="9900" value="1" aria-label="攻击数值" />
+            <input id="atk" type="number" inputmode="decimal" min="1" max="15000" value="1" aria-label="攻击数值" />
           </div>
           <div class="col">
             <label for="hp" id="hpLabel">血量 y</label>
-            <input id="hp" type="number" inputmode="decimal" min="1" max="9900" value="1" aria-label="血量数值" />
+            <input id="hp" type="number" inputmode="decimal" min="1" max="15000" value="1" aria-label="血量数值" />
           </div>
           <div class="col">
             <label for="spd" id="spdLabel">速度 z</label>
-            <input id="spd" type="number" inputmode="decimal" min="1" max="99" value="1" aria-label="速度数值" />
+            <input id="spd" type="number" inputmode="decimal" min="1" max="150" value="1" aria-label="速度数值" />
           </div>
         </div>
 
-        <div id="warn" class="warn" role="alert">输入错误：x + y + 100 × z 必须在 <strong>21600 ~ 24297</strong> 区间内。</div>
+        <div id="warn" class="warn" role="alert">输入错误：x + y + 100 × z 必须在 <strong>102 ~ 45000</strong> 区间内。</div>
 
         <div class="out" aria-live="polite">
           <div class="box">
@@ -601,6 +601,7 @@
           hp_aria: '血量数值',
           spd_aria: '速度数值',
           warn_tpl: '输入错误：x + y + 100 × z 必须在 <strong>{min} ~ {max}</strong> 区间内。',
+          warn_x_invalid: 'X 数值错误：当任意一维超过旧上限时，三维必须同时满足 <strong>x > 9900、y > 9900、z >= 99</strong>。',
           avg_label: '平均值',
           times_label: '凝魂次数',
           times_desc: '显示范围是因为速度存在隐藏小数。',
@@ -663,6 +664,7 @@
           hp_aria: 'HP value',
           spd_aria: 'Speed value',
           warn_tpl: 'Invalid input: x + y + 100 × z must be within <strong>{min} ~ {max}</strong>.',
+          warn_x_invalid: 'Invalid X values: once any stat exceeds legacy cap, all three must satisfy <strong>x > 9900, y > 9900, z >= 99</strong>.',
           avg_label: 'Average',
           times_label: 'Soul Perfection Count',
           times_desc: 'A range usually means Speed has two hidden decimal places.',
@@ -710,7 +712,19 @@
         currentLang = navLang.startsWith('zh') ? 'zh' : 'en';
       }
 
-      const SSS_TOP_AVG = 9900;
+      const DEFAULT_TOP_AVG = 9900;
+      const ATK_MIN = 1;
+      const HP_MIN = 1;
+      const SPD_MIN = 1;
+      const ATK_MAX = 15000;
+      const HP_MAX = 15000;
+      const SPD_MAX = 150;
+      const LEGACY_ATK_MAX = 9900;
+      const LEGACY_HP_MAX = 9900;
+      const LEGACY_SPD_MAX = 99;
+      const LEGACY_TOP_AVG = 9900;
+      let topAvgCap = DEFAULT_TOP_AVG;
+      let legacyMaxTierIndex = null;
       let tiers = [];
 
       function t(key) {
@@ -722,8 +736,8 @@
       }
 
       function setStaticText() {
-        const minTotal = tiers.length ? Math.round(tiers[0].minAvg * 3) : '--';
-        const maxTotal = SSS_TOP_AVG * 3;
+        const minTotal = ATK_MIN + HP_MIN + (100 * SPD_MIN);
+        const maxTotal = ATK_MAX + HP_MAX + (100 * SPD_MAX);
         document.title = t('title');
         document.documentElement.lang = currentLang === 'zh' ? 'zh-Hans' : 'en';
         if (topbarNav) topbarNav.setAttribute('aria-label', t('nav_label'));
@@ -840,6 +854,7 @@
         const idxAscNeed = headers.indexOf('升格需求');
         const idxSoulProgress = headers.indexOf('凝魂进度');
         const idxSoulEnhance = headers.indexOf('凝魂强化');
+        const idxEnhanceTimes = headers.indexOf('强化次数');
         const idxUpperCap = headers.indexOf('魂点上限');
         if ([idxLevel, idxMinAvg, idxAscNeed, idxSoulProgress, idxSoulEnhance, idxUpperCap].some((idx) => idx < 0)) {
           return [];
@@ -852,19 +867,33 @@
           const ascNeed = String(cols[idxAscNeed] || '').trim();
           const soulProgress = Number(String(cols[idxSoulProgress] || '').trim());
           const soulEnhance = Number(String(cols[idxSoulEnhance] || '').trim());
+          const enhanceTimes = Number(String(cols[idxEnhanceTimes] || '').trim());
           const upperCap = Number(String(cols[idxUpperCap] || '').trim());
+          const levelNorm = String(level || '').trim().toUpperCase();
+          if (levelNorm === 'X' && Number.isFinite(minAvg) && minAvg > 0) {
+            topAvgCap = minAvg;
+          }
           if (!level || !Number.isFinite(minAvg) || minAvg <= 0) continue;
           if (!Number.isFinite(soulProgress) || soulProgress <= 0) continue;
           if (!Number.isFinite(soulEnhance) || soulEnhance <= 0) continue;
           if (!Number.isFinite(upperCap) || upperCap < 0) continue;
-          const maxAvg = String(level).toLowerCase() === 'sss' ? SSS_TOP_AVG : null;
-          parsed.push({ level, minAvg, ascNeed, soulProgress, soulEnhance, upperCap, maxAvg });
+          let maxAvg = null;
+          if (Number.isFinite(enhanceTimes) && enhanceTimes > 0) {
+            maxAvg = minAvg + (enhanceTimes * soulEnhance) / 3;
+            if (levelNorm === 'X') {
+              maxAvg = LEGACY_TOP_AVG + (enhanceTimes * soulEnhance) / 3;
+            }
+          } else if (levelNorm === 'SSS') {
+            maxAvg = topAvgCap;
+          }
+          parsed.push({ level, minAvg, ascNeed, soulProgress, soulEnhance, enhanceTimes, upperCap, maxAvg });
         }
         parsed.sort((a, b) => a.minAvg - b.minAvg);
         return parsed;
       }
 
       async function loadTiers() {
+        topAvgCap = DEFAULT_TOP_AVG;
         const candidates = ['soul_tiers.csv', './soul_tiers.csv', '/flipgame/soul_tiers.csv', '凝魂.csv', './凝魂.csv', '../凝魂.csv'];
         let lastErr = null;
         for (const p of candidates) {
@@ -878,6 +907,10 @@
             const parsed = parseTierData(text);
             if (parsed.length) {
               tiers = parsed;
+              legacyMaxTierIndex = -1;
+              for (let i = 0; i < tiers.length; i += 1) {
+                if (tiers[i].minAvg <= LEGACY_TOP_AVG) legacyMaxTierIndex = i;
+              }
               return;
             }
             lastErr = new Error(`No valid tiers in ${p}`);
@@ -963,7 +996,7 @@
       function calcBestFeedPlan(targetExp) {
         totalCostDesc.textContent = t('total_cost_desc');
 
-        if (!Number.isFinite(targetExp) || targetExp <= 0) {
+        if (!Number.isFinite(targetExp) || targetExp < 0) {
           bestComboValue.textContent = t('need_valid_stats');
           bestCostValue.textContent = t('dash');
           bestExpValue.textContent = t('dash');
@@ -971,6 +1004,16 @@
           totalCostValue.textContent = t('dash');
           bestEffDesc.textContent = `${t('best_eff_desc')} ${t('dash')}`;
           return { ok: false, bestCost: null, bestExp: null };
+        }
+
+        if (targetExp === 0) {
+          bestComboValue.textContent = '0';
+          bestCostValue.textContent = '0.00';
+          bestExpValue.textContent = '0';
+          ascCostValue.textContent = t('dash');
+          totalCostValue.textContent = t('dash');
+          bestEffDesc.textContent = `${t('best_eff_desc')} 0`;
+          return { ok: true, bestCost: 0, bestExp: 0 };
         }
 
         const options = [
@@ -1077,6 +1120,26 @@
         const x = toNum(atk.value);
         const y = toNum(hp.value);
         const z = toNum(spd.value);
+        if (warn) {
+          warn.innerHTML = fillTemplate(t('warn_tpl'), {
+            min: ATK_MIN + HP_MIN + (100 * SPD_MIN),
+            max: ATK_MAX + HP_MAX + (100 * SPD_MAX)
+          });
+        }
+        const anyOverLegacyCap = x > LEGACY_ATK_MAX || y > LEGACY_HP_MAX || z > LEGACY_SPD_MAX;
+        const fullXInput = x > LEGACY_ATK_MAX && y > LEGACY_HP_MAX && z >= LEGACY_SPD_MAX;
+        if (anyOverLegacyCap && !fullXInput) {
+          times.textContent = t('dash');
+          powerValue.textContent = t('dash');
+          ascCostValue.textContent = t('dash');
+          totalCostValue.textContent = t('dash');
+          if (warn) {
+            warn.innerHTML = t('warn_x_invalid');
+            warn.style.display = touched ? 'block' : 'none';
+          }
+          calcBestFeedPlan(0);
+          return;
+        }
         const totalA = x + y + (100 * z);
         const totalB = x + y + (100 * (z + 1));
         const avgA = totalA / 3;
@@ -1087,12 +1150,19 @@
           ? `${Math.round(avgMin)}`
           : `${Math.round(avgMin)} ~ ${Math.round(avgMax)}`;
 
-        function calcVariant(total) {
+        function calcVariant(total, speedGuess) {
           const avg = total / 3;
-          const tierIndex = findTierIndex(avg);
+          let tierIndex = findTierIndex(avg);
           if (tierIndex === null) return null;
+          const overLegacyCap = x > LEGACY_ATK_MAX && y > LEGACY_HP_MAX && speedGuess >= LEGACY_SPD_MAX;
+          if (!overLegacyCap && Number.isInteger(legacyMaxTierIndex) && legacyMaxTierIndex >= 0) {
+            tierIndex = Math.min(tierIndex, legacyMaxTierIndex);
+          }
           const tier = tiers[tierIndex];
-          const targetAvg = tierIndex < tiers.length - 1 ? tiers[tierIndex + 1].minAvg : SSS_TOP_AVG;
+          let targetAvg = tierIndex < tiers.length - 1 ? tiers[tierIndex + 1].minAvg : (Number.isFinite(tier.maxAvg) ? tier.maxAvg : topAvgCap);
+          if (!overLegacyCap && String(tier.level || '').toUpperCase() === 'SSS') {
+            targetAvg = LEGACY_TOP_AVG;
+          }
           const enhance = tier.soulEnhance;
           const progress = tier.soulProgress;
           if (!Number.isFinite(enhance) || enhance <= 0) return null;
@@ -1103,8 +1173,8 @@
           return { avg, tier, tierIndex, targetAvg, count, requiredExp: count * progress, power };
         }
 
-        const vA = calcVariant(totalA);
-        const vB = calcVariant(totalB);
+        const vA = calcVariant(totalA, z);
+        const vB = calcVariant(totalB, z + 1);
         const variants = [vA, vB].filter(Boolean);
         const validA = Boolean(vA);
         const validB = Boolean(vB);
@@ -1200,9 +1270,9 @@
       [atk, hp, spd].forEach((input) => {
         input.addEventListener('input', () => {
           if (input === spd) {
-            clampInputValue(input, 1, 99);
+            clampInputValue(input, SPD_MIN, SPD_MAX);
           } else {
-            clampInputValue(input, 1, 9900);
+            clampInputValue(input, ATK_MIN, ATK_MAX);
           }
           touched = true;
           debouncedUpdate();
@@ -1212,9 +1282,9 @@
             input.value = '1';
           }
           if (input === spd) {
-            clampInputValue(input, 1, 99);
+            clampInputValue(input, SPD_MIN, SPD_MAX);
           } else {
-            clampInputValue(input, 1, 9900);
+            clampInputValue(input, ATK_MIN, ATK_MAX);
           }
           touched = true;
           update();
