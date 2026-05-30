@@ -109,6 +109,23 @@
     const statusEl = document.getElementById("status");
     const next = new URLSearchParams(window.location.search).get("next") || "index.html";
 
+    function describeAuthError(error) {
+      const parts = [
+        error && error.message,
+        error && error.description,
+        error && error.error_description,
+        error && error.error
+      ].filter(Boolean);
+      const raw = parts.join(" / ") || (error && error.name) || String(error || "");
+      const status = error && error.status ? `HTTP ${error.status}` : "";
+      const text = `${status} ${raw}`.trim();
+      const lower = text.toLowerCase();
+      if (lower.includes("invalid") || lower.includes("401")) return "邮箱或密码不正确，或邮箱还没有确认。";
+      if (lower.includes("identity") || lower.includes("not found") || lower.includes("404")) return "Netlify Identity 可能还没有启用。请先在 Netlify 后台启用 Identity。";
+      if (lower.includes("network") || lower.includes("failed to fetch")) return "网络请求失败。请确认当前页面是 Netlify 部署地址。";
+      return text || "未知 AuthError。";
+    }
+
     try {
       const result = await handleAuthCallback();
       if (result && result.type === "confirmation") {
@@ -118,7 +135,7 @@
         statusEl.textContent = "邀请已接收，请完成密码设置后登录。";
       }
     } catch (error) {
-      statusEl.textContent = "登录回调处理失败：" + (error.message || error);
+      statusEl.textContent = "登录回调处理失败：" + describeAuthError(error);
     }
 
     form.addEventListener("submit", async (event) => {
@@ -130,7 +147,7 @@
         await login(email, password);
         window.location.href = next;
       } catch (error) {
-        statusEl.textContent = "登录失败：" + (error.message || error);
+        statusEl.textContent = "登录失败：" + describeAuthError(error);
       }
     });
   </script>

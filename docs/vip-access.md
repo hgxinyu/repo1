@@ -55,6 +55,15 @@ users/{email}.json
 ADMIN_EMAILS=你的管理员邮箱
 ```
 
+Identity 设置建议：
+
+```text
+Registration = Open
+Autoconfirm = Off
+```
+
+如果注册页只显示 `AuthError` 或提示不允许注册，优先检查 Identity 是否启用，以及 Registration 是否仍为 Invite only/Disabled。
+
 本地 `python3 -m http.server 8000` 只能预览静态页面，不能完整验证 Netlify Identity、Functions、Blobs。账号注册、登录、管理员后台和 VIP 权限需要部署到 Netlify 后测试。
 
 ## 安全边界

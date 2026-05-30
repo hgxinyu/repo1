@@ -111,10 +111,52 @@
   </main>
 
   <script type="module">
-    import { signup } from "https://esm.sh/@netlify/identity?bundle";
+    import { getSettings, signup } from "https://esm.sh/@netlify/identity?bundle";
 
     const form = document.getElementById("registerForm");
     const statusEl = document.getElementById("status");
+
+    function describeAuthError(error) {
+      const parts = [
+        error && error.message,
+        error && error.description,
+        error && error.error_description,
+        error && error.error
+      ].filter(Boolean);
+      const raw = parts.join(" / ") || (error && error.name) || String(error || "");
+      const status = error && error.status ? `HTTP ${error.status}` : "";
+      const text = `${status} ${raw}`.trim();
+      const lower = text.toLowerCase();
+
+      if (lower.includes("signup") && lower.includes("disabled")) {
+        return "Netlify Identity 当前不允许公开注册。请到 Netlify Identity 设置里把 Registration 改为 Open。";
+      }
+      if (lower.includes("signups are not allowed") || lower.includes("not allowed")) {
+        return "Netlify Identity 当前不允许注册。请确认已启用 Identity，并把 Registration 设置为 Open。";
+      }
+      if (lower.includes("already") || lower.includes("exists")) {
+        return "这个 email 已经注册过。我已尝试继续提交 VIP 审核；如果仍失败，请直接登录或换一个 email。";
+      }
+      if (lower.includes("identity") || lower.includes("not found") || lower.includes("404")) {
+        return "Netlify Identity 可能还没有启用。请在 Netlify 后台启用 Identity 后再注册。";
+      }
+      if (lower.includes("password")) {
+        return "密码不符合 Netlify Identity 要求，请使用至少 8 位并包含更复杂组合的密码。";
+      }
+      if (lower.includes("network") || lower.includes("failed to fetch")) {
+        return "网络请求失败。请确认当前页面是 Netlify 部署地址，不是本地静态 server。";
+      }
+      return text || "未知 AuthError。请检查 Netlify Identity 是否已启用，Registration 是否为 Open。";
+    }
+
+    try {
+      const settings = await getSettings();
+      if (settings && settings.disableSignup) {
+        statusEl.textContent = "当前站点不允许公开注册。请在 Netlify Identity 设置里把 Registration 改为 Open。";
+      }
+    } catch (error) {
+      statusEl.textContent = "无法读取注册设置：" + describeAuthError(error);
+    }
 
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -128,8 +170,13 @@
         try {
           await signup(email, password, { guild, gameName });
         } catch (error) {
-          const message = String(error && error.message ? error.message : error);
-          if (!message.toLowerCase().includes("already")) throw error;
+          const rawMessage = [
+            error && error.message,
+            error && error.description,
+            error && error.error_description,
+            error && error.error
+          ].filter(Boolean).join(" ");
+          if (!rawMessage.toLowerCase().includes("already") && !rawMessage.toLowerCase().includes("exists")) throw error;
         }
 
         const response = await fetch("/api/vip-request", {
@@ -143,7 +190,7 @@
         statusEl.textContent = "注册/申请已提交。请确认邮箱，然后等待管理员批准 VIP 权限。";
         form.reset();
       } catch (error) {
-        statusEl.textContent = "提交失败：" + (error.message || error);
+        statusEl.textContent = "提交失败：" + describeAuthError(error);
       }
     });
   </script>
