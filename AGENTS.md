@@ -30,6 +30,12 @@ Open `http://localhost:8000/`. Do not validate `fetch()` pages through `file://`
 - Do not commit `.DS_Store`, local spreadsheet working files, screenshots, or temporary generated files.
 - Be careful with the user's dirty worktree. Do not revert unrelated user edits.
 
+## Git / Deploy Rules
+
+- Do not push after every small change by default. Netlify deploys consume credits on each push.
+- Prefer batching related changes into one commit and one push after the user confirms the work is ready.
+- If the user explicitly asks to push, push only the intended staged changes and leave unrelated dirty worktree changes alone.
+
 ## Data Rules
 
 - Soul calculator data source: `flipgame/soul_tiers.csv`.
