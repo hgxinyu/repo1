@@ -104,7 +104,13 @@
   backdrop-filter:saturate(140%) blur(4px);
 }
 .topbar .btn{padding:8px 12px; border-radius:999px; font-size:13px; text-align:center}
-@media (max-width:480px){ .topbar{right:8px; top:8px;} }
+@media (max-width:480px){
+  .topbar{
+    position:static;
+    width:max-content;
+    margin:8px 8px 0 auto;
+  }
+}
 
 /* language toggle */
 .langbar{

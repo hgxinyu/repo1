@@ -19,8 +19,8 @@ http://localhost:8000/
 ## 页面模块
 
 - 首页：`flipgame/index.html`
-- 凝魂升格 & 魂力计算（VIP）：`flipgame/SoulAscensionCalculator.html`
-- 远征积分计算器（VIP）：`flipgame/ExpeditionCalculator.html`
+- 凝魂升格 & 魂力计算（注册会员）：`flipgame/SoulAscensionCalculator.html`
+- 远征积分计算器（注册会员）：`flipgame/ExpeditionCalculator.html`
 - 攻略图片：`flipgame/GuideImages.html`
 - 九宫格翻牌：`flipgame/flipgame.html`
 - 核心计算器：`flipgame/CoreCalculator.html`

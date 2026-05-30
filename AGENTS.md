@@ -50,4 +50,5 @@ Open `http://localhost:8000/`. Do not validate `fetch()` pages through `file://`
 - Speed may have hidden decimals in game UI, so calculators may evaluate both `z` and `z+1`.
 - X-tier soul logic is documented in `docs/soul-calculator.md`.
 - Expedition score display rules are documented in `docs/expedition-calculator.md`.
-- VIP pages currently include Soul Ascension, Expedition, and Awakening Rush Simulator.
+- Registered-member pages currently include Soul Ascension and Expedition.
+- VIP-only pages currently include Awakening Rush Simulator.

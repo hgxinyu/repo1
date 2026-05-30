@@ -82,29 +82,29 @@
 </head>
 <body>
   <main class="card">
-    <a class="toplink" href="index.html">回到主页</a>
-    <h1>注册账号</h1>
-    <p>提交后账号会进入待审核状态，管理员批准后可使用 VIP 页面。</p>
+    <a class="toplink" id="homeLink" href="index.html">回到主页</a>
+    <h1 id="pageTitle">注册账号</h1>
+    <p id="pageDesc">提交后账号会进入待审核状态，管理员批准后可使用 VIP 页面。</p>
     <form id="registerForm">
-      <label>
+      <label id="emailLabel">
         Email
         <input id="email" type="email" autocomplete="email" required />
       </label>
-      <label>
+      <label id="passwordLabel">
         密码
         <input id="password" type="password" autocomplete="new-password" minlength="8" required />
       </label>
-      <label>
+      <label id="guildLabel">
         公会名字
         <input id="guild" type="text" autocomplete="organization" required />
       </label>
-      <label>
+      <label id="gameNameLabel">
         ID 名字
         <input id="gameName" type="text" autocomplete="nickname" required />
       </label>
       <div class="actions">
-        <button class="primary" type="submit">注册并提交审核</button>
-        <a class="button" href="Login.html">已有账号登录</a>
+        <button class="primary" id="submitBtn" type="submit">注册并提交审核</button>
+        <a class="button" id="loginLink" href="Login.html">已有账号登录</a>
       </div>
     </form>
     <div class="status" id="status" role="status"></div>
@@ -115,6 +115,84 @@
 
     const form = document.getElementById("registerForm");
     const statusEl = document.getElementById("status");
+    const currentLang = (() => {
+      const saved = (localStorage.getItem("flipgame_lang") || "").toLowerCase();
+      if (saved === "zh" || saved === "en") return saved;
+      return (navigator.language || "").toLowerCase().startsWith("zh") ? "zh" : "en";
+    })();
+
+    const I18N = {
+      zh: {
+        title: "注册账号 · ShinE",
+        home: "回到主页",
+        page_title: "注册账号",
+        page_desc: "提交后账号会进入待审核状态，管理员批准后可使用 VIP 页面。",
+        email_label: "Email",
+        password_label: "密码",
+        guild_label: "公会名字",
+        game_name_label: "ID 名字",
+        submit: "注册并提交审核",
+        login: "已有账号登录",
+        checking_settings: "",
+        signup_disabled: "当前站点不允许公开注册。请在 Netlify Identity 设置里把 Registration 改为 Open。",
+        settings_failed: "无法读取注册设置：",
+        submitting: "正在注册并提交审核...",
+        submit_failed: "提交失败：",
+        request_failed: "提交审核失败",
+        success: "注册/申请已提交。请确认邮箱，然后等待管理员批准 VIP 权限。",
+        error_signup_disabled: "Netlify Identity 当前不允许公开注册。请到 Netlify Identity 设置里把 Registration 改为 Open。",
+        error_signup_not_allowed: "Netlify Identity 当前不允许注册。请确认已启用 Identity，并把 Registration 设置为 Open。",
+        error_exists: "这个 email 已经注册过。我已尝试继续提交 VIP 审核；如果仍失败，请直接登录或换一个 email。",
+        error_identity_missing: "Netlify Identity 可能还没有启用。请在 Netlify 后台启用 Identity 后再注册。",
+        error_password: "密码不符合 Netlify Identity 要求，请使用至少 8 位并包含更复杂组合的密码。",
+        error_network: "网络请求失败。请确认当前页面是 Netlify 部署地址，不是本地静态 server。",
+        error_unknown: "未知 AuthError。请检查 Netlify Identity 是否已启用，Registration 是否为 Open。"
+      },
+      en: {
+        title: "Sign Up · ShinE",
+        home: "Home",
+        page_title: "Sign Up",
+        page_desc: "After submission, your account will wait for admin review before VIP pages are available.",
+        email_label: "Email",
+        password_label: "Password",
+        guild_label: "Guild Name",
+        game_name_label: "Game ID / Name",
+        submit: "Sign up and request review",
+        login: "Already have an account",
+        checking_settings: "",
+        signup_disabled: "Public signup is disabled. In Netlify Identity settings, set Registration to Open.",
+        settings_failed: "Could not read signup settings: ",
+        submitting: "Creating account and submitting review request...",
+        submit_failed: "Submit failed: ",
+        request_failed: "Review request failed",
+        success: "Registration/request submitted. Please confirm your email, then wait for admin approval.",
+        error_signup_disabled: "Netlify Identity public signup is disabled. Set Registration to Open in Netlify Identity settings.",
+        error_signup_not_allowed: "Netlify Identity does not allow signup. Confirm Identity is enabled and Registration is Open.",
+        error_exists: "This email is already registered. I tried to continue submitting the VIP request; if it still fails, log in or use another email.",
+        error_identity_missing: "Netlify Identity may not be enabled. Enable Identity in Netlify before signing up.",
+        error_password: "The password does not meet Netlify Identity requirements. Use at least 8 characters and a stronger combination.",
+        error_network: "Network request failed. Make sure you are using the Netlify deployed site, not a local static server.",
+        error_unknown: "Unknown AuthError. Check whether Netlify Identity is enabled and Registration is Open."
+      }
+    };
+
+    function t(key) {
+      return (I18N[currentLang] && I18N[currentLang][key]) || I18N.zh[key] || "";
+    }
+
+    function setStaticText() {
+      document.documentElement.lang = currentLang === "zh" ? "zh-Hans" : "en";
+      document.title = t("title");
+      document.getElementById("homeLink").textContent = t("home");
+      document.getElementById("pageTitle").textContent = t("page_title");
+      document.getElementById("pageDesc").textContent = t("page_desc");
+      document.getElementById("emailLabel").firstChild.textContent = t("email_label");
+      document.getElementById("passwordLabel").firstChild.textContent = t("password_label");
+      document.getElementById("guildLabel").firstChild.textContent = t("guild_label");
+      document.getElementById("gameNameLabel").firstChild.textContent = t("game_name_label");
+      document.getElementById("submitBtn").textContent = t("submit");
+      document.getElementById("loginLink").textContent = t("login");
+    }
 
     function describeAuthError(error) {
       const parts = [
@@ -129,38 +207,40 @@
       const lower = text.toLowerCase();
 
       if (lower.includes("signup") && lower.includes("disabled")) {
-        return "Netlify Identity 当前不允许公开注册。请到 Netlify Identity 设置里把 Registration 改为 Open。";
+        return t("error_signup_disabled");
       }
       if (lower.includes("signups are not allowed") || lower.includes("not allowed")) {
-        return "Netlify Identity 当前不允许注册。请确认已启用 Identity，并把 Registration 设置为 Open。";
+        return t("error_signup_not_allowed");
       }
       if (lower.includes("already") || lower.includes("exists")) {
-        return "这个 email 已经注册过。我已尝试继续提交 VIP 审核；如果仍失败，请直接登录或换一个 email。";
+        return t("error_exists");
       }
       if (lower.includes("identity") || lower.includes("not found") || lower.includes("404")) {
-        return "Netlify Identity 可能还没有启用。请在 Netlify 后台启用 Identity 后再注册。";
+        return t("error_identity_missing");
       }
       if (lower.includes("password")) {
-        return "密码不符合 Netlify Identity 要求，请使用至少 8 位并包含更复杂组合的密码。";
+        return t("error_password");
       }
       if (lower.includes("network") || lower.includes("failed to fetch")) {
-        return "网络请求失败。请确认当前页面是 Netlify 部署地址，不是本地静态 server。";
+        return t("error_network");
       }
-      return text || "未知 AuthError。请检查 Netlify Identity 是否已启用，Registration 是否为 Open。";
+      return text || t("error_unknown");
     }
+
+    setStaticText();
 
     try {
       const settings = await getSettings();
       if (settings && settings.disableSignup) {
-        statusEl.textContent = "当前站点不允许公开注册。请在 Netlify Identity 设置里把 Registration 改为 Open。";
+        statusEl.textContent = t("signup_disabled");
       }
     } catch (error) {
-      statusEl.textContent = "无法读取注册设置：" + describeAuthError(error);
+      statusEl.textContent = t("settings_failed") + describeAuthError(error);
     }
 
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
-      statusEl.textContent = "正在注册并提交审核...";
+      statusEl.textContent = t("submitting");
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
       const guild = document.getElementById("guild").value.trim();
@@ -187,12 +267,12 @@
           body: JSON.stringify({ email, guild, gameName, emailVerified })
         });
         const data = await response.json().catch(() => ({}));
-        if (!response.ok) throw new Error(data.error || "提交审核失败");
+        if (!response.ok) throw new Error(data.error || t("request_failed"));
 
-        statusEl.textContent = "注册/申请已提交。请确认邮箱，然后等待管理员批准 VIP 权限。";
+        statusEl.textContent = t("success");
         form.reset();
       } catch (error) {
-        statusEl.textContent = "提交失败：" + describeAuthError(error);
+        statusEl.textContent = t("submit_failed") + describeAuthError(error);
       }
     });
   </script>

@@ -3,13 +3,15 @@ import { getUser, handleAuthCallback } from "https://esm.sh/@netlify/identity?bu
 export async function guardVipPage(options = {}) {
   const pageName = options.pageName || "该页面";
   const next = options.next || window.location.pathname.split("/").pop() || "index.html";
+  const access = options.access === "registered" ? "registered" : "vip";
+  const badgeText = access === "registered" ? "会员" : "VIP";
   const host = (window.location.hostname || "").toLowerCase();
   const isLocal = host === "localhost" || host === "127.0.0.1" || host === "::1";
   const pageTitle = document.getElementById("pageTitle");
   if (pageTitle && !pageTitle.querySelector(".vip-page-badge")) {
     const badge = document.createElement("span");
     badge.className = "vip-page-badge";
-    badge.textContent = "VIP";
+    badge.textContent = badgeText;
     pageTitle.appendChild(badge);
   }
 
@@ -75,7 +77,7 @@ export async function guardVipPage(options = {}) {
   card.className = "auth-card";
   card.setAttribute("aria-live", "polite");
   card.innerHTML = `
-    <h2 id="authTitle">正在检查 VIP 权限</h2>
+    <h2 id="authTitle">正在检查权限</h2>
     <p id="authMessage">请稍候...</p>
     <div class="auth-actions" id="authActions" style="display:none;">
       <a class="primary" href="Login.html?next=${encodeURIComponent(next)}">登录</a>
@@ -98,7 +100,7 @@ export async function guardVipPage(options = {}) {
   async function checkAccess() {
     document.body.classList.add("auth-checking");
     document.body.classList.remove("auth-blocked");
-    title.textContent = "正在检查 VIP 权限";
+    title.textContent = "正在检查权限";
     message.textContent = "请稍候...";
     actions.style.display = "none";
 
@@ -108,22 +110,30 @@ export async function guardVipPage(options = {}) {
       document.body.classList.remove("auth-checking");
       document.body.classList.add("auth-blocked");
       title.textContent = "需要登录";
-      message.textContent = `${pageName} 是 VIP 专属页面，请先登录或注册账号提交审核。`;
+      message.textContent = access === "registered"
+        ? `${pageName} 需要注册会员登录后使用，请先登录或注册账号。`
+        : `${pageName} 是 VIP 专属页面，请先登录或注册账号提交审核。`;
       actions.style.display = "flex";
       return false;
     }
 
     const response = await fetch("/api/me", { credentials: "include" });
     const data = await response.json().catch(() => ({}));
-    if (response.ok && data.canAccessPremium) {
+    const role = data && data.profile && data.profile.role ? data.profile.role : "";
+    const canAccess = access === "registered"
+      ? response.ok && role !== "blocked"
+      : response.ok && data.canAccessPremium;
+    if (canAccess) {
       document.body.classList.remove("auth-checking", "auth-blocked");
       return true;
     }
 
     document.body.classList.remove("auth-checking");
     document.body.classList.add("auth-blocked");
-    title.textContent = "VIP 权限未开启";
-    message.textContent = "你的账号已登录，但还没有 VIP 权限。请等待管理员审核，或联系管理员开通。";
+    title.textContent = access === "registered" ? "账号不可用" : "VIP 权限未开启";
+    message.textContent = access === "registered"
+      ? "你的账号当前不能访问会员页面，请联系管理员。"
+      : "你的账号已登录，但还没有 VIP 权限。请等待管理员审核，或联系管理员开通。";
     actions.style.display = "flex";
     return false;
   }

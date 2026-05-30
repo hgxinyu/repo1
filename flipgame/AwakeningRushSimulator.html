@@ -299,12 +299,93 @@
       gap: 8px;
       align-items: center;
     }
+    .tier-e {
+      background: #eff6ff;
+      border-color: #93c5fd;
+    }
+    .tier-e strong,
+    .tier-e .tier-values small {
+      color: #1d4ed8;
+    }
+    .tier-d {
+      background: #fefce8;
+      border-color: #fde047;
+    }
+    .tier-d strong,
+    .tier-d .tier-values small {
+      color: #a16207;
+    }
+    .tier-c {
+      background: #faf5ff;
+      border-color: #d8b4fe;
+    }
+    .tier-c strong,
+    .tier-c .tier-values small {
+      color: #7e22ce;
+    }
+    .tier-b {
+      background: #f0fdf4;
+      border-color: #86efac;
+    }
+    .tier-b strong,
+    .tier-b .tier-values small {
+      color: #15803d;
+    }
+    .tier-a {
+      background: #fef2f2;
+      border-color: #fca5a5;
+    }
+    .tier-a strong,
+    .tier-a .tier-values small {
+      color: #b91c1c;
+    }
+    .tier-s {
+      background: #fff7ed;
+      border-color: #fdba74;
+    }
+    .tier-s strong,
+    .tier-s .tier-values small {
+      color: #c2410c;
+    }
+    .tier-keep {
+      border-width: 2px;
+      box-shadow: inset 0 0 0 1px rgba(194, 65, 12, 0.12), 0 8px 18px rgba(194, 65, 12, 0.12);
+      position: relative;
+    }
+    .tier-keep::after {
+      content: "KEEP";
+      position: absolute;
+      right: 8px;
+      top: -8px;
+      padding: 1px 6px;
+      border-radius: 999px;
+      background: #111827;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0;
+      line-height: 1.5;
+    }
     .tier strong {
       font-size: 17px;
     }
-    .tier span {
+    .tier-values {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 1px;
+      min-width: 0;
+    }
+    .tier-values span {
       color: var(--muted);
       font-weight: 700;
+    }
+    .tier-values small {
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.2;
+      white-space: nowrap;
     }
     .formula {
       display: grid;
@@ -410,8 +491,9 @@
     }
     @media (max-width: 720px) {
       nav#topbar-nav {
-        right: 8px;
-        top: 8px;
+        position: static;
+        align-self: flex-end;
+        margin: 8px 8px 0 auto;
       }
       .wrap {
         margin: 6px auto 12px;
@@ -447,6 +529,7 @@
         align-items: stretch;
       }
       .col {
+        flex: 0 1 auto;
         width: 100%;
       }
       .hint {
@@ -484,6 +567,12 @@
       .tier {
         padding: 9px 10px;
         border-radius: 10px;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .tier-values {
+        align-items: flex-start;
       }
       .formula {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -544,6 +633,9 @@
       }
       .tier strong {
         font-size: 15px;
+      }
+      .tier-values small {
+        font-size: 11px;
       }
     }
   </style>
@@ -613,14 +705,8 @@
       </section>
 
       <section class="card" aria-labelledby="kept-title">
-        <h2 id="kept-title" class="muted" style="margin:0; font-size:15px;">保留资质分布</h2>
-        <div class="tier-grid">
-          <div class="tier"><strong>A-</strong><span id="countAm">0</span></div>
-          <div class="tier"><strong>A</strong><span id="countA">0</span></div>
-          <div class="tier"><strong>A+</strong><span id="countAp">0</span></div>
-          <div class="tier"><strong>S</strong><span id="countS">0</span></div>
-          <div class="tier"><strong>SS</strong><span id="countSs">0</span></div>
-          <div class="tier"><strong>SSS</strong><span id="countSss">0</span></div>
+        <h2 id="kept-title" class="muted" style="margin:0; font-size:15px;">资质分布</h2>
+        <div class="tier-grid" id="tierDistribution">
         </div>
       </section>
 
@@ -711,18 +797,13 @@
       const expectedPullsLabel = document.getElementById('expectedPullsLabel');
       const expectedPullsDesc = document.getElementById('expectedPullsDesc');
       const topbarNav = document.getElementById('topbar-nav');
+      const tierDistribution = document.getElementById('tierDistribution');
 
       const outputEls = {
         totalScore: document.getElementById('totalScore'),
         highCount: document.getElementById('highCount'),
         pulls: document.getElementById('pulls'),
         leftDiamonds: document.getElementById('leftDiamonds'),
-        countAm: document.getElementById('countAm'),
-        countA: document.getElementById('countA'),
-        countAp: document.getElementById('countAp'),
-        countS: document.getElementById('countS'),
-        countSs: document.getElementById('countSs'),
-        countSss: document.getElementById('countSss'),
         expectedScore: document.getElementById('expectedScore'),
         expectedHigh: document.getElementById('expectedHigh'),
         expectedPulls: document.getElementById('expectedPulls')
@@ -736,7 +817,7 @@
           page_title: '觉醒冲榜模拟器',
           page_desc: '每次觉醒先计分，B+ 及以下分解返钻，A- 及以上保留。',
           calc_title: '输入绑钻数量后模拟一次冲榜结果',
-          kept_title: '保留资质分布',
+          kept_title: '资质分布',
           expected_title: '理论期望对照',
           diamonds_label: '绑钻数量',
           diamonds_placeholder: '例如 50000',
@@ -768,7 +849,7 @@
           page_title: 'Awakening Rush Simulator',
           page_desc: 'Each awakening scores first. B+ and below are recycled. A- and above are kept.',
           calc_title: 'Enter bound diamonds and simulate one run',
-          kept_title: 'Kept Tier Split',
+          kept_title: 'Tier Distribution',
           expected_title: 'Expectation Check',
           diamonds_label: 'Bound Diamonds',
           diamonds_placeholder: 'e.g. 50000',
@@ -810,7 +891,13 @@
         document.documentElement.lang = currentLang === 'zh' ? 'zh-Hans' : 'en';
         if (topbarNav) topbarNav.setAttribute('aria-label', t('nav_label'));
         if (navHome) navHome.textContent = t('nav_home');
-        if (pageTitle) pageTitle.textContent = t('page_title');
+        if (pageTitle) {
+          pageTitle.textContent = t('page_title');
+          const badge = document.createElement('span');
+          badge.className = 'vip-page-badge';
+          badge.textContent = 'VIP';
+          pageTitle.appendChild(badge);
+        }
         if (pageDesc) pageDesc.textContent = t('page_desc');
         if (calculatorTitle) calculatorTitle.textContent = t('calc_title');
         if (keptTitle) keptTitle.textContent = t('kept_title');
@@ -860,6 +947,51 @@
         });
       }
 
+      function renderTierShell() {
+        if (!tierDistribution) return;
+        tierDistribution.innerHTML = '';
+        TIERS.forEach(function (tier) {
+          const item = document.createElement('div');
+          item.className = 'tier tier-' + tier.name.charAt(0).toLowerCase();
+          if (tier.keep) item.classList.add('tier-keep');
+          item.setAttribute('data-tier-name', tier.name);
+
+          const name = document.createElement('strong');
+          name.textContent = tier.name;
+
+          const values = document.createElement('span');
+          values.className = 'tier-values';
+
+          const count = document.createElement('span');
+          count.setAttribute('data-tier-count', '');
+          count.textContent = '0';
+
+          const rate = document.createElement('small');
+          rate.setAttribute('data-tier-rate', '');
+          rate.textContent = '0.00%';
+
+          values.appendChild(count);
+          values.appendChild(rate);
+          item.appendChild(name);
+          item.appendChild(values);
+          tierDistribution.appendChild(item);
+        });
+      }
+
+      function renderTierDistribution(result) {
+        if (!tierDistribution) return;
+        TIERS.forEach(function (tier) {
+          const item = tierDistribution.querySelector('[data-tier-name="' + tier.name + '"]');
+          if (!item) return;
+          const count = result.tierCounts[tier.name] || 0;
+          const rate = result.pulls > 0 ? (count / result.pulls) * 100 : 0;
+          const countEl = item.querySelector('[data-tier-count]');
+          const rateEl = item.querySelector('[data-tier-rate]');
+          if (countEl) countEl.textContent = formatInt(count);
+          if (rateEl) rateEl.textContent = formatDecimal(rate, 2) + '%';
+        });
+      }
+
       function drawTier() {
         const roll = Math.random();
         for (let i = 0; i < cumulativeTiers.length; i += 1) {
@@ -872,11 +1004,15 @@
         let diamonds = startDiamonds;
         let score = 0;
         let pulls = 0;
+        const tierCounts = Object.fromEntries(TIERS.map(function (tier) {
+          return [tier.name, 0];
+        }));
         const kept = { 'A-': 0, A: 0, 'A+': 0, S: 0, SS: 0, SSS: 0 };
         while (diamonds >= COST) {
           diamonds -= COST;
           pulls += 1;
           const tier = drawTier();
+          tierCounts[tier.name] += 1;
           score += tier.score;
           if (tier.keep) {
             kept[tier.name] += 1;
@@ -889,6 +1025,7 @@
           pulls,
           left: diamonds,
           kept,
+          tierCounts,
           highCount: kept['A-'] + kept.A + kept['A+'] + kept.S + kept.SS + kept.SSS
         };
       }
@@ -912,12 +1049,7 @@
         outputEls.highCount.textContent = formatInt(result.highCount);
         outputEls.pulls.textContent = formatInt(result.pulls);
         outputEls.leftDiamonds.textContent = formatInt(result.left);
-        outputEls.countAm.textContent = formatInt(result.kept['A-']);
-        outputEls.countA.textContent = formatInt(result.kept.A);
-        outputEls.countAp.textContent = formatInt(result.kept['A+']);
-        outputEls.countS.textContent = formatInt(result.kept.S);
-        outputEls.countSs.textContent = formatInt(result.kept.SS);
-        outputEls.countSss.textContent = formatInt(result.kept.SSS);
+        renderTierDistribution(result);
         updateExpectation(startDiamonds);
       }
 
@@ -939,6 +1071,7 @@
       }
 
       setStaticText();
+      renderTierShell();
       simulate();
     })();
   </script>

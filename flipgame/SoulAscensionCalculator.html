@@ -335,8 +335,9 @@
     }
     @media (max-width: 720px) {
       nav#topbar-nav {
-        right: 8px;
-        top: 8px;
+        position: static;
+        align-self: flex-end;
+        margin: 8px 8px 0 auto;
       }
     }
     @media (max-width: 480px) {
@@ -1410,7 +1411,7 @@
   </script>
   <script type="module">
     import { guardVipPage } from "./assets/vip-guard.js";
-    guardVipPage({ pageName: "凝魂升格 & 魂力计算", next: "SoulAscensionCalculator.html" });
+    guardVipPage({ pageName: "凝魂升格 & 魂力计算", next: "SoulAscensionCalculator.html", access: "registered" });
   </script>
 </body>
 </html>

@@ -245,6 +245,11 @@
       background: linear-gradient(135deg, #6366f1, #22c55e);
     }
     @media (max-width: 480px) {
+      nav#topbar-nav {
+        position: static;
+        align-self: flex-end;
+        margin: 8px 8px 0 auto;
+      }
       .logo-bottom-left {
         position: static;
         margin: 28px auto 16px;
@@ -615,7 +620,7 @@
   </script>
   <script type="module">
     import { guardVipPage } from "./assets/vip-guard.js";
-    guardVipPage({ pageName: "远征积分计算器", next: "ExpeditionCalculator.html" });
+    guardVipPage({ pageName: "远征积分计算器", next: "ExpeditionCalculator.html", access: "registered" });
   </script>
 </body>
 </html>

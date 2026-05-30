@@ -1,7 +1,7 @@
 # 远征积分计算器
 
 页面：`flipgame/ExpeditionCalculator.html`  
-访问权限：VIP 专属。页面加载时会调用 `/api/me` 检查当前登录账号是否具备 `vip` 或管理员权限。  
+访问权限：注册会员。页面加载时会调用 `/api/me` 检查当前登录账号，禁用账号不可访问。  
 页面数据：`flipgame/seboss_all.json`  
 原始数据：`flipgame/SE Boss New.xlsx`
 

@@ -82,21 +82,21 @@
 </head>
 <body>
   <main class="card">
-    <a class="toplink" href="index.html">回到主页</a>
-    <h1>登录</h1>
-    <p>登录后系统会检查你的 VIP 权限。</p>
+    <a class="toplink" id="homeLink" href="index.html">回到主页</a>
+    <h1 id="pageTitle">登录</h1>
+    <p id="pageDesc">登录后系统会检查你的权限。</p>
     <form id="loginForm">
-      <label>
+      <label id="emailLabel">
         Email
         <input id="email" type="email" autocomplete="email" required />
       </label>
-      <label>
+      <label id="passwordLabel">
         密码
         <input id="password" type="password" autocomplete="current-password" required />
       </label>
       <div class="actions">
-        <button class="primary" type="submit">登录</button>
-        <a class="button" href="Register.html">注册账号</a>
+        <button class="primary" id="submitBtn" type="submit">登录</button>
+        <a class="button" id="registerLink" href="Register.html">注册账号</a>
       </div>
     </form>
     <div class="status" id="status" role="status"></div>
@@ -108,6 +108,68 @@
     const form = document.getElementById("loginForm");
     const statusEl = document.getElementById("status");
     const next = new URLSearchParams(window.location.search).get("next") || "index.html";
+    const currentLang = (() => {
+      const saved = (localStorage.getItem("flipgame_lang") || "").toLowerCase();
+      if (saved === "zh" || saved === "en") return saved;
+      return (navigator.language || "").toLowerCase().startsWith("zh") ? "zh" : "en";
+    })();
+
+    const I18N = {
+      zh: {
+        title: "登录 · ShinE",
+        home: "回到主页",
+        page_title: "登录",
+        page_desc: "登录后系统会检查你的权限。",
+        email_label: "Email",
+        password_label: "密码",
+        submit: "登录",
+        register: "注册账号",
+        confirmed: "邮箱已确认，请登录。",
+        invite: "邀请已接收，请完成密码设置后登录。",
+        callback_failed: "登录回调处理失败：",
+        logging_in: "正在登录...",
+        login_failed: "登录失败：",
+        error_invalid: "邮箱或密码不正确，或邮箱还没有确认。",
+        error_identity_missing: "Netlify Identity 可能还没有启用。请先在 Netlify 后台启用 Identity。",
+        error_network: "网络请求失败。请确认当前页面是 Netlify 部署地址。",
+        error_unknown: "未知 AuthError。"
+      },
+      en: {
+        title: "Login · ShinE",
+        home: "Home",
+        page_title: "Login",
+        page_desc: "After login, the system will check your access.",
+        email_label: "Email",
+        password_label: "Password",
+        submit: "Login",
+        register: "Create account",
+        confirmed: "Email confirmed. Please log in.",
+        invite: "Invite accepted. Please finish setting your password, then log in.",
+        callback_failed: "Login callback failed: ",
+        logging_in: "Logging in...",
+        login_failed: "Login failed: ",
+        error_invalid: "Email or password is incorrect, or the email has not been confirmed.",
+        error_identity_missing: "Netlify Identity may not be enabled. Enable Identity in Netlify first.",
+        error_network: "Network request failed. Make sure you are using the Netlify deployed site.",
+        error_unknown: "Unknown AuthError."
+      }
+    };
+
+    function t(key) {
+      return (I18N[currentLang] && I18N[currentLang][key]) || I18N.zh[key] || "";
+    }
+
+    function setStaticText() {
+      document.documentElement.lang = currentLang === "zh" ? "zh-Hans" : "en";
+      document.title = t("title");
+      document.getElementById("homeLink").textContent = t("home");
+      document.getElementById("pageTitle").textContent = t("page_title");
+      document.getElementById("pageDesc").textContent = t("page_desc");
+      document.getElementById("emailLabel").firstChild.textContent = t("email_label");
+      document.getElementById("passwordLabel").firstChild.textContent = t("password_label");
+      document.getElementById("submitBtn").textContent = t("submit");
+      document.getElementById("registerLink").textContent = t("register");
+    }
 
     function describeAuthError(error) {
       const parts = [
@@ -120,34 +182,36 @@
       const status = error && error.status ? `HTTP ${error.status}` : "";
       const text = `${status} ${raw}`.trim();
       const lower = text.toLowerCase();
-      if (lower.includes("invalid") || lower.includes("401")) return "邮箱或密码不正确，或邮箱还没有确认。";
-      if (lower.includes("identity") || lower.includes("not found") || lower.includes("404")) return "Netlify Identity 可能还没有启用。请先在 Netlify 后台启用 Identity。";
-      if (lower.includes("network") || lower.includes("failed to fetch")) return "网络请求失败。请确认当前页面是 Netlify 部署地址。";
-      return text || "未知 AuthError。";
+      if (lower.includes("invalid") || lower.includes("401")) return t("error_invalid");
+      if (lower.includes("identity") || lower.includes("not found") || lower.includes("404")) return t("error_identity_missing");
+      if (lower.includes("network") || lower.includes("failed to fetch")) return t("error_network");
+      return text || t("error_unknown");
     }
+
+    setStaticText();
 
     try {
       const result = await handleAuthCallback();
       if (result && result.type === "confirmation") {
-        statusEl.textContent = "邮箱已确认，请登录。";
+        statusEl.textContent = t("confirmed");
       }
       if (result && result.type === "invite") {
-        statusEl.textContent = "邀请已接收，请完成密码设置后登录。";
+        statusEl.textContent = t("invite");
       }
     } catch (error) {
-      statusEl.textContent = "登录回调处理失败：" + describeAuthError(error);
+      statusEl.textContent = t("callback_failed") + describeAuthError(error);
     }
 
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
-      statusEl.textContent = "正在登录...";
+      statusEl.textContent = t("logging_in");
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
       try {
         await login(email, password);
         window.location.href = next;
       } catch (error) {
-        statusEl.textContent = "登录失败：" + describeAuthError(error);
+        statusEl.textContent = t("login_failed") + describeAuthError(error);
       }
     });
   </script>
