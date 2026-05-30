@@ -1026,13 +1026,15 @@
     async function updateAccountLinks() {
       await handleAuthCallback().catch(() => null);
       const user = await getUser().catch(() => null);
-      if (user && loginLink) loginLink.textContent = user.email || "已登录";
+      if (user && loginLink) loginLink.textContent = "已登录";
       if (user && registerLink) registerLink.style.display = "none";
-      if (!user || !adminLink) return;
+      if (!user) return;
 
       const response = await fetch("/api/me", { credentials: "include" });
       const data = await response.json().catch(() => ({}));
-      if (response.ok && data.isAdmin) {
+      const gameName = data && data.profile && data.profile.gameName ? data.profile.gameName : "";
+      if (loginLink) loginLink.textContent = gameName || user.email || "已登录";
+      if (response.ok && data.isAdmin && adminLink) {
         adminLink.style.display = "inline-flex";
       }
     }
