@@ -23,6 +23,14 @@ export function normalizeRole(role) {
   return ROLES.has(clean) ? clean : "pending";
 }
 
+export function getEmailVerified(user) {
+  if (!user || typeof user !== "object") return null;
+  if (typeof user.emailVerified === "boolean") return user.emailVerified;
+  if (typeof user.email_verified === "boolean") return user.email_verified;
+  if (user.user_metadata && typeof user.user_metadata.emailVerified === "boolean") return user.user_metadata.emailVerified;
+  return null;
+}
+
 export function getUserKey(email) {
   return `${USER_PREFIX}${encodeURIComponent(normalizeEmail(email))}.json`;
 }
@@ -85,6 +93,8 @@ export function publicProfile(profile) {
     gameName: profile.gameName || "",
     role: normalizeRole(profile.role),
     status: profile.status || statusForRole(profile.role),
+    emailVerified: typeof profile.emailVerified === "boolean" ? profile.emailVerified : null,
+    emailConfirmedAt: profile.emailConfirmedAt || "",
     createdAt: profile.createdAt || "",
     requestedAt: profile.requestedAt || "",
     updatedAt: profile.updatedAt || "",

@@ -15,6 +15,7 @@ export default async (req) => {
   const email = normalizeEmail(body.email);
   const guild = String(body.guild || "").trim();
   const gameName = String(body.gameName || "").trim();
+  const emailVerified = typeof body.emailVerified === "boolean" ? body.emailVerified : null;
 
   if (!email || !email.includes("@")) {
     return json({ error: "Valid email is required" }, { status: 400 });
@@ -30,6 +31,8 @@ export default async (req) => {
     email,
     guild,
     gameName,
+    emailVerified: emailVerified === null && existing ? existing.emailVerified : emailVerified,
+    emailConfirmedAt: emailVerified === true ? (existing && existing.emailConfirmedAt ? existing.emailConfirmedAt : now) : (existing && existing.emailConfirmedAt ? existing.emailConfirmedAt : ""),
     role: existing && existing.role ? existing.role : "pending",
     status: existing && existing.status ? existing.status : statusForRole("pending"),
     createdAt: existing && existing.createdAt ? existing.createdAt : now,

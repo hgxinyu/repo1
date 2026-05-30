@@ -1,4 +1,4 @@
-import { canAccessPremium, currentUser, isAdminEmail, json, normalizeEmail, publicProfile, readProfile } from "./_shared/access.mjs";
+import { canAccessPremium, currentUser, getEmailVerified, isAdminEmail, json, normalizeEmail, publicProfile, readProfile, writeProfile } from "./_shared/access.mjs";
 
 export default async () => {
   const user = await currentUser();
@@ -7,7 +7,15 @@ export default async () => {
     return json({ authenticated: false, canAccessPremium: false }, { status: 401 });
   }
 
-  const profile = await readProfile(email);
+  let profile = await readProfile(email);
+  const emailVerified = getEmailVerified(user);
+  if (profile && typeof emailVerified === "boolean" && profile.emailVerified !== emailVerified) {
+    profile = await writeProfile({
+      ...profile,
+      emailVerified,
+      emailConfirmedAt: emailVerified ? (profile.emailConfirmedAt || new Date().toISOString()) : profile.emailConfirmedAt || ""
+    });
+  }
   const isAdmin = isAdminEmail(email);
   return json({
     authenticated: true,
@@ -17,7 +25,8 @@ export default async () => {
     profile: publicProfile(profile) || {
       email,
       role: isAdmin ? "admin" : "free",
-      status: isAdmin ? "approved" : "pending"
+      status: isAdmin ? "approved" : "pending",
+      emailVerified
     }
   });
 };

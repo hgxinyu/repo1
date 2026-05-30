@@ -41,6 +41,12 @@ ADMIN_EMAILS=admin1@example.com,admin2@example.com
 - `GET /api/admin/users`：管理员读取申请列表。
 - `POST /api/admin/set-role`：管理员修改用户角色。
 
+后台用户列表会显示邮箱确认状态：
+
+- `已确认`：账号已完成邮箱确认。
+- `未确认`：注册时 Netlify Identity 返回未确认。
+- `未知`：旧资料或未能从 Identity 回调中读取确认状态。
+
 用户资料存储在 Netlify Blobs 的 `vip-users` store 中，key 格式：
 
 ```text

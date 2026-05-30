@@ -115,6 +115,7 @@
             <th>Email</th>
             <th>公会</th>
             <th>ID 名字</th>
+            <th>邮箱确认</th>
             <th>角色</th>
             <th>申请时间</th>
             <th>操作</th>
@@ -157,6 +158,7 @@
           <td data-label="Email">${user.email || ""}</td>
           <td data-label="公会">${user.guild || ""}</td>
           <td data-label="ID 名字">${user.gameName || ""}</td>
+          <td data-label="邮箱确认">${emailStatus(user)}</td>
           <td data-label="角色">${user.role || ""}</td>
           <td data-label="申请时间">${user.requestedAt || user.createdAt || ""}</td>
           <td data-label="操作">
@@ -172,6 +174,12 @@
         });
         rowsEl.appendChild(tr);
       }
+    }
+
+    function emailStatus(user) {
+      if (user.emailVerified === true) return "已确认";
+      if (user.emailVerified === false) return "未确认";
+      return "未知";
     }
 
     async function loadUsers() {

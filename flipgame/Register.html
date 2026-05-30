@@ -165,10 +165,12 @@
       const password = document.getElementById("password").value;
       const guild = document.getElementById("guild").value.trim();
       const gameName = document.getElementById("gameName").value.trim();
+      let emailVerified = null;
 
       try {
         try {
-          await signup(email, password, { guild, gameName });
+          const signupUser = await signup(email, password, { guild, gameName });
+          emailVerified = signupUser && typeof signupUser.emailVerified === "boolean" ? signupUser.emailVerified : null;
         } catch (error) {
           const rawMessage = [
             error && error.message,
@@ -182,7 +184,7 @@
         const response = await fetch("/api/vip-request", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, guild, gameName })
+          body: JSON.stringify({ email, guild, gameName, emailVerified })
         });
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || "提交审核失败");
