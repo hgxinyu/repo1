@@ -367,7 +367,7 @@
     }
   </style>
 </head>
-<body>
+<body class="auth-checking">
   <nav id="topbar-nav" aria-label="页面导航">
     <a href="index.html" id="navHome">回到主页</a>
   </nav>
@@ -1407,6 +1407,10 @@
           calcBestFeedPlan(0);
         });
     })();
+  </script>
+  <script type="module">
+    import { guardVipPage } from "./assets/vip-guard.js";
+    guardVipPage({ pageName: "凝魂升格 & 魂力计算器", next: "SoulAscensionCalculator.html" });
   </script>
 </body>
 </html>

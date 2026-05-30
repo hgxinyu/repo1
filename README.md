@@ -1,58 +1,58 @@
-# repo1
+# 放置工具集
 
-## 凝魂板块
+这是一个静态 HTML/CSS/JavaScript 工具站，主页面位于 `flipgame/`。项目没有构建步骤，部署时直接发布静态文件即可。
 
-### 计算次数约定
+## 本地启动
 
-后续关于凝魂次数，一律按下面规则回答：
+```bash
+cd flipgame && python3 -m http.server 8000
+```
 
-1. 总和公式与均值公式等价  
-- 总和写法：`次数 = ceil((目标总和 - 当前总和) / 每次总和增量)`  
-- 均值写法：`次数 = ceil((目标均值 - 当前均值) / 每次均值增量)`  
-- 两者等价原因：总和与均值只差一个 `÷3`，分子分母同时 `÷3` 后结果不变。
+然后打开：
 
-2. 当前总和与均值定义  
-- `当前总和 = x + y + 100*z`  
-- `当前均值 = (x + y + 100*z) / 3`
+```text
+http://localhost:8000/
+```
 
-3. 速度四舍五入误差处理  
-- 同时计算 `z` 与 `z+1` 两组结果。  
-- 输出次数范围：`minCount ~ maxCount`。  
-- 若上下限相同，只显示单个次数。
+不要用 `file://` 直接打开需要读取 CSV/JSON 的页面；浏览器会拦截 `fetch()`。
 
-4. SSS -> 9900（用户确认口径）  
-- 若以均值计算：`次数 = ceil((9900 - 当前均值) / 每次均值增量)`  
-- 若以总和计算：`次数 = ceil((29700 - 当前总和) / 每次总和增量)`  
-- 两种写法等价，优先按当页实现口径展示（总和或均值都可）。
+## 页面模块
 
-### 知识（CSV字段口径）
+- 首页：`flipgame/index.html`
+- 凝魂升格 & 魂力计算器（VIP）：`flipgame/SoulAscensionCalculator.html`
+- 远征积分计算器（VIP）：`flipgame/ExpeditionCalculator.html`
+- 攻略图片：`flipgame/GuideImages.html`
+- 九宫格翻牌：`flipgame/flipgame.html`
+- 核心计算器：`flipgame/CoreCalculator.html`
+- 星钻计算器：`flipgame/StarDiamondCalculator.html`
+- 觉醒冲榜模拟器（VIP）：`flipgame/AwakeningRushSimulator.html`
+- 登录：`flipgame/Login.html`
+- 注册：`flipgame/Register.html`
+- 管理后台：`flipgame/Admin.html`
+- PWA 安装帮助：`flipgame/AppBuildGuide.html`
 
-以下字段默认来自凝魂 CSV，并作为后续问答与实现的统一知识库：
+## 数据文件
 
-1. `凝魂进度`  
-- 含义：每次凝魂所需经验（每次消耗）。
+- 凝魂数据：`flipgame/soul_tiers.csv`
+- 远征积分数据：`flipgame/seboss_all.json`
+- 远征原始表：`flipgame/SE Boss New.xlsx`
+- 攻略图片：`flipgame/images/`
+- 图标与 PWA 资源：`flipgame/assets/`、`flipgame/site.webmanifest`、`flipgame/site.local.webmanifest`
 
-2. `凝魂强化`  
-- 含义：每次凝魂强化数值总额（总和口径）。  
-- 若换算为均值口径：`每次均值增量 = 凝魂强化 / 3`。
+## 文档
 
-3. `平均分值`  
-- 含义：该资质段三维均值下限（改资质区间起点）。
+- Agent 规则：`AGENTS.md`
+- 凝魂模块：`docs/soul-calculator.md`
+- 远征模块：`docs/expedition-calculator.md`
+- 觉醒冲榜模块：`docs/awakening-rush-simulator.md`
+- VIP 账号与权限：`docs/vip-access.md`
+- 攻略图片模块：`docs/guide-images.md`
+- PWA 与资源：`docs/pwa-and-assets.md`
+- 历史记录：`docs/history/progress.md`
 
-4. `魂点上限`  
-- 含义：该资质段魂力上限。
+## 维护原则
 
-5. 上资质段 `魂点上限`  
-- 含义：当前资质段魂力下限（即上一段上限）。
-
-6. `升格需求`
-- 含义：该资质段升格所需材料配方（用于升格成本计算与材料提示）。
-
-7. 魂力分配规则  
-- 在当前资质段内，魂力按三维数值（均值）线性增长分配。  
-- 典型形式：  
-  `当前魂力 = 当前段下限 + 区间比例 * (当前段上限 - 当前段下限)`  
-  其中 `区间比例 = (当前均值 - 当前段均值下限) / (当前段均值上限 - 当前段均值下限)`。
-
-8. `基础凝魂 + 奖励凝魂`  
-- 含义：吃该资质时提供的凝魂经验总量（用于喂料经验计算）。
+- 修改可见文案时，同步更新页面内 zh/en I18N 配置。
+- 修改 CSV/JSON 数据后，通过本地 server 刷新验证。
+- 不提交 `.DS_Store`、本地临时 Excel 等工作文件。
+- 页面目前是单文件模式；除非明确重构，否则优先沿用现有 HTML 内联 CSS/JS 风格。

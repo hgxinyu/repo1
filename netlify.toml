@@ -1,0 +1,26 @@
+[build]
+  publish = "flipgame"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+[[redirects]]
+  from = "/api/vip-request"
+  to = "/.netlify/functions/vip-request"
+  status = 200
+
+[[redirects]]
+  from = "/api/me"
+  to = "/.netlify/functions/me"
+  status = 200
+
+[[redirects]]
+  from = "/api/admin/users"
+  to = "/.netlify/functions/admin-users"
+  status = 200
+
+[[redirects]]
+  from = "/api/admin/set-role"
+  to = "/.netlify/functions/admin-set-role"
+  status = 200

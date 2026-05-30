@@ -1,0 +1,14 @@
+{
+  "name": "idle-tools",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check:functions": "node --check netlify/functions/*.mjs"
+  },
+  "dependencies": {
+    "@netlify/blobs": "latest",
+    "@netlify/functions": "latest",
+    "@netlify/identity": "latest"
+  },
+  "devDependencies": {}
+}

@@ -1,0 +1,211 @@
+﻿<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>管理后台 · ShinE</title>  <script>
+    (function () {
+      var host = (window.location.hostname || '').toLowerCase();
+      var isLocal = host === 'localhost' || host === '127.0.0.1' || host === '::1';
+      var svg = isLocal ? 'assets/local-logo.svg' : 'assets/shine-logo.svg';
+      var png32 = isLocal ? 'assets/local-logo-32.png' : 'assets/shine-logo-32.png';
+      var ico = isLocal ? 'assets/local-favicon.ico' : 'assets/favicon.ico';
+      document.write('<link rel="icon" type="image/svg+xml" href="' + svg + '">');
+      document.write('<link rel="icon" type="image/png" sizes="32x32" href="' + png32 + '">');
+      document.write('<link rel="shortcut icon" href="' + ico + '">');
+    })();
+  </script>
+  <style>
+    :root {
+      --border: #e5e7eb;
+      --ink: #111827;
+      --muted: #64748b;
+      --brand: #0f766e;
+      --bg: #f7faf8;
+      --shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Segoe UI", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+    }
+    body { padding: 22px; }
+    .wrap {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+      display: grid;
+      gap: 18px;
+    }
+    header, .card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: clamp(16px, 4vw, 24px);
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+    h1 { margin: 0; font-size: 28px; }
+    p { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
+    a, button, select {
+      border: 1px solid rgba(15, 118, 110, 0.34);
+      border-radius: 12px;
+      padding: 8px 12px;
+      background: #fff;
+      color: var(--brand);
+      font-size: 14px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    button.primary {
+      background: linear-gradient(135deg, #0f766e, #c2410c);
+      color: #fff;
+      border-color: transparent;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    th, td {
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      padding: 10px 8px;
+      vertical-align: top;
+    }
+    th { color: var(--muted); font-weight: 600; }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .status { min-height: 22px; color: var(--muted); font-size: 14px; }
+    @media (max-width: 780px) {
+      table, thead, tbody, tr, th, td { display: block; }
+      thead { display: none; }
+      tr { border-bottom: 1px solid var(--border); padding: 10px 0; }
+      td { border: 0; padding: 4px 0; }
+      td::before { content: attr(data-label) "："; color: var(--muted); }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>管理后台</h1>
+        <p>手动批准、取消或禁用 VIP 权限。</p>
+      </div>
+      <div class="actions">
+        <a href="index.html">回到主页</a>
+        <button id="refreshBtn" type="button">刷新</button>
+        <button id="logoutBtn" type="button">退出登录</button>
+      </div>
+    </header>
+    <section class="card">
+      <div class="status" id="status" role="status">正在检查管理员权限...</div>
+      <table aria-label="用户列表">
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>公会</th>
+            <th>ID 名字</th>
+            <th>角色</th>
+            <th>申请时间</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="userRows"></tbody>
+      </table>
+    </section>
+  </div>
+
+  <script type="module">
+    import { getUser, handleAuthCallback, logout } from "https://esm.sh/@netlify/identity?bundle";
+
+    const statusEl = document.getElementById("status");
+    const rowsEl = document.getElementById("userRows");
+    const refreshBtn = document.getElementById("refreshBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    await handleAuthCallback().catch(() => null);
+
+    async function api(path, options) {
+      const response = await fetch(path, {
+        credentials: "include",
+        ...(options || {}),
+        headers: {
+          "Content-Type": "application/json",
+          ...((options && options.headers) || {})
+        }
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || `HTTP ${response.status}`);
+      return data;
+    }
+
+    function render(users) {
+      rowsEl.innerHTML = "";
+      for (const user of users) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td data-label="Email">${user.email || ""}</td>
+          <td data-label="公会">${user.guild || ""}</td>
+          <td data-label="ID 名字">${user.gameName || ""}</td>
+          <td data-label="角色">${user.role || ""}</td>
+          <td data-label="申请时间">${user.requestedAt || user.createdAt || ""}</td>
+          <td data-label="操作">
+            <div class="actions">
+              <button data-role="vip" type="button">设为 VIP</button>
+              <button data-role="pending" type="button">待审核</button>
+              <button data-role="blocked" type="button">禁用</button>
+            </div>
+          </td>
+        `;
+        tr.querySelectorAll("button[data-role]").forEach((button) => {
+          button.addEventListener("click", () => setRole(user.email, button.dataset.role));
+        });
+        rowsEl.appendChild(tr);
+      }
+    }
+
+    async function loadUsers() {
+      statusEl.textContent = "正在加载用户...";
+      const currentUser = await getUser();
+      if (!currentUser) {
+        window.location.href = "Login.html?next=Admin.html";
+        return;
+      }
+      const data = await api("/api/admin/users");
+      render(data.users || []);
+      statusEl.textContent = `已加载 ${(data.users || []).length} 个申请账号。`;
+    }
+
+    async function setRole(email, role) {
+      statusEl.textContent = `正在更新 ${email}...`;
+      await api("/api/admin/set-role", {
+        method: "POST",
+        body: JSON.stringify({ email, role })
+      });
+      await loadUsers();
+    }
+
+    refreshBtn.addEventListener("click", () => loadUsers().catch((error) => {
+      statusEl.textContent = "加载失败：" + (error.message || error);
+    }));
+    logoutBtn.addEventListener("click", async () => {
+      await logout();
+      window.location.href = "Login.html?next=Admin.html";
+    });
+
+    loadUsers().catch((error) => {
+      statusEl.textContent = "没有权限或加载失败：" + (error.message || error);
+    });
+  </script>
+</body>
+</html>

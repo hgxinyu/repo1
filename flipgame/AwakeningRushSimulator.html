@@ -1,0 +1,888 @@
+﻿<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>觉醒冲榜模拟器 · ShinE</title>  <script>
+    (function () {
+      var host = (window.location.hostname || '').toLowerCase();
+      var isLocal = host === 'localhost' || host === '127.0.0.1' || host === '::1';
+      var svg = isLocal ? 'assets/local-logo.svg' : 'assets/shine-logo.svg';
+      var png32 = isLocal ? 'assets/local-logo-32.png' : 'assets/shine-logo-32.png';
+      var ico = isLocal ? 'assets/local-favicon.ico' : 'assets/favicon.ico';
+      var apple = isLocal ? 'assets/local-logo-180.png' : 'assets/shine-logo-180.png';
+      var manifest = isLocal ? 'site.local.webmanifest' : 'site.webmanifest';
+      var theme = isLocal ? '#fb7185' : '#6366f1';
+      document.write('<link rel="icon" type="image/svg+xml" href="' + svg + '">');
+      document.write('<link rel="icon" type="image/png" sizes="32x32" href="' + png32 + '">');
+      document.write('<link rel="shortcut icon" href="' + ico + '">');
+      document.write('<link rel="apple-touch-icon" sizes="180x180" href="' + apple + '">');
+      document.write('<link rel="manifest" href="' + manifest + '">');
+      document.write('<meta name="theme-color" content="' + theme + '">');
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gap: 12px;
+      --radius: 16px;
+      --shadow: 0 10px 22px rgba(15, 23, 42, 0.12);
+      --border: #e5e7eb;
+      --ink: #111827;
+      --muted: #64748b;
+      --brand: #0f766e;
+      --accent: #c2410c;
+      --surface: #ffffff;
+      --bg: #f7faf8;
+      --soft: #eef7f4;
+      --soft-2: #fff7ed;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    html, body {
+      position: relative;
+      margin: 0;
+      padding: 0;
+      background:
+        linear-gradient(135deg, rgba(15, 118, 110, 0.08), transparent 34%),
+        linear-gradient(315deg, rgba(194, 65, 12, 0.08), transparent 30%),
+        var(--bg);
+      color: var(--ink);
+      font-family: "Segoe UI", "Microsoft YaHei", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    nav#topbar-nav {
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      z-index: 100;
+      margin: 0;
+      width: auto;
+      display: inline-flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+      backdrop-filter: saturate(140%) blur(6px);
+    }
+    nav#topbar-nav a {
+      border: 1px solid transparent;
+      background: rgba(15, 118, 110, 0.09);
+      color: var(--brand);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 14px;
+      text-decoration: none;
+      transition: background 0.2s ease, box-shadow 0.2s ease;
+      white-space: nowrap;
+      text-align: center;
+    }
+    nav#topbar-nav a:hover {
+      background: rgba(15, 118, 110, 0.16);
+      box-shadow: 0 6px 18px rgba(15, 118, 110, 0.22);
+    }
+    nav#topbar-nav a:focus-visible {
+      outline: 2px solid var(--brand);
+      outline-offset: 2px;
+    }
+    .langbar {
+      position: absolute;
+      left: 12px;
+      top: 12px;
+      z-index: 120;
+      display: inline-flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid var(--border);
+      padding: 6px 8px;
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+      backdrop-filter: saturate(140%) blur(6px);
+    }
+    .wrap {
+      width: min(1040px, 100%);
+      margin: 12px auto 24px;
+      padding: clamp(20px, 4vw, 36px);
+      display: flex;
+      flex-direction: column;
+      gap: clamp(16px, 4vw, 24px);
+      flex: 1 0 auto;
+    }
+    .site-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      flex-wrap: wrap;
+      padding-top: 10px;
+    }
+    .title h1 {
+      margin: 0;
+      font-size: clamp(24px, 6vw, 34px);
+      letter-spacing: 0.03em;
+    }
+    .title p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .tools {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    main.main {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: clamp(16px, 4vw, 24px);
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: clamp(16px, 4vw, 24px);
+      box-shadow: var(--shadow);
+    }
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--gap);
+      align-items: flex-end;
+    }
+    .col {
+      flex: 1 1 240px;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    label {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    input[type="number"] {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 16px;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+      background: #fff;
+      color: var(--ink);
+      -moz-appearance: textfield;
+    }
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input[type="number"]:focus-visible {
+      outline: 2px solid rgba(15, 118, 110, 0.35);
+      outline-offset: 2px;
+    }
+    .btn {
+      border: 1px solid rgba(15, 118, 110, 0.34);
+      background: var(--surface);
+      padding: 10px 16px;
+      border-radius: 16px;
+      box-shadow: 0 6px 18px rgba(15, 118, 110, 0.16);
+      cursor: pointer;
+      font-size: 15px;
+      color: var(--brand);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      touch-action: manipulation;
+      white-space: nowrap;
+    }
+    .btn.primary {
+      background: linear-gradient(135deg, #0f766e, #c2410c);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 14px 28px rgba(15, 118, 110, 0.24);
+    }
+    .btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 28px rgba(15, 118, 110, 0.22);
+    }
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: default;
+      box-shadow: none;
+    }
+    .hint {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      min-height: 20px;
+    }
+    .out {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: var(--gap);
+      margin-top: clamp(14px, 3vw, 22px);
+    }
+    .box {
+      background: var(--soft);
+      border: 1px solid rgba(15, 118, 110, 0.12);
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-height: 112px;
+    }
+    .box.gold {
+      background: var(--soft-2);
+      border-color: rgba(194, 65, 12, 0.18);
+    }
+    .kv {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 15px;
+    }
+    .v {
+      font-weight: 800;
+      font-size: clamp(20px, 5vw, 28px);
+      line-height: 1.2;
+      color: var(--ink);
+      overflow-wrap: anywhere;
+      text-align: right;
+    }
+    .muted {
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .tier-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+      gap: var(--gap);
+      margin-top: var(--gap);
+    }
+    .tier {
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+    }
+    .tier strong {
+      font-size: 17px;
+    }
+    .tier span {
+      color: var(--muted);
+      font-weight: 700;
+    }
+    .formula {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: var(--gap);
+      margin-top: var(--gap);
+    }
+    .formula .box {
+      min-height: 92px;
+      background: #fff;
+    }
+    body.auth-checking .wrap,
+    body.auth-blocked .wrap {
+      display: none;
+    }
+    .auth-card {
+      width: min(520px, calc(100% - 32px));
+      margin: 104px auto 24px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: clamp(18px, 5vw, 28px);
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+    }
+    body.auth-checking .auth-card,
+    body.auth-blocked .auth-card {
+      display: flex;
+    }
+    .auth-card h2 {
+      margin: 0;
+      font-size: 22px;
+    }
+    .auth-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .auth-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 6px;
+    }
+    .auth-actions a,
+    .auth-actions button {
+      border: 1px solid rgba(15, 118, 110, 0.34);
+      background: #fff;
+      padding: 10px 16px;
+      border-radius: 14px;
+      color: var(--brand);
+      text-decoration: none;
+      font-size: 15px;
+      cursor: pointer;
+    }
+    .auth-actions a.primary {
+      background: linear-gradient(135deg, #0f766e, #c2410c);
+      color: #fff;
+      border-color: transparent;
+    }
+    .logo-bottom-left {
+      position: fixed;
+      left: 12px;
+      bottom: 12px;
+      z-index: 10;
+      font-size: 20px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      color: #111827;
+    }
+    .logo-bottom-left .logo-by {
+      font-weight: 700;
+      font-size: 20px;
+      line-height: 1;
+      font-family: 'Pacifico', cursive;
+    }
+    .logo-bottom-left .logo-cn,
+    .logo-bottom-left .logo-en {
+      font-size: 20px;
+      line-height: 1;
+    }
+    .logo-bottom-left .logo-cn {
+      font-weight: 700;
+      font-family: "Noto Serif SC", "Songti SC", "STSong", serif;
+    }
+    .logo-bottom-left .logo-en {
+      font-weight: 700;
+      font-family: 'Pacifico', cursive;
+    }
+    .logo-bottom-left .logo-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #0f766e, #c2410c);
+    }
+    @media (max-width: 720px) {
+      nav#topbar-nav {
+        right: 8px;
+        top: 8px;
+      }
+      .site-header {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .tools {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+      }
+      .row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .col {
+        width: 100%;
+      }
+      .logo-bottom-left {
+        position: static;
+        margin: 24px auto 0;
+        justify-content: center;
+      }
+    }
+    @media (max-width: 420px) {
+      html, body {
+        font-size: 15px;
+      }
+      nav#topbar-nav {
+        gap: 6px;
+        padding: 6px 10px;
+      }
+      nav#topbar-nav a {
+        font-size: 13px;
+        padding: 8px 12px;
+      }
+      .btn {
+        font-size: 14px;
+        padding: 10px 14px;
+      }
+      input[type="number"] {
+        font-size: 15px;
+        padding: 11px 12px;
+      }
+    }
+  </style>
+</head>
+<body class="auth-checking">
+  <nav id="topbar-nav" aria-label="页面导航">
+    <a href="index.html" id="navHome">回到主页</a>
+  </nav>
+
+  <div class="langbar" style="display:none;">
+    <button class="btn" id="langToggle" type="button">EN</button>
+  </div>
+
+  <section class="auth-card" id="authCard" aria-live="polite">
+    <h2 id="authTitle">正在检查 VIP 权限</h2>
+    <p id="authMessage">请稍候...</p>
+    <div class="auth-actions" id="authActions" style="display:none;">
+      <a class="primary" id="loginLink" href="Login.html?next=AwakeningRushSimulator.html">登录</a>
+      <a id="registerLink" href="Register.html">注册账号</a>
+      <button id="retryAuthBtn" type="button">重新检查</button>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <header class="site-header">
+      <div class="title">
+        <h1 id="pageTitle">觉醒冲榜模拟器</h1>
+        <p id="pageDesc">每次觉醒先计分，B+ 及以下分解返钻，A- 及以上保留。</p>
+      </div>
+      <div class="tools">
+        <button class="btn" id="clearBtn" type="button">清空</button>
+      </div>
+    </header>
+
+    <main class="main">
+      <section class="card" aria-labelledby="calculator-title">
+        <h2 id="calculator-title" class="muted" style="margin:0 0 12px; font-size:15px;">输入绑钻数量后模拟一次冲榜结果</h2>
+        <div class="row">
+          <div class="col">
+            <label for="diamonds" id="diamondsLabel">绑钻数量</label>
+            <input id="diamonds" type="number" inputmode="numeric" min="0" max="2000000" step="1" placeholder="例如 50000" value="50000" />
+          </div>
+          <div class="tools">
+            <button class="btn primary" id="simulateBtn" type="button">开始模拟</button>
+          </div>
+        </div>
+        <p class="hint" id="hintText">上限 2,000,000 绑钻；每次点击会重新随机模拟。</p>
+
+        <div class="out" aria-live="polite">
+          <div class="box gold">
+            <div class="kv"><span id="scoreLabel">总分</span><span class="v" id="totalScore">0</span></div>
+            <span class="muted" id="scoreDesc">本次随机模拟获得的冲榜积分</span>
+          </div>
+          <div class="box gold">
+            <div class="kv"><span id="highLabel">A-以上数量</span><span class="v" id="highCount">0</span></div>
+            <span class="muted" id="highDesc">最终保留的 A- / A / A+ / S 数量</span>
+          </div>
+          <div class="box">
+            <div class="kv"><span id="pullsLabel">觉醒次数</span><span class="v" id="pulls">0</span></div>
+            <span class="muted" id="pullsDesc">包含返钻后继续觉醒的次数</span>
+          </div>
+          <div class="box">
+            <div class="kv"><span id="leftLabel">剩余绑钻</span><span class="v" id="leftDiamonds">0</span></div>
+            <span class="muted" id="leftDesc">不足 100 时停止</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="kept-title">
+        <h2 id="kept-title" class="muted" style="margin:0; font-size:15px;">保留资质分布</h2>
+        <div class="tier-grid">
+          <div class="tier"><strong>A-</strong><span id="countAm">0</span></div>
+          <div class="tier"><strong>A</strong><span id="countA">0</span></div>
+          <div class="tier"><strong>A+</strong><span id="countAp">0</span></div>
+          <div class="tier"><strong>S</strong><span id="countS">0</span></div>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="expected-title">
+        <h2 id="expected-title" class="muted" style="margin:0; font-size:15px;">理论期望对照</h2>
+        <div class="formula">
+          <div class="box">
+            <div class="kv"><span id="expectedScoreLabel">期望总分</span><span class="v" id="expectedScore">0</span></div>
+            <span class="muted" id="expectedScoreDesc">按平均返钻 47.731 递推</span>
+          </div>
+          <div class="box">
+            <div class="kv"><span id="expectedHighLabel">期望A-以上</span><span class="v" id="expectedHigh">0</span></div>
+            <span class="muted" id="expectedHighDesc">A- 及以上概率合计 0.000255</span>
+          </div>
+          <div class="box">
+            <div class="kv"><span id="expectedPullsLabel">期望觉醒次数</span><span class="v" id="expectedPulls">0</span></div>
+            <span class="muted" id="expectedPullsDesc">初始绑钻 / 52.269</span>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="logo-bottom-left">
+    <span class="logo-dot"></span>
+    <span class="logo-by">By</span>
+    <span class="logo-cn">国风*</span>
+    <span class="logo-en">ShinE</span>
+  </div>
+
+  <script>
+    (function () {
+      const MAX_DIAMONDS = 2000000;
+      const COST = 100;
+      const EXPECTED_SCORE = 5.929615;
+      const EXPECTED_REFUND = 47.731;
+      const HIGH_PROBABILITY = 0.000255;
+      const TIERS = [
+        { name: 'E-', probability: 0.043, score: 3, refund: 10, keep: false },
+        { name: 'E', probability: 0.198, score: 4, refund: 15, keep: false },
+        { name: 'E+', probability: 0.288, score: 5, refund: 20, keep: false },
+        { name: 'D-', probability: 0.2, score: 6, refund: 30, keep: false },
+        { name: 'D', probability: 0.092, score: 7, refund: 50, keep: false },
+        { name: 'D+', probability: 0.048, score: 8, refund: 70, keep: false },
+        { name: 'C-', probability: 0.044, score: 9, refund: 100, keep: false },
+        { name: 'C', probability: 0.043, score: 10, refund: 150, keep: false },
+        { name: 'C+', probability: 0.0213, score: 11, refund: 200, keep: false },
+        { name: 'B-', probability: 0.0162, score: 12, refund: 300, keep: false },
+        { name: 'B', probability: 0.0055, score: 13, refund: 600, keep: false },
+        { name: 'B+', probability: 0.000745, score: 14, refund: 1800, keep: false },
+        { name: 'A-', probability: 0.00015, score: 15, refund: 0, keep: true },
+        { name: 'A', probability: 0.000065, score: 16, refund: 0, keep: true },
+        { name: 'A+', probability: 0.000025, score: 17, refund: 0, keep: true },
+        { name: 'S', probability: 0.000015, score: 18, refund: 0, keep: true }
+      ];
+      const cumulativeTiers = TIERS.reduce(function (acc, tier) {
+        const last = acc.length ? acc[acc.length - 1].limit : 0;
+        acc.push(Object.assign({ limit: last + tier.probability }, tier));
+        return acc;
+      }, []);
+
+      const langToggle = document.getElementById('langToggle');
+      const navHome = document.getElementById('navHome');
+      const pageTitle = document.getElementById('pageTitle');
+      const pageDesc = document.getElementById('pageDesc');
+      const calculatorTitle = document.getElementById('calculator-title');
+      const keptTitle = document.getElementById('kept-title');
+      const expectedTitle = document.getElementById('expected-title');
+      const diamondsLabel = document.getElementById('diamondsLabel');
+      const diamondsEl = document.getElementById('diamonds');
+      const simulateBtn = document.getElementById('simulateBtn');
+      const clearBtn = document.getElementById('clearBtn');
+      const hintText = document.getElementById('hintText');
+      const scoreLabel = document.getElementById('scoreLabel');
+      const scoreDesc = document.getElementById('scoreDesc');
+      const highLabel = document.getElementById('highLabel');
+      const highDesc = document.getElementById('highDesc');
+      const pullsLabel = document.getElementById('pullsLabel');
+      const pullsDesc = document.getElementById('pullsDesc');
+      const leftLabel = document.getElementById('leftLabel');
+      const leftDesc = document.getElementById('leftDesc');
+      const expectedScoreLabel = document.getElementById('expectedScoreLabel');
+      const expectedScoreDesc = document.getElementById('expectedScoreDesc');
+      const expectedHighLabel = document.getElementById('expectedHighLabel');
+      const expectedHighDesc = document.getElementById('expectedHighDesc');
+      const expectedPullsLabel = document.getElementById('expectedPullsLabel');
+      const expectedPullsDesc = document.getElementById('expectedPullsDesc');
+      const topbarNav = document.getElementById('topbar-nav');
+
+      const outputEls = {
+        totalScore: document.getElementById('totalScore'),
+        highCount: document.getElementById('highCount'),
+        pulls: document.getElementById('pulls'),
+        leftDiamonds: document.getElementById('leftDiamonds'),
+        countAm: document.getElementById('countAm'),
+        countA: document.getElementById('countA'),
+        countAp: document.getElementById('countAp'),
+        countS: document.getElementById('countS'),
+        expectedScore: document.getElementById('expectedScore'),
+        expectedHigh: document.getElementById('expectedHigh'),
+        expectedPulls: document.getElementById('expectedPulls')
+      };
+
+      const I18N = {
+        zh: {
+          title: '觉醒冲榜模拟器 · ShinE',
+          nav_label: '页面导航',
+          nav_home: '回到主页',
+          page_title: '觉醒冲榜模拟器',
+          page_desc: '每次觉醒先计分，B+ 及以下分解返钻，A- 及以上保留。',
+          calc_title: '输入绑钻数量后模拟一次冲榜结果',
+          kept_title: '保留资质分布',
+          expected_title: '理论期望对照',
+          diamonds_label: '绑钻数量',
+          diamonds_placeholder: '例如 50000',
+          simulate: '开始模拟',
+          clear: '清空',
+          hint: '上限 2,000,000 绑钻；每次点击会重新随机模拟。',
+          hint_over: '已按上限 2,000,000 绑钻计算。',
+          score_label: '总分',
+          score_desc: '本次随机模拟获得的冲榜积分',
+          high_label: 'A-以上数量',
+          high_desc: '最终保留的 A- / A / A+ / S 数量',
+          pulls_label: '觉醒次数',
+          pulls_desc: '包含返钻后继续觉醒的次数',
+          left_label: '剩余绑钻',
+          left_desc: '不足 100 时停止',
+          expected_score_label: '期望总分',
+          expected_score_desc: '按平均返钻 47.731 递推',
+          expected_high_label: '期望A-以上',
+          expected_high_desc: 'A- 及以上概率合计 0.000255',
+          expected_pulls_label: '期望觉醒次数',
+          expected_pulls_desc: '初始绑钻 / 52.269',
+          lang_toggle_en: 'EN',
+          lang_toggle_zh: '中文'
+        },
+        en: {
+          title: 'Awakening Rush Simulator · ShinE',
+          nav_label: 'Page Navigation',
+          nav_home: 'Home',
+          page_title: 'Awakening Rush Simulator',
+          page_desc: 'Each awakening scores first. B+ and below are recycled. A- and above are kept.',
+          calc_title: 'Enter bound diamonds and simulate one run',
+          kept_title: 'Kept Tier Split',
+          expected_title: 'Expectation Check',
+          diamonds_label: 'Bound Diamonds',
+          diamonds_placeholder: 'e.g. 50000',
+          simulate: 'Simulate',
+          clear: 'Clear',
+          hint: 'Limit: 2,000,000 bound diamonds. Click again for a new random run.',
+          hint_over: 'Calculated with the 2,000,000 bound diamond limit.',
+          score_label: 'Total Score',
+          score_desc: 'Score from this random run',
+          high_label: 'A-+ Count',
+          high_desc: 'Final kept A- / A / A+ / S copies',
+          pulls_label: 'Awakenings',
+          pulls_desc: 'Includes awakenings funded by recycled diamonds',
+          left_label: 'Leftover Diamonds',
+          left_desc: 'Stops below 100',
+          expected_score_label: 'Expected Score',
+          expected_score_desc: 'Uses average refund 47.731',
+          expected_high_label: 'Expected A-+',
+          expected_high_desc: 'A- and above probability is 0.000255',
+          expected_pulls_label: 'Expected Pulls',
+          expected_pulls_desc: 'Initial diamonds / 52.269',
+          lang_toggle_en: 'EN',
+          lang_toggle_zh: '中文'
+        }
+      };
+
+      let currentLang = (localStorage.getItem('flipgame_lang') || '').toLowerCase();
+      if (currentLang !== 'zh' && currentLang !== 'en') {
+        const navLang = (navigator.language || '').toLowerCase();
+        currentLang = navLang.startsWith('zh') ? 'zh' : 'en';
+      }
+
+      function t(key) {
+        return (I18N[currentLang] && I18N[currentLang][key]) || I18N.zh[key] || '';
+      }
+
+      function setStaticText() {
+        document.title = t('title');
+        document.documentElement.lang = currentLang === 'zh' ? 'zh-Hans' : 'en';
+        if (topbarNav) topbarNav.setAttribute('aria-label', t('nav_label'));
+        if (navHome) navHome.textContent = t('nav_home');
+        if (pageTitle) pageTitle.textContent = t('page_title');
+        if (pageDesc) pageDesc.textContent = t('page_desc');
+        if (calculatorTitle) calculatorTitle.textContent = t('calc_title');
+        if (keptTitle) keptTitle.textContent = t('kept_title');
+        if (expectedTitle) expectedTitle.textContent = t('expected_title');
+        if (diamondsLabel) diamondsLabel.textContent = t('diamonds_label');
+        if (diamondsEl) diamondsEl.setAttribute('placeholder', t('diamonds_placeholder'));
+        if (simulateBtn) simulateBtn.textContent = t('simulate');
+        if (clearBtn) clearBtn.textContent = t('clear');
+        if (hintText) hintText.textContent = t('hint');
+        if (scoreLabel) scoreLabel.textContent = t('score_label');
+        if (scoreDesc) scoreDesc.textContent = t('score_desc');
+        if (highLabel) highLabel.textContent = t('high_label');
+        if (highDesc) highDesc.textContent = t('high_desc');
+        if (pullsLabel) pullsLabel.textContent = t('pulls_label');
+        if (pullsDesc) pullsDesc.textContent = t('pulls_desc');
+        if (leftLabel) leftLabel.textContent = t('left_label');
+        if (leftDesc) leftDesc.textContent = t('left_desc');
+        if (expectedScoreLabel) expectedScoreLabel.textContent = t('expected_score_label');
+        if (expectedScoreDesc) expectedScoreDesc.textContent = t('expected_score_desc');
+        if (expectedHighLabel) expectedHighLabel.textContent = t('expected_high_label');
+        if (expectedHighDesc) expectedHighDesc.textContent = t('expected_high_desc');
+        if (expectedPullsLabel) expectedPullsLabel.textContent = t('expected_pulls_label');
+        if (expectedPullsDesc) expectedPullsDesc.textContent = t('expected_pulls_desc');
+        if (langToggle) langToggle.textContent = currentLang === 'zh' ? t('lang_toggle_en') : t('lang_toggle_zh');
+      }
+
+      function setLang(lang) {
+        currentLang = lang;
+        localStorage.setItem('flipgame_lang', lang);
+        setStaticText();
+      }
+
+      function toInputDiamonds() {
+        const parsed = Math.floor(Number(diamondsEl.value));
+        if (!Number.isFinite(parsed) || parsed < 0) return 0;
+        return Math.min(parsed, MAX_DIAMONDS);
+      }
+
+      function formatInt(value) {
+        return Math.round(value).toLocaleString(currentLang === 'zh' ? 'zh-CN' : 'en-US');
+      }
+
+      function formatDecimal(value, digits) {
+        return value.toLocaleString(currentLang === 'zh' ? 'zh-CN' : 'en-US', {
+          minimumFractionDigits: digits,
+          maximumFractionDigits: digits
+        });
+      }
+
+      function drawTier() {
+        const roll = Math.random();
+        for (let i = 0; i < cumulativeTiers.length; i += 1) {
+          if (roll < cumulativeTiers[i].limit) return cumulativeTiers[i];
+        }
+        return cumulativeTiers[cumulativeTiers.length - 1];
+      }
+
+      function runSimulation(startDiamonds) {
+        let diamonds = startDiamonds;
+        let score = 0;
+        let pulls = 0;
+        const kept = { 'A-': 0, A: 0, 'A+': 0, S: 0 };
+        while (diamonds >= COST) {
+          diamonds -= COST;
+          pulls += 1;
+          const tier = drawTier();
+          score += tier.score;
+          if (tier.keep) {
+            kept[tier.name] += 1;
+          } else {
+            diamonds += tier.refund;
+          }
+        }
+        return {
+          score,
+          pulls,
+          left: diamonds,
+          kept,
+          highCount: kept['A-'] + kept.A + kept['A+'] + kept.S
+        };
+      }
+
+      function updateExpectation(startDiamonds) {
+        const expectedPulls = startDiamonds / (COST - EXPECTED_REFUND);
+        outputEls.expectedPulls.textContent = formatDecimal(expectedPulls, 2);
+        outputEls.expectedScore.textContent = formatDecimal(expectedPulls * EXPECTED_SCORE, 2);
+        outputEls.expectedHigh.textContent = formatDecimal(expectedPulls * HIGH_PROBABILITY, 3);
+      }
+
+      function simulate() {
+        const raw = Math.floor(Number(diamondsEl.value));
+        const startDiamonds = toInputDiamonds();
+        if (String(startDiamonds) !== diamondsEl.value) {
+          diamondsEl.value = String(startDiamonds);
+        }
+        hintText.textContent = raw > MAX_DIAMONDS ? t('hint_over') : t('hint');
+        const result = runSimulation(startDiamonds);
+        outputEls.totalScore.textContent = formatInt(result.score);
+        outputEls.highCount.textContent = formatInt(result.highCount);
+        outputEls.pulls.textContent = formatInt(result.pulls);
+        outputEls.leftDiamonds.textContent = formatInt(result.left);
+        outputEls.countAm.textContent = formatInt(result.kept['A-']);
+        outputEls.countA.textContent = formatInt(result.kept.A);
+        outputEls.countAp.textContent = formatInt(result.kept['A+']);
+        outputEls.countS.textContent = formatInt(result.kept.S);
+        updateExpectation(startDiamonds);
+      }
+
+      simulateBtn.addEventListener('click', simulate);
+      diamondsEl.addEventListener('change', simulate);
+      diamondsEl.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') simulate();
+      });
+      clearBtn.addEventListener('click', function () {
+        diamondsEl.value = '0';
+        simulate();
+        diamondsEl.focus();
+      });
+      if (langToggle) {
+        langToggle.addEventListener('click', function () {
+          setLang(currentLang === 'zh' ? 'en' : 'zh');
+          simulate();
+        });
+      }
+
+      setStaticText();
+      simulate();
+    })();
+  </script>
+  <script type="module">
+    import { getUser, handleAuthCallback } from "https://esm.sh/@netlify/identity?bundle";
+
+    const authTitle = document.getElementById("authTitle");
+    const authMessage = document.getElementById("authMessage");
+    const authActions = document.getElementById("authActions");
+    const retryAuthBtn = document.getElementById("retryAuthBtn");
+
+    async function checkAccess() {
+      document.body.classList.add("auth-checking");
+      document.body.classList.remove("auth-blocked");
+      authTitle.textContent = "正在检查 VIP 权限";
+      authMessage.textContent = "请稍候...";
+      authActions.style.display = "none";
+
+      await handleAuthCallback().catch(() => null);
+      const user = await getUser().catch(() => null);
+      if (!user) {
+        document.body.classList.remove("auth-checking");
+        document.body.classList.add("auth-blocked");
+        authTitle.textContent = "需要登录";
+        authMessage.textContent = "觉醒冲榜模拟器是 VIP 专属页面，请先登录或注册账号提交审核。";
+        authActions.style.display = "flex";
+        return;
+      }
+
+      const response = await fetch("/api/me", { credentials: "include" });
+      const data = await response.json().catch(() => ({}));
+      if (response.ok && data.canAccessPremium) {
+        document.body.classList.remove("auth-checking", "auth-blocked");
+        return;
+      }
+
+      document.body.classList.remove("auth-checking");
+      document.body.classList.add("auth-blocked");
+      authTitle.textContent = "VIP 权限未开启";
+      authMessage.textContent = "你的账号已登录，但还没有 VIP 权限。请等待管理员审核，或联系管理员开通。";
+      authActions.style.display = "flex";
+    }
+
+    retryAuthBtn.addEventListener("click", () => {
+      checkAccess().catch((error) => {
+        document.body.classList.remove("auth-checking");
+        document.body.classList.add("auth-blocked");
+        authTitle.textContent = "权限检查失败";
+        authMessage.textContent = error.message || String(error);
+        authActions.style.display = "flex";
+      });
+    });
+
+    checkAccess().catch((error) => {
+      document.body.classList.remove("auth-checking");
+      document.body.classList.add("auth-blocked");
+      authTitle.textContent = "权限检查失败";
+      authMessage.textContent = error.message || String(error);
+      authActions.style.display = "flex";
+    });
+  </script>
+</body>
+</html>

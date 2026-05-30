@@ -449,6 +449,9 @@
 <body>
   <div class="langbar">
     <a class="lang-btn help-link" id="helpLink" href="AppBuildGuide.html">安装APP帮助</a>
+    <a class="lang-btn help-link" id="loginLink" href="Login.html">登录</a>
+    <a class="lang-btn help-link" id="registerLink" href="Register.html">注册</a>
+    <a class="lang-btn help-link" id="adminLink" href="Admin.html" style="display:none;">管理后台</a>
     <button class="lang-btn" id="langToggle" type="button">EN</button>
   </div>
   <div class="wrap">
@@ -470,17 +473,21 @@
         <span class="title" id="cardStarTitle">星钻计算器</span>
         <span class="subtitle" id="cardStarSub">按比例换算金额与赠送额度。</span>
       </a>
-      <a class="card-link" href="guideimages.html">
+      <a class="card-link" href="GuideImages.html">
         <span class="title" id="cardHiddenTitle">攻略图片</span>
         <span class="subtitle" id="cardHiddenSub">集中查看各类攻略图，持续更新。</span>
       </a>
       <a class="card-link" href="SoulAscensionCalculator.html">
         <span class="title" id="cardSoulTitle">凝魂升格 & 魂力计算器</span>
-        <span class="subtitle" id="cardSoulSub">检验属性区间并估算凝魂次数与魂力值。</span>
+        <span class="subtitle" id="cardSoulSub">VIP 专属，检验属性区间并估算凝魂次数与魂力值。</span>
       </a>
       <a class="card-link" href="ExpeditionCalculator.html">
         <span class="title" id="cardExpeditionTitle">远征积分计算器</span>
-        <span class="subtitle" id="cardExpeditionSub">按层数和剩余血量快速估算剩余积分（万亿）。</span>
+        <span class="subtitle" id="cardExpeditionSub">VIP 专属，按层数和剩余血量快速估算剩余积分（万亿）。</span>
+      </a>
+      <a class="card-link" href="AwakeningRushSimulator.html">
+        <span class="title" id="cardAwakeningTitle">觉醒冲榜模拟器</span>
+        <span class="subtitle" id="cardAwakeningSub">VIP 专属，按绑钻数量随机模拟冲榜分数与 A- 以上保留数量。</span>
       </a>
       <button class="card-link card-button" id="recruitCard" type="button">
         <span class="title" id="cardRecruitTitle">公会招募</span>
@@ -558,6 +565,9 @@
       const statusEl = document.getElementById('fbStatus');
       const langToggle = document.getElementById('langToggle');
       const helpLink = document.getElementById('helpLink');
+      const loginLink = document.getElementById('loginLink');
+      const registerLink = document.getElementById('registerLink');
+      const adminLink = document.getElementById('adminLink');
       const pageTitle = document.getElementById('pageTitle');
       const pageDesc = document.getElementById('pageDesc');
       const navGrid = document.getElementById('navGrid');
@@ -573,8 +583,8 @@
       const cardSoulSub = document.getElementById('cardSoulSub');
       const cardExpeditionTitle = document.getElementById('cardExpeditionTitle');
       const cardExpeditionSub = document.getElementById('cardExpeditionSub');
-      const cardPowerTitle = document.getElementById('cardPowerTitle');
-      const cardPowerSub = document.getElementById('cardPowerSub');
+      const cardAwakeningTitle = document.getElementById('cardAwakeningTitle');
+      const cardAwakeningSub = document.getElementById('cardAwakeningSub');
       const recruitCard = document.getElementById('recruitCard');
       const cardRecruitTitle = document.getElementById('cardRecruitTitle');
       const cardRecruitSub = document.getElementById('cardRecruitSub');
@@ -611,6 +621,9 @@
           page_title: '放置工具集',
           page_desc: '自用的放置类工具合集，涵盖九宫格翻牌、核心换算、星钻计算和凝魂升格等功能。',
           help_link: '安装APP帮助',
+          login_link: '登录',
+          register_link: '注册',
+          admin_link: '管理后台',
           nav_label: '工具导航',
           card_flip_title: '九宫格翻牌',
           card_flip_sub: '模拟翻牌流程，记录并计算最佳组合。',
@@ -621,11 +634,11 @@
           card_hidden_title: '攻略图片',
           card_hidden_sub: '集中查看各类攻略图，持续更新。',
           card_soul_title: '凝魂升格 & 魂力计算器',
-          card_soul_sub: '检验属性区间并估算凝魂次数与魂力值。',
+          card_soul_sub: 'VIP 专属，检验属性区间并估算凝魂次数与魂力值。',
           card_expedition_title: '远征积分计算器',
-          card_expedition_sub: '按层数和剩余血量快速估算剩余积分（万亿）。',
-          card_power_title: '魂力计算器',
-          card_power_sub: '根据三维均值和资质区间估算魂力值。',
+          card_expedition_sub: 'VIP 专属，按层数和剩余血量快速估算剩余积分（万亿）。',
+          card_awakening_title: '觉醒冲榜模拟器',
+          card_awakening_sub: 'VIP 专属，按绑钻数量随机模拟冲榜分数与 A- 以上保留数量。',
           card_recruit_title: '公会招募',
           card_recruit_sub: '欢迎加入 iOS 国风大家庭，点击填写招募信息。',
           feedback_toggle: '反馈建议',
@@ -665,6 +678,9 @@
           page_title: 'Idle Tools',
           page_desc: 'A personal collection of idle tools: flip game, core converter, star diamond, and soul perfection/soul merge.',
           help_link: 'PWA Guide',
+          login_link: 'Login',
+          register_link: 'Sign up',
+          admin_link: 'Admin',
           nav_label: 'Tool Navigation',
           card_flip_title: '3x3 Flip Cards',
           card_flip_sub: 'Simulate flips, track cards, and compute the best line.',
@@ -675,11 +691,11 @@
           card_hidden_title: 'Guide Images',
           card_hidden_sub: 'Browse strategy images in one place.',
           card_soul_title: 'Soul Perfection & Merge + Soul Power Calculator',
-          card_soul_sub: 'Check stat ranges and estimate soul perfection count and soul power.',
+          card_soul_sub: 'VIP only. Check stat ranges and estimate soul perfection count and soul power.',
           card_expedition_title: 'Start Expedition Score Calculator',
-          card_expedition_sub: 'Estimate remaining score by floor and remaining HP (trillion).',
-          card_power_title: 'Soul Power Calculator',
-          card_power_sub: 'Estimate soul power using average stats and tier ranges.',
+          card_expedition_sub: 'VIP only. Estimate remaining score by floor and remaining HP (trillion).',
+          card_awakening_title: 'Awakening Rush Simulator',
+          card_awakening_sub: 'VIP only. Simulate score and kept A-+ copies from bound diamonds.',
           card_recruit_title: 'Guild Recruitment',
           card_recruit_sub: 'Join the iOS Guofeng family. Click to submit your profile.',
           feedback_toggle: 'Feedback',
@@ -732,6 +748,9 @@
         if (pageTitle) pageTitle.textContent = t('page_title');
         if (pageDesc) pageDesc.textContent = t('page_desc');
         if (helpLink) helpLink.textContent = t('help_link');
+        if (loginLink) loginLink.textContent = t('login_link');
+        if (registerLink) registerLink.textContent = t('register_link');
+        if (adminLink) adminLink.textContent = t('admin_link');
         if (navGrid) navGrid.setAttribute('aria-label', t('nav_label'));
         if (cardFlipTitle) cardFlipTitle.textContent = t('card_flip_title');
         if (cardFlipSub) cardFlipSub.textContent = t('card_flip_sub');
@@ -745,8 +764,8 @@
         if (cardSoulSub) cardSoulSub.textContent = t('card_soul_sub');
         if (cardExpeditionTitle) cardExpeditionTitle.textContent = t('card_expedition_title');
         if (cardExpeditionSub) cardExpeditionSub.textContent = t('card_expedition_sub');
-        if (cardPowerTitle) cardPowerTitle.textContent = t('card_power_title');
-        if (cardPowerSub) cardPowerSub.textContent = t('card_power_sub');
+        if (cardAwakeningTitle) cardAwakeningTitle.textContent = t('card_awakening_title');
+        if (cardAwakeningSub) cardAwakeningSub.textContent = t('card_awakening_sub');
         if (cardRecruitTitle) cardRecruitTitle.textContent = t('card_recruit_title');
         if (cardRecruitSub) cardRecruitSub.textContent = t('card_recruit_sub');
         if (feedbackToggleText) feedbackToggleText.textContent = t('feedback_toggle');
@@ -977,6 +996,31 @@
 
       setStaticText();
     })();
+  </script>
+  <script type="module">
+    import { getUser, handleAuthCallback } from "https://esm.sh/@netlify/identity?bundle";
+
+    const adminLink = document.getElementById("adminLink");
+    const loginLink = document.getElementById("loginLink");
+    const registerLink = document.getElementById("registerLink");
+
+    async function updateAccountLinks() {
+      await handleAuthCallback().catch(() => null);
+      const user = await getUser().catch(() => null);
+      if (user && loginLink) loginLink.textContent = user.email || "已登录";
+      if (user && registerLink) registerLink.style.display = "none";
+      if (!user || !adminLink) return;
+
+      const response = await fetch("/api/me", { credentials: "include" });
+      const data = await response.json().catch(() => ({}));
+      if (response.ok && data.isAdmin) {
+        adminLink.style.display = "inline-flex";
+      }
+    }
+
+    updateAccountLinks().catch(() => {
+      if (adminLink) adminLink.style.display = "none";
+    });
   </script>
 </body>
 </html>

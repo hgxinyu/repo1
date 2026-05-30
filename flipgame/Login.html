@@ -1,0 +1,138 @@
+﻿<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>登录 · ShinE</title>  <script>
+    (function () {
+      var host = (window.location.hostname || '').toLowerCase();
+      var isLocal = host === 'localhost' || host === '127.0.0.1' || host === '::1';
+      var svg = isLocal ? 'assets/local-logo.svg' : 'assets/shine-logo.svg';
+      var png32 = isLocal ? 'assets/local-logo-32.png' : 'assets/shine-logo-32.png';
+      var ico = isLocal ? 'assets/local-favicon.ico' : 'assets/favicon.ico';
+      document.write('<link rel="icon" type="image/svg+xml" href="' + svg + '">');
+      document.write('<link rel="icon" type="image/png" sizes="32x32" href="' + png32 + '">');
+      document.write('<link rel="shortcut icon" href="' + ico + '">');
+    })();
+  </script>
+  <style>
+    :root {
+      --border: #e5e7eb;
+      --ink: #111827;
+      --muted: #64748b;
+      --brand: #0f766e;
+      --bg: #f7faf8;
+      --shadow: 0 14px 32px rgba(15, 23, 42, 0.12);
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Segoe UI", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+    }
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .card {
+      width: min(460px, 100%);
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: clamp(22px, 5vw, 32px);
+    }
+    h1 { margin: 0 0 6px; font-size: 28px; }
+    p { margin: 0 0 18px; color: var(--muted); font-size: 14px; }
+    form { display: grid; gap: 14px; }
+    label { display: grid; gap: 6px; color: var(--muted); font-size: 14px; }
+    input {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 16px;
+      color: var(--ink);
+    }
+    input:focus-visible { outline: 2px solid rgba(15, 118, 110, 0.35); outline-offset: 2px; }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 4px; }
+    button, a.button {
+      border: 1px solid rgba(15, 118, 110, 0.34);
+      border-radius: 14px;
+      padding: 10px 16px;
+      background: #fff;
+      color: var(--brand);
+      font-size: 15px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    button.primary {
+      background: linear-gradient(135deg, #0f766e, #c2410c);
+      color: #fff;
+      border-color: transparent;
+    }
+    .status { min-height: 22px; color: var(--muted); font-size: 14px; margin-top: 14px; }
+    .toplink { display: inline-block; margin-bottom: 18px; color: var(--brand); text-decoration: none; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <a class="toplink" href="index.html">回到主页</a>
+    <h1>登录</h1>
+    <p>登录后系统会检查你的 VIP 权限。</p>
+    <form id="loginForm">
+      <label>
+        Email
+        <input id="email" type="email" autocomplete="email" required />
+      </label>
+      <label>
+        密码
+        <input id="password" type="password" autocomplete="current-password" required />
+      </label>
+      <div class="actions">
+        <button class="primary" type="submit">登录</button>
+        <a class="button" href="Register.html">注册账号</a>
+      </div>
+    </form>
+    <div class="status" id="status" role="status"></div>
+  </main>
+
+  <script type="module">
+    import { handleAuthCallback, login } from "https://esm.sh/@netlify/identity?bundle";
+
+    const form = document.getElementById("loginForm");
+    const statusEl = document.getElementById("status");
+    const next = new URLSearchParams(window.location.search).get("next") || "index.html";
+
+    try {
+      const result = await handleAuthCallback();
+      if (result && result.type === "confirmation") {
+        statusEl.textContent = "邮箱已确认，请登录。";
+      }
+      if (result && result.type === "invite") {
+        statusEl.textContent = "邀请已接收，请完成密码设置后登录。";
+      }
+    } catch (error) {
+      statusEl.textContent = "登录回调处理失败：" + (error.message || error);
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      statusEl.textContent = "正在登录...";
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      try {
+        await login(email, password);
+        window.location.href = next;
+      } catch (error) {
+        statusEl.textContent = "登录失败：" + (error.message || error);
+      }
+    });
+  </script>
+</body>
+</html>
