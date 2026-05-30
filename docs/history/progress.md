@@ -62,3 +62,17 @@ TODO / notes:
 - Soul power calculator reads `凝魂.csv` and computes tier + soul power from x/y/z via average `(x + y + 100*z)/3`.
 - Tier determination uses CSV `平均分值` (minimum threshold) and interpolation uses previous/current `魂点上限`.
 - Added homepage card entry for Soul Power calculator with zh/en i18n text.
+
+## VIP access rollout
+
+- Added Netlify Identity-based login and signup pages: `flipgame/Login.html` and `flipgame/Register.html`.
+- Added manual approval admin page: `flipgame/Admin.html`.
+- Added Netlify Functions under `flipgame/netlify/functions/` for VIP requests, current-user permission checks, admin user listing, and role updates.
+- Added Netlify Blobs-backed `vip-users` profile storage.
+- Added `docs/vip-access.md` documenting roles, required `ADMIN_EMAILS`, API paths, and deployment limitations.
+- Added `flipgame/assets/vip-guard.js` for reusable VIP page gating.
+- Marked these pages as VIP-only: `SoulAscensionCalculator.html`, `ExpeditionCalculator.html`, and `AwakeningRushSimulator.html`.
+- Added `flipgame/AwakeningRushSimulator.html` with simulation rules documented in `docs/awakening-rush-simulator.md`.
+- Removed standalone `flipgame/SoulPowerCalculator.html`; soul power is now covered by `SoulAscensionCalculator.html`.
+- Moved root `progress.md` into `docs/history/progress.md`.
+- Netlify config is compatible with a Netlify site whose Base directory is `flipgame`: root `netlify.toml` uses `publish = "."`, while deploy dependencies and functions live under `flipgame/`.
