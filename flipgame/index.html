@@ -130,6 +130,10 @@
     .card-link span.title {
       font-size: clamp(18px, 5vw, 22px);
       font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
     }
     .card-link span.subtitle {
       color: var(--muted);
@@ -150,6 +154,21 @@
       text-align: left;
       cursor: pointer;
       font: inherit;
+    }
+    .vip-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(194, 65, 12, 0.28);
+      border-radius: 999px;
+      padding: 2px 8px;
+      background: #fff7ed;
+      color: #c2410c;
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.4;
+      letter-spacing: 0;
+      white-space: nowrap;
     }
     .logo-bottom-right {
       position: fixed;
@@ -478,15 +497,15 @@
         <span class="subtitle" id="cardHiddenSub">集中查看各类攻略图，持续更新。</span>
       </a>
       <a class="card-link" href="SoulAscensionCalculator.html">
-        <span class="title" id="cardSoulTitle">凝魂升格 & 魂力计算器</span>
+        <span class="title"><span id="cardSoulTitle">凝魂升格 & 魂力计算器</span><span class="vip-badge" data-vip-badge>VIP</span></span>
         <span class="subtitle" id="cardSoulSub">VIP 专属，检验属性区间并估算凝魂次数与魂力值。</span>
       </a>
       <a class="card-link" href="ExpeditionCalculator.html">
-        <span class="title" id="cardExpeditionTitle">远征积分计算器</span>
+        <span class="title"><span id="cardExpeditionTitle">远征积分计算器</span><span class="vip-badge" data-vip-badge>VIP</span></span>
         <span class="subtitle" id="cardExpeditionSub">VIP 专属，按层数和剩余血量快速估算剩余积分（万亿）。</span>
       </a>
       <a class="card-link" href="AwakeningRushSimulator.html">
-        <span class="title" id="cardAwakeningTitle">觉醒冲榜模拟器</span>
+        <span class="title"><span id="cardAwakeningTitle">觉醒冲榜模拟器</span><span class="vip-badge" data-vip-badge>VIP</span></span>
         <span class="subtitle" id="cardAwakeningSub">VIP 专属，按绑钻数量随机模拟冲榜分数与 A- 以上保留数量。</span>
       </a>
       <button class="card-link card-button" id="recruitCard" type="button">

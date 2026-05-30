@@ -3,9 +3,33 @@ import { getUser, handleAuthCallback } from "https://esm.sh/@netlify/identity?bu
 export async function guardVipPage(options = {}) {
   const pageName = options.pageName || "该页面";
   const next = options.next || window.location.pathname.split("/").pop() || "index.html";
+  const pageTitle = document.getElementById("pageTitle");
+  if (pageTitle && !pageTitle.querySelector(".vip-page-badge")) {
+    const badge = document.createElement("span");
+    badge.className = "vip-page-badge";
+    badge.textContent = "VIP";
+    pageTitle.appendChild(badge);
+  }
 
   const style = document.createElement("style");
   style.textContent = `
+    .vip-page-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      vertical-align: middle;
+      margin-left: 10px;
+      border: 1px solid rgba(194, 65, 12, 0.28);
+      border-radius: 999px;
+      padding: 3px 10px;
+      background: #fff7ed;
+      color: #c2410c;
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.4;
+      letter-spacing: 0;
+      white-space: nowrap;
+    }
     body.auth-checking .wrap,
     body.auth-blocked .wrap { display: none !important; }
     .auth-card {
