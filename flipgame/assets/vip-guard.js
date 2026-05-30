@@ -3,6 +3,8 @@ import { getUser, handleAuthCallback } from "https://esm.sh/@netlify/identity?bu
 export async function guardVipPage(options = {}) {
   const pageName = options.pageName || "该页面";
   const next = options.next || window.location.pathname.split("/").pop() || "index.html";
+  const host = (window.location.hostname || "").toLowerCase();
+  const isLocal = host === "localhost" || host === "127.0.0.1" || host === "::1";
   const pageTitle = document.getElementById("pageTitle");
   if (pageTitle && !pageTitle.querySelector(".vip-page-badge")) {
     const badge = document.createElement("span");
@@ -87,6 +89,11 @@ export async function guardVipPage(options = {}) {
   const message = card.querySelector("#authMessage");
   const actions = card.querySelector("#authActions");
   const retry = card.querySelector("#retryAuthBtn");
+
+  if (isLocal) {
+    document.body.classList.remove("auth-checking", "auth-blocked");
+    return true;
+  }
 
   async function checkAccess() {
     document.body.classList.add("auth-checking");

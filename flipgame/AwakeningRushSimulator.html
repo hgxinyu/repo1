@@ -413,9 +413,30 @@
         right: 8px;
         top: 8px;
       }
+      .wrap {
+        margin: 6px auto 12px;
+        padding: 18px 12px 20px;
+        gap: 12px;
+      }
       .site-header {
         flex-direction: column;
         align-items: stretch;
+        gap: 10px;
+        padding-top: 4px;
+      }
+      .title h1 {
+        font-size: 24px;
+      }
+      .title p {
+        font-size: 13px;
+        line-height: 1.45;
+      }
+      main.main {
+        gap: 12px;
+      }
+      .card {
+        padding: 14px;
+        border-radius: 14px;
       }
       .tools {
         justify-content: flex-start;
@@ -428,9 +449,56 @@
       .col {
         width: 100%;
       }
+      .hint {
+        margin-top: 8px;
+        min-height: 0;
+        line-height: 1.4;
+      }
+      .out {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+        margin-top: 10px;
+      }
+      .box {
+        min-height: 82px;
+        padding: 10px;
+        border-radius: 12px;
+      }
+      .kv {
+        flex-direction: column;
+        gap: 4px;
+      }
+      .v {
+        text-align: left;
+        font-size: 22px;
+      }
+      .muted {
+        font-size: 12px;
+        line-height: 1.35;
+      }
+      .tier-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+        margin-top: 8px;
+      }
+      .tier {
+        padding: 9px 10px;
+        border-radius: 10px;
+      }
+      .formula {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+        margin-top: 8px;
+      }
+      .formula .box {
+        min-height: 76px;
+      }
+      .formula .box:first-child {
+        grid-column: 1 / -1;
+      }
       .logo-bottom-left {
         position: static;
-        margin: 24px auto 0;
+        margin: 12px auto 0;
         justify-content: center;
       }
     }
@@ -453,6 +521,29 @@
       input[type="number"] {
         font-size: 15px;
         padding: 11px 12px;
+      }
+      .card {
+        padding: 12px;
+      }
+      .out,
+      .formula {
+        gap: 7px;
+      }
+      .box {
+        min-height: 76px;
+        padding: 9px;
+      }
+      .box .muted {
+        display: none;
+      }
+      .tier-grid {
+        gap: 7px;
+      }
+      .tier {
+        padding: 8px;
+      }
+      .tier strong {
+        font-size: 15px;
       }
     }
   </style>
@@ -508,7 +599,7 @@
           </div>
           <div class="box gold">
             <div class="kv"><span id="highLabel">A-以上数量</span><span class="v" id="highCount">0</span></div>
-            <span class="muted" id="highDesc">最终保留的 A- / A / A+ / S 数量</span>
+            <span class="muted" id="highDesc">最终保留的 A- / A / A+ / S / SS / SSS 数量</span>
           </div>
           <div class="box">
             <div class="kv"><span id="pullsLabel">觉醒次数</span><span class="v" id="pulls">0</span></div>
@@ -528,6 +619,8 @@
           <div class="tier"><strong>A</strong><span id="countA">0</span></div>
           <div class="tier"><strong>A+</strong><span id="countAp">0</span></div>
           <div class="tier"><strong>S</strong><span id="countS">0</span></div>
+          <div class="tier"><strong>SS</strong><span id="countSs">0</span></div>
+          <div class="tier"><strong>SSS</strong><span id="countSss">0</span></div>
         </div>
       </section>
 
@@ -562,7 +655,7 @@
     (function () {
       const MAX_DIAMONDS = 2000000;
       const COST = 100;
-      const EXPECTED_SCORE = 5.929615;
+      const EXPECTED_SCORE = 5.92963;
       const EXPECTED_REFUND = 47.731;
       const HIGH_PROBABILITY = 0.000255;
       const TIERS = [
@@ -581,7 +674,9 @@
         { name: 'A-', probability: 0.00015, score: 15, refund: 0, keep: true },
         { name: 'A', probability: 0.000065, score: 16, refund: 0, keep: true },
         { name: 'A+', probability: 0.000025, score: 17, refund: 0, keep: true },
-        { name: 'S', probability: 0.000015, score: 18, refund: 0, keep: true }
+        { name: 'S', probability: 0.000005, score: 18, refund: 0, keep: true },
+        { name: 'SS', probability: 0.000005, score: 19, refund: 0, keep: true },
+        { name: 'SSS', probability: 0.000005, score: 20, refund: 0, keep: true }
       ];
       const cumulativeTiers = TIERS.reduce(function (acc, tier) {
         const last = acc.length ? acc[acc.length - 1].limit : 0;
@@ -626,6 +721,8 @@
         countA: document.getElementById('countA'),
         countAp: document.getElementById('countAp'),
         countS: document.getElementById('countS'),
+        countSs: document.getElementById('countSs'),
+        countSss: document.getElementById('countSss'),
         expectedScore: document.getElementById('expectedScore'),
         expectedHigh: document.getElementById('expectedHigh'),
         expectedPulls: document.getElementById('expectedPulls')
@@ -650,7 +747,7 @@
           score_label: '总分',
           score_desc: '本次随机模拟获得的冲榜积分',
           high_label: 'A-以上数量',
-          high_desc: '最终保留的 A- / A / A+ / S 数量',
+          high_desc: '最终保留的 A- / A / A+ / S / SS / SSS 数量',
           pulls_label: '觉醒次数',
           pulls_desc: '包含返钻后继续觉醒的次数',
           left_label: '剩余绑钻',
@@ -682,7 +779,7 @@
           score_label: 'Total Score',
           score_desc: 'Score from this random run',
           high_label: 'A-+ Count',
-          high_desc: 'Final kept A- / A / A+ / S copies',
+          high_desc: 'Final kept A- / A / A+ / S / SS / SSS copies',
           pulls_label: 'Awakenings',
           pulls_desc: 'Includes awakenings funded by recycled diamonds',
           left_label: 'Leftover Diamonds',
@@ -775,7 +872,7 @@
         let diamonds = startDiamonds;
         let score = 0;
         let pulls = 0;
-        const kept = { 'A-': 0, A: 0, 'A+': 0, S: 0 };
+        const kept = { 'A-': 0, A: 0, 'A+': 0, S: 0, SS: 0, SSS: 0 };
         while (diamonds >= COST) {
           diamonds -= COST;
           pulls += 1;
@@ -792,7 +889,7 @@
           pulls,
           left: diamonds,
           kept,
-          highCount: kept['A-'] + kept.A + kept['A+'] + kept.S
+          highCount: kept['A-'] + kept.A + kept['A+'] + kept.S + kept.SS + kept.SSS
         };
       }
 
@@ -819,6 +916,8 @@
         outputEls.countA.textContent = formatInt(result.kept.A);
         outputEls.countAp.textContent = formatInt(result.kept['A+']);
         outputEls.countS.textContent = formatInt(result.kept.S);
+        outputEls.countSs.textContent = formatInt(result.kept.SS);
+        outputEls.countSss.textContent = formatInt(result.kept.SSS);
         updateExpectation(startDiamonds);
       }
 
@@ -850,8 +949,14 @@
     const authMessage = document.getElementById("authMessage");
     const authActions = document.getElementById("authActions");
     const retryAuthBtn = document.getElementById("retryAuthBtn");
+    const host = (window.location.hostname || "").toLowerCase();
+    const isLocal = host === "localhost" || host === "127.0.0.1" || host === "::1";
 
     async function checkAccess() {
+      if (isLocal) {
+        document.body.classList.remove("auth-checking", "auth-blocked");
+        return;
+      }
       document.body.classList.add("auth-checking");
       document.body.classList.remove("auth-blocked");
       authTitle.textContent = "正在检查 VIP 权限";
