@@ -1,6 +1,6 @@
 # AGENTS.md
 
-This repository is a static tool site under `flipgame/`. Follow these rules when making changes as an agent.
+This repository contains a static tool site under `flipgame/` and an Idle Heroes knowledge base under `IHassistant/`. Follow these rules when making changes as an agent.
 
 ## Local Server
 
@@ -20,6 +20,8 @@ Open `http://localhost:8000/`. Do not validate `fetch()` pages through `file://`
 - Shared data is stored as CSV/JSON next to the pages that load it.
 - The site supports zh/en text through per-page I18N objects.
 - Local and production app icons are selected by hostname in each page header.
+- `IHassistant/` is the Idle Heroes knowledge base. It stores game mechanics, heroes, artifacts, soulstones, monsters, bosses, modes, lineups, screenshots, and source notes.
+- `IHassistant/` is not automatically public site content. Do not copy knowledge files into `flipgame/` unless the user explicitly asks to expose them through a public or VIP page.
 
 ## Editing Rules
 
@@ -27,6 +29,9 @@ Open `http://localhost:8000/`. Do not validate `fetch()` pages through `file://`
 - When changing visible text, update both Chinese and English I18N entries when present.
 - When changing calculator rules, update the matching document under `docs/`.
 - When changing VIP, login, admin, or permission behavior, update `docs/vip-access.md`.
+- When adding or changing Idle Heroes game knowledge, update files under `IHassistant/knowledge/` and follow `IHassistant/AGENTS.md`.
+- Keep facts, inferences, and unverified claims separate in knowledge files. Mark uncertain game conclusions as `待确认`.
+- When future VIP knowledge-base pages are added, keep permission behavior documented in both `docs/vip-access.md` and `docs/ihassistant.md`.
 - Do not commit `.DS_Store`, local spreadsheet working files, screenshots, or temporary generated files.
 - Be careful with the user's dirty worktree. Do not revert unrelated user edits.
 
@@ -41,7 +46,18 @@ Open `http://localhost:8000/`. Do not validate `fetch()` pages through `file://`
 - Soul calculator data source: `flipgame/soul_tiers.csv`.
 - Expedition calculator data source: `flipgame/seboss_all.json`.
 - Guide images live under `flipgame/images/`.
+- Knowledge base images and source screenshots live under `IHassistant/knowledge/`.
 - If data is regenerated from Excel, keep final browser data in CSV/JSON and document the source file.
+
+## IHassistant Rules
+
+- Knowledge base entrypoint: `IHassistant/README.md`.
+- Detailed knowledge index: `IHassistant/knowledge/README.md`.
+- Agent-specific game rules: `IHassistant/AGENTS.md`.
+- Prefer adding new source material to the most specific subfolder under `IHassistant/knowledge/`.
+- Do not invent game mechanics or lineup conclusions. If source material is incomplete, record the gap instead of filling it by assumption.
+- PVP and PVE conclusions must be recorded separately.
+- Star expedition imprints only apply to star expedition / expedition boss contexts unless explicitly documented otherwise.
 
 ## Important Knowledge
 

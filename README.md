@@ -1,6 +1,10 @@
 # 放置工具集
 
-这是一个静态 HTML/CSS/JavaScript 工具站，主页面位于 `flipgame/`。项目没有构建步骤，部署时直接发布静态文件即可。
+这是一个放置奇兵工具与知识库项目。公开工具站位于 `flipgame/`，放置奇兵知识库位于 `IHassistant/`。
+
+`flipgame/` 是静态 HTML/CSS/JavaScript 工具站。项目没有传统构建步骤，部署时直接发布静态文件即可。
+
+`IHassistant/` 用来沉淀游戏机制、英雄、神器、水晶、魔兽、Boss、星魂、远征星印、印痕灌注和阵容资料。它当前作为内部知识库维护，未来可接入 VIP 页面，向有权限账号提供知识库访问。
 
 ## 本地启动
 
@@ -31,6 +35,19 @@ http://localhost:8000/
 - 管理后台：`flipgame/Admin.html`
 - PWA 安装帮助：`flipgame/AppBuildGuide.html`
 
+## 知识库模块
+
+- 知识库入口：`IHassistant/README.md`
+- Agent 规则：`IHassistant/AGENTS.md`
+- 知识目录：`IHassistant/knowledge/`
+- 通用机制：`IHassistant/knowledge/mechanics/`
+- 英雄资料：`IHassistant/knowledge/heroes/`
+- 神器资料：`IHassistant/knowledge/artifacts/`
+- 水晶资料：`IHassistant/knowledge/soulstone/`
+- 魔兽资料：`IHassistant/knowledge/monster/`
+- Boss 资料：`IHassistant/knowledge/bosses/`
+- 场景与阵容：`IHassistant/knowledge/modes/`、`IHassistant/knowledge/lineups/`
+
 ## 数据文件
 
 - 凝魂数据：`flipgame/soul_tiers.csv`
@@ -38,10 +55,12 @@ http://localhost:8000/
 - 远征原始表：`flipgame/SE Boss New.xlsx`
 - 攻略图片：`flipgame/images/`
 - 图标与 PWA 资源：`flipgame/assets/`、`flipgame/site.webmanifest`、`flipgame/site.local.webmanifest`
+- 知识库截图与资料：`IHassistant/knowledge/`
 
 ## 文档
 
 - Agent 规则：`AGENTS.md`
+- 知识库模块：`docs/ihassistant.md`
 - 凝魂模块：`docs/soul-calculator.md`
 - 远征模块：`docs/expedition-calculator.md`
 - 觉醒冲榜模块：`docs/awakening-rush-simulator.md`
@@ -54,5 +73,7 @@ http://localhost:8000/
 
 - 修改可见文案时，同步更新页面内 zh/en I18N 配置。
 - 修改 CSV/JSON 数据后，通过本地 server 刷新验证。
+- 新增游戏知识时，优先放入 `IHassistant/knowledge/`，并保持事实、推论、待确认分离。
+- 不要把 `IHassistant/` 的资料直接暴露到 `flipgame/`，除非明确要做成公开或 VIP 页面。
 - 不提交 `.DS_Store`、本地临时 Excel 等工作文件。
 - 页面目前是单文件模式；除非明确重构，否则优先沿用现有 HTML 内联 CSS/JS 风格。
