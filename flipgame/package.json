@@ -3,6 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build:ih-knowledge-index": "node ../scripts/build-ih-knowledge-index.mjs",
+    "check:knowledge-index": "node --check netlify/functions/_shared/ih-knowledge-index.mjs",
     "check:functions": "node --check netlify/functions/*.mjs"
   },
   "dependencies": {

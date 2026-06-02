@@ -35,6 +35,8 @@ For now, `IHassistant/` is a repository knowledge source, not a public website s
 
 Future VIP access should expose selected knowledge through pages under `flipgame/`, guarded by the same account-permission system used by VIP tools. Do not directly publish the whole `IHassistant/knowledge/` tree unless that is intentional.
 
+The current VIP-only AI Q&A page (`flipgame/AIAsk.html`) can use selected Markdown/text content from `IHassistant/knowledge/`. The content is generated into the private Netlify Function module `flipgame/netlify/functions/_shared/ih-knowledge-index.mjs`, then filtered by question before being sent to the AI provider. Do not expose the raw knowledge directory as public static content unless that is intentional.
+
 Recommended future flow:
 
 1. Keep raw knowledge and screenshots in `IHassistant/knowledge/`.

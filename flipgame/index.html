@@ -530,6 +530,10 @@
         <span class="title" id="cardHiddenTitle">攻略图片</span>
         <span class="subtitle" id="cardHiddenSub">集中查看各类攻略图，持续更新。</span>
       </a>
+      <button class="card-link card-button" id="recruitCard" type="button">
+        <span class="title" id="cardRecruitTitle">公会招募</span>
+        <span class="subtitle" id="cardRecruitSub">欢迎加入 iOS 国风大家庭，点击填写招募信息。</span>
+      </button>
       <a class="card-link" href="SoulAscensionCalculator.html">
         <span class="title"><span id="cardSoulTitle">凝魂升格 & 魂力计算</span><span class="vip-badge member-badge" data-member-badge>会员</span></span>
         <span class="subtitle" id="cardSoulSub">注册会员可用，检验属性区间并估算凝魂次数与魂力值。</span>
@@ -542,10 +546,10 @@
         <span class="title"><span id="cardAwakeningTitle">觉醒冲榜模拟器</span><span class="vip-badge" data-vip-badge>VIP</span></span>
         <span class="subtitle" id="cardAwakeningSub">VIP 专属，按绑钻数量随机模拟冲榜分数与 A- 以上保留数量。</span>
       </a>
-      <button class="card-link card-button" id="recruitCard" type="button">
-        <span class="title" id="cardRecruitTitle">公会招募</span>
-        <span class="subtitle" id="cardRecruitSub">欢迎加入 iOS 国风大家庭，点击填写招募信息。</span>
-      </button>
+      <a class="card-link" href="AIAsk.html">
+        <span class="title"><span id="cardAiTitle">AI 问答助手</span><span class="vip-badge" data-vip-badge>VIP</span></span>
+        <span class="subtitle" id="cardAiSub">VIP 专属，基于公开工具文档回答凝魂、远征和权限问题。</span>
+      </a>
     </nav>
   </div>
 
@@ -634,6 +638,8 @@
       const cardStarSub = document.getElementById('cardStarSub');
       const cardHiddenTitle = document.getElementById('cardHiddenTitle');
       const cardHiddenSub = document.getElementById('cardHiddenSub');
+      const cardAiTitle = document.getElementById('cardAiTitle');
+      const cardAiSub = document.getElementById('cardAiSub');
       const cardSoulTitle = document.getElementById('cardSoulTitle');
       const cardSoulSub = document.getElementById('cardSoulSub');
       const cardExpeditionTitle = document.getElementById('cardExpeditionTitle');
@@ -691,6 +697,8 @@
           card_star_sub: '按比例换算金额与赠送额度。',
           card_hidden_title: '攻略图片',
           card_hidden_sub: '集中查看各类攻略图，持续更新。',
+          card_ai_title: 'AI 问答助手',
+          card_ai_sub: 'VIP 专属，基于公开工具文档回答凝魂、远征和权限问题。',
           card_soul_title: '凝魂升格 & 魂力计算',
           card_soul_sub: '注册会员可用，检验属性区间并估算凝魂次数与魂力值。',
           card_expedition_title: '远征积分计算器',
@@ -751,6 +759,8 @@
           card_star_sub: 'Convert amounts and bonus ratios.',
           card_hidden_title: 'Guide Images',
           card_hidden_sub: 'Browse strategy images in one place.',
+          card_ai_title: 'AI Q&A Assistant',
+          card_ai_sub: 'VIP only. Ask questions about public tool docs, including soul, expedition, and access rules.',
           card_soul_title: 'Soul Perfection & Merge + Soul Power Calculator',
           card_soul_sub: 'Registered members can use it to check stat ranges and estimate soul perfection count and soul power.',
           card_expedition_title: 'Start Expedition Score Calculator',
@@ -825,6 +835,8 @@
         if (cardStarSub) cardStarSub.textContent = t('card_star_sub');
         if (cardHiddenTitle) cardHiddenTitle.textContent = t('card_hidden_title');
         if (cardHiddenSub) cardHiddenSub.textContent = t('card_hidden_sub');
+        if (cardAiTitle) cardAiTitle.textContent = t('card_ai_title');
+        if (cardAiSub) cardAiSub.textContent = t('card_ai_sub');
         if (cardSoulTitle) cardSoulTitle.textContent = t('card_soul_title');
         if (cardSoulSub) cardSoulSub.textContent = t('card_soul_sub');
         if (cardExpeditionTitle) cardExpeditionTitle.textContent = t('card_expedition_title');

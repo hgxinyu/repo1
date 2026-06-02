@@ -8,6 +8,7 @@
 - 注册会员页面：`flipgame/SoulAscensionCalculator.html`
 - 注册会员页面：`flipgame/ExpeditionCalculator.html`
 - VIP 页面：`flipgame/AwakeningRushSimulator.html`
+- VIP 页面：`flipgame/AIAsk.html`
 
 ## 权限流程
 
@@ -39,6 +40,7 @@ ADMIN_EMAILS=admin1@example.com,admin2@example.com
 
 - `POST /api/vip-request`：提交 VIP 申请。
 - `GET /api/me`：读取当前登录用户、注册会员状态和 VIP 权限。
+- `POST /api/ai-chat`：VIP 调用 AI 问答助手，后端代理 DeepSeek API。
 - `GET /api/admin/users`：管理员读取申请列表。
 - `POST /api/admin/set-role`：管理员修改用户角色。
 
@@ -60,6 +62,7 @@ users/{email}.json
 
 ```text
 ADMIN_EMAILS=你的管理员邮箱
+DEEPSEEK_API_KEY=你的 DeepSeek API Key
 ```
 
 Identity 设置建议：

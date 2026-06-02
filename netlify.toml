@@ -16,6 +16,11 @@
   status = 200
 
 [[redirects]]
+  from = "/api/ai-chat"
+  to = "/.netlify/functions/ai-chat"
+  status = 200
+
+[[redirects]]
   from = "/api/admin/users"
   to = "/.netlify/functions/admin-users"
   status = 200

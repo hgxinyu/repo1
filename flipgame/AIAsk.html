@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI 问答助手 · ShinE</title>
+  <script>
+    (function () {
+      var host = (window.location.hostname || '').toLowerCase();
+      var isLocal = host === 'localhost' || host === '127.0.0.1' || host === '::1';
+      var svg = isLocal ? 'assets/local-logo.svg' : 'assets/shine-logo.svg';
+      var png32 = isLocal ? 'assets/local-logo-32.png' : 'assets/shine-logo-32.png';
+      var ico = isLocal ? 'assets/local-favicon.ico' : 'assets/favicon.ico';
+      var apple = isLocal ? 'assets/local-logo-180.png' : 'assets/shine-logo-180.png';
+      var manifest = isLocal ? 'site.local.webmanifest' : 'site.webmanifest';
+      var theme = isLocal ? '#fb7185' : '#1f2937';
+      document.write('<link rel="icon" type="image/svg+xml" href="' + svg + '">');
+      document.write('<link rel="icon" type="image/png" sizes="32x32" href="' + png32 + '">');
+      document.write('<link rel="shortcut icon" href="' + ico + '">');
+      document.write('<link rel="apple-touch-icon" sizes="180x180" href="' + apple + '">');
+      document.write('<link rel="manifest" href="' + manifest + '">');
+      document.write('<meta name="theme-color" content="' + theme + '">');
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f5f2ec;
+      --surface: #fffdf8;
+      --panel: #f8fafc;
+      --ink: #15171b;
+      --muted: #68707d;
+      --border: #d8d2c7;
+      --brand: #0f766e;
+      --brand-strong: #115e59;
+      --ember: #b45309;
+      --danger: #dc2626;
+      --radius: 8px;
+      --shadow: 0 18px 38px rgba(21, 23, 27, 0.12);
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(21, 23, 27, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(21, 23, 27, 0.03) 1px, transparent 1px),
+        var(--bg);
+      background-size: 28px 28px;
+      color: var(--ink);
+      font-family: "Segoe UI", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    nav#topbar-nav,
+    .langbar {
+      position: fixed;
+      top: 12px;
+      z-index: 80;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      background: rgba(255, 253, 248, 0.94);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      box-shadow: 0 12px 28px rgba(21, 23, 27, 0.12);
+      backdrop-filter: saturate(140%) blur(8px);
+    }
+    nav#topbar-nav { right: 12px; }
+    .langbar { left: 12px; }
+    nav#topbar-nav a,
+    .langbar button {
+      border: 1px solid rgba(15, 118, 110, 0.24);
+      background: var(--surface);
+      color: var(--brand-strong);
+      padding: 8px 13px;
+      border-radius: 999px;
+      font-size: 13px;
+      text-decoration: none;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .wrap {
+      width: min(1180px, 100%);
+      min-height: 100vh;
+      padding: 76px clamp(16px, 4vw, 34px) 28px;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 18px;
+    }
+    .site-header {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 18px;
+      align-items: end;
+      border-bottom: 2px solid var(--ink);
+      padding-bottom: 16px;
+    }
+    .title h1 {
+      margin: 0;
+      font-size: clamp(28px, 5vw, 48px);
+      line-height: 1.08;
+      letter-spacing: 0;
+      font-family: "Noto Serif SC", "Songti SC", serif;
+    }
+    .title p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      max-width: 700px;
+      font-size: 15px;
+    }
+    .service-mark {
+      display: inline-grid;
+      place-items: center;
+      width: 84px;
+      height: 84px;
+      border: 2px solid var(--ink);
+      border-radius: 50%;
+      background: #fef3c7;
+      color: var(--ink);
+      font-weight: 900;
+      font-size: 18px;
+      box-shadow: 8px 8px 0 rgba(15, 118, 110, 0.2);
+    }
+    .workspace {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 280px;
+      gap: 18px;
+      align-items: stretch;
+    }
+    .chat-surface {
+      min-height: 0;
+      border: 2px solid var(--ink);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      display: grid;
+      grid-template-rows: 1fr auto;
+      overflow: hidden;
+    }
+    .messages {
+      min-height: 360px;
+      overflow-y: auto;
+      padding: clamp(16px, 4vw, 26px);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      background:
+        linear-gradient(rgba(255, 253, 248, 0.72), rgba(255, 253, 248, 0.72)),
+        repeating-linear-gradient(0deg, transparent, transparent 31px, rgba(21, 23, 27, 0.06) 32px);
+    }
+    .message {
+      width: min(760px, 100%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 13px 15px;
+      background: #fff;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+    .message.user {
+      align-self: flex-end;
+      border-color: rgba(15, 118, 110, 0.28);
+      background: #ecfdf5;
+    }
+    .message.assistant {
+      align-self: flex-start;
+      border-color: rgba(180, 83, 9, 0.26);
+      background: #fffbeb;
+    }
+    .message.system {
+      align-self: center;
+      background: #f8fafc;
+      color: var(--muted);
+      font-size: 14px;
+      text-align: center;
+    }
+    .composer {
+      border-top: 2px solid var(--ink);
+      padding: 14px;
+      background: #fdfaf2;
+      display: grid;
+      gap: 10px;
+    }
+    .composer textarea {
+      width: 100%;
+      min-height: 92px;
+      max-height: 220px;
+      resize: vertical;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      background: #fff;
+      color: var(--ink);
+      font: inherit;
+      box-shadow: inset 0 1px 0 rgba(21, 23, 27, 0.06);
+    }
+    .composer textarea:focus-visible,
+    button:focus-visible,
+    a:focus-visible {
+      outline: 3px solid rgba(15, 118, 110, 0.32);
+      outline-offset: 2px;
+    }
+    .composer-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .status {
+      min-height: 24px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .send-btn,
+    .clear-btn,
+    .prompt-btn {
+      border: 1px solid var(--ink);
+      border-radius: var(--radius);
+      padding: 10px 14px;
+      background: var(--surface);
+      color: var(--ink);
+      font: inherit;
+      cursor: pointer;
+      box-shadow: 4px 4px 0 rgba(21, 23, 27, 0.12);
+      transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+    }
+    .send-btn {
+      background: var(--brand);
+      color: #fff;
+      border-color: var(--brand-strong);
+      font-weight: 800;
+    }
+    .send-btn:hover:not(:disabled),
+    .clear-btn:hover,
+    .prompt-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 6px 6px 0 rgba(21, 23, 27, 0.14);
+    }
+    .send-btn:disabled {
+      opacity: 0.62;
+      cursor: wait;
+    }
+    .side {
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .source-panel,
+    .prompt-panel {
+      border: 2px solid var(--ink);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      padding: 15px;
+    }
+    .source-panel h2,
+    .prompt-panel h2 {
+      margin: 0 0 10px;
+      font-size: 15px;
+      letter-spacing: 0;
+    }
+    .source-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .source-chip {
+      border: 1px solid rgba(21, 23, 27, 0.2);
+      border-radius: 999px;
+      padding: 5px 9px;
+      color: #334155;
+      background: #f8fafc;
+      font-size: 12px;
+    }
+    .prompt-list {
+      display: grid;
+      gap: 10px;
+    }
+    .prompt-btn {
+      width: 100%;
+      text-align: left;
+      box-shadow: none;
+      line-height: 1.45;
+    }
+    .logo-bottom-right {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      z-index: 10;
+      font-size: 18px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: rgba(255, 253, 248, 0.94);
+      border: 1px solid var(--border);
+      box-shadow: 0 12px 26px rgba(21, 23, 27, 0.12);
+      color: var(--ink);
+    }
+    .logo-bottom-right .logo-by,
+    .logo-bottom-right .logo-en {
+      font-family: 'Pacifico', cursive;
+      font-weight: 700;
+    }
+    .logo-bottom-right .logo-cn {
+      font-weight: 700;
+      font-family: "Noto Serif SC", "Songti SC", serif;
+    }
+    .logo-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--brand), var(--ember));
+    }
+    @media (max-width: 840px) {
+      nav#topbar-nav,
+      .langbar {
+        position: static;
+        margin-top: 10px;
+      }
+      body {
+        align-items: stretch;
+      }
+      .wrap {
+        padding-top: 14px;
+      }
+      .site-header {
+        grid-template-columns: 1fr;
+      }
+      .service-mark {
+        display: none;
+      }
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+      .side {
+        order: -1;
+      }
+      .logo-bottom-right {
+        position: static;
+        margin: 8px auto 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav id="topbar-nav" aria-label="页面导航">
+    <a href="index.html" id="homeLink">返回首页</a>
+  </nav>
+  <div class="langbar">
+    <button id="langToggle" type="button">EN</button>
+  </div>
+
+  <div class="wrap">
+    <header class="site-header">
+      <div class="title">
+        <h1 id="pageTitle">AI 问答助手</h1>
+        <p id="pageDesc">面向工具规则和知识库资料的问答，优先解释凝魂、远征、英雄、神器、魔兽、Boss 和机制资料。</p>
+      </div>
+      <div class="service-mark" aria-hidden="true">AI</div>
+    </header>
+
+    <main class="workspace">
+      <section class="chat-surface" aria-label="AI 问答">
+        <div class="messages" id="messages" aria-live="polite"></div>
+        <form class="composer" id="chatForm">
+          <textarea id="questionInput" maxlength="1200" required></textarea>
+          <div class="composer-actions">
+            <div class="status" id="status" role="status"></div>
+            <div>
+              <button class="clear-btn" id="clearBtn" type="button">清空</button>
+              <button class="send-btn" id="sendBtn" type="submit">发送</button>
+            </div>
+          </div>
+        </form>
+      </section>
+
+      <aside class="side">
+        <section class="source-panel">
+          <h2 id="sourceTitle">当前资料范围</h2>
+          <div class="source-list" id="sourceList"></div>
+        </section>
+        <section class="prompt-panel">
+          <h2 id="promptTitle">快捷问题</h2>
+          <div class="prompt-list" id="promptList"></div>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+  <div class="logo-bottom-right">
+    <span class="logo-dot"></span>
+    <span class="logo-by">By</span>
+    <span class="logo-cn">国风*</span>
+    <span class="logo-en">ShinE</span>
+  </div>
+
+  <script type="module">
+    import { guardVipPage } from "./assets/vip-guard.js";
+
+    const I18N = {
+      zh: {
+        title: 'AI 问答助手 · ShinE',
+        page_title: 'AI 问答助手',
+        page_desc: '覆盖工具规则和 IHassistant 知识库片段。资料库还在逐步完善，资料不足时会标记待确认。',
+        home: '返回首页',
+        nav_label: '页面导航',
+        chat_label: 'AI 问答',
+        source_title: '当前资料范围',
+        prompt_title: '快捷问题',
+        send: '发送',
+        clear: '清空',
+        placeholder: '输入你的问题，例如：速度为什么要算 z 和 z+1？',
+        empty: '请输入问题。',
+        sending: 'AI 正在回答...',
+        ready: '已连接。答案基于公开工具文档和 IHassistant 知识库片段。',
+        local: '本地静态预览不能调用 Netlify Function；部署后或用 Netlify 本地环境测试提问。',
+        fail_prefix: '请求失败：',
+        welcome: '可以问凝魂、远征积分、觉醒模拟器规则，也可以问 IHassistant 知识库已有的英雄、神器、魔兽、Boss 和机制资料。资料库目前还很有限，会慢慢完善；资料不足时我会标记待确认。',
+        page_name: 'AI 问答助手',
+        lang_toggle_en: 'EN',
+        lang_toggle_zh: '中文',
+        sources: ['凝魂计算文档', '远征积分文档', '觉醒模拟器文档', 'IHassistant/knowledge'],
+        prompts: [
+          '凝魂里的总和和均值分别怎么算？',
+          '速度为什么要同时算 z 和 z+1？',
+          '远征 179 层和 180 层显示规则有什么区别？',
+          '阿斯布打章鱼 Boss 的伤害公式有哪些乘区？'
+        ]
+      },
+      en: {
+        title: 'AI Q&A Assistant · ShinE',
+        page_title: 'AI Q&A Assistant',
+        page_desc: 'Q&A using tool rules plus selected IHassistant knowledge snippets. The knowledge base is still limited and growing; missing evidence is marked pending confirmation.',
+        home: 'Home',
+        nav_label: 'Page navigation',
+        chat_label: 'AI Q&A',
+        source_title: 'Current Sources',
+        prompt_title: 'Quick Questions',
+        send: 'Send',
+        clear: 'Clear',
+        placeholder: 'Ask a question, e.g. why does speed check both z and z+1?',
+        empty: 'Please enter a question.',
+        sending: 'AI is answering...',
+        ready: 'Connected. Answers use public tool docs and IHassistant knowledge snippets.',
+        local: 'Static local preview cannot call Netlify Functions. Ask questions after deploy or in a Netlify local environment.',
+        fail_prefix: 'Request failed: ',
+        welcome: 'Ask about tool rules or existing IHassistant knowledge such as heroes, artifacts, monsters, bosses, and mechanics. The knowledge base is still limited and growing; missing evidence will be marked pending confirmation.',
+        page_name: 'AI Q&A Assistant',
+        lang_toggle_en: 'EN',
+        lang_toggle_zh: '中文',
+        sources: ['Soul calculator docs', 'Expedition score docs', 'Awakening simulator docs', 'IHassistant/knowledge'],
+        prompts: [
+          'How are soul total and average calculated?',
+          'Why does speed check both z and z+1?',
+          'What changes between expedition floor 179 and 180 display?',
+          'What damage formula notes exist for Aspen against Octopus Boss?'
+        ]
+      }
+    };
+
+    const messagesEl = document.getElementById('messages');
+    const form = document.getElementById('chatForm');
+    const input = document.getElementById('questionInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const statusEl = document.getElementById('status');
+    const langToggle = document.getElementById('langToggle');
+    const homeLink = document.getElementById('homeLink');
+    const pageTitle = document.getElementById('pageTitle');
+    const pageDesc = document.getElementById('pageDesc');
+    const sourceTitle = document.getElementById('sourceTitle');
+    const promptTitle = document.getElementById('promptTitle');
+    const sourceList = document.getElementById('sourceList');
+    const promptList = document.getElementById('promptList');
+    const isLocal = ['localhost', '127.0.0.1', '::1'].includes((window.location.hostname || '').toLowerCase());
+    let history = [];
+    let currentLang = (localStorage.getItem('flipgame_lang') || '').toLowerCase();
+
+    if (currentLang !== 'zh' && currentLang !== 'en') {
+      currentLang = (navigator.language || '').toLowerCase().startsWith('zh') ? 'zh' : 'en';
+    }
+
+    function t(key) {
+      return (I18N[currentLang] && I18N[currentLang][key]) || I18N.zh[key] || '';
+    }
+
+    function addMessage(role, content) {
+      const el = document.createElement('div');
+      el.className = `message ${role}`;
+      el.textContent = content;
+      messagesEl.appendChild(el);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function renderSources() {
+      sourceList.replaceChildren();
+      t('sources').forEach((label) => {
+        const chip = document.createElement('span');
+        chip.className = 'source-chip';
+        chip.textContent = label;
+        sourceList.appendChild(chip);
+      });
+    }
+
+    function renderPrompts() {
+      promptList.replaceChildren();
+      t('prompts').forEach((label) => {
+        const button = document.createElement('button');
+        button.className = 'prompt-btn';
+        button.type = 'button';
+        button.textContent = label;
+        button.addEventListener('click', () => {
+          input.value = label;
+          input.focus();
+        });
+        promptList.appendChild(button);
+      });
+    }
+
+    function setStaticText() {
+      document.title = t('title');
+      document.documentElement.lang = currentLang === 'zh' ? 'zh-Hans' : 'en';
+      const badge = pageTitle.querySelector('.vip-page-badge');
+      pageTitle.textContent = t('page_title');
+      if (badge) pageTitle.appendChild(badge);
+      pageDesc.textContent = t('page_desc');
+      homeLink.textContent = t('home');
+      document.getElementById('topbar-nav').setAttribute('aria-label', t('nav_label'));
+      document.querySelector('.chat-surface').setAttribute('aria-label', t('chat_label'));
+      sourceTitle.textContent = t('source_title');
+      promptTitle.textContent = t('prompt_title');
+      sendBtn.textContent = t('send');
+      clearBtn.textContent = t('clear');
+      input.setAttribute('placeholder', t('placeholder'));
+      langToggle.textContent = currentLang === 'zh' ? t('lang_toggle_en') : t('lang_toggle_zh');
+      renderSources();
+      renderPrompts();
+      statusEl.textContent = isLocal ? t('local') : t('ready');
+    }
+
+    function setLang(lang) {
+      currentLang = lang;
+      localStorage.setItem('flipgame_lang', lang);
+      setStaticText();
+    }
+
+    async function ask(question) {
+      const response = await fetch('/api/ai-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ question, history: history.slice(-8) })
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.error || `${response.status} ${response.statusText}`);
+      }
+      const sources = Array.isArray(data.sources) ? data.sources : [];
+      if (!sources.length) return data.answer || '';
+      const label = currentLang === 'zh' ? '资料来源' : 'Sources';
+      const sourceText = sources.map((source) => `- ${source.path}`).join('\n');
+      return `${data.answer || ''}\n\n${label}:\n${sourceText}`.trim();
+    }
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const question = input.value.trim();
+      if (!question) {
+        statusEl.textContent = t('empty');
+        input.focus();
+        return;
+      }
+
+      addMessage('user', question);
+      history.push({ role: 'user', content: question });
+      input.value = '';
+      sendBtn.disabled = true;
+      statusEl.textContent = t('sending');
+
+      try {
+        const answer = await ask(question);
+        addMessage('assistant', answer);
+        history.push({ role: 'assistant', content: answer });
+        statusEl.textContent = t('ready');
+      } catch (error) {
+        const message = `${t('fail_prefix')}${error.message || error}`;
+        addMessage('system', message);
+        statusEl.textContent = message;
+      } finally {
+        sendBtn.disabled = false;
+        input.focus();
+      }
+    });
+
+    clearBtn.addEventListener('click', () => {
+      history = [];
+      messagesEl.replaceChildren();
+      addMessage('system', t('welcome'));
+      statusEl.textContent = isLocal ? t('local') : t('ready');
+    });
+
+    langToggle.addEventListener('click', () => {
+      setLang(currentLang === 'zh' ? 'en' : 'zh');
+    });
+
+    await guardVipPage({
+      pageName: t('page_name'),
+      next: 'AIAsk.html',
+      access: 'vip'
+    });
+    setStaticText();
+    addMessage('system', t('welcome'));
+  </script>
+</body>
+</html>

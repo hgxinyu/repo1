@@ -29,7 +29,7 @@ Open `http://localhost:8000/`. Do not validate `fetch()` pages through `file://`
 - When changing visible text, update both Chinese and English I18N entries when present.
 - When changing calculator rules, update the matching document under `docs/`.
 - When changing VIP, login, admin, or permission behavior, update `docs/vip-access.md`.
-- When adding or changing Idle Heroes game knowledge, update files under `IHassistant/knowledge/` and follow `IHassistant/AGENTS.md`.
+- When adding or changing Idle Heroes game knowledge, update files under `IHassistant/knowledge/`, follow `IHassistant/AGENTS.md`, then regenerate the AI knowledge index with `node scripts/build-ih-knowledge-index.mjs`.
 - Keep facts, inferences, and unverified claims separate in knowledge files. Mark uncertain game conclusions as `待确认`.
 - When future VIP knowledge-base pages are added, keep permission behavior documented in both `docs/vip-access.md` and `docs/ihassistant.md`.
 - Do not commit `.DS_Store`, local spreadsheet working files, screenshots, or temporary generated files.
@@ -47,6 +47,7 @@ Open `http://localhost:8000/`. Do not validate `fetch()` pages through `file://`
 - Expedition calculator data source: `flipgame/seboss_all.json`.
 - Guide images live under `flipgame/images/`.
 - Knowledge base images and source screenshots live under `IHassistant/knowledge/`.
+- AI Q&A knowledge index: `flipgame/netlify/functions/_shared/ih-knowledge-index.mjs`, generated from `IHassistant/knowledge/`.
 - If data is regenerated from Excel, keep final browser data in CSV/JSON and document the source file.
 
 ## IHassistant Rules
@@ -55,6 +56,7 @@ Open `http://localhost:8000/`. Do not validate `fetch()` pages through `file://`
 - Detailed knowledge index: `IHassistant/knowledge/README.md`.
 - Agent-specific game rules: `IHassistant/AGENTS.md`.
 - Prefer adding new source material to the most specific subfolder under `IHassistant/knowledge/`.
+- After updating Markdown/text knowledge, regenerate `flipgame/netlify/functions/_shared/ih-knowledge-index.mjs` with `node scripts/build-ih-knowledge-index.mjs` so `flipgame/AIAsk.html` uses the latest project knowledge.
 - Do not invent game mechanics or lineup conclusions. If source material is incomplete, record the gap instead of filling it by assumption.
 - PVP and PVE conclusions must be recorded separately.
 - Star expedition imprints only apply to star expedition / expedition boss contexts unless explicitly documented otherwise.
@@ -67,4 +69,4 @@ Open `http://localhost:8000/`. Do not validate `fetch()` pages through `file://`
 - X-tier soul logic is documented in `docs/soul-calculator.md`.
 - Expedition score display rules are documented in `docs/expedition-calculator.md`.
 - Registered-member pages currently include Soul Ascension and Expedition.
-- VIP-only pages currently include Awakening Rush Simulator.
+- VIP-only pages currently include Awakening Rush Simulator and AI Q&A.
