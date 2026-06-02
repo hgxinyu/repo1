@@ -39,7 +39,6 @@ http://localhost:8000/
 ## 知识库模块
 
 - 知识库入口：`IHassistant/README.md`
-- Agent 规则：`IHassistant/AGENTS.md`
 - 知识目录：`IHassistant/knowledge/`
 - 通用机制：`IHassistant/knowledge/mechanics/`
 - 英雄资料：`IHassistant/knowledge/heroes/`
@@ -75,7 +74,7 @@ http://localhost:8000/
 
 - 修改可见文案时，同步更新页面内 zh/en I18N 配置。
 - 修改 CSV/JSON 数据后，通过本地 server 刷新验证。
-- 新增游戏知识时，优先放入 `IHassistant/knowledge/`，保持事实、推论、待确认分离，并运行 `node scripts/build-ih-knowledge-index.mjs` 同步 AI 问答知识索引。
+- 新增或更新游戏相关 Markdown 文档、游戏知识时，运行 `node scripts/build-ih-knowledge-index.mjs` 同步 AI 问答知识索引；游戏知识优先放入 `IHassistant/knowledge/`，并保持事实、推论、待确认分离。登录、VIP、PWA、部署等网站维护文档不进入 AI 游戏知识索引。
 - 不要把 `IHassistant/` 的资料直接暴露到 `flipgame/`，除非明确要做成公开或 VIP 页面。
 - 不提交 `.DS_Store`、本地临时 Excel 等工作文件。
 - 页面目前是单文件模式；除非明确重构，否则优先沿用现有 HTML 内联 CSS/JS 风格。

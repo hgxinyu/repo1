@@ -8,15 +8,12 @@
 
 ## 当前范围
 
-AI 问答回答两个范围内的问题：
+AI 问答回答这些范围内的问题：
 
-- 凝魂升格 & 魂力计算。
-- 远征积分计算器。
-- 觉醒冲榜模拟器的公开规则。
-- 攻略图片页面维护口径。
+- 游戏相关 Markdown 文档，例如计算器/模拟器规则和攻略图片文档。
 - `IHassistant/knowledge/` 中已有的 Markdown/文本知识片段。
 
-后端会从 `IHassistant/knowledge/` 生成私有知识片段索引，并按用户问题检索相关片段传给 DeepSeek。当前资料库还很有限，正在逐步完善；没有检索到资料、资料不足或结论未验证时，后端 system prompt 要求回答 `待确认`，不要补全假设。
+后端会从游戏相关 Markdown 文档和 `IHassistant/knowledge/` 文本资料生成私有知识片段索引，并按用户问题检索相关片段传给 DeepSeek。登录、VIP、PWA、部署等网站维护文档不进入游戏知识索引。当前资料库还很有限，正在逐步完善；没有检索到资料、资料不足或结论未验证时，后端 system prompt 要求回答 `待确认`，不要补全假设。
 
 当前知识索引文件：
 
@@ -24,7 +21,7 @@ AI 问答回答两个范围内的问题：
 flipgame/netlify/functions/_shared/ih-knowledge-index.mjs
 ```
 
-该文件由 `IHassistant/knowledge/` 下的 Markdown/文本文件生成。更新知识库后需要重新生成该索引。
+该文件由游戏相关 Markdown 文档和 `IHassistant/knowledge/` 下的文本资料生成。更新游戏相关 Markdown 文档或知识库文本后需要重新生成该索引。
 
 重新生成命令：
 
@@ -53,7 +50,7 @@ DEEPSEEK_API_KEY=你的 DeepSeek API Key
 - API key 只放在 Netlify 环境变量里，不写入前端页面。
 - `/api/ai-chat` 后端会检查 VIP 权限，非 VIP 账号不能调用。
 - 后端保留简单的每账号频率限制，用于降低误用和成本风险。
-- `IHassistant/knowledge/` 不作为静态页面直接公开；当前只打包到 Netlify Function 的私有索引里。
+- 游戏相关 Markdown 文档和 `IHassistant/knowledge/` 文本不作为单独知识库页面直接公开；当前只打包到 Netlify Function 的私有索引里。
 
 ## 本地验证
 

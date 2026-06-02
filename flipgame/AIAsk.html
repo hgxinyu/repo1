@@ -434,7 +434,7 @@
         page_name: 'AI 问答助手',
         lang_toggle_en: 'EN',
         lang_toggle_zh: '中文',
-        sources: ['凝魂计算文档', '远征积分文档', '觉醒模拟器文档', 'IHassistant/knowledge'],
+        sources: ['游戏相关 Markdown 文档', '工具规则文档', 'IHassistant/knowledge'],
         prompts: [
           '凝魂里的总和和均值分别怎么算？',
           '速度为什么要同时算 z 和 z+1？',
@@ -463,7 +463,7 @@
         page_name: 'AI Q&A Assistant',
         lang_toggle_en: 'EN',
         lang_toggle_zh: '中文',
-        sources: ['Soul calculator docs', 'Expedition score docs', 'Awakening simulator docs', 'IHassistant/knowledge'],
+        sources: ['Game-related Markdown docs', 'Tool rule docs', 'IHassistant/knowledge'],
         prompts: [
           'How are soul total and average calculated?',
           'Why does speed check both z and z+1?',
@@ -570,11 +570,7 @@
       if (!response.ok) {
         throw new Error(data.error || `${response.status} ${response.statusText}`);
       }
-      const sources = Array.isArray(data.sources) ? data.sources : [];
-      if (!sources.length) return data.answer || '';
-      const label = currentLang === 'zh' ? '资料来源' : 'Sources';
-      const sourceText = sources.map((source) => `- ${source.path}`).join('\n');
-      return `${data.answer || ''}\n\n${label}:\n${sourceText}`.trim();
+      return data.answer || '';
     }
 
     form.addEventListener('submit', async (event) => {

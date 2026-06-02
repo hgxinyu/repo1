@@ -6,20 +6,44 @@ const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(scriptDir, "..");
 const knowledgeRoot = path.join(repoRoot, "IHassistant/knowledge");
 const outFile = path.join(repoRoot, "flipgame/netlify/functions/_shared/ih-knowledge-index.mjs");
-const allowedExtensions = new Set([".md", ".txt", ".json"]);
+const repoMarkdownExtension = ".md";
+const knowledgeExtraExtensions = new Set([".txt", ".json"]);
+const ignoredDirs = new Set([".git", "node_modules", ".netlify"]);
+const gameDocFiles = new Set([
+  "docs/guide-images.md"
+]);
 
 function walk(dir) {
   const files = [];
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    if (entry.name.startsWith(".")) continue;
+    if (ignoredDirs.has(entry.name)) continue;
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) {
       files.push(...walk(full));
-    } else if (allowedExtensions.has(path.extname(entry.name).toLowerCase())) {
+    } else if (shouldIndexFile(full)) {
       files.push(full);
     }
   }
   return files;
+}
+
+function isInside(child, parent) {
+  const rel = path.relative(parent, child);
+  return rel && !rel.startsWith("..") && !path.isAbsolute(rel);
+}
+
+function shouldIndexFile(fullPath) {
+  const relPath = path.relative(repoRoot, fullPath).replace(/\\/g, "/");
+  const ext = path.extname(fullPath).toLowerCase();
+  if (ext === repoMarkdownExtension) return isGameMarkdown(relPath);
+  return isInside(fullPath, knowledgeRoot) && knowledgeExtraExtensions.has(ext);
+}
+
+function isGameMarkdown(relPath) {
+  if (relPath === "IHassistant/README.md") return true;
+  if (relPath.startsWith("IHassistant/knowledge/") && !relPath.startsWith("IHassistant/knowledge/templates/")) return true;
+  if (gameDocFiles.has(relPath)) return true;
+  return /^docs\/[^/]+-(calculator|simulator)\.md$/.test(relPath);
 }
 
 function cleanText(text) {
@@ -38,7 +62,7 @@ function titleFor(relPath, text) {
   return relPath.replace(/README\.md$/i, "").replace(/\.md$/i, "").replace(/\/$/, "") || relPath;
 }
 
-const files = walk(knowledgeRoot).sort();
+const files = walk(repoRoot).sort();
 const chunks = [];
 
 for (const fullPath of files) {
@@ -61,7 +85,7 @@ for (const fullPath of files) {
 }
 
 const content = [
-  "// Generated from IHassistant/knowledge Markdown/text files. Do not edit by hand.",
+  "// Generated from game-related Markdown files and IHassistant/knowledge text data. Do not edit by hand.",
   "// Regenerate with: node scripts/build-ih-knowledge-index.mjs",
   `export const IH_KNOWLEDGE_CHUNKS = ${JSON.stringify(chunks, null, 2)};`,
   ""

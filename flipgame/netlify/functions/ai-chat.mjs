@@ -13,7 +13,7 @@ const rateBuckets = new Map();
 const PUBLIC_CONTEXT = `
 站点公开资料摘要：
 - 这是放置奇兵工具站。首页是 flipgame/index.html。
-- IHassistant/knowledge/ 是 VIP AI 可用的内部知识库。回答相关问题时只使用检索到的知识片段，不要超出片段内容补全。
+- 游戏相关 Markdown 文档和 IHassistant/knowledge/ 文本资料是 VIP AI 可用的内部知识库。回答相关问题时只使用检索到的知识片段，不要超出片段内容补全。登录、VIP、PWA、部署等网站维护文档不作为游戏知识来源。
 - 当前知识库还很有限，正在逐步完善。答案只能代表已经录入和检索到的资料。
 - 凝魂计算：当前总和 = x + y + 100*z；当前均值 = (x + y + 100*z) / 3。
 - 游戏界面速度可能隐藏小数，凝魂页面会按 z 和 z+1 两组结果计算。
@@ -62,7 +62,7 @@ function selectKnowledge(question) {
 
 function knowledgeContext(chunks) {
   if (!chunks.length) {
-    return "本次问题没有匹配到 IHassistant/knowledge/ 的相关片段。若问题超出公开工具文档，请回答待确认。";
+    return "本次问题没有匹配到游戏相关 Markdown 文档或 IHassistant/knowledge/ 的相关片段。若问题超出公开工具文档，请回答待确认。";
   }
   return chunks.map((chunk, index) => [
     `知识片段 ${index + 1}`,
@@ -162,12 +162,12 @@ export default async (req) => {
       role: "system",
       content: [
         "你是国风 ShinE 放置奇兵工具站的 AI 问答助手。",
-        "只基于下方公开资料摘要、检索到的 IHassistant/knowledge/ 片段、用户问题和对话上下文回答。",
+        "只基于下方公开资料摘要、检索到的游戏相关 Markdown / IHassistant 知识片段、用户问题和对话上下文回答。",
         "知识库还在慢慢完善中，不要把没有录入的内容当成已知事实。",
         "如果问题涉及未检索到的知识、阵容结论、游戏机制细节或你没有资料支持的内容，明确说待确认，不要编造。",
         "把事实、推断和待确认内容分开。默认用用户正在使用的语言回答。回答要简洁、可执行。",
         PUBLIC_CONTEXT,
-        "IHassistant/knowledge/ 检索片段：",
+        "游戏文档 / IHassistant 检索片段：",
         knowledgeContext(selectedKnowledge)
       ].join("\n")
     },

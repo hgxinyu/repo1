@@ -17,7 +17,7 @@ Current scope:
 ## Directory Map
 
 - `IHassistant/README.md`: human-facing overview.
-- `IHassistant/AGENTS.md`: agent rules for game-knowledge work.
+- `AGENTS.md`: root agent rules, including game-knowledge work rules.
 - `IHassistant/knowledge/README.md`: knowledge index and recording rules.
 - `IHassistant/knowledge/mechanics/`: common formulas, damage types, controls, and attribute rules.
 - `IHassistant/knowledge/heroes/`: hero-specific files and screenshots.
@@ -35,7 +35,7 @@ For now, `IHassistant/` is a repository knowledge source, not a public website s
 
 Future VIP access should expose selected knowledge through pages under `flipgame/`, guarded by the same account-permission system used by VIP tools. Do not directly publish the whole `IHassistant/knowledge/` tree unless that is intentional.
 
-The current VIP-only AI Q&A page (`flipgame/AIAsk.html`) can use selected Markdown/text content from `IHassistant/knowledge/`. The content is generated into the private Netlify Function module `flipgame/netlify/functions/_shared/ih-knowledge-index.mjs`, then filtered by question before being sent to the AI provider. Do not expose the raw knowledge directory as public static content unless that is intentional.
+The current VIP-only AI Q&A page (`flipgame/AIAsk.html`) can use game-related Markdown documents and selected text content from `IHassistant/knowledge/`. Website-maintenance docs such as login, VIP, PWA, admin, and deploy docs are excluded from the game knowledge index. The content is generated into the private Netlify Function module `flipgame/netlify/functions/_shared/ih-knowledge-index.mjs`, then filtered by question before being sent to the AI provider. Do not expose the raw knowledge directory as public static content unless that is intentional.
 
 Recommended future flow:
 
