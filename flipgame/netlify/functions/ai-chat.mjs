@@ -1,14 +1,14 @@
-import { canAccessPremium, currentUser, json, normalizeEmail, readProfile } from "./_shared/access.mjs";
+import { getStore } from "@netlify/blobs";
+import { canAccessPremium, currentUser, isAdminEmail, json, normalizeEmail, readProfile } from "./_shared/access.mjs";
 import { IH_KNOWLEDGE_CHUNKS } from "./_shared/ih-knowledge-index.mjs";
 
 const DEEPSEEK_URL = "https://api.deepseek.com/chat/completions";
 const DEFAULT_MODEL = "deepseek-v4-flash";
 const MAX_QUESTION_LENGTH = 1200;
-const MAX_HISTORY_TURNS = 6;
+const MAX_HISTORY_TURNS = 10;
 const MAX_KNOWLEDGE_CHUNKS = 6;
-const WINDOW_MS = 60 * 1000;
-const MAX_REQUESTS_PER_WINDOW = 8;
-const rateBuckets = new Map();
+const MAX_VIP_REQUESTS_PER_HOUR = 10;
+const RATE_LIMIT_STORE = "ai-question-limits";
 
 const PUBLIC_CONTEXT = `
 站点公开资料摘要：
@@ -94,18 +94,45 @@ function recentHistory(history) {
     .slice(-(MAX_HISTORY_TURNS * 2));
 }
 
-function checkRateLimit(email) {
-  const now = Date.now();
-  const key = normalizeEmail(email) || "anonymous";
-  const bucket = rateBuckets.get(key);
-  if (!bucket || now - bucket.startedAt > WINDOW_MS) {
-    rateBuckets.set(key, { startedAt: now, count: 1 });
-    return null;
+function rateLimitStore() {
+  return getStore({ name: RATE_LIMIT_STORE, consistency: "strong" });
+}
+
+function hourKey(now = new Date()) {
+  return now.toISOString().slice(0, 13);
+}
+
+function nextHourIso(now = new Date()) {
+  const next = new Date(now);
+  next.setUTCMinutes(0, 0, 0);
+  next.setUTCHours(next.getUTCHours() + 1);
+  return next.toISOString();
+}
+
+async function checkRateLimit(email, isAdmin) {
+  if (isAdmin) return null;
+
+  const normalizedEmail = normalizeEmail(email);
+  const now = new Date();
+  const hour = hourKey(now);
+  const key = `questions/${encodeURIComponent(normalizedEmail)}/${hour}.json`;
+  const store = rateLimitStore();
+  const current = await store.get(key, { type: "json" }).catch(() => null);
+  const count = Number(current && current.count) || 0;
+
+  if (count >= MAX_VIP_REQUESTS_PER_HOUR) {
+    return json({
+      error: `已达到每小时 ${MAX_VIP_REQUESTS_PER_HOUR} 个问题上限，请稍后再试。`,
+      resetAt: nextHourIso(now)
+    }, { status: 429 });
   }
-  bucket.count += 1;
-  if (bucket.count > MAX_REQUESTS_PER_WINDOW) {
-    return json({ error: "请求过于频繁，请稍后再试。" }, { status: 429 });
-  }
+
+  await store.setJSON(key, {
+    email: normalizedEmail,
+    hour,
+    count: count + 1,
+    updatedAt: now.toISOString()
+  });
   return null;
 }
 
@@ -121,7 +148,7 @@ async function requireVipUser() {
     return { email, response: json({ error: "AI 问答当前为 VIP 专属，请先开通 VIP 权限。" }, { status: 403 }) };
   }
 
-  return { email, response: null };
+  return { email, isAdmin: isAdminEmail(email), response: null };
 }
 
 export default async (req) => {
@@ -132,7 +159,7 @@ export default async (req) => {
   const auth = await requireVipUser();
   if (auth.response) return auth.response;
 
-  const limited = checkRateLimit(auth.email);
+  const limited = await checkRateLimit(auth.email, auth.isAdmin);
   if (limited) return limited;
 
   const apiKey = env("DEEPSEEK_API_KEY");
@@ -161,7 +188,7 @@ export default async (req) => {
     {
       role: "system",
       content: [
-        "你是国风 ShinE 放置奇兵工具站的 AI 问答助手。",
+        "你是国风 ShinE 放置奇兵工具站的 AI玩放置助手。",
         "只基于下方公开资料摘要、检索到的游戏相关 Markdown / IHassistant 知识片段、用户问题和对话上下文回答。",
         "知识库还在慢慢完善中，不要把没有录入的内容当成已知事实。",
         "如果问题涉及未检索到的知识、阵容结论、游戏机制细节或你没有资料支持的内容，明确说待确认，不要编造。",

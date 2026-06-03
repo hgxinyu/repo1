@@ -1,8 +1,8 @@
-# AI 问答助手
+# AI玩放置
 
 页面：`flipgame/AIAsk.html`
 
-访问权限：VIP。页面加载时会调用 `assets/vip-guard.js`，使用 `/api/me` 检查当前登录账号是否具备 VIP 或管理员权限。
+访问权限：VIP。英文页面名称为 `Play IH with AI`。页面加载时会调用 `assets/vip-guard.js`，使用 `/api/me` 检查当前登录账号是否具备 VIP 或管理员权限。
 
 后端接口：`POST /api/ai-chat`
 
@@ -49,8 +49,15 @@ DEEPSEEK_API_KEY=你的 DeepSeek API Key
 
 - API key 只放在 Netlify 环境变量里，不写入前端页面。
 - `/api/ai-chat` 后端会检查 VIP 权限，非 VIP 账号不能调用。
-- 后端保留简单的每账号频率限制，用于降低误用和成本风险。
+- VIP 账号每小时最多提问 10 次，用于降低 token 误用和成本风险。
+- 管理员账号不受 AI玩放置提问次数限制。
+- 前端和后端最多保留最近 10 轮问答作为上下文，超过后会自动丢弃更早的问题和回答。
 - 游戏相关 Markdown 文档和 `IHassistant/knowledge/` 文本不作为单独知识库页面直接公开；当前只打包到 Netlify Function 的私有索引里。
+
+## 页面交互
+
+- 在输入框按 Enter 会直接发送问题。
+- 按 Shift+Enter 可在输入框内换行。
 
 ## 本地验证
 

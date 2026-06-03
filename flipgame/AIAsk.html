@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AI 问答助手 · ShinE</title>
+  <title>AI玩放置 · ShinE</title>
   <script>
     (function () {
       var host = (window.location.hostname || '').toLowerCase();
@@ -368,7 +368,7 @@
   <div class="wrap">
     <header class="site-header">
       <div class="title">
-        <h1 id="pageTitle">AI 问答助手</h1>
+        <h1 id="pageTitle">AI玩放置</h1>
         <p id="pageDesc">面向工具规则和知识库资料的问答，优先解释凝魂、远征、英雄、神器、魔兽、Boss 和机制资料。</p>
       </div>
       <div class="service-mark" aria-hidden="true">AI</div>
@@ -414,12 +414,12 @@
 
     const I18N = {
       zh: {
-        title: 'AI 问答助手 · ShinE',
-        page_title: 'AI 问答助手',
+        title: 'AI玩放置 · ShinE',
+        page_title: 'AI玩放置',
         page_desc: '覆盖工具规则和 IHassistant 知识库片段。资料库还在逐步完善，资料不足时会标记待确认。',
         home: '返回首页',
         nav_label: '页面导航',
-        chat_label: 'AI 问答',
+        chat_label: 'AI玩放置',
         source_title: '当前资料范围',
         prompt_title: '快捷问题',
         send: '发送',
@@ -431,7 +431,7 @@
         local: '本地静态预览不能调用 Netlify Function；部署后或用 Netlify 本地环境测试提问。',
         fail_prefix: '请求失败：',
         welcome: '可以问凝魂、远征积分、觉醒模拟器规则，也可以问 IHassistant 知识库已有的英雄、神器、魔兽、Boss 和机制资料。资料库目前还很有限，会慢慢完善；资料不足时我会标记待确认。',
-        page_name: 'AI 问答助手',
+        page_name: 'AI玩放置',
         lang_toggle_en: 'EN',
         lang_toggle_zh: '中文',
         sources: ['游戏相关 Markdown 文档', '工具规则文档', 'IHassistant/knowledge'],
@@ -443,12 +443,12 @@
         ]
       },
       en: {
-        title: 'AI Q&A Assistant · ShinE',
-        page_title: 'AI Q&A Assistant',
+        title: 'Play IH with AI · ShinE',
+        page_title: 'Play IH with AI',
         page_desc: 'Q&A using tool rules plus selected IHassistant knowledge snippets. The knowledge base is still limited and growing; missing evidence is marked pending confirmation.',
         home: 'Home',
         nav_label: 'Page navigation',
-        chat_label: 'AI Q&A',
+        chat_label: 'Play IH with AI',
         source_title: 'Current Sources',
         prompt_title: 'Quick Questions',
         send: 'Send',
@@ -460,7 +460,7 @@
         local: 'Static local preview cannot call Netlify Functions. Ask questions after deploy or in a Netlify local environment.',
         fail_prefix: 'Request failed: ',
         welcome: 'Ask about tool rules or existing IHassistant knowledge such as heroes, artifacts, monsters, bosses, and mechanics. The knowledge base is still limited and growing; missing evidence will be marked pending confirmation.',
-        page_name: 'AI Q&A Assistant',
+        page_name: 'Play IH with AI',
         lang_toggle_en: 'EN',
         lang_toggle_zh: '中文',
         sources: ['Game-related Markdown docs', 'Tool rule docs', 'IHassistant/knowledge'],
@@ -488,6 +488,7 @@
     const sourceList = document.getElementById('sourceList');
     const promptList = document.getElementById('promptList');
     const isLocal = ['localhost', '127.0.0.1', '::1'].includes((window.location.hostname || '').toLowerCase());
+    const MAX_CONTEXT_TURNS = 10;
     let history = [];
     let currentLang = (localStorage.getItem('flipgame_lang') || '').toLowerCase();
 
@@ -505,6 +506,10 @@
       el.textContent = content;
       messagesEl.appendChild(el);
       messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function trimHistory() {
+      history = history.slice(-(MAX_CONTEXT_TURNS * 2));
     }
 
     function renderSources() {
@@ -564,7 +569,7 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ question, history: history.slice(-8) })
+        body: JSON.stringify({ question, history: history.slice(-(MAX_CONTEXT_TURNS * 2)) })
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) {
@@ -584,6 +589,7 @@
 
       addMessage('user', question);
       history.push({ role: 'user', content: question });
+      trimHistory();
       input.value = '';
       sendBtn.disabled = true;
       statusEl.textContent = t('sending');
@@ -592,6 +598,7 @@
         const answer = await ask(question);
         addMessage('assistant', answer);
         history.push({ role: 'assistant', content: answer });
+        trimHistory();
         statusEl.textContent = t('ready');
       } catch (error) {
         const message = `${t('fail_prefix')}${error.message || error}`;
@@ -612,6 +619,13 @@
 
     langToggle.addEventListener('click', () => {
       setLang(currentLang === 'zh' ? 'en' : 'zh');
+    });
+
+    input.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) {
+        event.preventDefault();
+        if (!sendBtn.disabled) form.requestSubmit();
+      }
     });
 
     await guardVipPage({

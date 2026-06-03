@@ -25,7 +25,7 @@ http://localhost:8000/
 - 首页：`flipgame/index.html`
 - 凝魂升格 & 魂力计算（注册会员）：`flipgame/SoulAscensionCalculator.html`
 - 远征积分计算器（注册会员）：`flipgame/ExpeditionCalculator.html`
-- AI 问答助手（VIP）：`flipgame/AIAsk.html`
+- AI玩放置（VIP）：`flipgame/AIAsk.html`
 - 攻略图片：`flipgame/GuideImages.html`
 - 九宫格翻牌：`flipgame/flipgame.html`
 - 核心计算器：`flipgame/CoreCalculator.html`
@@ -63,7 +63,7 @@ http://localhost:8000/
 - 知识库模块：`docs/ihassistant.md`
 - 凝魂模块：`docs/soul-calculator.md`
 - 远征模块：`docs/expedition-calculator.md`
-- AI 问答助手：`docs/ai-ask.md`
+- AI玩放置：`docs/ai-ask.md`
 - 觉醒冲榜模块：`docs/awakening-rush-simulator.md`
 - VIP 账号与权限：`docs/vip-access.md`
 - 攻略图片模块：`docs/guide-images.md`
@@ -74,7 +74,7 @@ http://localhost:8000/
 
 - 修改可见文案时，同步更新页面内 zh/en I18N 配置。
 - 修改 CSV/JSON 数据后，通过本地 server 刷新验证。
-- 新增或更新游戏相关 Markdown 文档、游戏知识时，运行 `node scripts/build-ih-knowledge-index.mjs` 同步 AI 问答知识索引；游戏知识优先放入 `IHassistant/knowledge/`，并保持事实、推论、待确认分离。登录、VIP、PWA、部署等网站维护文档不进入 AI 游戏知识索引。
+- 新增或更新游戏相关 Markdown 文档、游戏知识时，运行 `node scripts/build-ih-knowledge-index.mjs` 同步 AI玩放置知识索引；游戏知识优先放入 `IHassistant/knowledge/`，并保持事实、推论、待确认分离。登录、VIP、PWA、部署等网站维护文档不进入 AI 游戏知识索引。
 - 不要把 `IHassistant/` 的资料直接暴露到 `flipgame/`，除非明确要做成公开或 VIP 页面。
 - 不提交 `.DS_Store`、本地临时 Excel 等工作文件。
 - 页面目前是单文件模式；除非明确重构，否则优先沿用现有 HTML 内联 CSS/JS 风格。
