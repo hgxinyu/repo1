@@ -60,8 +60,7 @@
       flex-direction: column;
       align-items: center;
     }
-    nav#topbar-nav,
-    .langbar {
+    nav#topbar-nav {
       position: fixed;
       top: 12px;
       z-index: 80;
@@ -76,9 +75,7 @@
       backdrop-filter: saturate(140%) blur(8px);
     }
     nav#topbar-nav { right: 12px; }
-    .langbar { left: 12px; }
-    nav#topbar-nav a,
-    .langbar button {
+    nav#topbar-nav a {
       border: 1px solid rgba(15, 118, 110, 0.24);
       background: var(--surface);
       color: var(--brand-strong);
@@ -327,8 +324,7 @@
       background: linear-gradient(135deg, var(--brand), var(--ember));
     }
     @media (max-width: 840px) {
-      nav#topbar-nav,
-      .langbar {
+      nav#topbar-nav {
         position: static;
         margin-top: 10px;
       }
@@ -361,9 +357,6 @@
   <nav id="topbar-nav" aria-label="页面导航">
     <a href="index.html" id="homeLink">返回首页</a>
   </nav>
-  <div class="langbar">
-    <button id="langToggle" type="button">EN</button>
-  </div>
 
   <div class="wrap">
     <header class="site-header">
@@ -432,8 +425,6 @@
         fail_prefix: '请求失败：',
         welcome: '可以问凝魂、远征积分、觉醒模拟器规则，也可以问 IHassistant 知识库已有的英雄、神器、魔兽、Boss 和机制资料。资料库目前还很有限，会慢慢完善；资料不足时我会标记待确认。',
         page_name: 'AI玩放置',
-        lang_toggle_en: 'EN',
-        lang_toggle_zh: '中文',
         sources: ['游戏相关 Markdown 文档', '工具规则文档', 'IHassistant/knowledge'],
         prompts: [
           '凝魂里的总和和均值分别怎么算？',
@@ -461,8 +452,6 @@
         fail_prefix: 'Request failed: ',
         welcome: 'Ask about tool rules or existing IHassistant knowledge such as heroes, artifacts, monsters, bosses, and mechanics. The knowledge base is still limited and growing; missing evidence will be marked pending confirmation.',
         page_name: 'Play IH with AI',
-        lang_toggle_en: 'EN',
-        lang_toggle_zh: '中文',
         sources: ['Game-related Markdown docs', 'Tool rule docs', 'IHassistant/knowledge'],
         prompts: [
           'How are soul total and average calculated?',
@@ -479,7 +468,6 @@
     const sendBtn = document.getElementById('sendBtn');
     const clearBtn = document.getElementById('clearBtn');
     const statusEl = document.getElementById('status');
-    const langToggle = document.getElementById('langToggle');
     const homeLink = document.getElementById('homeLink');
     const pageTitle = document.getElementById('pageTitle');
     const pageDesc = document.getElementById('pageDesc');
@@ -552,16 +540,9 @@
       sendBtn.textContent = t('send');
       clearBtn.textContent = t('clear');
       input.setAttribute('placeholder', t('placeholder'));
-      langToggle.textContent = currentLang === 'zh' ? t('lang_toggle_en') : t('lang_toggle_zh');
       renderSources();
       renderPrompts();
       statusEl.textContent = isLocal ? t('local') : t('ready');
-    }
-
-    function setLang(lang) {
-      currentLang = lang;
-      localStorage.setItem('flipgame_lang', lang);
-      setStaticText();
     }
 
     async function ask(question) {
@@ -615,10 +596,6 @@
       messagesEl.replaceChildren();
       addMessage('system', t('welcome'));
       statusEl.textContent = isLocal ? t('local') : t('ready');
-    });
-
-    langToggle.addEventListener('click', () => {
-      setLang(currentLang === 'zh' ? 'en' : 'zh');
     });
 
     input.addEventListener('keydown', (event) => {
