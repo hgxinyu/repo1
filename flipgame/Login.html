@@ -84,7 +84,7 @@
   <main class="card">
     <a class="toplink" id="homeLink" href="index.html">回到主页</a>
     <h1 id="pageTitle">登录</h1>
-    <p id="pageDesc">登录后系统会检查你的权限。</p>
+    <p id="pageDesc">登录前请先完成邮箱确认。未点击邮箱确认链接的账号无法登录。</p>
     <form id="loginForm">
       <label id="emailLabel">
         Email
@@ -119,7 +119,7 @@
         title: "登录 · ShinE",
         home: "回到主页",
         page_title: "登录",
-        page_desc: "登录后系统会检查你的权限。",
+        page_desc: "登录前请先完成邮箱确认。未点击邮箱确认链接的账号无法登录。",
         email_label: "Email",
         password_label: "密码",
         submit: "登录",
@@ -129,7 +129,7 @@
         callback_failed: "登录回调处理失败：",
         logging_in: "正在登录...",
         login_failed: "登录失败：",
-        error_invalid: "邮箱或密码不正确，或邮箱还没有确认。",
+        error_invalid: "邮箱或密码不正确，或邮箱还没有确认。请先打开注册邮件并点击确认链接。",
         error_identity_missing: "Netlify Identity 可能还没有启用。请先在 Netlify 后台启用 Identity。",
         error_network: "网络请求失败。请确认当前页面是 Netlify 部署地址。",
         error_unknown: "未知 AuthError。"
@@ -138,7 +138,7 @@
         title: "Login · ShinE",
         home: "Home",
         page_title: "Login",
-        page_desc: "After login, the system will check your access.",
+        page_desc: "Confirm your email before logging in. Accounts cannot log in until the email confirmation link has been clicked.",
         email_label: "Email",
         password_label: "Password",
         submit: "Login",
@@ -148,7 +148,7 @@
         callback_failed: "Login callback failed: ",
         logging_in: "Logging in...",
         login_failed: "Login failed: ",
-        error_invalid: "Email or password is incorrect, or the email has not been confirmed.",
+        error_invalid: "Email or password is incorrect, or the email has not been confirmed. Please open the signup email and click the confirmation link first.",
         error_identity_missing: "Netlify Identity may not be enabled. Enable Identity in Netlify first.",
         error_network: "Network request failed. Make sure you are using the Netlify deployed site.",
         error_unknown: "Unknown AuthError."
