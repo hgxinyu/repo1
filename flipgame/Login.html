@@ -300,23 +300,10 @@
     }
 
     async function requestPasswordReset(email) {
-      const response = await fetch("/.netlify/identity/recover", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email })
-      });
-      if (!response.ok) {
-        let message = "";
-        try {
-          const data = await response.json();
-          message = data.msg || data.message || data.error || "";
-        } catch (_) {
-          message = await response.text().catch(() => "");
-        }
-        const error = new Error(message || response.statusText || "Recovery request failed");
-        error.status = response.status;
-        throw error;
+      if (typeof identity.requestPasswordRecovery !== "function") {
+        throw new Error(t("error_reset_unavailable"));
       }
+      await identity.requestPasswordRecovery(email);
     }
 
     function cleanRecoveryUrl() {
@@ -378,10 +365,10 @@
 
       statusEl.textContent = t("resetting_password");
       try {
-        if (typeof identity.recoverPassword !== "function") {
+        if (typeof identity.updateUser !== "function") {
           throw new Error(t("error_reset_unavailable"));
         }
-        await identity.recoverPassword(password);
+        await identity.updateUser({ password });
         cleanRecoveryUrl();
         showMode("login");
         statusEl.textContent = t("password_reset_success");
