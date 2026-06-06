@@ -78,6 +78,17 @@
     }
     .status { min-height: 22px; color: var(--muted); font-size: 14px; margin-top: 14px; }
     .toplink { display: inline-block; margin-bottom: 18px; color: var(--brand); text-decoration: none; font-size: 14px; }
+    .link-button {
+      border: 0;
+      border-radius: 0;
+      padding: 0;
+      background: transparent;
+      box-shadow: none;
+      color: var(--brand);
+      font-size: 14px;
+    }
+    .secondary-actions { margin-top: -2px; }
+    [hidden] { display: none !important; }
   </style>
 </head>
 <body>
@@ -98,16 +109,45 @@
         <button class="primary" id="submitBtn" type="submit">登录</button>
         <a class="button" id="registerLink" href="Register.html">注册账号</a>
       </div>
+      <div class="actions secondary-actions">
+        <button class="link-button" id="forgotBtn" type="button">忘记密码？</button>
+      </div>
+    </form>
+    <form id="forgotForm" hidden>
+      <label id="resetEmailLabel">
+        Email
+        <input id="resetEmail" type="email" autocomplete="email" required />
+      </label>
+      <div class="actions">
+        <button class="primary" id="sendResetBtn" type="submit">发送重置邮件</button>
+        <button id="backToLoginBtn" type="button">返回登录</button>
+      </div>
+    </form>
+    <form id="resetForm" hidden>
+      <label id="newPasswordLabel">
+        新密码
+        <input id="newPassword" type="password" autocomplete="new-password" minlength="8" required />
+      </label>
+      <label id="confirmPasswordLabel">
+        确认新密码
+        <input id="confirmPassword" type="password" autocomplete="new-password" minlength="8" required />
+      </label>
+      <div class="actions">
+        <button class="primary" id="resetPasswordBtn" type="submit">设置新密码</button>
+      </div>
     </form>
     <div class="status" id="status" role="status"></div>
   </main>
 
   <script type="module">
-    import { handleAuthCallback, login } from "https://esm.sh/@netlify/identity?bundle";
+    import * as identity from "https://esm.sh/@netlify/identity?bundle";
 
-    const form = document.getElementById("loginForm");
+    const loginForm = document.getElementById("loginForm");
+    const forgotForm = document.getElementById("forgotForm");
+    const resetForm = document.getElementById("resetForm");
     const statusEl = document.getElementById("status");
     const next = new URLSearchParams(window.location.search).get("next") || "index.html";
+    const startedWithRecoveryToken = window.location.hash.includes("recovery_token=") || window.location.search.includes("recovery_token=");
     const currentLang = (() => {
       const saved = (localStorage.getItem("flipgame_lang") || "").toLowerCase();
       if (saved === "zh" || saved === "en") return saved;
@@ -124,11 +164,31 @@
         password_label: "密码",
         submit: "登录",
         register: "注册账号",
+        forgot: "忘记密码？",
+        forgot_title: "重置密码",
+        forgot_desc: "输入注册邮箱，我们会发送密码重置邮件。请从邮件链接回来后设置新密码。",
+        reset_title: "设置新密码",
+        reset_desc: "请设置新密码。完成后用新密码登录。",
+        reset_email_label: "Email",
+        send_reset: "发送重置邮件",
+        back_login: "返回登录",
+        new_password_label: "新密码",
+        confirm_password_label: "确认新密码",
+        reset_password: "设置新密码",
         confirmed: "邮箱已确认，请登录。",
         invite: "邀请已接收，请完成密码设置后登录。",
+        recovery_ready: "请设置新密码。",
         callback_failed: "登录回调处理失败：",
         logging_in: "正在登录...",
         login_failed: "登录失败：",
+        sending_reset: "正在发送重置邮件...",
+        reset_sent: "如果该邮箱已注册，密码重置邮件会发送到你的邮箱。请点击邮件里的链接回来设置新密码。",
+        reset_request_failed: "发送重置邮件失败：",
+        resetting_password: "正在设置新密码...",
+        password_mismatch: "两次输入的新密码不一致。",
+        password_reset_success: "密码已更新，请使用新密码登录。",
+        password_reset_failed: "密码重置失败：",
+        error_reset_unavailable: "当前 Identity 模块没有可用的密码重置方法，请确认 Netlify Identity 已启用并重新部署。",
         error_invalid: "邮箱或密码不正确，或邮箱还没有确认。请先打开注册邮件并点击确认链接。",
         error_identity_missing: "Netlify Identity 可能还没有启用。请先在 Netlify 后台启用 Identity。",
         error_network: "网络请求失败。请确认当前页面是 Netlify 部署地址。",
@@ -143,11 +203,31 @@
         password_label: "Password",
         submit: "Login",
         register: "Create account",
+        forgot: "Forgot password?",
+        forgot_title: "Reset password",
+        forgot_desc: "Enter your registered email. We will send a password reset email, then you can return from that link to set a new password.",
+        reset_title: "Set a new password",
+        reset_desc: "Set a new password, then log in with the new password.",
+        reset_email_label: "Email",
+        send_reset: "Send reset email",
+        back_login: "Back to login",
+        new_password_label: "New password",
+        confirm_password_label: "Confirm new password",
+        reset_password: "Set new password",
         confirmed: "Email confirmed. Please log in.",
         invite: "Invite accepted. Please finish setting your password, then log in.",
+        recovery_ready: "Please set a new password.",
         callback_failed: "Login callback failed: ",
         logging_in: "Logging in...",
         login_failed: "Login failed: ",
+        sending_reset: "Sending reset email...",
+        reset_sent: "If this email is registered, a password reset email will be sent. Click the link in that email to return and set a new password.",
+        reset_request_failed: "Failed to send reset email: ",
+        resetting_password: "Setting new password...",
+        password_mismatch: "The two new passwords do not match.",
+        password_reset_success: "Password updated. Please log in with the new password.",
+        password_reset_failed: "Password reset failed: ",
+        error_reset_unavailable: "The current Identity module does not expose password reset. Make sure Netlify Identity is enabled and redeploy.",
         error_invalid: "Email or password is incorrect, or the email has not been confirmed. Please open the signup email and click the confirmation link first.",
         error_identity_missing: "Netlify Identity may not be enabled. Enable Identity in Netlify first.",
         error_network: "Network request failed. Make sure you are using the Netlify deployed site.",
@@ -169,6 +249,13 @@
       document.getElementById("passwordLabel").firstChild.textContent = t("password_label");
       document.getElementById("submitBtn").textContent = t("submit");
       document.getElementById("registerLink").textContent = t("register");
+      document.getElementById("forgotBtn").textContent = t("forgot");
+      document.getElementById("resetEmailLabel").firstChild.textContent = t("reset_email_label");
+      document.getElementById("sendResetBtn").textContent = t("send_reset");
+      document.getElementById("backToLoginBtn").textContent = t("back_login");
+      document.getElementById("newPasswordLabel").firstChild.textContent = t("new_password_label");
+      document.getElementById("confirmPasswordLabel").firstChild.textContent = t("confirm_password_label");
+      document.getElementById("resetPasswordBtn").textContent = t("reset_password");
     }
 
     function describeAuthError(error) {
@@ -188,10 +275,64 @@
       return text || t("error_unknown");
     }
 
+    function showMode(mode) {
+      loginForm.hidden = mode !== "login";
+      forgotForm.hidden = mode !== "forgot";
+      resetForm.hidden = mode !== "reset";
+      statusEl.textContent = "";
+
+      if (mode === "forgot") {
+        document.getElementById("pageTitle").textContent = t("forgot_title");
+        document.getElementById("pageDesc").textContent = t("forgot_desc");
+        document.getElementById("resetEmail").value = document.getElementById("email").value.trim();
+        return;
+      }
+
+      if (mode === "reset") {
+        document.getElementById("pageTitle").textContent = t("reset_title");
+        document.getElementById("pageDesc").textContent = t("reset_desc");
+        statusEl.textContent = t("recovery_ready");
+        return;
+      }
+
+      document.getElementById("pageTitle").textContent = t("page_title");
+      document.getElementById("pageDesc").textContent = t("page_desc");
+    }
+
+    async function requestPasswordReset(email) {
+      const response = await fetch("/.netlify/identity/recover", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+      });
+      if (!response.ok) {
+        let message = "";
+        try {
+          const data = await response.json();
+          message = data.msg || data.message || data.error || "";
+        } catch (_) {
+          message = await response.text().catch(() => "");
+        }
+        const error = new Error(message || response.statusText || "Recovery request failed");
+        error.status = response.status;
+        throw error;
+      }
+    }
+
+    function cleanRecoveryUrl() {
+      const url = new URL(window.location.href);
+      url.searchParams.delete("recovery_token");
+      url.hash = "";
+      window.history.replaceState(null, "", `${url.pathname}${url.search}`);
+    }
+
     setStaticText();
 
     try {
-      const result = await handleAuthCallback();
+      const result = await identity.handleAuthCallback();
+      if ((result && result.type === "recovery") || startedWithRecoveryToken) {
+        showMode("reset");
+      }
       if (result && result.type === "confirmation") {
         statusEl.textContent = t("confirmed");
       }
@@ -199,16 +340,63 @@
         statusEl.textContent = t("invite");
       }
     } catch (error) {
-      statusEl.textContent = t("callback_failed") + describeAuthError(error);
+      if (startedWithRecoveryToken) {
+        showMode("reset");
+      } else {
+        statusEl.textContent = t("callback_failed") + describeAuthError(error);
+      }
     }
 
-    form.addEventListener("submit", async (event) => {
+    document.getElementById("forgotBtn").addEventListener("click", () => {
+      showMode("forgot");
+    });
+
+    document.getElementById("backToLoginBtn").addEventListener("click", () => {
+      showMode("login");
+    });
+
+    forgotForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      statusEl.textContent = t("sending_reset");
+      const email = document.getElementById("resetEmail").value.trim();
+      try {
+        await requestPasswordReset(email);
+        statusEl.textContent = t("reset_sent");
+      } catch (error) {
+        statusEl.textContent = t("reset_request_failed") + describeAuthError(error);
+      }
+    });
+
+    resetForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const password = document.getElementById("newPassword").value;
+      const confirmation = document.getElementById("confirmPassword").value;
+      if (password !== confirmation) {
+        statusEl.textContent = t("password_mismatch");
+        return;
+      }
+
+      statusEl.textContent = t("resetting_password");
+      try {
+        if (typeof identity.recoverPassword !== "function") {
+          throw new Error(t("error_reset_unavailable"));
+        }
+        await identity.recoverPassword(password);
+        cleanRecoveryUrl();
+        showMode("login");
+        statusEl.textContent = t("password_reset_success");
+      } catch (error) {
+        statusEl.textContent = t("password_reset_failed") + describeAuthError(error);
+      }
+    });
+
+    loginForm.addEventListener("submit", async (event) => {
       event.preventDefault();
       statusEl.textContent = t("logging_in");
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
       try {
-        await login(email, password);
+        await identity.login(email, password);
         window.location.href = next;
       } catch (error) {
         statusEl.textContent = t("login_failed") + describeAuthError(error);

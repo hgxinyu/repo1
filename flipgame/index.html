@@ -1085,6 +1085,11 @@
     const logoutBtn = document.getElementById("logoutBtn");
 
     async function updateAccountLinks() {
+      const hasRecoveryToken = window.location.hash.includes("recovery_token=") || window.location.search.includes("recovery_token=");
+      if (hasRecoveryToken) {
+        window.location.replace(`Login.html${window.location.search}${window.location.hash}`);
+        return;
+      }
       await handleAuthCallback().catch(() => null);
       const user = await getUser().catch(() => null);
       if (user && loginLink) loginLink.style.display = "none";
