@@ -1,4 +1,12 @@
-import { getUser, handleAuthCallback } from "https://esm.sh/@netlify/identity?bundle";
+import * as identity from "https://esm.sh/@netlify/identity?bundle";
+
+async function restoreIdentitySession() {
+  await identity.handleAuthCallback().catch(() => null);
+  if (typeof identity.hydrateSession === "function") {
+    await identity.hydrateSession().catch(() => null);
+  }
+  return identity.getUser().catch(() => null);
+}
 
 export async function guardVipPage(options = {}) {
   const pageName = options.pageName || "该页面";
@@ -7,6 +15,9 @@ export async function guardVipPage(options = {}) {
   const badgeText = access === "registered" ? "会员" : "VIP";
   const host = (window.location.hostname || "").toLowerCase();
   const isLocal = host === "localhost" || host === "127.0.0.1" || host === "::1";
+  if (!isLocal) {
+    document.body.classList.add("auth-checking");
+  }
   const pageTitle = document.getElementById("pageTitle");
   if (pageTitle && !pageTitle.querySelector(".vip-page-badge")) {
     const badge = document.createElement("span");
@@ -101,11 +112,10 @@ export async function guardVipPage(options = {}) {
     document.body.classList.add("auth-checking");
     document.body.classList.remove("auth-blocked");
     title.textContent = "正在检查权限";
-    message.textContent = "请稍候...";
+    message.textContent = "正在恢复登录状态，请稍候...";
     actions.style.display = "none";
 
-    await handleAuthCallback().catch(() => null);
-    const user = await getUser().catch(() => null);
+    const user = await restoreIdentitySession();
     if (!user) {
       document.body.classList.remove("auth-checking");
       document.body.classList.add("auth-blocked");
@@ -119,6 +129,14 @@ export async function guardVipPage(options = {}) {
 
     const response = await fetch("/api/me", { credentials: "include" });
     const data = await response.json().catch(() => ({}));
+    if (response.status === 401) {
+      document.body.classList.remove("auth-checking");
+      document.body.classList.add("auth-blocked");
+      title.textContent = "需要重新登录";
+      message.textContent = "登录状态已过期，请重新登录后继续使用。";
+      actions.style.display = "flex";
+      return false;
+    }
     const role = data && data.profile && data.profile.role ? data.profile.role : "";
     const canAccess = access === "registered"
       ? response.ok && role !== "blocked"

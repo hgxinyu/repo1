@@ -1192,14 +1192,8 @@
 
           const levels = [...new Set(variants.map((v) => String(v.tier.level || '').toUpperCase()))];
           const needs = [...new Set(variants.map((v) => String(v.tier.ascNeed || '/').replace(/^\//, '无')))];
-          const progressSet = [...new Set(variants.map((v) => Number(v.tier.soulProgress)))];
-          const enhanceSet = [...new Set(variants.map((v) => Number(v.tier.soulEnhance)))];
-          const progressText = progressSet.length === 1 ? `${progressSet[0]}` : `${Math.min(...progressSet)} ~ ${Math.max(...progressSet)}`;
-          const enhanceText = enhanceSet.length === 1 ? `${enhanceSet[0]}` : `${Math.min(...enhanceSet)} ~ ${Math.max(...enhanceSet)}`;
           const needText = needs.join(' / ');
           const levelText = levels.join(' ~ ');
-          const targetAvgSet = [...new Set(variants.map((v) => v.targetAvg))];
-          const targetText = targetAvgSet.length === 1 ? `${targetAvgSet[0]}` : `${Math.min(...targetAvgSet)} ~ ${Math.max(...targetAvgSet)}`;
           const powers = variants.map((v) => v.power).filter((v) => Number.isFinite(v));
           if (powers.length) {
             const pMin = Math.min(...powers);
@@ -1212,8 +1206,8 @@
           }
           if (hintText) {
             hintText.innerHTML = currentLang === 'zh'
-              ? `当前资质：<strong>${levelText}</strong>；升格需求：<strong>${needText}</strong>；每次凝魂经验：<strong>${progressText}</strong>；每次凝魂强化总额：<strong>${enhanceText}</strong>；目标均值：<strong>${targetText}</strong>`
-              : `Current Tier: <strong>${levelText}</strong>; Merge Needs: <strong>${needText}</strong>; EXP per Soul Perfection: <strong>${progressText}</strong>; Soul Enhance per time: <strong>${enhanceText}</strong>; Target Avg: <strong>${targetText}</strong>`;
+              ? `当前资质：<strong>${levelText}</strong>；升格需求：<strong>${needText}</strong>；`
+              : `Current Tier: <strong>${levelText}</strong>; Merge Needs: <strong>${needText}</strong>;`;
           }
           ascCostDesc.textContent = needText;
           priceDesc.textContent = currentLang === 'zh'

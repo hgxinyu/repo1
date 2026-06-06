@@ -1076,7 +1076,7 @@
     })();
   </script>
   <script type="module">
-    import { getUser, handleAuthCallback } from "https://esm.sh/@netlify/identity?bundle";
+    import * as identity from "https://esm.sh/@netlify/identity?bundle";
 
     const authTitle = document.getElementById("authTitle");
     const authMessage = document.getElementById("authMessage");
@@ -1084,6 +1084,14 @@
     const retryAuthBtn = document.getElementById("retryAuthBtn");
     const host = (window.location.hostname || "").toLowerCase();
     const isLocal = host === "localhost" || host === "127.0.0.1" || host === "::1";
+
+    async function restoreIdentitySession() {
+      await identity.handleAuthCallback().catch(() => null);
+      if (typeof identity.hydrateSession === "function") {
+        await identity.hydrateSession().catch(() => null);
+      }
+      return identity.getUser().catch(() => null);
+    }
 
     async function checkAccess() {
       if (isLocal) {
@@ -1093,11 +1101,10 @@
       document.body.classList.add("auth-checking");
       document.body.classList.remove("auth-blocked");
       authTitle.textContent = "正在检查 VIP 权限";
-      authMessage.textContent = "请稍候...";
+      authMessage.textContent = "正在恢复登录状态，请稍候...";
       authActions.style.display = "none";
 
-      await handleAuthCallback().catch(() => null);
-      const user = await getUser().catch(() => null);
+      const user = await restoreIdentitySession();
       if (!user) {
         document.body.classList.remove("auth-checking");
         document.body.classList.add("auth-blocked");
@@ -1109,6 +1116,14 @@
 
       const response = await fetch("/api/me", { credentials: "include" });
       const data = await response.json().catch(() => ({}));
+      if (response.status === 401) {
+        document.body.classList.remove("auth-checking");
+        document.body.classList.add("auth-blocked");
+        authTitle.textContent = "需要重新登录";
+        authMessage.textContent = "登录状态已过期，请重新登录后继续使用。";
+        authActions.style.display = "flex";
+        return;
+      }
       if (response.ok && data.canAccessPremium) {
         document.body.classList.remove("auth-checking", "auth-blocked");
         return;

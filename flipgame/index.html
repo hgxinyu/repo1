@@ -1075,7 +1075,7 @@
     })();
   </script>
   <script type="module">
-    import { getUser, handleAuthCallback, logout } from "https://esm.sh/@netlify/identity?bundle";
+    import * as identity from "https://esm.sh/@netlify/identity?bundle";
 
     const adminLink = document.getElementById("adminLink");
     const loginLink = document.getElementById("loginLink");
@@ -1084,21 +1084,32 @@
     const accountBtn = document.getElementById("accountBtn");
     const logoutBtn = document.getElementById("logoutBtn");
 
+    async function restoreIdentitySession() {
+      await identity.handleAuthCallback().catch(() => null);
+      if (typeof identity.hydrateSession === "function") {
+        await identity.hydrateSession().catch(() => null);
+      }
+      return identity.getUser().catch(() => null);
+    }
+
     async function updateAccountLinks() {
       const hasRecoveryToken = window.location.hash.includes("recovery_token=") || window.location.search.includes("recovery_token=");
       if (hasRecoveryToken) {
         window.location.replace(`Login.html${window.location.search}${window.location.hash}`);
         return;
       }
-      await handleAuthCallback().catch(() => null);
-      const user = await getUser().catch(() => null);
-      if (user && loginLink) loginLink.style.display = "none";
-      if (user && registerLink) registerLink.style.display = "none";
-      if (user && accountMenu) accountMenu.style.display = "inline-flex";
+      const user = await restoreIdentitySession();
       if (!user) return;
 
       const response = await fetch("/api/me", { credentials: "include" });
       const data = await response.json().catch(() => ({}));
+      if (response.status === 401) {
+        await identity.logout().catch(() => null);
+        return;
+      }
+      if (loginLink) loginLink.style.display = "none";
+      if (registerLink) registerLink.style.display = "none";
+      if (accountMenu) accountMenu.style.display = "inline-flex";
       const gameName = data && data.profile && data.profile.gameName ? data.profile.gameName : "";
       if (accountBtn) accountBtn.textContent = gameName || user.email || "已登录";
       if (response.ok && data.isAdmin && adminLink) {
@@ -1122,7 +1133,7 @@
 
     if (logoutBtn) {
       logoutBtn.addEventListener("click", async () => {
-        await logout();
+        await identity.logout();
         window.location.href = "index.html";
       });
     }

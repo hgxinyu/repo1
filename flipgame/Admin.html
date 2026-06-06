@@ -127,14 +127,20 @@
   </div>
 
   <script type="module">
-    import { getUser, handleAuthCallback, logout } from "https://esm.sh/@netlify/identity?bundle";
+    import * as identity from "https://esm.sh/@netlify/identity?bundle";
 
     const statusEl = document.getElementById("status");
     const rowsEl = document.getElementById("userRows");
     const refreshBtn = document.getElementById("refreshBtn");
     const logoutBtn = document.getElementById("logoutBtn");
 
-    await handleAuthCallback().catch(() => null);
+    async function restoreIdentitySession() {
+      await identity.handleAuthCallback().catch(() => null);
+      if (typeof identity.hydrateSession === "function") {
+        await identity.hydrateSession().catch(() => null);
+      }
+      return identity.getUser().catch(() => null);
+    }
 
     async function api(path, options) {
       const response = await fetch(path, {
@@ -184,7 +190,7 @@
 
     async function loadUsers() {
       statusEl.textContent = "正在加载用户...";
-      const currentUser = await getUser();
+      const currentUser = await restoreIdentitySession();
       if (!currentUser) {
         window.location.href = "Login.html?next=Admin.html";
         return;
@@ -207,7 +213,7 @@
       statusEl.textContent = "加载失败：" + (error.message || error);
     }));
     logoutBtn.addEventListener("click", async () => {
-      await logout();
+      await identity.logout();
       window.location.href = "Login.html?next=Admin.html";
     });
 
