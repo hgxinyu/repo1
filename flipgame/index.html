@@ -114,6 +114,35 @@
       display: none;
       align-items: center;
     }
+    .account-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      max-width: min(54vw, 240px);
+    }
+    .account-name {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .vip-account-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+      border: 1px solid rgba(251, 191, 36, 0.72);
+      border-radius: 999px;
+      padding: 2px 8px;
+      background: linear-gradient(135deg, #111827 0%, #7c2d12 52%, #f59e0b 100%);
+      color: #fff;
+      box-shadow: 0 7px 16px rgba(194, 65, 12, 0.28);
+      font-size: 11px;
+      font-weight: 900;
+      line-height: 1.25;
+      letter-spacing: 0;
+      white-space: nowrap;
+    }
     .account-panel {
       position: absolute;
       right: 0;
@@ -499,7 +528,10 @@
     <a class="lang-btn help-link" id="loginLink" href="Login.html">登录</a>
     <a class="lang-btn help-link" id="registerLink" href="Register.html">注册</a>
     <div class="account-menu" id="accountMenu">
-      <button class="lang-btn" id="accountBtn" type="button" aria-expanded="false" aria-haspopup="menu">已登录</button>
+      <button class="lang-btn account-button" id="accountBtn" type="button" aria-expanded="false" aria-haspopup="menu">
+        <span class="account-name" id="accountName" data-placeholder="true">已登录</span>
+        <span class="vip-account-badge" id="accountVipBadge" hidden>VIP</span>
+      </button>
       <div class="account-panel" id="accountPanel" role="menu">
         <button class="lang-btn" id="logoutBtn" type="button" role="menuitem">注销</button>
       </div>
@@ -626,6 +658,8 @@
       const registerLink = document.getElementById('registerLink');
       const logoutBtn = document.getElementById('logoutBtn');
       const accountBtn = document.getElementById('accountBtn');
+      const accountName = document.getElementById('accountName');
+      const accountVipBadge = document.getElementById('accountVipBadge');
       const adminLink = document.getElementById('adminLink');
       const pageTitle = document.getElementById('pageTitle');
       const pageDesc = document.getElementById('pageDesc');
@@ -685,6 +719,8 @@
           login_link: '登录',
           register_link: '注册',
           logout_link: '注销',
+          account_signed_in: '已登录',
+          account_vip_label: 'VIP 账号',
           admin_link: '管理后台',
           member_badge: '会员',
           vip_badge: 'VIP',
@@ -747,6 +783,8 @@
           login_link: 'Login',
           register_link: 'Sign up',
           logout_link: 'Log out',
+          account_signed_in: 'Signed in',
+          account_vip_label: 'VIP account',
           admin_link: 'Admin',
           member_badge: 'Member',
           vip_badge: 'VIP',
@@ -822,7 +860,11 @@
         if (loginLink) loginLink.textContent = t('login_link');
         if (registerLink) registerLink.textContent = t('register_link');
         if (logoutBtn) logoutBtn.textContent = t('logout_link');
-        if (accountBtn && accountBtn.textContent === '已登录') accountBtn.textContent = currentLang === 'zh' ? '已登录' : 'Signed in';
+        if (accountName && accountName.dataset.placeholder === 'true') accountName.textContent = t('account_signed_in');
+        if (accountVipBadge) accountVipBadge.textContent = t('vip_badge');
+        if (accountBtn && accountName && accountVipBadge && !accountVipBadge.hidden) {
+          accountBtn.setAttribute('aria-label', `${accountName.textContent} ${t('vip_badge')}`);
+        }
         if (adminLink) adminLink.textContent = t('admin_link');
         document.querySelectorAll('[data-member-badge]').forEach((badge) => { badge.textContent = t('member_badge'); });
         document.querySelectorAll('[data-vip-badge]').forEach((badge) => { badge.textContent = t('vip_badge'); });
@@ -1082,6 +1124,8 @@
     const registerLink = document.getElementById("registerLink");
     const accountMenu = document.getElementById("accountMenu");
     const accountBtn = document.getElementById("accountBtn");
+    const accountName = document.getElementById("accountName");
+    const accountVipBadge = document.getElementById("accountVipBadge");
     const logoutBtn = document.getElementById("logoutBtn");
 
     async function restoreIdentitySession() {
@@ -1111,7 +1155,19 @@
       if (registerLink) registerLink.style.display = "none";
       if (accountMenu) accountMenu.style.display = "inline-flex";
       const gameName = data && data.profile && data.profile.gameName ? data.profile.gameName : "";
-      if (accountBtn) accountBtn.textContent = gameName || user.email || "已登录";
+      const displayName = gameName || user.email || "已登录";
+      const role = data && data.profile && data.profile.role ? String(data.profile.role).toLowerCase() : "";
+      const hasVipAccess = response.ok && (data.canAccessPremium || data.isAdmin || role === "vip" || role === "admin");
+      if (accountName) {
+        accountName.textContent = displayName;
+        accountName.dataset.placeholder = "false";
+      }
+      if (accountVipBadge) {
+        accountVipBadge.hidden = !hasVipAccess;
+      }
+      if (accountBtn) {
+        accountBtn.setAttribute("aria-label", hasVipAccess ? `${displayName} VIP` : displayName);
+      }
       if (response.ok && data.isAdmin && adminLink) {
         adminLink.style.display = "inline-flex";
       }
