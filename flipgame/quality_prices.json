@@ -1,0 +1,18 @@
+{
+  "source": "manual-json",
+  "starDiamondBoundDiamondRatio": 5,
+  "tiers": [
+    { "tier": "C-", "foodPrice": 20, "keptPrice": 20 },
+    { "tier": "C", "foodPrice": 30, "keptPrice": 30 },
+    { "tier": "C+", "foodPrice": 40, "keptPrice": 40 },
+    { "tier": "B-", "foodPrice": 60, "keptPrice": 60 },
+    { "tier": "B", "foodPrice": 140, "keptPrice": 140 },
+    { "tier": "B+", "foodPrice": 530, "keptPrice": 530 },
+    { "tier": "A-", "foodPrice": 3100, "keptPrice": 6000 },
+    { "tier": "A", "foodPrice": 6100, "keptPrice": 10000 },
+    { "tier": "A+", "foodPrice": 12500, "keptPrice": 15000 },
+    { "tier": "S", "foodPrice": 26000, "keptPrice": 50000 },
+    { "tier": "SS", "foodPrice": 61000, "keptPrice": 100000 },
+    { "tier": "SSS", "foodPrice": 160000, "keptPrice": 200000 }
+  ]
+}

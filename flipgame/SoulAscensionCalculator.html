@@ -434,50 +434,6 @@
 
       <section class="card" aria-labelledby="price-title">
         <h2 id="price-title">凝魂性价比</h2>
-        <p class="muted" style="margin:-4px 0 4px;" id="priceDesc">下方输入框只填各资质单价，留空表示忽略该资质。</p>
-        <div class="row">
-          <div class="col">
-            <label for="priceBMinus" id="priceBMinusLabel">B- 单价</label>
-            <input id="priceBMinus" type="number" inputmode="decimal" min="0" step="any" placeholder="留空=忽略" />
-          </div>
-          <div class="col">
-            <label for="priceB" id="priceBLabel">B 单价</label>
-            <input id="priceB" type="number" inputmode="decimal" min="0" step="any" placeholder="留空=忽略" />
-          </div>
-          <div class="col">
-            <label for="priceBPlus" id="priceBPlusLabel">B+ 单价</label>
-            <input id="priceBPlus" type="number" inputmode="decimal" min="0" step="any" placeholder="留空=忽略" />
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <label for="priceAMinus" id="priceAMinusLabel">A- 单价</label>
-            <input id="priceAMinus" type="number" inputmode="decimal" min="0" step="any" placeholder="留空=忽略" />
-          </div>
-          <div class="col">
-            <label for="priceA" id="priceALabel">A 单价</label>
-            <input id="priceA" type="number" inputmode="decimal" min="0" step="any" placeholder="留空=忽略" />
-          </div>
-          <div class="col">
-            <label for="priceAPlus" id="priceAPlusLabel">A+ 单价</label>
-            <input id="priceAPlus" type="number" inputmode="decimal" min="0" step="any" placeholder="留空=忽略" />
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <label for="priceS" id="priceSLabel">S 单价</label>
-            <input id="priceS" type="number" inputmode="decimal" min="0" step="any" placeholder="留空=忽略" />
-          </div>
-          <div class="col">
-            <label for="priceSS" id="priceSSLabel">SS 单价</label>
-            <input id="priceSS" type="number" inputmode="decimal" min="0" step="any" placeholder="留空=忽略" />
-          </div>
-          <div class="col">
-            <label for="priceSSS" id="priceSSSLabel">SSS 单价</label>
-            <input id="priceSSS" type="number" inputmode="decimal" min="0" step="any" placeholder="留空=忽略" />
-          </div>
-        </div>
-
         <div class="out" aria-live="polite">
           <div class="box">
             <div class="kv"><span id="bestComboLabel">最优组合</span><span class="v" id="bestComboValue">—</span></div>
@@ -485,7 +441,7 @@
           </div>
           <div class="box">
             <div class="kv"><span id="bestCostLabel">凝魂成本</span><span class="v" id="bestCostValue">—</span></div>
-            <span class="muted" id="bestCostDesc">仅根据已填写价格计算</span>
+            <span class="muted" id="bestCostDesc">根据狗粮资质价格自动计算</span>
           </div>
           <div class="box">
             <div class="kv"><span id="bestExpLabel">总经验</span><span class="v" id="bestExpValue">—</span></div>
@@ -534,16 +490,6 @@
       const powerLabel = document.getElementById('powerLabel');
       const powerDesc = document.getElementById('powerDesc');
       const priceTitle = document.getElementById('price-title');
-      const priceDesc = document.getElementById('priceDesc');
-      const priceBMinusLabel = document.getElementById('priceBMinusLabel');
-      const priceBLabel = document.getElementById('priceBLabel');
-      const priceBPlusLabel = document.getElementById('priceBPlusLabel');
-      const priceAMinusLabel = document.getElementById('priceAMinusLabel');
-      const priceALabel = document.getElementById('priceALabel');
-      const priceAPlusLabel = document.getElementById('priceAPlusLabel');
-      const priceSLabel = document.getElementById('priceSLabel');
-      const priceSSLabel = document.getElementById('priceSSLabel');
-      const priceSSSLabel = document.getElementById('priceSSSLabel');
       const bestComboLabel = document.getElementById('bestComboLabel');
       const bestCostLabel = document.getElementById('bestCostLabel');
       const bestExpLabel = document.getElementById('bestExpLabel');
@@ -558,15 +504,6 @@
       const atk = document.getElementById('atk');
       const hp = document.getElementById('hp');
       const spd = document.getElementById('spd');
-      const priceBMinus = document.getElementById('priceBMinus');
-      const priceB = document.getElementById('priceB');
-      const priceBPlus = document.getElementById('priceBPlus');
-      const priceAMinus = document.getElementById('priceAMinus');
-      const priceA = document.getElementById('priceA');
-      const priceAPlus = document.getElementById('priceAPlus');
-      const priceS = document.getElementById('priceS');
-      const priceSS = document.getElementById('priceSS');
-      const priceSSS = document.getElementById('priceSSS');
       const avgValue = document.getElementById('avgValue');
       const times = document.getElementById('times');
       const powerValue = document.getElementById('powerValue');
@@ -605,37 +542,27 @@
           warn_x_invalid: 'X 数值错误：当任意一维超过旧上限时，三维必须同时满足 <strong>x > 9900、y > 9900、z >= 99</strong>。',
           avg_label: '平均值',
           times_label: '凝魂次数',
-          times_desc: '显示范围是因为速度存在隐藏小数。',
+          times_desc: '',
           power_label: '魂力值',
-          power_desc: '显示范围是因为速度存在隐藏小数。',
+          power_desc: '',
           price_title_tpl: '凝魂性价比',
-          price_desc_tpl: '下方输入框只填各资质单价，留空表示忽略该资质。',
-          price_bminus_label: 'B- 单价',
-          price_b_label: 'B 单价',
-          price_bplus_label: 'B+ 单价',
-          price_aminus_label: 'A- 单价',
-          price_a_label: 'A 单价',
-          price_aplus_label: 'A+ 单价',
-          price_s_label: 'S 单价',
-          price_ss_label: 'SS 单价',
-          price_sss_label: 'SSS 单价',
-          price_placeholder: '留空=忽略',
           best_combo_label: '最优组合',
           best_cost_label: '凝魂成本',
           best_exp_label: '总经验',
           best_combo_desc: '达到所需总经验的最低成本吃法',
-          best_cost_desc: '仅根据已填写价格计算',
+          best_cost_desc: '根据狗粮资质价格自动计算',
           best_eff_desc: '成本/所需总经验：',
           asc_cost_label: '升格成本',
           asc_cost_desc_aplus_to_s: '自动读取当前资质的升格需求',
           asc_cost_desc_a_to_aplus: '自动读取当前资质的升格需求',
           total_cost_label: '总成本（高亮）',
           total_cost_desc: '',
-          need_asc_prices_aplus_to_s: '请先填写 A- / A / A+ 单价后再显示总价',
-          need_asc_prices_a_to_aplus: '请先填写 B+ / A- / A 单价后再显示总价',
+          need_asc_prices_aplus_to_s: '请先加载资质价格后再显示总价',
+          need_asc_prices_a_to_aplus: '请先加载资质价格后再显示总价',
           need_valid_stats: '请先在上方输入有效属性',
-          need_merge_prices: '请补全升格材料单价',
-          no_price: '未填写任何价格',
+          need_merge_prices: '资质价格缺少升格材料单价',
+          no_price: '未加载资质价格',
+          price_load_failed: '未能加载资质价格（quality_prices.json），请确认文件路径。',
           no_solution: '无法凑满所需总经验',
           clear: '清空',
           dash: '—',
@@ -668,37 +595,27 @@
           warn_x_invalid: 'Invalid X values: once any stat exceeds legacy cap, all three must satisfy <strong>x > 9900, y > 9900, z >= 99</strong>.',
           avg_label: 'Average',
           times_label: 'Soul Perfection Count',
-          times_desc: 'A range usually means Speed has two hidden decimal places.',
+          times_desc: '',
           power_label: 'Soul Power',
-          power_desc: 'A range usually means Speed has two hidden decimal places.',
+          power_desc: '',
           price_title_tpl: 'Soul Perfection Cost Efficiency',
-          price_desc_tpl: 'Enter unit prices only. Blank means ignored.',
-          price_bminus_label: 'B- Price',
-          price_b_label: 'B Price',
-          price_bplus_label: 'B+ Price',
-          price_aminus_label: 'A- Price',
-          price_a_label: 'A Price',
-          price_aplus_label: 'A+ Price',
-          price_s_label: 'S Price',
-          price_ss_label: 'SS Price',
-          price_sss_label: 'SSS Price',
-          price_placeholder: 'Blank = ignore',
           best_combo_label: 'Best Combo',
           best_cost_label: 'Soul Perfection Cost',
           best_exp_label: 'Total EXP',
           best_combo_desc: 'Lowest cost way to reach the required EXP',
-          best_cost_desc: 'Computed from entered prices only',
+          best_cost_desc: 'Computed automatically from food prices',
           best_eff_desc: 'Cost / Required EXP:',
           asc_cost_label: 'Soul Merge Cost',
           asc_cost_desc_aplus_to_s: 'Auto read from current tier merge requirements',
           asc_cost_desc_a_to_aplus: 'Auto read from current tier merge requirements',
           total_cost_label: 'Total Cost (Highlight)',
           total_cost_desc: '',
-          need_asc_prices_aplus_to_s: 'Enter A- / A / A+ prices to show total cost',
-          need_asc_prices_a_to_aplus: 'Enter B+ / A- / A prices to show total cost',
+          need_asc_prices_aplus_to_s: 'Load quality prices before showing total cost',
+          need_asc_prices_a_to_aplus: 'Load quality prices before showing total cost',
           need_valid_stats: 'Enter valid stats above first',
-          need_merge_prices: 'Please fill required merge material prices',
-          no_price: 'No prices entered',
+          need_merge_prices: 'Quality prices are missing merge material prices',
+          no_price: 'Quality prices not loaded',
+          price_load_failed: 'Failed to load quality_prices.json. Please verify file path.',
           no_solution: 'Cannot reach required EXP',
           clear: 'Clear',
           dash: '—',
@@ -724,9 +641,11 @@
       const LEGACY_HP_MAX = 9900;
       const LEGACY_SPD_MAX = 99;
       const LEGACY_TOP_AVG = 9900;
+      const MAX_FEED_PER_TIER = 10;
       let topAvgCap = DEFAULT_TOP_AVG;
       let legacyMaxTierIndex = null;
       let tiers = [];
+      let foodPrices = new Map();
 
       function t(key) {
         return (I18N[currentLang] && I18N[currentLang][key]) || I18N.zh[key] || '';
@@ -734,6 +653,10 @@
 
       function fillTemplate(template, vars) {
         return String(template).replace(/\{(\w+)\}/g, (_, k) => (vars[k] !== undefined ? String(vars[k]) : ''));
+      }
+
+      function normalizeTierName(level) {
+        return String(level || '').trim().toUpperCase();
       }
 
       function setStaticText() {
@@ -763,25 +686,6 @@
         if (powerLabel) powerLabel.textContent = t('power_label');
         if (powerDesc) powerDesc.textContent = t('power_desc');
         if (priceTitle) priceTitle.textContent = t('price_title_tpl');
-        if (priceDesc) priceDesc.textContent = t('price_desc_tpl');
-        if (priceBMinusLabel) priceBMinusLabel.textContent = t('price_bminus_label');
-        if (priceBLabel) priceBLabel.textContent = t('price_b_label');
-        if (priceBPlusLabel) priceBPlusLabel.textContent = t('price_bplus_label');
-        if (priceAMinusLabel) priceAMinusLabel.textContent = t('price_aminus_label');
-        if (priceALabel) priceALabel.textContent = t('price_a_label');
-        if (priceAPlusLabel) priceAPlusLabel.textContent = t('price_aplus_label');
-        if (priceSLabel) priceSLabel.textContent = t('price_s_label');
-        if (priceSSLabel) priceSSLabel.textContent = t('price_ss_label');
-        if (priceSSSLabel) priceSSSLabel.textContent = t('price_sss_label');
-        if (priceBMinus) priceBMinus.setAttribute('placeholder', t('price_placeholder'));
-        if (priceB) priceB.setAttribute('placeholder', t('price_placeholder'));
-        if (priceBPlus) priceBPlus.setAttribute('placeholder', t('price_placeholder'));
-        if (priceAMinus) priceAMinus.setAttribute('placeholder', t('price_placeholder'));
-        if (priceA) priceA.setAttribute('placeholder', t('price_placeholder'));
-        if (priceAPlus) priceAPlus.setAttribute('placeholder', t('price_placeholder'));
-        if (priceS) priceS.setAttribute('placeholder', t('price_placeholder'));
-        if (priceSS) priceSS.setAttribute('placeholder', t('price_placeholder'));
-        if (priceSSS) priceSSS.setAttribute('placeholder', t('price_placeholder'));
         if (bestComboLabel) bestComboLabel.textContent = t('best_combo_label');
         if (bestCostLabel) bestCostLabel.textContent = t('best_cost_label');
         if (bestExpLabel) bestExpLabel.textContent = t('best_exp_label');
@@ -808,6 +712,20 @@
       function toNum(value) {
         const parsed = parseFloat(value);
         return Number.isFinite(parsed) ? parsed : 0;
+      }
+
+      function formatPrice(value) {
+        const n = Number(value);
+        if (!Number.isFinite(n)) return t('dash');
+        return n.toLocaleString(currentLang === 'zh' ? 'zh-CN' : 'en-US', {
+          maximumFractionDigits: 2
+        });
+      }
+
+      function formatRounded(value) {
+        const n = Number(value);
+        if (!Number.isFinite(n)) return t('dash');
+        return Math.round(n).toLocaleString(currentLang === 'zh' ? 'zh-CN' : 'en-US');
       }
 
       function clampInputValue(input, min, max) {
@@ -922,6 +840,34 @@
         throw lastErr || new Error('Failed to load tier data');
       }
 
+      async function loadQualityPrices() {
+        const candidates = ['quality_prices.json', './quality_prices.json', '/flipgame/quality_prices.json'];
+        let lastErr = null;
+        for (const p of candidates) {
+          try {
+            const response = await fetch(p, { cache: 'no-cache' });
+            if (!response.ok) {
+              lastErr = new Error(`HTTP ${response.status} for ${p}`);
+              continue;
+            }
+            const data = await response.json();
+            const rows = Array.isArray(data.tiers) ? data.tiers : [];
+            const parsedRows = rows.map((row) => ({
+              tier: normalizeTierName(row.tier),
+              foodPrice: Number(row.foodPrice)
+            })).filter((row) => row.tier && Number.isFinite(row.foodPrice) && row.foodPrice >= 0);
+            if (parsedRows.length) {
+              foodPrices = new Map(parsedRows.map((row) => [row.tier, row.foodPrice]));
+              return;
+            }
+            lastErr = new Error(`No valid quality prices in ${p}`);
+          } catch (err) {
+            lastErr = err;
+          }
+        }
+        throw lastErr || new Error('Failed to load quality price data');
+      }
+
       function findTierIndex(avg) {
         if (!tiers.length) return null;
         for (let i = tiers.length - 1; i >= 0; i -= 1) {
@@ -930,25 +876,9 @@
         return null;
       }
 
-      function parsePrice(value) {
-        const raw = String(value || '').trim();
-        if (!raw) return null;
-        const parsed = parseFloat(raw);
-        return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
-      }
-
       function getPriceByTier(level) {
-        const normalized = String(level || '').trim().toUpperCase();
-        if (normalized === 'B-') return parsePrice(priceBMinus.value);
-        if (normalized === 'B') return parsePrice(priceB.value);
-        if (normalized === 'B+') return parsePrice(priceBPlus.value);
-        if (normalized === 'A-') return parsePrice(priceAMinus.value);
-        if (normalized === 'A') return parsePrice(priceA.value);
-        if (normalized === 'A+') return parsePrice(priceAPlus.value);
-        if (normalized === 'S') return parsePrice(priceS.value);
-        if (normalized === 'SS') return parsePrice(priceSS.value);
-        if (normalized === 'SSS') return parsePrice(priceSSS.value);
-        return null;
+        const price = foodPrices.get(normalizeTierName(level));
+        return Number.isFinite(price) ? price : null;
       }
 
       function calculateMergeCost(requirementText) {
@@ -1009,7 +939,7 @@
 
         if (targetExp === 0) {
           bestComboValue.textContent = '0';
-          bestCostValue.textContent = '0.00';
+          bestCostValue.textContent = '0';
           bestExpValue.textContent = '0';
           ascCostValue.textContent = t('dash');
           totalCostValue.textContent = t('dash');
@@ -1018,15 +948,15 @@
         }
 
         const options = [
-          { key: 'B-', exp: 50, price: parsePrice(priceBMinus.value) },
-          { key: 'B', exp: 140, price: parsePrice(priceB.value) },
-          { key: 'B+', exp: 340, price: parsePrice(priceBPlus.value) },
-          { key: 'A-', exp: 3050, price: parsePrice(priceAMinus.value) },
-          { key: 'A', exp: 5750, price: parsePrice(priceA.value) },
-          { key: 'A+', exp: 10000, price: parsePrice(priceAPlus.value) },
-          { key: 'S', exp: 26750, price: parsePrice(priceS.value) },
-          { key: 'SS', exp: 37750, price: parsePrice(priceSS.value) },
-          { key: 'SSS', exp: 72000, price: parsePrice(priceSSS.value) }
+          { key: 'B-', exp: 50, price: getPriceByTier('B-') },
+          { key: 'B', exp: 140, price: getPriceByTier('B') },
+          { key: 'B+', exp: 340, price: getPriceByTier('B+') },
+          { key: 'A-', exp: 3050, price: getPriceByTier('A-') },
+          { key: 'A', exp: 5750, price: getPriceByTier('A') },
+          { key: 'A+', exp: 10000, price: getPriceByTier('A+') },
+          { key: 'S', exp: 26750, price: getPriceByTier('S') },
+          { key: 'SS', exp: 37750, price: getPriceByTier('SS') },
+          { key: 'SSS', exp: 72000, price: getPriceByTier('SSS') }
         ].filter((item) => item.price !== null);
 
         if (!options.length) {
@@ -1041,19 +971,25 @@
 
         const maxExp = Math.max(...options.map((item) => item.exp));
         const cap = targetExp + maxExp;
+        const feedItems = [];
+        options.forEach((option, optionIndex) => {
+          for (let copy = 0; copy < MAX_FEED_PER_TIER; copy += 1) {
+            feedItems.push({ optionIndex, key: option.key, exp: option.exp, price: option.price });
+          }
+        });
         const dpCost = Array(cap + 1).fill(Infinity);
         const dpCount = Array(cap + 1).fill(Infinity);
         const prevExp = Array(cap + 1).fill(-1);
-        const prevOpt = Array(cap + 1).fill(-1);
+        const prevItem = Array(cap + 1).fill(-1);
         dpCost[0] = 0;
         dpCount[0] = 0;
 
-        for (let exp = 0; exp <= cap; exp += 1) {
-          if (!Number.isFinite(dpCost[exp])) continue;
-          for (let i = 0; i < options.length; i += 1) {
-            const nextExp = exp + options[i].exp;
-            if (nextExp > cap) continue;
-            const nextCost = dpCost[exp] + options[i].price;
+        for (let i = 0; i < feedItems.length; i += 1) {
+          const item = feedItems[i];
+          for (let exp = cap - item.exp; exp >= 0; exp -= 1) {
+            if (!Number.isFinite(dpCost[exp])) continue;
+            const nextExp = exp + item.exp;
+            const nextCost = dpCost[exp] + item.price;
             const nextCount = dpCount[exp] + 1;
             const betterCost = nextCost < dpCost[nextExp];
             const sameCostLessItems = nextCost === dpCost[nextExp] && nextCount < dpCount[nextExp];
@@ -1061,7 +997,7 @@
               dpCost[nextExp] = nextCost;
               dpCount[nextExp] = nextCount;
               prevExp[nextExp] = exp;
-              prevOpt[nextExp] = i;
+              prevItem[nextExp] = i;
             }
           }
         }
@@ -1093,16 +1029,16 @@
 
         const counts = {};
         let cursor = bestExp;
-        while (cursor > 0 && prevOpt[cursor] !== -1) {
-          const opt = options[prevOpt[cursor]];
-          counts[opt.key] = (counts[opt.key] || 0) + 1;
+        while (cursor > 0 && prevItem[cursor] !== -1) {
+          const item = feedItems[prevItem[cursor]];
+          counts[item.key] = (counts[item.key] || 0) + 1;
           cursor = prevExp[cursor];
         }
 
         const parts = Object.keys(counts).sort().map((key) => `${key}×${counts[key]}`);
         bestComboValue.textContent = parts.length ? parts.join(' + ') : t('dash');
-        bestCostValue.textContent = Number.isFinite(bestCost) ? bestCost.toFixed(2) : t('dash');
-        bestExpValue.textContent = bestExp >= 0 ? String(bestExp) : t('dash');
+        bestCostValue.textContent = formatRounded(bestCost);
+        bestExpValue.textContent = bestExp >= 0 ? formatRounded(bestExp) : t('dash');
         ascCostValue.textContent = t('dash');
         totalCostValue.textContent = t('dash');
         bestEffDesc.textContent = `${t('best_eff_desc')} ${(bestCost / targetExp).toFixed(4)}`;
@@ -1210,9 +1146,6 @@
               : `Current Tier: <strong>${levelText}</strong>; Merge Needs: <strong>${needText}</strong>;`;
           }
           ascCostDesc.textContent = needText;
-          priceDesc.textContent = currentLang === 'zh'
-            ? '下方输入框只填各资质单价，留空表示忽略该资质。'
-            : 'Enter unit prices only. Blank means ignored.';
         } else {
           times.textContent = t('dash');
           powerValue.textContent = t('dash');
@@ -1247,14 +1180,14 @@
         const ascMin = Math.min(...ascCosts);
         const ascMax = Math.max(...ascCosts);
         ascCostValue.textContent = ascMin === ascMax
-          ? ascMin.toFixed(2)
-          : `${ascMin.toFixed(2)} ~ ${ascMax.toFixed(2)}`;
+          ? formatRounded(ascMin)
+          : `${formatRounded(ascMin)} ~ ${formatRounded(ascMax)}`;
 
         const totalMin = feedPlan.bestCost + ascMin;
         const totalMax = feedPlan.bestCost + ascMax;
         totalCostValue.textContent = totalMin === totalMax
-          ? totalMin.toFixed(2)
-          : `${totalMin.toFixed(2)} ~ ${totalMax.toFixed(2)}`;
+          ? formatRounded(totalMin)
+          : `${formatRounded(totalMin)} ~ ${formatRounded(totalMax)}`;
       }
 
       function debouncedUpdate() {
@@ -1286,11 +1219,7 @@
         });
       });
 
-      [priceBMinus, priceB, priceBPlus, priceAMinus, priceA, priceAPlus, priceS, priceSS, priceSSS].forEach((input) => {
-        input.addEventListener('input', debouncedUpdate);
-        input.addEventListener('change', update);
-      });
-      [atk, hp, spd, priceBMinus, priceB, priceBPlus, priceAMinus, priceA, priceAPlus, priceS, priceSS, priceSSS].forEach((input) => {
+      [atk, hp, spd].forEach((input) => {
         input.addEventListener('focus', () => {
           if (String(input.value).trim() === '0' || String(input.value).trim() === '1') {
             input.select();
@@ -1301,15 +1230,6 @@
         atk.value = '1';
         hp.value = '1';
         spd.value = '1';
-        priceBMinus.value = '';
-        priceB.value = '';
-        priceBPlus.value = '';
-        priceAMinus.value = '';
-        priceA.value = '';
-        priceAPlus.value = '';
-        priceS.value = '';
-        priceSS.value = '';
-        priceSSS.value = '';
         touched = false;
         atk.focus();
         update();
@@ -1384,20 +1304,20 @@
 
       enableAppSwipeHome();
       setStaticText();
-      loadTiers()
+      Promise.all([loadTiers(), loadQualityPrices()])
         .then(() => {
           setStaticText();
           update();
         })
         .catch((err) => {
-          console.error('Failed to load soul tiers:', err);
+          console.error('Failed to load calculator data:', err);
           warn.style.display = 'block';
           times.textContent = t('dash');
           avgValue.textContent = t('dash');
           if (hintText) {
             hintText.textContent = currentLang === 'zh'
-              ? '未能加载资质数据（soul_tiers.csv），请确认文件路径。'
-              : 'Failed to load tier data (soul_tiers.csv). Please verify file path.';
+              ? '未能加载资质数据（soul_tiers.csv）或价格数据（quality_prices.json），请确认文件路径。'
+              : 'Failed to load tier data (soul_tiers.csv) or price data (quality_prices.json). Please verify file path.';
           }
           calcBestFeedPlan(0);
         });

@@ -8,13 +8,21 @@ async function restoreIdentitySession() {
   return identity.getUser().catch(() => null);
 }
 
+function isLocalPreview() {
+  const host = (window.location.hostname || "").toLowerCase();
+  return window.location.protocol === "file:"
+    || host === "localhost"
+    || host === "127.0.0.1"
+    || host === "0.0.0.0"
+    || host === "::1";
+}
+
 export async function guardVipPage(options = {}) {
   const pageName = options.pageName || "该页面";
   const next = options.next || window.location.pathname.split("/").pop() || "index.html";
   const access = options.access === "registered" ? "registered" : "vip";
   const badgeText = access === "registered" ? "会员" : "VIP";
-  const host = (window.location.hostname || "").toLowerCase();
-  const isLocal = host === "localhost" || host === "127.0.0.1" || host === "::1";
+  const isLocal = isLocalPreview();
   if (!isLocal) {
     document.body.classList.add("auth-checking");
   }

@@ -475,7 +475,8 @@
     const promptTitle = document.getElementById('promptTitle');
     const sourceList = document.getElementById('sourceList');
     const promptList = document.getElementById('promptList');
-    const isLocal = ['localhost', '127.0.0.1', '::1'].includes((window.location.hostname || '').toLowerCase());
+    const isLocal = window.location.protocol === 'file:'
+      || ['localhost', '127.0.0.1', '0.0.0.0', '::1'].includes((window.location.hostname || '').toLowerCase());
     const MAX_CONTEXT_TURNS = 10;
     let history = [];
     let currentLang = (localStorage.getItem('flipgame_lang') || '').toLowerCase();

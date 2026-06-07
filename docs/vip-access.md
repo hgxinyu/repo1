@@ -85,6 +85,8 @@ Autoconfirm = Off
 
 本地 `python3 -m http.server 8000` 只能预览静态页面，不能完整验证 Netlify Identity、Functions、Blobs。账号注册、登录、管理员后台、注册会员权限和 VIP 权限需要部署到 Netlify 后测试。
 
+为了方便本地静态预览，会员页和 VIP 页在 `file://`、`localhost`、`127.0.0.1`、`0.0.0.0`、`::1` 下会跳过前端权限门。线上 Netlify 地址仍必须登录并通过 `/api/me` 权限检查。
+
 ## 安全边界
 
 当前注册会员页面和 VIP 页面使用前端权限门隐藏页面内容，并通过 `/api/me` 确认权限。这个方式适合第一版人工审核。

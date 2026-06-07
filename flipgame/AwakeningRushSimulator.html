@@ -690,16 +690,20 @@
             <span class="muted" id="scoreDesc">本次随机模拟获得的冲榜积分</span>
           </div>
           <div class="box gold">
-            <div class="kv"><span id="highLabel">A-以上数量</span><span class="v" id="highCount">0</span></div>
-            <span class="muted" id="highDesc">最终保留的 A- / A / A+ / S / SS / SSS 数量</span>
+            <div class="kv"><span id="aCountLabel">A数量</span><span class="v" id="aCount">0</span></div>
+            <span class="muted" id="aCountDesc">最终保留的 A- / A / A+ 数量</span>
+          </div>
+          <div class="box gold">
+            <div class="kv"><span id="sCountLabel">S数量</span><span class="v" id="sCount">0</span></div>
+            <span class="muted" id="sCountDesc">最终保留的 S / SS / SSS 数量</span>
           </div>
           <div class="box">
             <div class="kv"><span id="pullsLabel">觉醒次数</span><span class="v" id="pulls">0</span></div>
             <span class="muted" id="pullsDesc">包含返钻后继续觉醒的次数</span>
           </div>
-          <div class="box">
-            <div class="kv"><span id="leftLabel">剩余绑钻</span><span class="v" id="leftDiamonds">0</span></div>
-            <span class="muted" id="leftDesc">不足 100 时停止</span>
+          <div class="box highlight">
+            <div class="kv"><span id="netStarLabel">净投入</span><span class="v" id="netStar">0</span></div>
+            <span class="muted" id="netStarDesc">投入星钻 - 出货星钻</span>
           </div>
         </div>
       </section>
@@ -784,29 +788,32 @@
       const hintText = document.getElementById('hintText');
       const scoreLabel = document.getElementById('scoreLabel');
       const scoreDesc = document.getElementById('scoreDesc');
-      const highLabel = document.getElementById('highLabel');
-      const highDesc = document.getElementById('highDesc');
+      const aCountLabel = document.getElementById('aCountLabel');
+      const aCountDesc = document.getElementById('aCountDesc');
+      const sCountLabel = document.getElementById('sCountLabel');
+      const sCountDesc = document.getElementById('sCountDesc');
       const pullsLabel = document.getElementById('pullsLabel');
       const pullsDesc = document.getElementById('pullsDesc');
-      const leftLabel = document.getElementById('leftLabel');
-      const leftDesc = document.getElementById('leftDesc');
       const expectedScoreLabel = document.getElementById('expectedScoreLabel');
       const expectedScoreDesc = document.getElementById('expectedScoreDesc');
       const expectedHighLabel = document.getElementById('expectedHighLabel');
       const expectedHighDesc = document.getElementById('expectedHighDesc');
       const expectedPullsLabel = document.getElementById('expectedPullsLabel');
       const expectedPullsDesc = document.getElementById('expectedPullsDesc');
+      const netStarLabel = document.getElementById('netStarLabel');
+      const netStarDesc = document.getElementById('netStarDesc');
       const topbarNav = document.getElementById('topbar-nav');
       const tierDistribution = document.getElementById('tierDistribution');
 
       const outputEls = {
         totalScore: document.getElementById('totalScore'),
-        highCount: document.getElementById('highCount'),
+        aCount: document.getElementById('aCount'),
+        sCount: document.getElementById('sCount'),
         pulls: document.getElementById('pulls'),
-        leftDiamonds: document.getElementById('leftDiamonds'),
         expectedScore: document.getElementById('expectedScore'),
         expectedHigh: document.getElementById('expectedHigh'),
-        expectedPulls: document.getElementById('expectedPulls')
+        expectedPulls: document.getElementById('expectedPulls'),
+        netStar: document.getElementById('netStar')
       };
 
       const I18N = {
@@ -827,18 +834,21 @@
           hint_over: '已按上限 2,000,000 绑钻计算。',
           score_label: '总分',
           score_desc: '本次随机模拟获得的冲榜积分',
-          high_label: 'A-以上数量',
-          high_desc: '最终保留的 A- / A / A+ / S / SS / SSS 数量',
+          a_count_label: 'A数量',
+          a_count_desc: '最终保留的 A- / A / A+ 数量',
+          s_count_label: 'S数量',
+          s_count_desc: '最终保留的 S / SS / SSS 数量',
           pulls_label: '觉醒次数',
           pulls_desc: '包含返钻后继续觉醒的次数',
-          left_label: '剩余绑钻',
-          left_desc: '不足 100 时停止',
           expected_score_label: '期望总分',
           expected_score_desc: '按平均返钻 47.731 递推',
           expected_high_label: '期望A-以上',
           expected_high_desc: 'A- 及以上概率合计 0.000255',
           expected_pulls_label: '期望觉醒次数',
           expected_pulls_desc: '初始绑钻 / 52.269',
+          net_star_label: '净投入',
+          net_star_desc: '投入星钻 - 出货星钻',
+          price_load_failed: '未能加载资质价格（quality_prices.json），出货收益暂按 0 计算。',
           lang_toggle_en: 'EN',
           lang_toggle_zh: '中文'
         },
@@ -859,18 +869,21 @@
           hint_over: 'Calculated with the 2,000,000 bound diamond limit.',
           score_label: 'Total Score',
           score_desc: 'Score from this random run',
-          high_label: 'A-+ Count',
-          high_desc: 'Final kept A- / A / A+ / S / SS / SSS copies',
+          a_count_label: 'A Count',
+          a_count_desc: 'Final kept A- / A / A+ copies',
+          s_count_label: 'S Count',
+          s_count_desc: 'Final kept S / SS / SSS copies',
           pulls_label: 'Awakenings',
           pulls_desc: 'Includes awakenings funded by recycled diamonds',
-          left_label: 'Leftover Diamonds',
-          left_desc: 'Stops below 100',
           expected_score_label: 'Expected Score',
           expected_score_desc: 'Uses average refund 47.731',
           expected_high_label: 'Expected A-+',
           expected_high_desc: 'A- and above probability is 0.000255',
           expected_pulls_label: 'Expected Pulls',
           expected_pulls_desc: 'Initial diamonds / 52.269',
+          net_star_label: 'Net Input',
+          net_star_desc: 'Input star diamonds - kept value',
+          price_load_failed: 'Failed to load quality_prices.json. Kept value is temporarily calculated as 0.',
           lang_toggle_en: 'EN',
           lang_toggle_zh: '中文'
         }
@@ -881,9 +894,45 @@
         const navLang = (navigator.language || '').toLowerCase();
         currentLang = navLang.startsWith('zh') ? 'zh' : 'en';
       }
+      let starDiamondBoundDiamondRatio = null;
+      let keptPrices = new Map();
 
       function t(key) {
         return (I18N[currentLang] && I18N[currentLang][key]) || I18N.zh[key] || '';
+      }
+
+      function normalizeTierName(level) {
+        return String(level || '').trim().toUpperCase();
+      }
+
+      async function loadQualityPrices() {
+        const candidates = ['quality_prices.json', './quality_prices.json', '/flipgame/quality_prices.json'];
+        let lastErr = null;
+        for (const p of candidates) {
+          try {
+            const response = await fetch(p, { cache: 'no-cache' });
+            if (!response.ok) {
+              lastErr = new Error(`HTTP ${response.status} for ${p}`);
+              continue;
+            }
+            const data = await response.json();
+            const ratio = Number(data.starDiamondBoundDiamondRatio);
+            const rows = Array.isArray(data.tiers) ? data.tiers : [];
+            const parsedPrices = rows.map((row) => ({
+              tier: normalizeTierName(row.tier),
+              keptPrice: Number(row.keptPrice)
+            })).filter((row) => row.tier && Number.isFinite(row.keptPrice) && row.keptPrice >= 0);
+            if (Number.isFinite(ratio) && ratio > 0 && parsedPrices.length) {
+              starDiamondBoundDiamondRatio = ratio;
+              keptPrices = new Map(parsedPrices.map((row) => [row.tier, row.keptPrice]));
+              return;
+            }
+            lastErr = new Error(`No valid quality prices in ${p}`);
+          } catch (err) {
+            lastErr = err;
+          }
+        }
+        throw lastErr || new Error('Failed to load quality price data');
       }
 
       function setStaticText() {
@@ -909,18 +958,20 @@
         if (hintText) hintText.textContent = t('hint');
         if (scoreLabel) scoreLabel.textContent = t('score_label');
         if (scoreDesc) scoreDesc.textContent = t('score_desc');
-        if (highLabel) highLabel.textContent = t('high_label');
-        if (highDesc) highDesc.textContent = t('high_desc');
+        if (aCountLabel) aCountLabel.textContent = t('a_count_label');
+        if (aCountDesc) aCountDesc.textContent = t('a_count_desc');
+        if (sCountLabel) sCountLabel.textContent = t('s_count_label');
+        if (sCountDesc) sCountDesc.textContent = t('s_count_desc');
         if (pullsLabel) pullsLabel.textContent = t('pulls_label');
         if (pullsDesc) pullsDesc.textContent = t('pulls_desc');
-        if (leftLabel) leftLabel.textContent = t('left_label');
-        if (leftDesc) leftDesc.textContent = t('left_desc');
         if (expectedScoreLabel) expectedScoreLabel.textContent = t('expected_score_label');
         if (expectedScoreDesc) expectedScoreDesc.textContent = t('expected_score_desc');
         if (expectedHighLabel) expectedHighLabel.textContent = t('expected_high_label');
         if (expectedHighDesc) expectedHighDesc.textContent = t('expected_high_desc');
         if (expectedPullsLabel) expectedPullsLabel.textContent = t('expected_pulls_label');
         if (expectedPullsDesc) expectedPullsDesc.textContent = t('expected_pulls_desc');
+        if (netStarLabel) netStarLabel.textContent = t('net_star_label');
+        if (netStarDesc) netStarDesc.textContent = t('net_star_desc');
         if (langToggle) langToggle.textContent = currentLang === 'zh' ? t('lang_toggle_en') : t('lang_toggle_zh');
       }
 
@@ -1026,15 +1077,36 @@
           left: diamonds,
           kept,
           tierCounts,
-          highCount: kept['A-'] + kept.A + kept['A+'] + kept.S + kept.SS + kept.SSS
+          aCount: kept['A-'] + kept.A + kept['A+'],
+          sCount: kept.S + kept.SS + kept.SSS
         };
       }
 
       function updateExpectation(startDiamonds) {
         const expectedPulls = startDiamonds / (COST - EXPECTED_REFUND);
-        outputEls.expectedPulls.textContent = formatDecimal(expectedPulls, 2);
-        outputEls.expectedScore.textContent = formatDecimal(expectedPulls * EXPECTED_SCORE, 2);
+        outputEls.expectedPulls.textContent = formatInt(expectedPulls);
+        outputEls.expectedScore.textContent = formatInt(expectedPulls * EXPECTED_SCORE);
         outputEls.expectedHigh.textContent = formatDecimal(expectedPulls * HIGH_PROBABILITY, 3);
+      }
+
+      function updateInvestment(startDiamonds, result) {
+        const ratio = Number(starDiamondBoundDiamondRatio);
+        if (!Number.isFinite(ratio) || ratio <= 0) {
+          outputEls.netStar.textContent = t('dash');
+          if (netStarDesc) netStarDesc.textContent = t('price_load_failed');
+          return;
+        }
+        const inputStar = startDiamonds / ratio;
+        const keptStar = Object.keys(result.kept).reduce((total, tier) => {
+          const price = keptPrices.get(normalizeTierName(tier));
+          const count = result.kept[tier] || 0;
+          return total + count * (Number.isFinite(price) ? price : 0);
+        }, 0);
+        const netStar = inputStar - keptStar;
+        outputEls.netStar.textContent = formatInt(netStar);
+        if (netStarDesc) {
+          netStarDesc.textContent = `${formatInt(inputStar)} - ${formatInt(keptStar)} = ${formatInt(netStar)}`;
+        }
       }
 
       function simulate() {
@@ -1046,11 +1118,12 @@
         hintText.textContent = raw > MAX_DIAMONDS ? t('hint_over') : t('hint');
         const result = runSimulation(startDiamonds);
         outputEls.totalScore.textContent = formatInt(result.score);
-        outputEls.highCount.textContent = formatInt(result.highCount);
+        outputEls.aCount.textContent = formatInt(result.aCount);
+        outputEls.sCount.textContent = formatInt(result.sCount);
         outputEls.pulls.textContent = formatInt(result.pulls);
-        outputEls.leftDiamonds.textContent = formatInt(result.left);
         renderTierDistribution(result);
         updateExpectation(startDiamonds);
+        updateInvestment(startDiamonds, result);
       }
 
       simulateBtn.addEventListener('click', simulate);
@@ -1072,7 +1145,12 @@
 
       setStaticText();
       renderTierShell();
-      simulate();
+      loadQualityPrices()
+        .catch((err) => {
+          console.error('Failed to load quality prices:', err);
+          if (netStarDesc) netStarDesc.textContent = t('price_load_failed');
+        })
+        .finally(simulate);
     })();
   </script>
   <script type="module">
@@ -1083,7 +1161,11 @@
     const authActions = document.getElementById("authActions");
     const retryAuthBtn = document.getElementById("retryAuthBtn");
     const host = (window.location.hostname || "").toLowerCase();
-    const isLocal = host === "localhost" || host === "127.0.0.1" || host === "::1";
+    const isLocal = window.location.protocol === "file:"
+      || host === "localhost"
+      || host === "127.0.0.1"
+      || host === "0.0.0.0"
+      || host === "::1";
 
     async function restoreIdentitySession() {
       await identity.handleAuthCallback().catch(() => null);
