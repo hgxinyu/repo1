@@ -25,10 +25,18 @@ export function normalizeRole(role) {
 
 export function getEmailVerified(user) {
   if (!user || typeof user !== "object") return null;
+  if (getEmailConfirmedAt(user)) return true;
   if (typeof user.emailVerified === "boolean") return user.emailVerified;
   if (typeof user.email_verified === "boolean") return user.email_verified;
   if (user.user_metadata && typeof user.user_metadata.emailVerified === "boolean") return user.user_metadata.emailVerified;
+  if (user.userMetadata && typeof user.userMetadata.emailVerified === "boolean") return user.userMetadata.emailVerified;
   return null;
+}
+
+export function getEmailConfirmedAt(user) {
+  if (!user || typeof user !== "object") return "";
+  const value = user.emailConfirmedAt || user.confirmedAt || user.email_confirmed_at || user.confirmed_at;
+  return typeof value === "string" && value.trim() ? value : "";
 }
 
 export function getUserKey(email) {

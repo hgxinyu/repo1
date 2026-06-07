@@ -183,7 +183,7 @@
     }
 
     function emailStatus(user) {
-      if (user.emailVerified === true) return "已确认";
+      if (user.emailVerified === true || user.emailConfirmedAt) return "已确认";
       if (user.emailVerified === false) return "未确认";
       return "未知";
     }
@@ -197,7 +197,9 @@
       }
       const data = await api("/api/admin/users");
       render(data.users || []);
-      statusEl.textContent = `已加载 ${(data.users || []).length} 个申请账号。`;
+      statusEl.textContent = data.identitySyncError
+        ? `已加载 ${(data.users || []).length} 个申请账号，但邮箱确认状态未能从 Identity 刷新：${data.identitySyncError}`
+        : `已加载 ${(data.users || []).length} 个申请账号。`;
     }
 
     async function setRole(email, role) {

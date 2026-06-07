@@ -55,9 +55,9 @@ ADMIN_EMAILS=admin1@example.com,admin2@example.com
 
 后台用户列表会显示邮箱确认状态：
 
-- `已确认`：账号已完成邮箱确认。
-- `未确认`：注册时 Netlify Identity 返回未确认。
-- `未知`：旧资料或未能从 Identity 回调中读取确认状态。
+- `已确认`：账号已完成邮箱确认。后台会优先读取 Netlify Identity 的当前 `confirmedAt` 状态，并同步回 `vip-users`。
+- `未确认`：Netlify Identity 当前没有确认时间，或注册时返回未确认且尚未刷新到已确认。
+- `未知`：旧资料或后台临时无法读取 Identity 状态。
 
 用户资料存储在 Netlify Blobs 的 `vip-users` store 中，key 格式：
 
