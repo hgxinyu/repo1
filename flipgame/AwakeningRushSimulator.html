@@ -722,8 +722,12 @@
             <span class="muted" id="expectedScoreDesc">按平均返钻 47.731 递推</span>
           </div>
           <div class="box">
-            <div class="kv"><span id="expectedHighLabel">期望A-以上</span><span class="v" id="expectedHigh">0</span></div>
-            <span class="muted" id="expectedHighDesc">A- 及以上概率合计 0.000255</span>
+            <div class="kv"><span id="expectedALabel">期望A数量</span><span class="v" id="expectedA">0</span></div>
+            <span class="muted" id="expectedADesc">A- / A / A+ 概率合计 0.00024</span>
+          </div>
+          <div class="box">
+            <div class="kv"><span id="expectedSLabel">期望S数量</span><span class="v" id="expectedS">0</span></div>
+            <span class="muted" id="expectedSDesc">S / SS / SSS 概率合计 0.000015</span>
           </div>
           <div class="box">
             <div class="kv"><span id="expectedPullsLabel">期望觉醒次数</span><span class="v" id="expectedPulls">0</span></div>
@@ -747,7 +751,8 @@
       const COST = 100;
       const EXPECTED_SCORE = 5.92963;
       const EXPECTED_REFUND = 47.731;
-      const HIGH_PROBABILITY = 0.000255;
+      const A_PROBABILITY = 0.00024;
+      const S_PROBABILITY = 0.000015;
       const TIERS = [
         { name: 'E-', probability: 0.043, score: 3, refund: 10, keep: false },
         { name: 'E', probability: 0.198, score: 4, refund: 15, keep: false },
@@ -796,8 +801,10 @@
       const pullsDesc = document.getElementById('pullsDesc');
       const expectedScoreLabel = document.getElementById('expectedScoreLabel');
       const expectedScoreDesc = document.getElementById('expectedScoreDesc');
-      const expectedHighLabel = document.getElementById('expectedHighLabel');
-      const expectedHighDesc = document.getElementById('expectedHighDesc');
+      const expectedALabel = document.getElementById('expectedALabel');
+      const expectedADesc = document.getElementById('expectedADesc');
+      const expectedSLabel = document.getElementById('expectedSLabel');
+      const expectedSDesc = document.getElementById('expectedSDesc');
       const expectedPullsLabel = document.getElementById('expectedPullsLabel');
       const expectedPullsDesc = document.getElementById('expectedPullsDesc');
       const netStarLabel = document.getElementById('netStarLabel');
@@ -811,7 +818,8 @@
         sCount: document.getElementById('sCount'),
         pulls: document.getElementById('pulls'),
         expectedScore: document.getElementById('expectedScore'),
-        expectedHigh: document.getElementById('expectedHigh'),
+        expectedA: document.getElementById('expectedA'),
+        expectedS: document.getElementById('expectedS'),
         expectedPulls: document.getElementById('expectedPulls'),
         netStar: document.getElementById('netStar')
       };
@@ -842,8 +850,10 @@
           pulls_desc: '包含返钻后继续觉醒的次数',
           expected_score_label: '期望总分',
           expected_score_desc: '按平均返钻 47.731 递推',
-          expected_high_label: '期望A-以上',
-          expected_high_desc: 'A- 及以上概率合计 0.000255',
+          expected_a_label: '期望A数量',
+          expected_a_desc: 'A- / A / A+ 概率合计 0.00024',
+          expected_s_label: '期望S数量',
+          expected_s_desc: 'S / SS / SSS 概率合计 0.000015',
           expected_pulls_label: '期望觉醒次数',
           expected_pulls_desc: '初始绑钻 / 52.269',
           net_star_label: '净投入',
@@ -877,8 +887,10 @@
           pulls_desc: 'Includes awakenings funded by recycled diamonds',
           expected_score_label: 'Expected Score',
           expected_score_desc: 'Uses average refund 47.731',
-          expected_high_label: 'Expected A-+',
-          expected_high_desc: 'A- and above probability is 0.000255',
+          expected_a_label: 'Expected A Count',
+          expected_a_desc: 'A- / A / A+ probability is 0.00024',
+          expected_s_label: 'Expected S Count',
+          expected_s_desc: 'S / SS / SSS probability is 0.000015',
           expected_pulls_label: 'Expected Pulls',
           expected_pulls_desc: 'Initial diamonds / 52.269',
           net_star_label: 'Net Input',
@@ -966,8 +978,10 @@
         if (pullsDesc) pullsDesc.textContent = t('pulls_desc');
         if (expectedScoreLabel) expectedScoreLabel.textContent = t('expected_score_label');
         if (expectedScoreDesc) expectedScoreDesc.textContent = t('expected_score_desc');
-        if (expectedHighLabel) expectedHighLabel.textContent = t('expected_high_label');
-        if (expectedHighDesc) expectedHighDesc.textContent = t('expected_high_desc');
+        if (expectedALabel) expectedALabel.textContent = t('expected_a_label');
+        if (expectedADesc) expectedADesc.textContent = t('expected_a_desc');
+        if (expectedSLabel) expectedSLabel.textContent = t('expected_s_label');
+        if (expectedSDesc) expectedSDesc.textContent = t('expected_s_desc');
         if (expectedPullsLabel) expectedPullsLabel.textContent = t('expected_pulls_label');
         if (expectedPullsDesc) expectedPullsDesc.textContent = t('expected_pulls_desc');
         if (netStarLabel) netStarLabel.textContent = t('net_star_label');
@@ -1086,7 +1100,8 @@
         const expectedPulls = startDiamonds / (COST - EXPECTED_REFUND);
         outputEls.expectedPulls.textContent = formatInt(expectedPulls);
         outputEls.expectedScore.textContent = formatInt(expectedPulls * EXPECTED_SCORE);
-        outputEls.expectedHigh.textContent = formatDecimal(expectedPulls * HIGH_PROBABILITY, 3);
+        outputEls.expectedA.textContent = formatDecimal(expectedPulls * A_PROBABILITY, 3);
+        outputEls.expectedS.textContent = formatDecimal(expectedPulls * S_PROBABILITY, 3);
       }
 
       function updateInvestment(startDiamonds, result) {
@@ -1161,11 +1176,21 @@
     const authActions = document.getElementById("authActions");
     const retryAuthBtn = document.getElementById("retryAuthBtn");
     const host = (window.location.hostname || "").toLowerCase();
+    function isPrivateIpv4Host(value) {
+      const parts = value.split(".").map((part) => Number(part));
+      if (parts.length !== 4 || parts.some((part) => !Number.isInteger(part) || part < 0 || part > 255)) {
+        return false;
+      }
+      return parts[0] === 10
+        || (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31)
+        || (parts[0] === 192 && parts[1] === 168);
+    }
     const isLocal = window.location.protocol === "file:"
       || host === "localhost"
       || host === "127.0.0.1"
       || host === "0.0.0.0"
-      || host === "::1";
+      || host === "::1"
+      || isPrivateIpv4Host(host);
 
     async function restoreIdentitySession() {
       await identity.handleAuthCallback().catch(() => null);
