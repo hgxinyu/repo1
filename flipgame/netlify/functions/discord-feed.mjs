@@ -1,7 +1,11 @@
+import { getStore } from "@netlify/blobs";
+
 const DISCORD_API_BASE = "https://discord.com/api/v10";
 const MAX_MESSAGES = 30;
 const DEFAULT_MESSAGES = 12;
 const CHANNEL_FOLLOW_ADD = 12;
+const CACHE_STORE = "discord-code-feed";
+const CACHE_TTL_MS = 60 * 60 * 1000;
 
 function json(data, init = {}) {
   return new Response(JSON.stringify(data), {
@@ -24,6 +28,14 @@ function clampLimit(value) {
   const parsed = Number.parseInt(String(value || ""), 10);
   if (!Number.isFinite(parsed)) return DEFAULT_MESSAGES;
   return Math.max(1, Math.min(MAX_MESSAGES, parsed));
+}
+
+function cacheStore() {
+  return getStore({ name: CACHE_STORE, consistency: "strong" });
+}
+
+function cacheKey(channelId, limit) {
+  return `channels/${encodeURIComponent(channelId)}/limit-${limit}.json`;
 }
 
 function stringValue(value) {
@@ -118,6 +130,18 @@ async function handleRequest(req) {
 
   const url = new URL(req.url);
   const limit = clampLimit(url.searchParams.get("limit"));
+  const store = cacheStore();
+  const key = cacheKey(channelId, limit);
+  const cached = await store.get(key, { type: "json" }).catch(() => null);
+  const now = Date.now();
+  if (cached && cached.fetchedAt && now - Date.parse(cached.fetchedAt) < CACHE_TTL_MS) {
+    return json({
+      ...cached,
+      cached: true,
+      cacheExpiresAt: new Date(Date.parse(cached.fetchedAt) + CACHE_TTL_MS).toISOString()
+    });
+  }
+
   const discord = await fetchDiscordMessages(channelId, token, limit);
   if (discord.response) return discord.response;
 
@@ -125,12 +149,16 @@ async function handleRequest(req) {
     .map(normalizeMessage)
     .filter((message) => message.id && message.type !== CHANNEL_FOLLOW_ADD && message.text);
 
-  return json({
+  const payload = {
     channelId,
     fetchedAt: new Date().toISOString(),
+    cacheExpiresAt: new Date(now + CACHE_TTL_MS).toISOString(),
+    cached: false,
     mode: "text",
     messages
-  });
+  };
+  await store.setJSON(key, payload).catch(() => null);
+  return json(payload);
 }
 
 export default async (req) => {

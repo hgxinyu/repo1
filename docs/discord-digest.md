@@ -11,6 +11,8 @@
 - 页面只展示文字，图片、附件、组件、贴纸和结构化 JSON 不显示。
 - Discord 自定义 emoji、用户/频道提及等尖括号标记会被过滤，避免显示成乱码。
 - `/api/discord-feed` 是公开接口；Bot token 只保存在 Netlify 环境变量中，不暴露给浏览器。
+- 页面首次打开会自动读取一次，之后每 1 小时自动刷新一次；不提供手动刷新按钮。
+- `/api/discord-feed` 使用 Netlify Blobs 缓存 1 小时。同一小时内的访问会复用缓存，不会每次都请求 Discord API。
 
 ## 环境变量
 
