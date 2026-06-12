@@ -546,6 +546,10 @@
     </header>
 
     <nav class="card-grid" aria-label="工具导航" id="navGrid">
+      <a class="card-link" href="DiscordDigest.html">
+        <span class="title" id="cardDiscordTitle">放置奇兵兑换码</span>
+        <span class="subtitle" id="cardDiscordSub">及时更新放置奇兵兑换码。</span>
+      </a>
       <a class="card-link" href="flipgame.html">
         <span class="title" id="cardFlipTitle">九宫格翻牌</span>
         <span class="subtitle" id="cardFlipSub">模拟翻牌流程，记录并计算最佳组合。</span>
@@ -674,6 +678,8 @@
       const cardHiddenSub = document.getElementById('cardHiddenSub');
       const cardAiTitle = document.getElementById('cardAiTitle');
       const cardAiSub = document.getElementById('cardAiSub');
+      const cardDiscordTitle = document.getElementById('cardDiscordTitle');
+      const cardDiscordSub = document.getElementById('cardDiscordSub');
       const cardSoulTitle = document.getElementById('cardSoulTitle');
       const cardSoulSub = document.getElementById('cardSoulSub');
       const cardExpeditionTitle = document.getElementById('cardExpeditionTitle');
@@ -735,6 +741,8 @@
           card_hidden_sub: '集中查看各类攻略图，持续更新。',
           card_ai_title: 'AI玩放置',
           card_ai_sub: 'VIP 专属，基于公开工具文档回答凝魂、远征和权限问题。',
+          card_discord_title: '放置奇兵兑换码',
+          card_discord_sub: '及时更新放置奇兵兑换码。',
           card_soul_title: '凝魂升格 & 魂力计算',
           card_soul_sub: '注册会员可用，检验属性区间并估算凝魂次数与魂力值。',
           card_expedition_title: '远征积分计算器',
@@ -799,6 +807,8 @@
           card_hidden_sub: 'Browse strategy images in one place.',
           card_ai_title: 'Play IH with AI',
           card_ai_sub: 'VIP only. Ask questions about public tool docs, including soul, expedition, and access rules.',
+          card_discord_title: 'Idle Heroes Codes',
+          card_discord_sub: 'Timely updates for Idle Heroes codes.',
           card_soul_title: 'Soul Perfection & Merge + Soul Power Calculator',
           card_soul_sub: 'Registered members can use it to check stat ranges and estimate soul perfection count and soul power.',
           card_expedition_title: 'Start Expedition Score Calculator',
@@ -879,6 +889,8 @@
         if (cardHiddenSub) cardHiddenSub.textContent = t('card_hidden_sub');
         if (cardAiTitle) cardAiTitle.textContent = t('card_ai_title');
         if (cardAiSub) cardAiSub.textContent = t('card_ai_sub');
+        if (cardDiscordTitle) cardDiscordTitle.textContent = t('card_discord_title');
+        if (cardDiscordSub) cardDiscordSub.textContent = t('card_discord_sub');
         if (cardSoulTitle) cardSoulTitle.textContent = t('card_soul_title');
         if (cardSoulSub) cardSoulSub.textContent = t('card_soul_sub');
         if (cardExpeditionTitle) cardExpeditionTitle.textContent = t('card_expedition_title');

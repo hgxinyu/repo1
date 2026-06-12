@@ -1,2 +1,5 @@
 .DS_Store
 凝魂.xlsx
+
+# Local Netlify folder
+.netlify

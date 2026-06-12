@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>放置奇兵兑换码 · ShinE</title>
+  <script>
+    (function () {
+      var host = (window.location.hostname || '').toLowerCase();
+      var isLocal = host === 'localhost' || host === '127.0.0.1' || host === '::1';
+      var svg = isLocal ? 'assets/local-logo.svg' : 'assets/shine-logo.svg';
+      var png32 = isLocal ? 'assets/local-logo-32.png' : 'assets/shine-logo-32.png';
+      var ico = isLocal ? 'assets/local-favicon.ico' : 'assets/favicon.ico';
+      var apple = isLocal ? 'assets/local-logo-180.png' : 'assets/shine-logo-180.png';
+      var manifest = isLocal ? 'site.local.webmanifest' : 'site.webmanifest';
+      var theme = isLocal ? '#fb7185' : '#18202a';
+      document.write('<link rel="icon" type="image/svg+xml" href="' + svg + '">');
+      document.write('<link rel="icon" type="image/png" sizes="32x32" href="' + png32 + '">');
+      document.write('<link rel="shortcut icon" href="' + ico + '">');
+      document.write('<link rel="apple-touch-icon" sizes="180x180" href="' + apple + '">');
+      document.write('<link rel="manifest" href="' + manifest + '">');
+      document.write('<meta name="theme-color" content="' + theme + '">');
+    })();
+  </script>
+  <style>
+    :root {
+      --bg: #eef1ed;
+      --paper: #fffdf8;
+      --ink: #18202a;
+      --muted: #66717e;
+      --line: #cfd6ce;
+      --accent: #146c63;
+      --accent-strong: #0f514b;
+      --danger: #b42318;
+      --radius: 8px;
+      --shadow: 0 18px 44px rgba(24, 32, 42, 0.13);
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(24, 32, 42, 0.04) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(24, 32, 42, 0.035) 1px, transparent 1px),
+        var(--bg);
+      background-size: 32px 32px;
+      font-family: "Segoe UI", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+      font-size: 16px;
+      line-height: 1.55;
+    }
+    body {
+      display: flex;
+      justify-content: center;
+    }
+    nav#topbar-nav {
+      position: fixed;
+      top: 12px;
+      right: 12px;
+      z-index: 80;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      background: rgba(255, 253, 248, 0.94);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      box-shadow: 0 10px 26px rgba(24, 32, 42, 0.12);
+      backdrop-filter: saturate(140%) blur(8px);
+    }
+    nav#topbar-nav a {
+      border: 1px solid rgba(20, 108, 99, 0.24);
+      background: var(--paper);
+      color: var(--accent-strong);
+      padding: 8px 13px;
+      border-radius: 999px;
+      font-size: 13px;
+      text-decoration: none;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .wrap {
+      width: min(980px, 100%);
+      min-height: 100vh;
+      padding: 74px clamp(16px, 4vw, 34px) 28px;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      gap: 16px;
+    }
+    .page-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 18px;
+      align-items: end;
+      padding-bottom: 16px;
+      border-bottom: 2px solid var(--ink);
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(30px, 6vw, 54px);
+      line-height: 1.02;
+      letter-spacing: 0;
+      font-weight: 900;
+    }
+    .lede {
+      margin: 9px 0 0;
+      color: var(--muted);
+      max-width: 720px;
+      font-size: 15px;
+    }
+    .stamp {
+      width: 88px;
+      height: 88px;
+      border: 2px solid var(--ink);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: #f4d6a1;
+      box-shadow: 8px 8px 0 rgba(20, 108, 99, 0.2);
+      font-size: 18px;
+      font-weight: 900;
+    }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      border: 2px solid var(--ink);
+      border-radius: var(--radius);
+      background: var(--paper);
+      padding: 12px;
+      box-shadow: var(--shadow);
+    }
+    .tool-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+    .primary-btn {
+      border: 2px solid var(--ink);
+      border-radius: var(--radius);
+      background: var(--accent);
+      color: white;
+      padding: 10px 15px;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 4px 4px 0 rgba(24, 32, 42, 0.22);
+    }
+    .primary-btn:disabled {
+      opacity: 0.62;
+      cursor: wait;
+    }
+    .select-wrap,
+    .toggle-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    select {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: white;
+      color: var(--ink);
+      padding: 8px 10px;
+      font: inherit;
+      font-size: 14px;
+    }
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent);
+    }
+    .status {
+      color: var(--muted);
+      font-size: 14px;
+      min-height: 22px;
+      text-align: right;
+    }
+    .status.error { color: var(--danger); }
+    .feed {
+      display: grid;
+      gap: 12px;
+      align-content: start;
+    }
+    .code-card {
+      border: 2px solid var(--ink);
+      border-radius: var(--radius);
+      background: var(--paper);
+      box-shadow: 8px 8px 0 rgba(49, 91, 125, 0.14);
+      overflow: hidden;
+    }
+    .code-head {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 12px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 12px;
+      border-bottom: 1px solid var(--line);
+      background: #f6f7f2;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .author {
+      color: var(--ink);
+      font-weight: 900;
+      overflow-wrap: anywhere;
+    }
+    .code-text {
+      padding: 14px;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    .code-text a {
+      color: var(--accent-strong);
+      font-weight: 800;
+    }
+    .empty {
+      border: 2px dashed var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 253, 248, 0.76);
+      color: var(--muted);
+      padding: 26px;
+      text-align: center;
+    }
+    @media (max-width: 720px) {
+      nav#topbar-nav {
+        position: static;
+        margin: 10px 10px 0 auto;
+      }
+      body {
+        display: block;
+      }
+      .wrap {
+        padding-top: 18px;
+      }
+      .page-head {
+        grid-template-columns: 1fr;
+      }
+      .stamp {
+        width: 66px;
+        height: 66px;
+        font-size: 15px;
+      }
+      .tool-group,
+      .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .primary-btn,
+      .select-wrap,
+      .toggle-wrap,
+      .status {
+        width: 100%;
+      }
+      .status {
+        text-align: left;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav id="topbar-nav" aria-label="页面导航">
+    <a href="index.html" id="navHome">回到主页</a>
+  </nav>
+
+  <main class="wrap" id="appShell">
+    <header class="page-head">
+      <div>
+        <h1 id="pageTitle">放置奇兵兑换码</h1>
+        <p class="lede" id="pageDesc">及时更新放置奇兵兑换码。</p>
+      </div>
+      <div class="stamp">CODE</div>
+    </header>
+
+    <section class="toolbar" aria-label="订阅工具栏">
+      <div class="tool-group">
+        <button class="primary-btn" id="refreshBtn" type="button">刷新</button>
+        <label class="select-wrap" for="limitSelect">
+          <span id="limitLabel">数量</span>
+          <select id="limitSelect">
+            <option value="8">8</option>
+            <option value="12" selected>12</option>
+            <option value="20">20</option>
+            <option value="30">30</option>
+          </select>
+        </label>
+        <label class="toggle-wrap" for="autoRefresh">
+          <input id="autoRefresh" type="checkbox" />
+          <span id="autoRefreshLabel">自动刷新</span>
+        </label>
+      </div>
+      <div class="status" id="statusText" role="status">等待刷新。</div>
+    </section>
+
+    <section class="feed" id="feed" aria-live="polite">
+      <div class="empty">点击刷新读取兑换码。</div>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      const navHome = document.getElementById('navHome');
+      const pageTitle = document.getElementById('pageTitle');
+      const pageDesc = document.getElementById('pageDesc');
+      const refreshBtn = document.getElementById('refreshBtn');
+      const limitLabel = document.getElementById('limitLabel');
+      const limitSelect = document.getElementById('limitSelect');
+      const autoRefresh = document.getElementById('autoRefresh');
+      const autoRefreshLabel = document.getElementById('autoRefreshLabel');
+      const statusText = document.getElementById('statusText');
+      const feed = document.getElementById('feed');
+
+      const I18N = {
+        zh: {
+          title: '放置奇兵兑换码 · ShinE',
+          nav_label: '页面导航',
+          nav_home: '回到主页',
+          page_title: '放置奇兵兑换码',
+          page_desc: '及时更新放置奇兵兑换码。',
+          refresh: '刷新',
+          limit_label: '数量',
+          auto_refresh: '自动刷新',
+          idle: '等待刷新。',
+          loading: '正在读取 Discord 频道…',
+          empty: '暂时没有可显示的文字消息。',
+          start: '点击刷新读取兑换码。',
+          updated_prefix: '已更新：',
+          config_missing: 'Discord 订阅尚未配置频道和 Bot token。'
+        },
+        en: {
+          title: 'Idle Heroes Codes · ShinE',
+          nav_label: 'Page Navigation',
+          nav_home: 'Home',
+          page_title: 'Idle Heroes Codes',
+          page_desc: 'Timely updates for Idle Heroes codes.',
+          refresh: 'Refresh',
+          limit_label: 'Count',
+          auto_refresh: 'Auto refresh',
+          idle: 'Waiting.',
+          loading: 'Loading Discord channel…',
+          empty: 'No text messages to show yet.',
+          start: 'Refresh to load codes.',
+          updated_prefix: 'Updated: ',
+          config_missing: 'Discord channel and bot token are not configured yet.'
+        }
+      };
+
+      let currentLang = (localStorage.getItem('flipgame_lang') || '').toLowerCase();
+      if (currentLang !== 'zh' && currentLang !== 'en') {
+        const navLang = (navigator.language || '').toLowerCase();
+        currentLang = navLang.startsWith('zh') ? 'zh' : 'en';
+      }
+      let refreshTimer = null;
+
+      function t(key) {
+        return (I18N[currentLang] && I18N[currentLang][key]) || I18N.zh[key] || '';
+      }
+
+      function escapeHtml(value) {
+        return String(value || '').replace(/[&<>"']/g, (char) => ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;'
+        })[char]);
+      }
+
+      function renderText(value) {
+        return escapeHtml(value).replace(/https?:\/\/[^\s<>"']+/g, (url) => (
+          `<a href="${url}" target="_blank" rel="noopener">${url}</a>`
+        ));
+      }
+
+      function formatTime(value) {
+        if (!value) return '';
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return value;
+        return new Intl.DateTimeFormat(currentLang === 'zh' ? 'zh-CN' : 'en-US', {
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit'
+        }).format(date);
+      }
+
+      function setStaticText() {
+        document.title = t('title');
+        document.documentElement.lang = currentLang === 'zh' ? 'zh-Hans' : 'en';
+        if (navHome) navHome.textContent = t('nav_home');
+        const topbar = document.getElementById('topbar-nav');
+        if (topbar) topbar.setAttribute('aria-label', t('nav_label'));
+        if (pageTitle) pageTitle.textContent = t('page_title');
+        if (pageDesc) pageDesc.textContent = t('page_desc');
+        if (refreshBtn) refreshBtn.textContent = t('refresh');
+        if (limitLabel) limitLabel.textContent = t('limit_label');
+        if (autoRefreshLabel) autoRefreshLabel.textContent = t('auto_refresh');
+        if (statusText && statusText.dataset.state === 'idle') statusText.textContent = t('idle');
+      }
+
+      function setStatus(message, type) {
+        statusText.dataset.state = type || '';
+        statusText.className = `status${type === 'error' ? ' error' : ''}`;
+        statusText.textContent = message;
+      }
+
+      function renderEmpty(message) {
+        feed.innerHTML = `<div class="empty">${escapeHtml(message)}</div>`;
+      }
+
+      function renderMessages(messages) {
+        if (!messages.length) {
+          renderEmpty(t('empty'));
+          return;
+        }
+        feed.innerHTML = messages.map((message) => `
+          <article class="code-card">
+            <div class="code-head">
+              <span class="author">${escapeHtml(message.author || 'Discord')}</span>
+              <time datetime="${escapeHtml(message.timestamp)}">${escapeHtml(formatTime(message.timestamp))}</time>
+            </div>
+            <div class="code-text">${renderText(message.text)}</div>
+          </article>
+        `).join('');
+      }
+
+      async function loadFeed() {
+        refreshBtn.disabled = true;
+        setStatus(t('loading'));
+        try {
+          const response = await fetch(`/api/discord-feed?limit=${encodeURIComponent(limitSelect.value)}`);
+          const data = await response.json().catch(() => ({}));
+          if (!response.ok) {
+            const message = data && data.setupRequired ? t('config_missing') : (data.error || 'Request failed');
+            setStatus(message, 'error');
+            renderEmpty(message);
+            return;
+          }
+          renderMessages(Array.isArray(data.messages) ? data.messages : []);
+          setStatus(`${t('updated_prefix')}${formatTime(data.fetchedAt) || ''}`);
+        } catch (error) {
+          const message = error && error.message ? error.message : 'Request failed';
+          setStatus(message, 'error');
+          renderEmpty(message);
+        } finally {
+          refreshBtn.disabled = false;
+        }
+      }
+
+      function setAutoRefresh(enabled) {
+        if (refreshTimer) {
+          clearInterval(refreshTimer);
+          refreshTimer = null;
+        }
+        if (enabled) {
+          refreshTimer = setInterval(loadFeed, 120000);
+        }
+      }
+
+      setStaticText();
+      renderEmpty(t('start'));
+      refreshBtn.addEventListener('click', loadFeed);
+      limitSelect.addEventListener('change', loadFeed);
+      autoRefresh.addEventListener('change', () => setAutoRefresh(autoRefresh.checked));
+
+      loadFeed();
+    })();
+  </script>
+</body>
+</html>

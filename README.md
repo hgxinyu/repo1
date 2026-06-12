@@ -23,6 +23,7 @@ http://localhost:8000/
 ## 页面模块
 
 - 首页：`flipgame/index.html`
+- 放置奇兵兑换码：`flipgame/DiscordDigest.html`
 - 凝魂升格 & 魂力计算（注册会员）：`flipgame/SoulAscensionCalculator.html`
 - 远征积分计算器（注册会员）：`flipgame/ExpeditionCalculator.html`
 - AI玩放置（VIP）：`flipgame/AIAsk.html`
@@ -64,6 +65,7 @@ http://localhost:8000/
 - 凝魂模块：`docs/soul-calculator.md`
 - 远征模块：`docs/expedition-calculator.md`
 - AI玩放置：`docs/ai-ask.md`
+- 放置奇兵兑换码：`docs/discord-digest.md`
 - 觉醒冲榜模块：`docs/awakening-rush-simulator.md`
 - VIP 账号与权限：`docs/vip-access.md`
 - 攻略图片模块：`docs/guide-images.md`
