@@ -89,7 +89,7 @@
     }
     .page-head {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-columns: minmax(0, 1fr);
       gap: 18px;
       align-items: end;
       padding-bottom: 16px;
@@ -107,18 +107,6 @@
       color: var(--muted);
       max-width: 720px;
       font-size: 15px;
-    }
-    .stamp {
-      width: 88px;
-      height: 88px;
-      border: 2px solid var(--ink);
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      background: #f4d6a1;
-      box-shadow: 8px 8px 0 rgba(20, 108, 99, 0.2);
-      font-size: 18px;
-      font-weight: 900;
     }
     .toolbar {
       border: 2px solid var(--ink);
@@ -210,11 +198,6 @@
       .page-head {
         grid-template-columns: 1fr;
       }
-      .stamp {
-        width: 66px;
-        height: 66px;
-        font-size: 15px;
-      }
     }
   </style>
 </head>
@@ -229,7 +212,6 @@
         <h1 id="pageTitle">放置奇兵兑换码</h1>
         <p class="lede" id="pageDesc">及时更新放置奇兵兑换码。</p>
       </div>
-      <div class="stamp">CODE</div>
     </header>
 
     <section class="toolbar" aria-label="更新状态">
@@ -262,8 +244,8 @@
           loading: '正在读取 Discord 频道…',
           empty: '暂时没有可显示的文字消息。',
           start: '正在读取兑换码。',
-          updated_tpl: '已更新：{time}。每小时自动刷新一次。',
-          next_tpl: '下次自动刷新：{time}',
+          updated_tpl: '已更新：{time}',
+          next_tpl: '下次刷新：{time}',
           config_missing: 'Discord 订阅尚未配置频道和 Bot token。'
         },
         en: {
@@ -276,8 +258,8 @@
           loading: 'Loading Discord channel…',
           empty: 'No text messages to show yet.',
           start: 'Loading codes.',
-          updated_tpl: 'Updated: {time}. Refreshes automatically every hour.',
-          next_tpl: 'Next automatic refresh: {time}',
+          updated_tpl: 'Updated: {time}',
+          next_tpl: 'Next refresh: {time}',
           config_missing: 'Discord channel and bot token are not configured yet.'
         }
       };
@@ -380,7 +362,7 @@
           renderMessages(Array.isArray(data.messages) ? data.messages : []);
           const updated = t('updated_tpl').replace('{time}', formatTime(data.fetchedAt) || '');
           const next = t('next_tpl').replace('{time}', formatTime(data.cacheExpiresAt || Date.now() + REFRESH_MS) || '');
-          setStatus(`${updated} ${next}`);
+          setStatus(`${updated} · ${next}`);
         } catch (error) {
           const message = error && error.message ? error.message : 'Request failed';
           setStatus(message, 'error');
