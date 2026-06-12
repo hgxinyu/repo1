@@ -70,6 +70,44 @@ function embedText(embed) {
   ].map(stringValue).filter(Boolean).join("\n\n");
 }
 
+function imageFromValue(value) {
+  if (!value || typeof value !== "object" || !value.url) return null;
+  return {
+    url: stringValue(value.url),
+    proxyUrl: stringValue(value.proxy_url),
+    width: Number(value.width) || 0,
+    height: Number(value.height) || 0
+  };
+}
+
+function isImageAttachment(item) {
+  const contentType = stringValue(item && item.content_type).toLowerCase();
+  const filename = stringValue(item && item.filename).toLowerCase();
+  return contentType.startsWith("image/") || /\.(png|jpe?g|gif|webp)$/i.test(filename);
+}
+
+function attachmentImage(item) {
+  if (!item || typeof item !== "object" || !isImageAttachment(item) || !item.url) return null;
+  return {
+    url: stringValue(item.url),
+    proxyUrl: stringValue(item.proxy_url),
+    width: Number(item.width) || 0,
+    height: Number(item.height) || 0,
+    filename: stringValue(item.filename)
+  };
+}
+
+function messageImages(message) {
+  if (!message || typeof message !== "object") return [];
+  const embeds = Array.isArray(message.embeds) ? message.embeds : [];
+  const attachments = Array.isArray(message.attachments) ? message.attachments : [];
+  const images = [
+    ...embeds.flatMap((embed) => [imageFromValue(embed.image), imageFromValue(embed.thumbnail)]),
+    ...attachments.map(attachmentImage)
+  ].filter((item) => item && item.url);
+  return images.filter((item, index, arr) => arr.findIndex((candidate) => candidate.url === item.url) === index);
+}
+
 function messageText(message) {
   if (!message || typeof message !== "object") return "";
   const embeds = Array.isArray(message.embeds) ? message.embeds.map(embedText).filter(Boolean) : [];
@@ -84,8 +122,15 @@ function snapshotText(message) {
     .join("\n\n"));
 }
 
+function snapshotImages(message) {
+  const snapshots = Array.isArray(message.message_snapshots) ? message.message_snapshots : [];
+  return snapshots.flatMap((item) => messageImages(item && item.message ? item.message : item));
+}
+
 function normalizeMessage(message) {
   const text = cleanDiscordText([messageText(message), snapshotText(message)].filter(Boolean).join("\n\n"));
+  const images = [...messageImages(message), ...snapshotImages(message)]
+    .filter((item, index, arr) => arr.findIndex((candidate) => candidate.url === item.url) === index);
   return {
     id: stringValue(message.id),
     channelId: stringValue(message.channel_id),
@@ -93,7 +138,8 @@ function normalizeMessage(message) {
     author: displayName(message.author),
     timestamp: stringValue(message.timestamp),
     editedTimestamp: stringValue(message.edited_timestamp),
-    text
+    text,
+    images
   };
 }
 
@@ -147,7 +193,7 @@ async function handleRequest(req) {
 
   const messages = discord.messages
     .map(normalizeMessage)
-    .filter((message) => message.id && message.type !== CHANNEL_FOLLOW_ADD && message.text);
+    .filter((message) => message.id && message.type !== CHANNEL_FOLLOW_ADD && (message.text || message.images.length));
 
   const payload = {
     channelId,

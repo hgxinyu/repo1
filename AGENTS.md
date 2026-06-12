@@ -39,6 +39,7 @@ Open `http://localhost:8000/`. Do not validate `fetch()` pages through `file://`
 
 - Do not push after every small change by default. Netlify deploys consume credits on each push.
 - Prefer batching related changes into one commit and one push after the user confirms the work is ready.
+- Do not carry push, commit, production deploy, or Netlify deploy permission across turns. Even if the user asked to push earlier, require an explicit current-turn request before committing, pushing, or deploying again.
 - If the user explicitly asks to push, push only the intended staged changes and leave unrelated dirty worktree changes alone.
 
 ## Data Rules

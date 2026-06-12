@@ -174,6 +174,20 @@
       color: var(--accent-strong);
       font-weight: 800;
     }
+    .image-list {
+      display: grid;
+      gap: 10px;
+      padding: 0 14px 14px;
+    }
+    .feed-image {
+      display: block;
+      width: min(560px, 100%);
+      max-height: 520px;
+      object-fit: contain;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: white;
+    }
     .empty {
       border: 2px dashed var(--line);
       border-radius: var(--radius);
@@ -338,7 +352,16 @@
               <span class="author">${escapeHtml(message.author || 'Discord')}</span>
               <time datetime="${escapeHtml(message.timestamp)}">${escapeHtml(formatTime(message.timestamp))}</time>
             </div>
-            <div class="code-text">${renderText(message.text)}</div>
+            ${message.text ? `<div class="code-text">${renderText(message.text)}</div>` : ''}
+            ${Array.isArray(message.images) && message.images.length ? `
+              <div class="image-list">
+                ${message.images.map((image) => `
+                  <a href="${escapeHtml(image.url)}" target="_blank" rel="noopener">
+                    <img class="feed-image" src="${escapeHtml(image.proxyUrl || image.url)}" alt="${escapeHtml(image.filename || '')}">
+                  </a>
+                `).join('')}
+              </div>
+            ` : ''}
           </article>
         `).join('');
       }
