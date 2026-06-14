@@ -12,6 +12,13 @@
 | 艾莉薇尔 | Ely / 狐狸 | `Ely/elyvia.md` |
 | Melissa | 蜜蜂 / Melissa | `melissa/melissa.md` |
 | sdbm | 厨娘 / sdbm | `sdbm/sdbm.md` |
+| 齐天大圣-孙悟空 | 孙悟空 / 猴子 / Wukong | `sun-wukong/sun-wukong.md` |
+| 蔑世之影-艾琳娜 | 艾琳娜 / 暗牧 / Elena | `elena/elena.md` |
+| 无限纪元-艾利姬塔 | 艾利姬塔 / 艾力吉塔 / AI / Alijita | `alijita/alijita.md` |
+| 双生之影-莉莉奈 | 奈利利 / 奈子 / Natalia / Natalie | `natalia/natalia.md` |
+| 星刻的炼金士-霍姆·杨 | 霍姆杨 / 药水 / 药水哥 / Holmes Young | `huomu-yang/huomu-yang.md` |
+| 鲜血疗程-贝蒂·简 | 贝蒂 / 血女 / Betty / Betty Jane | `betty/betty.md` |
+| 黎明之矛-弗尔喀努斯 | 光炮 / DTV / 弗尔喀努斯 / Vulcan | `dtv/dtv.md` |
 
 ## 记录要求
 
