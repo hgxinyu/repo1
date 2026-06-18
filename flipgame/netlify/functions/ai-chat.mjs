@@ -9,6 +9,12 @@ const MAX_HISTORY_TURNS = 10;
 const MAX_KNOWLEDGE_CHUNKS = 6;
 const MAX_VIP_REQUESTS_PER_HOUR = 10;
 const RATE_LIMIT_STORE = "ai-question-limits";
+const PINNED_KNOWLEDGE_ALIASES = [
+  {
+    path: "IHassistant/knowledge/artifacts/duanzuizhijian.md",
+    aliases: ["duanzuizhijian.md", "断罪之剪", "命运裁断者", "剪刀", "粉三剪刀", "极3剪刀", "极三剪刀"]
+  }
+];
 
 const PUBLIC_CONTEXT = `
 站点公开资料摘要：
@@ -23,6 +29,15 @@ const PUBLIC_CONTEXT = `
 - 公会总分估算从 200 层开始逐层累计，输出所在层数和该层剩余进度，属于手动数据估算，可能有误差。
 - 觉醒冲榜模拟器：每次觉醒消耗 100 绑钻，B+ 及以下分解返还绑钻，A- 及以上保留。
 - 攻略图片页面集中展示 flipgame/images/ 下维护的攻略图，新增图片需要同步维护中英文标题。
+`;
+
+const STRICT_CONTEXT_RULES = `
+硬性来源规则：
+- 回答神器、英雄、Boss、机制、属性、百分比、层数、触发条件、文件内容时，只能使用下方检索片段明确写出的内容。
+- 如果某个数值、层数、触发条件或机制没有在检索片段中出现，必须写“待确认”或“当前检索片段没有记录”，不得根据名称、常识、旧版本、外部记忆或相似机制补全。
+- 如果用户问某个具体档案文件，优先使用该档案文件本身的片段，不要只根据 README 或索引清单回答。
+- 不要把“文件存在”说成“文件内容如此”；具体内容必须来自对应档案片段。
+- 涉及多个来源时，列出每条事实对应的来源路径。
 `;
 
 function queryTerms(question) {
@@ -40,10 +55,24 @@ function queryTerms(question) {
   return [...terms].filter((term) => term.length >= 2);
 }
 
+function pinnedKnowledge(question) {
+  const lower = String(question || "").toLowerCase();
+  const pinnedPaths = PINNED_KNOWLEDGE_ALIASES
+    .filter((item) => item.aliases.some((alias) => lower.includes(alias.toLowerCase())))
+    .map((item) => item.path);
+  if (!pinnedPaths.length) return [];
+  return pinnedPaths
+    .map((path) => IH_KNOWLEDGE_CHUNKS.find((chunk) => chunk.path === path))
+    .filter(Boolean);
+}
+
 function selectKnowledge(question) {
   const terms = queryTerms(question);
-  if (!terms.length) return [];
-  return IH_KNOWLEDGE_CHUNKS
+  const pinned = pinnedKnowledge(question);
+  const pinnedPaths = new Set(pinned.map((chunk) => chunk.path));
+  if (!terms.length) return pinned;
+  const ranked = IH_KNOWLEDGE_CHUNKS
+    .filter((chunk) => !pinnedPaths.has(chunk.path))
     .map((chunk) => {
       const haystack = `${chunk.title}\n${chunk.path}\n${chunk.body}`.toLowerCase();
       let score = 0;
@@ -56,8 +85,9 @@ function selectKnowledge(question) {
     })
     .filter((item) => item.score > 0)
     .sort((a, b) => b.score - a.score)
-    .slice(0, MAX_KNOWLEDGE_CHUNKS)
+    .slice(0, Math.max(0, MAX_KNOWLEDGE_CHUNKS - pinned.length))
     .map((item) => item.chunk);
+  return [...pinned, ...ranked].slice(0, MAX_KNOWLEDGE_CHUNKS);
 }
 
 function knowledgeContext(chunks) {
@@ -194,6 +224,7 @@ export default async (req) => {
         "如果问题涉及未检索到的知识、阵容结论、游戏机制细节或你没有资料支持的内容，明确说待确认，不要编造。",
         "把事实、推断和待确认内容分开。默认用用户正在使用的语言回答。回答要简洁、可执行。",
         PUBLIC_CONTEXT,
+        STRICT_CONTEXT_RULES,
         "游戏文档 / IHassistant 检索片段：",
         knowledgeContext(selectedKnowledge)
       ].join("\n")
@@ -214,7 +245,7 @@ export default async (req) => {
         model,
         messages,
         max_tokens: 1100,
-        temperature: 0.2,
+        temperature: 0,
         thinking: { type: "disabled" },
         stream: false
       })

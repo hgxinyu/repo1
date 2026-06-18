@@ -182,6 +182,15 @@
       font-size: 14px;
       text-align: center;
     }
+    .message-meta {
+      margin-top: 10px;
+      padding-top: 9px;
+      border-top: 1px solid rgba(21, 23, 27, 0.12);
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+      text-align: left;
+    }
     .composer {
       border-top: 2px solid var(--ink);
       padding: 14px;
@@ -425,6 +434,8 @@
         fail_prefix: '请求失败：',
         welcome: '可以问凝魂、远征积分、觉醒模拟器规则，也可以问 IHassistant 知识库已有的英雄、神器、魔兽、Boss 和机制资料。资料库目前还很有限，会慢慢完善；资料不足时我会标记待确认。',
         page_name: 'AI玩放置',
+        model_label: '模型：',
+        source_label: '来源：',
         sources: ['游戏相关 Markdown 文档', '工具规则文档', 'IHassistant/knowledge'],
         prompts: [
           '孙悟空（猴子）的四个技能和飞升月渊怎么配合？',
@@ -452,6 +463,8 @@
         fail_prefix: 'Request failed: ',
         welcome: 'Ask about tool rules or existing IHassistant knowledge such as heroes, artifacts, monsters, bosses, and mechanics. The knowledge base is still limited and growing; missing evidence will be marked pending confirmation.',
         page_name: 'Play IH with AI',
+        model_label: 'Model: ',
+        source_label: 'Sources: ',
         sources: ['Game-related Markdown docs', 'Tool rule docs', 'IHassistant/knowledge'],
         prompts: [
           'How do Sun Wukong skills and Spirit Pivot Yueyuan work together?',
@@ -489,12 +502,34 @@
       return (I18N[currentLang] && I18N[currentLang][key]) || I18N.zh[key] || '';
     }
 
-    function addMessage(role, content) {
+    function addMessage(role, content, meta = '') {
       const el = document.createElement('div');
       el.className = `message ${role}`;
-      el.textContent = content;
+      const body = document.createElement('div');
+      body.textContent = content;
+      el.appendChild(body);
+      if (meta) {
+        const metaEl = document.createElement('div');
+        metaEl.className = 'message-meta';
+        metaEl.textContent = meta;
+        el.appendChild(metaEl);
+      }
       messagesEl.appendChild(el);
       messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function answerMeta(data) {
+      const parts = [];
+      if (data.model) {
+        parts.push(`${t('model_label')}${data.model}`);
+      }
+      const paths = Array.isArray(data.sources)
+        ? [...new Set(data.sources.map((source) => source && source.path).filter(Boolean))]
+        : [];
+      if (paths.length) {
+        parts.push(`${t('source_label')}${paths.join(' ; ')}`);
+      }
+      return parts.join('\n');
     }
 
     function trimHistory() {
@@ -557,7 +592,11 @@
       if (!response.ok) {
         throw new Error(data.error || `${response.status} ${response.statusText}`);
       }
-      return data.answer || '';
+      return {
+        answer: data.answer || '',
+        model: data.model || '',
+        sources: Array.isArray(data.sources) ? data.sources : []
+      };
     }
 
     form.addEventListener('submit', async (event) => {
@@ -577,8 +616,9 @@
       statusEl.textContent = t('sending');
 
       try {
-        const answer = await ask(question);
-        addMessage('assistant', answer);
+        const result = await ask(question);
+        const answer = result.answer;
+        addMessage('assistant', answer, answerMeta(result));
         history.push({ role: 'assistant', content: answer });
         trimHistory();
         statusEl.textContent = t('ready');
