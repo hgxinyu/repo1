@@ -43,7 +43,7 @@ Netlify Functions 需要配置：
 DEEPSEEK_API_KEY=你的 DeepSeek API Key
 ```
 
-接口默认使用 `deepseek-v4-flash`。不要额外把模型名配置成 Netlify 环境变量，避免 secrets scan 把仓库里的模型字面量误判为环境变量泄漏。
+接口默认使用 `deepseek-v4-pro`。不要额外把模型名配置成 Netlify 环境变量，避免 secrets scan 把仓库里的模型字面量误判为环境变量泄漏。
 
 ## 安全边界
 
