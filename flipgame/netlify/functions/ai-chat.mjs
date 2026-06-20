@@ -37,7 +37,7 @@ const STRICT_CONTEXT_RULES = `
 - 如果某个数值、层数、触发条件或机制没有在检索片段中出现，必须写“待确认”或“当前检索片段没有记录”，不得根据名称、常识、旧版本、外部记忆或相似机制补全。
 - 如果用户问某个具体档案文件，优先使用该档案文件本身的片段，不要只根据 README 或索引清单回答。
 - 不要把“文件存在”说成“文件内容如此”；具体内容必须来自对应档案片段。
-- 涉及多个来源时，列出每条事实对应的来源路径。
+- 不要在正文中列出来源路径、知识片段编号或模型名称；只直接回答问题。
 `;
 
 function queryTerms(question) {
@@ -267,12 +267,13 @@ export default async (req) => {
     return json({ error: "AI 服务没有返回可用答案。" }, { status: 502 });
   }
 
-  return json({
-    answer,
-    model,
-    sources: selectedKnowledge.map((chunk) => ({ path: chunk.path, title: chunk.title })),
-    usage: data.usage || null
-  });
+  const response = { answer };
+  if (auth.isAdmin) {
+    response.model = model;
+    response.sources = selectedKnowledge.map((chunk) => ({ path: chunk.path, title: chunk.title }));
+    response.usage = data.usage || null;
+  }
+  return json(response);
 };
 
 export const config = {
