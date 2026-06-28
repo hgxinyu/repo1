@@ -37,6 +37,8 @@ Open `http://localhost:8000/`. Do not validate `fetch()` pages through `file://`
 
 ## Git / Deploy Rules
 
+- Use `stage` as the normal development and testing branch. Do feature work there first.
+- Merge from `stage` to the production branch/environment only after testing is complete and the user explicitly asks for that merge or production release.
 - Do not push after every small change by default. Netlify deploys consume credits on each push.
 - Prefer batching related changes into one commit and one push after the user confirms the work is ready.
 - Do not carry push, commit, production deploy, or Netlify deploy permission across turns. Even if the user asked to push earlier, require an explicit current-turn request before committing, pushing, or deploying again.
@@ -44,6 +46,7 @@ Open `http://localhost:8000/`. Do not validate `fetch()` pages through `file://`
 
 ## Data Rules
 
+- Stage and production data are not separated yet. Treat data writes made while testing `stage` as writes to shared/live data unless the user confirms a separate data environment exists.
 - Soul calculator data source: `flipgame/soul_tiers.csv`.
 - Expedition calculator data source: `flipgame/seboss_all.json`.
 - Guide images live under `flipgame/images/`.
