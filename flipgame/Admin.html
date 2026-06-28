@@ -155,12 +155,22 @@
       padding: 18px;
       border-bottom: 1px solid var(--line);
       background: linear-gradient(180deg, #fff, var(--surface-2));
+      cursor: pointer;
     }
     .panel-title {
       display: grid;
       gap: 4px;
     }
     .panel-body { padding: 0; }
+    .panel-toggle {
+      min-width: 64px;
+    }
+    .panel.is-collapsed .collapsible {
+      display: none;
+    }
+    .panel.is-collapsed .panel-head {
+      border-bottom: 0;
+    }
     .panel-footer {
       display: flex;
       justify-content: space-between;
@@ -264,6 +274,17 @@
       background: #fff1f2;
       color: var(--danger);
     }
+    .mode-pill {
+      width: fit-content;
+      margin-top: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      border-radius: 999px;
+      padding: 2px 9px;
+      color: #fff7ed;
+      background: rgba(180, 83, 9, 0.36);
+      font-size: 12px;
+      font-weight: 700;
+    }
     .field {
       display: grid;
       gap: 5px;
@@ -337,6 +358,7 @@
         <p class="eyebrow">ShinE Admin</p>
         <h1>管理后台</h1>
         <p>账号审核和资质价格维护</p>
+        <span class="mode-pill" id="modePill" hidden>本地 Mock 预览</span>
       </div>
       <div class="toolbar">
         <a href="index.html">回到主页</a>
@@ -346,90 +368,99 @@
     </header>
 
     <main class="layout">
-      <section class="panel" aria-labelledby="users-title">
-        <div class="panel-head">
+      <section class="panel is-collapsed" aria-labelledby="users-title" data-panel="users">
+        <div class="panel-head" data-panel-head>
           <div class="panel-title">
             <h2 id="users-title">VIP 用户</h2>
             <p>审核注册账号，管理会员访问状态。</p>
           </div>
-          <div class="status-line" id="userStatus" role="status">正在检查管理员权限...</div>
-        </div>
-        <div class="summary-row" id="userSummary" aria-label="用户统计">
-          <div class="summary-item">
-            <div class="summary-label">账号</div>
-            <div class="summary-value">0</div>
-          </div>
-          <div class="summary-item">
-            <div class="summary-label">待审核</div>
-            <div class="summary-value">0</div>
-          </div>
-          <div class="summary-item">
-            <div class="summary-label">VIP/Admin</div>
-            <div class="summary-value">0</div>
+          <div class="actions">
+            <div class="status-line" id="userStatus" role="status">正在检查管理员权限...</div>
+            <button class="panel-toggle" type="button" data-collapse-toggle aria-expanded="false">展开</button>
           </div>
         </div>
-        <div class="table-wrap">
-          <table aria-label="用户列表">
-            <thead>
-              <tr>
-                <th>账号</th>
-                <th>邮箱确认</th>
-                <th>角色</th>
-                <th>申请时间</th>
-                <th>操作</th>
-              </tr>
-            </thead>
-            <tbody id="userRows"></tbody>
-          </table>
+        <div class="collapsible">
+          <div class="summary-row" id="userSummary" aria-label="用户统计">
+            <div class="summary-item">
+              <div class="summary-label">账号</div>
+              <div class="summary-value">0</div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-label">待审核</div>
+              <div class="summary-value">0</div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-label">VIP/Admin</div>
+              <div class="summary-value">0</div>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table aria-label="用户列表">
+              <thead>
+                <tr>
+                  <th>账号</th>
+                  <th>邮箱确认</th>
+                  <th>角色</th>
+                  <th>申请时间</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="userRows"></tbody>
+            </table>
+          </div>
         </div>
       </section>
 
-      <section class="panel" aria-labelledby="prices-title">
-        <div class="panel-head">
+      <section class="panel is-collapsed" aria-labelledby="prices-title" data-panel="prices">
+        <div class="panel-head" data-panel-head>
           <div class="panel-title">
             <h2 id="prices-title">资质价格</h2>
             <p>升格成本使用狗粮单价，觉醒净投入使用出货价格。</p>
           </div>
           <div class="actions">
+            <button class="panel-toggle" type="button" data-collapse-toggle aria-expanded="false">展开</button>
             <button id="reloadPricesBtn" type="button">重载</button>
             <button id="savePricesBtn" class="primary" type="button">保存</button>
           </div>
         </div>
-        <div class="price-tools">
-          <label class="field">
-            星钻 / 绑钻比例
-            <input id="starRatioInput" type="number" min="0.0001" step="0.0001" inputmode="decimal" />
-          </label>
-          <div class="status-line" id="priceStatus" role="status">等待加载价格...</div>
-        </div>
-        <div class="table-wrap">
-          <table class="price-table" aria-label="资质价格表">
-            <thead>
-              <tr>
-                <th>资质</th>
-                <th>狗粮单价</th>
-                <th>出货价格</th>
-              </tr>
-            </thead>
-            <tbody id="priceRows"></tbody>
-          </table>
-        </div>
-        <div class="panel-footer">
-          <div class="meta" id="priceMeta"></div>
-          <div class="status-line" id="priceSummary">12 个资质档</div>
+        <div class="collapsible">
+          <div class="price-tools">
+            <label class="field">
+              星钻 / 绑钻比例
+              <input id="starRatioInput" type="number" min="0.0001" step="0.0001" inputmode="decimal" />
+            </label>
+            <div class="status-line" id="priceStatus" role="status">等待加载价格...</div>
+          </div>
+          <div class="table-wrap">
+            <table class="price-table" aria-label="资质价格表">
+              <thead>
+                <tr>
+                  <th>资质</th>
+                  <th>狗粮单价</th>
+                  <th>出货价格</th>
+                </tr>
+              </thead>
+              <tbody id="priceRows"></tbody>
+            </table>
+          </div>
+          <div class="panel-footer">
+            <div class="meta" id="priceMeta"></div>
+            <div class="status-line" id="priceSummary">12 个资质档</div>
+          </div>
         </div>
       </section>
     </main>
   </div>
 
   <script type="module">
-    import * as identity from "https://esm.sh/@netlify/identity?bundle";
-
+    const LOCAL_MOCK_MODE = isLocalAdminPreview();
+    let identity = null;
     const userStatusEl = document.getElementById("userStatus");
     const userSummaryEl = document.getElementById("userSummary");
     const rowsEl = document.getElementById("userRows");
     const refreshBtn = document.getElementById("refreshBtn");
     const logoutBtn = document.getElementById("logoutBtn");
+    const modePill = document.getElementById("modePill");
     const priceStatusEl = document.getElementById("priceStatus");
     const priceRowsEl = document.getElementById("priceRows");
     const priceMetaEl = document.getElementById("priceMeta");
@@ -439,13 +470,58 @@
     const savePricesBtn = document.getElementById("savePricesBtn");
 
     const TIER_ORDER = ["C-", "C", "C+", "B-", "B", "B+", "A-", "A", "A+", "S", "SS", "SSS"];
+    let mockUsers = [
+      {
+        email: "shine@example.com",
+        guild: "31939",
+        gameName: "ShinE",
+        role: "vip",
+        emailVerified: true,
+        emailConfirmedAt: "2026-06-28T07:00:00Z",
+        requestedAt: "2026-06-28T06:30:00Z"
+      },
+      {
+        email: "new@example.com",
+        guild: "",
+        gameName: "New User",
+        role: "pending",
+        emailVerified: false,
+        requestedAt: "2026-06-28T08:00:00Z"
+      },
+      {
+        email: "blocked@example.com",
+        guild: "Test",
+        gameName: "Blocked Demo",
+        role: "blocked",
+        emailVerified: true,
+        emailConfirmedAt: "2026-06-27T20:00:00Z",
+        requestedAt: "2026-06-27T19:20:00Z"
+      }
+    ];
+
+    function isLocalAdminPreview() {
+      const host = (window.location.hostname || "").toLowerCase();
+      return window.location.protocol === "file:"
+        || host === "localhost"
+        || host === "127.0.0.1"
+        || host === "0.0.0.0"
+        || host === "::1";
+    }
+
+    async function loadIdentity() {
+      if (!identity) {
+        identity = await import("https://esm.sh/@netlify/identity?bundle");
+      }
+      return identity;
+    }
 
     async function restoreIdentitySession() {
-      await identity.handleAuthCallback().catch(() => null);
-      if (typeof identity.hydrateSession === "function") {
-        await identity.hydrateSession().catch(() => null);
+      const identityApi = await loadIdentity();
+      await identityApi.handleAuthCallback().catch(() => null);
+      if (typeof identityApi.hydrateSession === "function") {
+        await identityApi.hydrateSession().catch(() => null);
       }
-      return identity.getUser().catch(() => null);
+      return identityApi.getUser().catch(() => null);
     }
 
     async function api(path, options) {
@@ -569,7 +645,42 @@
       return `<span class="badge">${escapeHtml(clean || "free")}</span>`;
     }
 
+    function setPanelCollapsed(panel, collapsed) {
+      panel.classList.toggle("is-collapsed", collapsed);
+      const toggle = panel.querySelector("[data-collapse-toggle]");
+      if (toggle) {
+        toggle.textContent = collapsed ? "展开" : "收起";
+        toggle.setAttribute("aria-expanded", collapsed ? "false" : "true");
+      }
+    }
+
+    function initPanelToggles() {
+      document.querySelectorAll("[data-panel]").forEach((panel) => {
+        setPanelCollapsed(panel, panel.classList.contains("is-collapsed"));
+        const head = panel.querySelector("[data-panel-head]");
+        const toggle = panel.querySelector("[data-collapse-toggle]");
+        const switchPanel = () => setPanelCollapsed(panel, !panel.classList.contains("is-collapsed"));
+        if (toggle) {
+          toggle.addEventListener("click", (event) => {
+            event.stopPropagation();
+            switchPanel();
+          });
+        }
+        if (head) {
+          head.addEventListener("click", (event) => {
+            if (event.target.closest("button, a, input, select, textarea")) return;
+            switchPanel();
+          });
+        }
+      });
+    }
+
     async function loadUsers() {
+      if (LOCAL_MOCK_MODE) {
+        render(mockUsers);
+        userStatusEl.textContent = `本地 Mock：已加载 ${mockUsers.length} 个示例账号。`;
+        return;
+      }
       userStatusEl.textContent = "正在加载用户...";
       const currentUser = await restoreIdentitySession();
       if (!currentUser) {
@@ -584,6 +695,12 @@
     }
 
     async function setRole(email, role) {
+      if (LOCAL_MOCK_MODE) {
+        mockUsers = mockUsers.map((user) => user.email === email ? { ...user, role } : user);
+        render(mockUsers);
+        userStatusEl.textContent = `本地 Mock：${email} 已临时改为 ${role}，不会保存到线上。`;
+        return;
+      }
       userStatusEl.textContent = `正在更新 ${email}...`;
       await api("/api/admin/set-role", {
         method: "POST",
@@ -593,6 +710,19 @@
     }
 
     async function loadPrices() {
+      if (LOCAL_MOCK_MODE) {
+        priceStatusEl.textContent = "正在加载本地价格...";
+        const response = await fetch("quality_prices.json", { cache: "no-cache" });
+        const data = await response.json();
+        renderPrices({
+          ...data,
+          storage: "local-mock",
+          updatedAt: "本地预览",
+          updatedBy: "browser"
+        });
+        priceStatusEl.textContent = "本地 Mock：价格已加载，保存不会写入线上。";
+        return;
+      }
       priceStatusEl.textContent = "正在加载价格...";
       const data = await api("/api/admin/quality-prices");
       renderPrices(data);
@@ -618,6 +748,16 @@
     }
 
     async function savePrices() {
+      if (LOCAL_MOCK_MODE) {
+        renderPrices({
+          ...collectPrices(),
+          storage: "local-mock",
+          updatedAt: new Date().toISOString(),
+          updatedBy: "browser"
+        });
+        priceStatusEl.textContent = "本地 Mock：价格已临时更新，不会保存到线上。";
+        return;
+      }
       priceStatusEl.textContent = "正在保存价格...";
       const data = await api("/api/admin/quality-prices", {
         method: "POST",
@@ -637,9 +777,19 @@
       priceStatusEl.textContent = "价格保存失败：" + (error.message || error);
     }));
     logoutBtn.addEventListener("click", async () => {
-      await identity.logout();
+      if (LOCAL_MOCK_MODE) {
+        userStatusEl.textContent = "本地 Mock：没有真实登录会话。";
+        return;
+      }
+      const identityApi = await loadIdentity();
+      await identityApi.logout();
       window.location.href = "Login.html?next=Admin.html";
     });
+
+    if (LOCAL_MOCK_MODE && modePill) {
+      modePill.hidden = false;
+    }
+    initPanelToggles();
 
     Promise.all([
       loadUsers(),

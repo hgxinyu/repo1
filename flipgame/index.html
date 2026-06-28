@@ -551,6 +551,10 @@
         <span class="title" id="cardDiscordTitle">放置奇兵兑换码</span>
         <span class="subtitle" id="cardDiscordSub">及时更新放置奇兵兑换码。</span>
       </a>
+      <a class="card-link" id="adminCard" href="Admin.html" style="display:none;">
+        <span class="title" id="cardAdminTitle">Admin Portal</span>
+        <span class="subtitle" id="cardAdminSub">本地 Mock 预览或管理员后台。</span>
+      </a>
       <a class="card-link" href="flipgame.html">
         <span class="title" id="cardFlipTitle">九宫格翻牌</span>
         <span class="subtitle" id="cardFlipSub">模拟翻牌流程，记录并计算最佳组合。</span>
@@ -666,6 +670,7 @@
       const accountName = document.getElementById('accountName');
       const accountVipBadge = document.getElementById('accountVipBadge');
       const adminLink = document.getElementById('adminLink');
+      const adminCard = document.getElementById('adminCard');
       const pageTitle = document.getElementById('pageTitle');
       const pageDesc = document.getElementById('pageDesc');
       const navGrid = document.getElementById('navGrid');
@@ -681,6 +686,8 @@
       const cardAiSub = document.getElementById('cardAiSub');
       const cardDiscordTitle = document.getElementById('cardDiscordTitle');
       const cardDiscordSub = document.getElementById('cardDiscordSub');
+      const cardAdminTitle = document.getElementById('cardAdminTitle');
+      const cardAdminSub = document.getElementById('cardAdminSub');
       const cardSoulTitle = document.getElementById('cardSoulTitle');
       const cardSoulSub = document.getElementById('cardSoulSub');
       const cardExpeditionTitle = document.getElementById('cardExpeditionTitle');
@@ -729,6 +736,8 @@
           account_signed_in: '已登录',
           account_vip_label: 'VIP 账号',
           admin_link: '管理后台',
+          card_admin_title: 'Admin Portal',
+          card_admin_sub: '本地 Mock 预览或管理员后台。',
           member_badge: '会员',
           vip_badge: 'VIP',
           nav_label: '工具导航',
@@ -795,6 +804,8 @@
           account_signed_in: 'Signed in',
           account_vip_label: 'VIP account',
           admin_link: 'Admin',
+          card_admin_title: 'Admin Portal',
+          card_admin_sub: 'Local mock preview or admin console.',
           member_badge: 'Member',
           vip_badge: 'VIP',
           nav_label: 'Tool Navigation',
@@ -872,11 +883,13 @@
         if (registerLink) registerLink.textContent = t('register_link');
         if (logoutBtn) logoutBtn.textContent = t('logout_link');
         if (accountName && accountName.dataset.placeholder === 'true') accountName.textContent = t('account_signed_in');
-        if (accountVipBadge) accountVipBadge.textContent = t('vip_badge');
+        if (accountVipBadge) accountVipBadge.textContent = accountVipBadge.dataset.badgeOverride || t('vip_badge');
         if (accountBtn && accountName && accountVipBadge && !accountVipBadge.hidden) {
           accountBtn.setAttribute('aria-label', `${accountName.textContent} ${t('vip_badge')}`);
         }
         if (adminLink) adminLink.textContent = t('admin_link');
+        if (cardAdminTitle) cardAdminTitle.textContent = t('card_admin_title');
+        if (cardAdminSub) cardAdminSub.textContent = t('card_admin_sub');
         document.querySelectorAll('[data-member-badge]').forEach((badge) => { badge.textContent = t('member_badge'); });
         document.querySelectorAll('[data-vip-badge]').forEach((badge) => { badge.textContent = t('vip_badge'); });
         if (navGrid) navGrid.setAttribute('aria-label', t('nav_label'));
@@ -1130,9 +1143,10 @@
     })();
   </script>
   <script type="module">
-    import * as identity from "https://esm.sh/@netlify/identity?bundle";
-
+    const LOCAL_MOCK_MODE = isLocalHomepagePreview();
+    let identity = null;
     const adminLink = document.getElementById("adminLink");
+    const adminCard = document.getElementById("adminCard");
     const loginLink = document.getElementById("loginLink");
     const registerLink = document.getElementById("registerLink");
     const accountMenu = document.getElementById("accountMenu");
@@ -1141,12 +1155,49 @@
     const accountVipBadge = document.getElementById("accountVipBadge");
     const logoutBtn = document.getElementById("logoutBtn");
 
-    async function restoreIdentitySession() {
-      await identity.handleAuthCallback().catch(() => null);
-      if (typeof identity.hydrateSession === "function") {
-        await identity.hydrateSession().catch(() => null);
+    function isLocalHomepagePreview() {
+      const host = (window.location.hostname || "").toLowerCase();
+      return window.location.protocol === "file:"
+        || host === "localhost"
+        || host === "127.0.0.1"
+        || host === "0.0.0.0"
+        || host === "::1";
+    }
+
+    async function loadIdentity() {
+      if (!identity) {
+        identity = await import("https://esm.sh/@netlify/identity?bundle");
       }
-      return identity.getUser().catch(() => null);
+      return identity;
+    }
+
+    async function restoreIdentitySession() {
+      const identityApi = await loadIdentity();
+      await identityApi.handleAuthCallback().catch(() => null);
+      if (typeof identityApi.hydrateSession === "function") {
+        await identityApi.hydrateSession().catch(() => null);
+      }
+      return identityApi.getUser().catch(() => null);
+    }
+
+    function showLocalAdminPreview() {
+      if (loginLink) loginLink.style.display = "none";
+      if (registerLink) registerLink.style.display = "none";
+      if (accountMenu) accountMenu.style.display = "inline-flex";
+      if (accountName) {
+        accountName.textContent = "Local Admin";
+        accountName.dataset.placeholder = "false";
+      }
+      if (accountVipBadge) {
+        accountVipBadge.hidden = false;
+        accountVipBadge.textContent = "ADMIN";
+        accountVipBadge.dataset.badgeOverride = "ADMIN";
+      }
+      if (accountBtn) {
+        accountBtn.setAttribute("aria-label", "Local Admin");
+      }
+      if (adminLink) adminLink.style.display = "inline-flex";
+      if (adminCard) adminCard.style.display = "";
     }
 
     async function updateAccountLinks() {
@@ -1155,13 +1206,18 @@
         window.location.replace(`Login.html${window.location.search}${window.location.hash}`);
         return;
       }
+      if (LOCAL_MOCK_MODE) {
+        showLocalAdminPreview();
+        return;
+      }
       const user = await restoreIdentitySession();
       if (!user) return;
 
       const response = await fetch("/api/me", { credentials: "include" });
       const data = await response.json().catch(() => ({}));
       if (response.status === 401) {
-        await identity.logout().catch(() => null);
+        const identityApi = await loadIdentity();
+        await identityApi.logout().catch(() => null);
         return;
       }
       if (loginLink) loginLink.style.display = "none";
@@ -1184,6 +1240,9 @@
       if (response.ok && data.isAdmin && adminLink) {
         adminLink.style.display = "inline-flex";
       }
+      if (response.ok && data.isAdmin && adminCard) {
+        adminCard.style.display = "";
+      }
     }
 
     if (accountBtn && accountMenu) {
@@ -1202,7 +1261,9 @@
 
     if (logoutBtn) {
       logoutBtn.addEventListener("click", async () => {
-        await identity.logout();
+        if (LOCAL_MOCK_MODE) return;
+        const identityApi = await loadIdentity();
+        await identityApi.logout();
         window.location.href = "index.html";
       });
     }

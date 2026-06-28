@@ -12,6 +12,8 @@ cd flipgame && python3 -m http.server 8000
 
 Open `http://localhost:8000/`. Do not validate `fetch()` pages through `file://`.
 
+When previewing locally, `index.html` shows a `Local Admin` account and Admin Portal entry by default. `Admin.html` uses local mock data only; it must not call real admin APIs or write Netlify Blobs from local preview.
+
 ## Project Shape
 
 - Main app files are standalone HTML pages in `flipgame/`.
