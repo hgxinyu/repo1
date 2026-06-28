@@ -7,9 +7,10 @@
     (function () {
       var host = (window.location.hostname || '').toLowerCase();
       var isLocal = host === 'localhost' || host === '127.0.0.1' || host === '::1';
-      var svg = isLocal ? 'assets/local-logo.svg' : 'assets/shine-logo.svg';
-      var png32 = isLocal ? 'assets/local-logo-32.png' : 'assets/shine-logo-32.png';
-      var ico = isLocal ? 'assets/local-favicon.ico' : 'assets/favicon.ico';
+      var isStage = host === 'stage' || host.startsWith('stage.') || host.startsWith('stage-') || host.startsWith('stage--') || host.indexOf('--stage') !== -1 || host.indexOf('-stage.') !== -1;
+      var svg = isLocal ? 'assets/local-logo.svg' : (isStage ? 'assets/stage-logo.svg' : 'assets/shine-logo.svg');
+      var png32 = isLocal ? 'assets/local-logo-32.png' : (isStage ? 'assets/stage-logo-32.png' : 'assets/shine-logo-32.png');
+      var ico = isLocal ? 'assets/local-favicon.ico' : (isStage ? 'assets/stage-favicon.ico' : 'assets/favicon.ico');
       document.write('<link rel="icon" type="image/svg+xml" href="' + svg + '">');
       document.write('<link rel="icon" type="image/png" sizes="32x32" href="' + png32 + '">');
       document.write('<link rel="shortcut icon" href="' + ico + '">');
@@ -17,12 +18,19 @@
   </script>
   <style>
     :root {
-      --border: #e5e7eb;
-      --ink: #111827;
-      --muted: #64748b;
+      --bg: #eef3f2;
+      --surface: #ffffff;
+      --surface-2: #f8faf9;
+      --ink: #14201f;
+      --muted: #64706e;
+      --line: #dce5e2;
+      --line-strong: #b9c8c3;
       --brand: #0f766e;
-      --bg: #f7faf8;
-      --shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+      --brand-dark: #0b4f4a;
+      --accent: #b45309;
+      --danger: #be123c;
+      --ok: #047857;
+      --shadow: 0 16px 36px rgba(20, 32, 31, 0.10);
     }
     * { box-sizing: border-box; }
     html, body {
@@ -30,46 +38,166 @@
       min-height: 100vh;
       background: var(--bg);
       color: var(--ink);
-      font-family: "Segoe UI", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+      font-family: ui-sans-serif, "Segoe UI", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
       line-height: 1.6;
     }
-    body { padding: 22px; }
-    .wrap {
-      width: min(1120px, 100%);
+    body { padding: 24px; }
+    .admin-shell {
+      width: min(1180px, 100%);
       margin: 0 auto;
       display: grid;
-      gap: 18px;
+      gap: 16px;
     }
-    header, .card {
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      box-shadow: var(--shadow);
-      padding: clamp(16px, 4vw, 24px);
-    }
-    header {
+    .topbar {
       display: flex;
       justify-content: space-between;
-      gap: 14px;
-      align-items: flex-start;
+      gap: 16px;
+      align-items: center;
       flex-wrap: wrap;
+      background: #102a33;
+      color: #fff;
+      border-radius: 8px;
+      padding: 18px;
+      box-shadow: var(--shadow);
     }
-    h1 { margin: 0; font-size: 28px; }
-    p { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
-    a, button, select {
-      border: 1px solid rgba(15, 118, 110, 0.34);
-      border-radius: 12px;
+    .title-block {
+      display: grid;
+      gap: 4px;
+    }
+    .eyebrow {
+      margin: 0;
+      color: #b7d7d4;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(24px, 4vw, 34px);
+      line-height: 1.1;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+    p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .topbar p { color: #d9e7e5; }
+    a, button {
+      min-height: 38px;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
       padding: 8px 12px;
       background: #fff;
-      color: var(--brand);
+      color: var(--brand-dark);
       font-size: 14px;
       text-decoration: none;
       cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    a:hover, button:hover {
+      border-color: var(--brand);
+      color: var(--brand);
+    }
+    .topbar a, .topbar button {
+      border-color: rgba(255, 255, 255, 0.28);
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
     }
     button.primary {
-      background: linear-gradient(135deg, #0f766e, #c2410c);
+      background: var(--brand);
       color: #fff;
       border-color: transparent;
+    }
+    button.danger {
+      color: var(--danger);
+      border-color: rgba(190, 18, 60, 0.25);
+    }
+    button.ghost {
+      background: transparent;
+    }
+    .toolbar,
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.55fr) minmax(340px, 0.75fr);
+      gap: 16px;
+      align-items: start;
+    }
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-start;
+      padding: 18px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #fff, var(--surface-2));
+    }
+    .panel-title {
+      display: grid;
+      gap: 4px;
+    }
+    .panel-body { padding: 0; }
+    .panel-footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      padding: 14px 18px;
+      border-top: 1px solid var(--line);
+      background: var(--surface-2);
+    }
+    .summary-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--line);
+      background: #fbfcfb;
+    }
+    .summary-item {
+      min-height: 58px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px 10px;
+      background: #fff;
+    }
+    .summary-label {
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .summary-value {
+      margin-top: 2px;
+      font-size: 20px;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+    .table-wrap {
+      overflow-x: auto;
     }
     table {
       width: 100%;
@@ -78,38 +206,76 @@
     }
     th, td {
       text-align: left;
-      border-bottom: 1px solid var(--border);
-      padding: 10px 8px;
-      vertical-align: top;
+      border-bottom: 1px solid var(--line);
+      padding: 10px 12px;
+      vertical-align: middle;
     }
-    th { color: var(--muted); font-weight: 600; }
-    .actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-    .status { min-height: 22px; color: var(--muted); font-size: 14px; }
-    .section-head {
-      display: flex;
-      justify-content: space-between;
-      gap: 14px;
-      align-items: flex-start;
-      flex-wrap: wrap;
-      margin-bottom: 14px;
+    th {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0;
+      background: var(--surface-2);
+      white-space: nowrap;
     }
-    h2 {
-      margin: 0;
-      font-size: 20px;
-      line-height: 1.25;
+    tbody tr:hover td { background: #fbfcfb; }
+    .account-cell {
+      display: grid;
+      gap: 3px;
+      min-width: 180px;
+    }
+    .account-meta {
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 13px;
+    }
+    .status-line {
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .badge {
+      display: inline-flex;
+      min-height: 24px;
+      align-items: center;
+      border-radius: 999px;
+      padding: 2px 9px;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.2;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--muted);
+    }
+    .badge.ok {
+      border-color: rgba(4, 120, 87, 0.22);
+      background: #ecfdf5;
+      color: var(--ok);
+    }
+    .badge.warn {
+      border-color: rgba(180, 83, 9, 0.24);
+      background: #fffbeb;
+      color: var(--accent);
+    }
+    .badge.danger {
+      border-color: rgba(190, 18, 60, 0.22);
+      background: #fff1f2;
+      color: var(--danger);
     }
     .field {
       display: grid;
       gap: 5px;
-      min-width: min(260px, 100%);
       color: var(--muted);
       font-size: 13px;
+      font-weight: 700;
     }
     input {
       width: 100%;
-      min-height: 40px;
-      border: 1px solid var(--border);
-      border-radius: 10px;
+      min-height: 38px;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
       padding: 8px 10px;
       color: var(--ink);
       font: inherit;
@@ -119,14 +285,16 @@
       outline: 2px solid rgba(15, 118, 110, 0.18);
       border-color: rgba(15, 118, 110, 0.6);
     }
-    .price-grid {
+    .price-tools {
       display: grid;
-      grid-template-columns: repeat(2, minmax(220px, 1fr));
-      gap: 14px;
-      margin-bottom: 14px;
+      gap: 12px;
+      padding: 18px;
+      border-bottom: 1px solid var(--line);
+      background: #fbfcfb;
     }
     .price-table input {
-      min-width: 96px;
+      min-width: 108px;
+      text-align: right;
     }
     .meta {
       display: flex;
@@ -135,95 +303,137 @@
       color: var(--muted);
       font-size: 13px;
     }
-    @media (max-width: 780px) {
+    .empty-row {
+      color: var(--muted);
+      text-align: center;
+      padding: 24px;
+    }
+    @media (max-width: 980px) {
+      body { padding: 14px; }
+      .layout { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 720px) {
+      .topbar, .panel-head, .panel-footer { align-items: stretch; }
+      .toolbar, .actions { width: 100%; }
+      .toolbar > *, .actions > * { flex: 1 1 auto; }
+      .summary-row { grid-template-columns: 1fr; }
       table, thead, tbody, tr, th, td { display: block; }
       thead { display: none; }
-      tr { border-bottom: 1px solid var(--border); padding: 10px 0; }
-      td { border: 0; padding: 4px 0; }
-      td::before { content: attr(data-label) "："; color: var(--muted); }
+      tr { border-bottom: 1px solid var(--line); padding: 10px 12px; }
+      td { border: 0; padding: 5px 0; }
+      td::before {
+        content: attr(data-label) "：";
+        color: var(--muted);
+        display: inline-block;
+        min-width: 86px;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <div>
+  <div class="admin-shell">
+    <header class="topbar">
+      <div class="title-block">
+        <p class="eyebrow">ShinE Admin</p>
         <h1>管理后台</h1>
-        <p>手动批准、取消或禁用 VIP 权限，维护升格和觉醒使用的资质价格。</p>
+        <p>账号审核和资质价格维护</p>
       </div>
-      <div class="actions">
+      <div class="toolbar">
         <a href="index.html">回到主页</a>
         <button id="refreshBtn" type="button">刷新</button>
         <button id="logoutBtn" type="button">退出登录</button>
       </div>
     </header>
-    <section class="card">
-      <div class="section-head">
-        <div>
-          <h2>VIP 用户</h2>
-          <p>批准、回退或禁用注册账号。</p>
+
+    <main class="layout">
+      <section class="panel" aria-labelledby="users-title">
+        <div class="panel-head">
+          <div class="panel-title">
+            <h2 id="users-title">VIP 用户</h2>
+            <p>审核注册账号，管理会员访问状态。</p>
+          </div>
+          <div class="status-line" id="userStatus" role="status">正在检查管理员权限...</div>
         </div>
-        <div class="status" id="userStatus" role="status">正在检查管理员权限...</div>
-      </div>
-      <table aria-label="用户列表">
-        <thead>
-          <tr>
-            <th>Email</th>
-            <th>公会</th>
-            <th>ID 名字</th>
-            <th>邮箱确认</th>
-            <th>角色</th>
-            <th>申请时间</th>
-            <th>操作</th>
-          </tr>
-        </thead>
-        <tbody id="userRows"></tbody>
-      </table>
-    </section>
-    <section class="card">
-      <div class="section-head">
-        <div>
-          <h2>资质价格</h2>
-          <p>升格成本使用狗粮单价，觉醒净投入使用出货价格。</p>
+        <div class="summary-row" id="userSummary" aria-label="用户统计">
+          <div class="summary-item">
+            <div class="summary-label">账号</div>
+            <div class="summary-value">0</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">待审核</div>
+            <div class="summary-value">0</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">VIP/Admin</div>
+            <div class="summary-value">0</div>
+          </div>
         </div>
-        <div class="actions">
-          <button id="reloadPricesBtn" type="button">重载价格</button>
-          <button id="savePricesBtn" class="primary" type="button">保存价格</button>
+        <div class="table-wrap">
+          <table aria-label="用户列表">
+            <thead>
+              <tr>
+                <th>账号</th>
+                <th>邮箱确认</th>
+                <th>角色</th>
+                <th>申请时间</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="userRows"></tbody>
+          </table>
         </div>
-      </div>
-      <div class="price-grid">
-        <label class="field">
-          星钻/绑钻比例
-          <input id="starRatioInput" type="number" min="0.0001" step="0.0001" inputmode="decimal" />
-        </label>
-      </div>
-      <table class="price-table" aria-label="资质价格表">
-        <thead>
-          <tr>
-            <th>资质</th>
-            <th>狗粮单价</th>
-            <th>出货价格</th>
-          </tr>
-        </thead>
-        <tbody id="priceRows"></tbody>
-      </table>
-      <div class="section-head" style="margin:14px 0 0;">
-        <div class="meta" id="priceMeta"></div>
-        <div class="status" id="priceStatus" role="status">等待加载价格...</div>
-      </div>
-    </section>
+      </section>
+
+      <section class="panel" aria-labelledby="prices-title">
+        <div class="panel-head">
+          <div class="panel-title">
+            <h2 id="prices-title">资质价格</h2>
+            <p>升格成本使用狗粮单价，觉醒净投入使用出货价格。</p>
+          </div>
+          <div class="actions">
+            <button id="reloadPricesBtn" type="button">重载</button>
+            <button id="savePricesBtn" class="primary" type="button">保存</button>
+          </div>
+        </div>
+        <div class="price-tools">
+          <label class="field">
+            星钻 / 绑钻比例
+            <input id="starRatioInput" type="number" min="0.0001" step="0.0001" inputmode="decimal" />
+          </label>
+          <div class="status-line" id="priceStatus" role="status">等待加载价格...</div>
+        </div>
+        <div class="table-wrap">
+          <table class="price-table" aria-label="资质价格表">
+            <thead>
+              <tr>
+                <th>资质</th>
+                <th>狗粮单价</th>
+                <th>出货价格</th>
+              </tr>
+            </thead>
+            <tbody id="priceRows"></tbody>
+          </table>
+        </div>
+        <div class="panel-footer">
+          <div class="meta" id="priceMeta"></div>
+          <div class="status-line" id="priceSummary">12 个资质档</div>
+        </div>
+      </section>
+    </main>
   </div>
 
   <script type="module">
     import * as identity from "https://esm.sh/@netlify/identity?bundle";
 
     const userStatusEl = document.getElementById("userStatus");
+    const userSummaryEl = document.getElementById("userSummary");
     const rowsEl = document.getElementById("userRows");
     const refreshBtn = document.getElementById("refreshBtn");
     const logoutBtn = document.getElementById("logoutBtn");
     const priceStatusEl = document.getElementById("priceStatus");
     const priceRowsEl = document.getElementById("priceRows");
     const priceMetaEl = document.getElementById("priceMeta");
+    const priceSummaryEl = document.getElementById("priceSummary");
     const starRatioInput = document.getElementById("starRatioInput");
     const reloadPricesBtn = document.getElementById("reloadPricesBtn");
     const savePricesBtn = document.getElementById("savePricesBtn");
@@ -264,20 +474,28 @@
 
     function render(users) {
       rowsEl.innerHTML = "";
+      renderUserSummary(users);
+      if (!users.length) {
+        rowsEl.innerHTML = '<tr><td class="empty-row" colspan="5">暂无账号申请</td></tr>';
+        return;
+      }
       for (const user of users) {
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td data-label="Email">${escapeHtml(user.email)}</td>
-          <td data-label="公会">${escapeHtml(user.guild)}</td>
-          <td data-label="ID 名字">${escapeHtml(user.gameName)}</td>
+          <td data-label="账号">
+            <div class="account-cell">
+              <span class="mono">${escapeHtml(user.email)}</span>
+              <span class="account-meta">${escapeHtml(user.gameName || "未填写")} · 公会 ${escapeHtml(user.guild || "-")}</span>
+            </div>
+          </td>
           <td data-label="邮箱确认">${emailStatus(user)}</td>
-          <td data-label="角色">${escapeHtml(user.role)}</td>
-          <td data-label="申请时间">${escapeHtml(user.requestedAt || user.createdAt)}</td>
+          <td data-label="角色">${roleStatus(user.role)}</td>
+          <td data-label="申请时间" class="mono">${escapeHtml(user.requestedAt || user.createdAt)}</td>
           <td data-label="操作">
             <div class="actions">
-              <button data-role="vip" type="button">设为 VIP</button>
-              <button data-role="pending" type="button">待审核</button>
-              <button data-role="blocked" type="button">禁用</button>
+              <button data-role="vip" type="button">VIP</button>
+              <button data-role="pending" type="button" class="ghost">待审</button>
+              <button data-role="blocked" type="button" class="danger">禁用</button>
             </div>
           </td>
         `;
@@ -286,6 +504,26 @@
         });
         rowsEl.appendChild(tr);
       }
+    }
+
+    function renderUserSummary(users) {
+      const total = users.length;
+      const pending = users.filter((user) => user.role === "pending" || user.role === "free").length;
+      const vip = users.filter((user) => user.role === "vip" || user.role === "admin").length;
+      userSummaryEl.innerHTML = `
+        <div class="summary-item">
+          <div class="summary-label">账号</div>
+          <div class="summary-value">${total}</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">待审核</div>
+          <div class="summary-value">${pending}</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">VIP/Admin</div>
+          <div class="summary-value">${vip}</div>
+        </div>
+      `;
     }
 
     function renderPrices(data) {
@@ -314,12 +552,21 @@
         span.textContent = item;
         priceMetaEl.appendChild(span);
       }
+      priceSummaryEl.textContent = `${TIER_ORDER.length} 个资质档`;
     }
 
     function emailStatus(user) {
-      if (user.emailVerified === true || user.emailConfirmedAt) return "已确认";
-      if (user.emailVerified === false) return "未确认";
-      return "未知";
+      if (user.emailVerified === true || user.emailConfirmedAt) return '<span class="badge ok">已确认</span>';
+      if (user.emailVerified === false) return '<span class="badge warn">未确认</span>';
+      return '<span class="badge">未知</span>';
+    }
+
+    function roleStatus(role) {
+      const clean = String(role || "").trim().toLowerCase();
+      if (clean === "vip" || clean === "admin") return `<span class="badge ok">${escapeHtml(clean)}</span>`;
+      if (clean === "blocked") return '<span class="badge danger">blocked</span>';
+      if (clean === "pending") return '<span class="badge warn">pending</span>';
+      return `<span class="badge">${escapeHtml(clean || "free")}</span>`;
     }
 
     async function loadUsers() {

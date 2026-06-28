@@ -61,7 +61,7 @@ http://localhost:8000/
 - 远征积分数据：`flipgame/seboss_all.json`
 - 远征原始表：`flipgame/SE Boss New.xlsx`
 - 攻略图片：`flipgame/images/`
-- 图标与 PWA 资源：`flipgame/assets/`、`flipgame/site.webmanifest`、`flipgame/site.local.webmanifest`
+- 图标与 PWA 资源：`flipgame/assets/`、`flipgame/site.webmanifest`、`flipgame/site.stage.webmanifest`、`flipgame/site.local.webmanifest`
 - 知识库截图与资料：`IHassistant/knowledge/`
 
 ## 文档

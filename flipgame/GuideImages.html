@@ -8,12 +8,13 @@
     (function () {
       var host = (window.location.hostname || '').toLowerCase();
       var isLocal = host === 'localhost' || host === '127.0.0.1' || host === '::1';
-      var svg = isLocal ? 'assets/local-logo.svg' : 'assets/shine-logo.svg';
-      var png32 = isLocal ? 'assets/local-logo-32.png' : 'assets/shine-logo-32.png';
-      var ico = isLocal ? 'assets/local-favicon.ico' : 'assets/favicon.ico';
-      var apple = isLocal ? 'assets/local-logo-180.png' : 'assets/shine-logo-180.png';
-      var manifest = isLocal ? 'site.local.webmanifest' : 'site.webmanifest';
-      var theme = isLocal ? '#fb7185' : '#6366f1';
+      var isStage = host === 'stage' || host.startsWith('stage.') || host.startsWith('stage-') || host.startsWith('stage--') || host.indexOf('--stage') !== -1 || host.indexOf('-stage.') !== -1;
+      var svg = isLocal ? 'assets/local-logo.svg' : (isStage ? 'assets/stage-logo.svg' : 'assets/shine-logo.svg');
+      var png32 = isLocal ? 'assets/local-logo-32.png' : (isStage ? 'assets/stage-logo-32.png' : 'assets/shine-logo-32.png');
+      var ico = isLocal ? 'assets/local-favicon.ico' : (isStage ? 'assets/stage-favicon.ico' : 'assets/favicon.ico');
+      var apple = isLocal ? 'assets/local-logo-180.png' : (isStage ? 'assets/stage-logo-180.png' : 'assets/shine-logo-180.png');
+      var manifest = isLocal ? 'site.local.webmanifest' : (isStage ? 'site.stage.webmanifest' : 'site.webmanifest');
+      var theme = isLocal ? '#fb7185' : (isStage ? '#0891b2' : '#6366f1');
       document.write('<link rel="icon" type="image/svg+xml" href="' + svg + '">');
       document.write('<link rel="icon" type="image/png" sizes="32x32" href="' + png32 + '">');
       document.write('<link rel="shortcut icon" href="' + ico + '">');

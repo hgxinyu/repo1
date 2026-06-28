@@ -19,7 +19,7 @@ Open `http://localhost:8000/`. Do not validate `fetch()` pages through `file://`
 - Netlify Functions live under `flipgame/netlify/functions/` and use `flipgame/package.json` for deploy dependencies.
 - Shared data is stored as CSV/JSON next to the pages that load it.
 - The site supports zh/en text through per-page I18N objects.
-- Local and production app icons are selected by hostname in each page header.
+- Local, stage, and production app icons are selected by hostname in each page header.
 - `IHassistant/` is the Idle Heroes knowledge base. It stores game mechanics, heroes, artifacts, soulstones, monsters, bosses, modes, lineups, screenshots, and source notes.
 - `IHassistant/` is not automatically public site content. Do not copy knowledge files into `flipgame/` unless the user explicitly asks to expose them through a public or VIP page.
 

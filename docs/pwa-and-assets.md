@@ -3,8 +3,10 @@
 相关文件：
 
 - `flipgame/site.webmanifest`
+- `flipgame/site.stage.webmanifest`
 - `flipgame/site.local.webmanifest`
 - `flipgame/assets/shine-logo.*`
+- `flipgame/assets/stage-logo.*`
 - `flipgame/assets/local-logo.*`
 - `flipgame/assets/local-brand.js`
 
@@ -13,13 +15,15 @@
 页面根据 hostname 自动选择图标：
 
 - `localhost`、`127.0.0.1`、`::1` 使用 local logo。
+- `stage`、`stage.*`、`stage-*`、`stage--*`、`*--stage*`、`*-stage.*` 使用 stage logo。
 - 生产环境使用 production logo。
 
-这样可以在手机或浏览器里区分 local app 和 production app。
+这样可以在手机或浏览器里区分 local、stage 和 production app。
 
 ## Manifest
 
 - 生产环境：`site.webmanifest`
+- Stage 环境：`site.stage.webmanifest`
 - 本地环境：`site.local.webmanifest`
 
 每个主要 HTML 页面头部都有一段脚本写入 favicon、apple-touch-icon、manifest 和 theme-color。
