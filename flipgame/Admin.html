@@ -85,6 +85,56 @@
     th { color: var(--muted); font-weight: 600; }
     .actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
     .status { min-height: 22px; color: var(--muted); font-size: 14px; }
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    h2 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.25;
+    }
+    .field {
+      display: grid;
+      gap: 5px;
+      min-width: min(260px, 100%);
+      color: var(--muted);
+      font-size: 13px;
+    }
+    input {
+      width: 100%;
+      min-height: 40px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 10px;
+      color: var(--ink);
+      font: inherit;
+      background: #fff;
+    }
+    input:focus {
+      outline: 2px solid rgba(15, 118, 110, 0.18);
+      border-color: rgba(15, 118, 110, 0.6);
+    }
+    .price-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(220px, 1fr));
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+    .price-table input {
+      min-width: 96px;
+    }
+    .meta {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 13px;
+    }
     @media (max-width: 780px) {
       table, thead, tbody, tr, th, td { display: block; }
       thead { display: none; }
@@ -99,7 +149,7 @@
     <header>
       <div>
         <h1>管理后台</h1>
-        <p>手动批准、取消或禁用 VIP 权限。</p>
+        <p>手动批准、取消或禁用 VIP 权限，维护升格和觉醒使用的资质价格。</p>
       </div>
       <div class="actions">
         <a href="index.html">回到主页</a>
@@ -108,7 +158,13 @@
       </div>
     </header>
     <section class="card">
-      <div class="status" id="status" role="status">正在检查管理员权限...</div>
+      <div class="section-head">
+        <div>
+          <h2>VIP 用户</h2>
+          <p>批准、回退或禁用注册账号。</p>
+        </div>
+        <div class="status" id="userStatus" role="status">正在检查管理员权限...</div>
+      </div>
       <table aria-label="用户列表">
         <thead>
           <tr>
@@ -124,15 +180,55 @@
         <tbody id="userRows"></tbody>
       </table>
     </section>
+    <section class="card">
+      <div class="section-head">
+        <div>
+          <h2>资质价格</h2>
+          <p>升格成本使用狗粮单价，觉醒净投入使用出货价格。</p>
+        </div>
+        <div class="actions">
+          <button id="reloadPricesBtn" type="button">重载价格</button>
+          <button id="savePricesBtn" class="primary" type="button">保存价格</button>
+        </div>
+      </div>
+      <div class="price-grid">
+        <label class="field">
+          星钻/绑钻比例
+          <input id="starRatioInput" type="number" min="0.0001" step="0.0001" inputmode="decimal" />
+        </label>
+      </div>
+      <table class="price-table" aria-label="资质价格表">
+        <thead>
+          <tr>
+            <th>资质</th>
+            <th>狗粮单价</th>
+            <th>出货价格</th>
+          </tr>
+        </thead>
+        <tbody id="priceRows"></tbody>
+      </table>
+      <div class="section-head" style="margin:14px 0 0;">
+        <div class="meta" id="priceMeta"></div>
+        <div class="status" id="priceStatus" role="status">等待加载价格...</div>
+      </div>
+    </section>
   </div>
 
   <script type="module">
     import * as identity from "https://esm.sh/@netlify/identity?bundle";
 
-    const statusEl = document.getElementById("status");
+    const userStatusEl = document.getElementById("userStatus");
     const rowsEl = document.getElementById("userRows");
     const refreshBtn = document.getElementById("refreshBtn");
     const logoutBtn = document.getElementById("logoutBtn");
+    const priceStatusEl = document.getElementById("priceStatus");
+    const priceRowsEl = document.getElementById("priceRows");
+    const priceMetaEl = document.getElementById("priceMeta");
+    const starRatioInput = document.getElementById("starRatioInput");
+    const reloadPricesBtn = document.getElementById("reloadPricesBtn");
+    const savePricesBtn = document.getElementById("savePricesBtn");
+
+    const TIER_ORDER = ["C-", "C", "C+", "B-", "B", "B+", "A-", "A", "A+", "S", "SS", "SSS"];
 
     async function restoreIdentitySession() {
       await identity.handleAuthCallback().catch(() => null);
@@ -156,17 +252,27 @@
       return data;
     }
 
+    function escapeHtml(value) {
+      return String(value || "").replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "\"": "&quot;",
+        "'": "&#39;"
+      }[char]));
+    }
+
     function render(users) {
       rowsEl.innerHTML = "";
       for (const user of users) {
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td data-label="Email">${user.email || ""}</td>
-          <td data-label="公会">${user.guild || ""}</td>
-          <td data-label="ID 名字">${user.gameName || ""}</td>
+          <td data-label="Email">${escapeHtml(user.email)}</td>
+          <td data-label="公会">${escapeHtml(user.guild)}</td>
+          <td data-label="ID 名字">${escapeHtml(user.gameName)}</td>
           <td data-label="邮箱确认">${emailStatus(user)}</td>
-          <td data-label="角色">${user.role || ""}</td>
-          <td data-label="申请时间">${user.requestedAt || user.createdAt || ""}</td>
+          <td data-label="角色">${escapeHtml(user.role)}</td>
+          <td data-label="申请时间">${escapeHtml(user.requestedAt || user.createdAt)}</td>
           <td data-label="操作">
             <div class="actions">
               <button data-role="vip" type="button">设为 VIP</button>
@@ -182,6 +288,34 @@
       }
     }
 
+    function renderPrices(data) {
+      const rows = Array.isArray(data.tiers) ? data.tiers : [];
+      const byTier = new Map(rows.map((row) => [String(row.tier || "").toUpperCase(), row]));
+      starRatioInput.value = Number(data.starDiamondBoundDiamondRatio || 0);
+      priceRowsEl.innerHTML = "";
+      for (const tier of TIER_ORDER) {
+        const row = byTier.get(tier) || {};
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td data-label="资质">${tier}</td>
+          <td data-label="狗粮单价"><input data-tier="${tier}" data-field="foodPrice" type="number" min="0" step="1" inputmode="numeric" value="${Number(row.foodPrice || 0)}" /></td>
+          <td data-label="出货价格"><input data-tier="${tier}" data-field="keptPrice" type="number" min="0" step="1" inputmode="numeric" value="${Number(row.keptPrice || 0)}" /></td>
+        `;
+        priceRowsEl.appendChild(tr);
+      }
+      priceMetaEl.textContent = "";
+      const meta = [
+        data.storage ? `存储：${data.storage}` : "",
+        data.updatedAt ? `更新：${data.updatedAt}` : "",
+        data.updatedBy ? `操作：${data.updatedBy}` : ""
+      ].filter(Boolean);
+      for (const item of meta) {
+        const span = document.createElement("span");
+        span.textContent = item;
+        priceMetaEl.appendChild(span);
+      }
+    }
+
     function emailStatus(user) {
       if (user.emailVerified === true || user.emailConfirmedAt) return "已确认";
       if (user.emailVerified === false) return "未确认";
@@ -189,7 +323,7 @@
     }
 
     async function loadUsers() {
-      statusEl.textContent = "正在加载用户...";
+      userStatusEl.textContent = "正在加载用户...";
       const currentUser = await restoreIdentitySession();
       if (!currentUser) {
         window.location.href = "Login.html?next=Admin.html";
@@ -197,13 +331,13 @@
       }
       const data = await api("/api/admin/users");
       render(data.users || []);
-      statusEl.textContent = data.identitySyncError
+      userStatusEl.textContent = data.identitySyncError
         ? `已加载 ${(data.users || []).length} 个申请账号，但邮箱确认状态未能从 Identity 刷新：${data.identitySyncError}`
         : `已加载 ${(data.users || []).length} 个申请账号。`;
     }
 
     async function setRole(email, role) {
-      statusEl.textContent = `正在更新 ${email}...`;
+      userStatusEl.textContent = `正在更新 ${email}...`;
       await api("/api/admin/set-role", {
         method: "POST",
         body: JSON.stringify({ email, role })
@@ -211,16 +345,61 @@
       await loadUsers();
     }
 
+    async function loadPrices() {
+      priceStatusEl.textContent = "正在加载价格...";
+      const data = await api("/api/admin/quality-prices");
+      renderPrices(data);
+      priceStatusEl.textContent = data.storageError
+        ? `已载入默认价格，价格存储读取失败：${data.storageError}`
+        : "价格已加载。";
+    }
+
+    function collectPrices() {
+      const tiers = TIER_ORDER.map((tier) => {
+        const foodInput = priceRowsEl.querySelector(`input[data-tier="${tier}"][data-field="foodPrice"]`);
+        const keptInput = priceRowsEl.querySelector(`input[data-tier="${tier}"][data-field="keptPrice"]`);
+        return {
+          tier,
+          foodPrice: Number(foodInput && foodInput.value),
+          keptPrice: Number(keptInput && keptInput.value)
+        };
+      });
+      return {
+        starDiamondBoundDiamondRatio: Number(starRatioInput.value),
+        tiers
+      };
+    }
+
+    async function savePrices() {
+      priceStatusEl.textContent = "正在保存价格...";
+      const data = await api("/api/admin/quality-prices", {
+        method: "POST",
+        body: JSON.stringify(collectPrices())
+      });
+      renderPrices(data.prices || {});
+      priceStatusEl.textContent = "价格已保存，计算器会读取最新价格。";
+    }
+
     refreshBtn.addEventListener("click", () => loadUsers().catch((error) => {
-      statusEl.textContent = "加载失败：" + (error.message || error);
+      userStatusEl.textContent = "加载失败：" + (error.message || error);
+    }));
+    reloadPricesBtn.addEventListener("click", () => loadPrices().catch((error) => {
+      priceStatusEl.textContent = "价格加载失败：" + (error.message || error);
+    }));
+    savePricesBtn.addEventListener("click", () => savePrices().catch((error) => {
+      priceStatusEl.textContent = "价格保存失败：" + (error.message || error);
     }));
     logoutBtn.addEventListener("click", async () => {
       await identity.logout();
       window.location.href = "Login.html?next=Admin.html";
     });
 
-    loadUsers().catch((error) => {
-      statusEl.textContent = "没有权限或加载失败：" + (error.message || error);
+    Promise.all([
+      loadUsers(),
+      loadPrices()
+    ]).catch((error) => {
+      userStatusEl.textContent = "没有权限或加载失败：" + (error.message || error);
+      priceStatusEl.textContent = "没有权限或加载失败：" + (error.message || error);
     });
   </script>
 </body>

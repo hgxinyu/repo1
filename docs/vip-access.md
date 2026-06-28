@@ -18,6 +18,7 @@
 系统写入 VIP 申请，默认 role=pending
 管理员进入 Admin.html
 管理员手动把账号设为 vip
+管理员可在 Admin.html 维护升格和觉醒使用的资质价格
 用户登录后可访问注册会员页面
 VIP 账号可额外访问觉醒冲榜模拟器和 AI玩放置
 ```
@@ -50,9 +51,12 @@ ADMIN_EMAILS=admin1@example.com,admin2@example.com
 
 - `POST /api/vip-request`：提交 VIP 申请。
 - `GET /api/me`：读取当前登录用户、注册会员状态和 VIP 权限。
+- `GET /api/quality-prices`：读取升格和觉醒使用的当前资质价格；未保存后台价格时返回静态默认值。
 - `POST /api/ai-chat`：VIP 调用 AI玩放置，后端代理 DeepSeek API。VIP 每小时最多提问 10 次，管理员账号不受限制。
 - `GET /api/admin/users`：管理员读取申请列表。
 - `POST /api/admin/set-role`：管理员修改用户角色。
+- `GET /api/admin/quality-prices`：管理员读取资质价格和存储状态。
+- `POST /api/admin/quality-prices`：管理员保存 `starDiamondBoundDiamondRatio`、各资质 `foodPrice` 和 `keptPrice`。
 
 后台用户列表会显示邮箱确认状态：
 
@@ -65,6 +69,8 @@ ADMIN_EMAILS=admin1@example.com,admin2@example.com
 ```text
 users/{email}.json
 ```
+
+资质价格存储在 Netlify Blobs 的 `quality-prices` store 中，key 为 `current.json`。`flipgame/quality_prices.json` 仍保留为默认值和本地静态服务器回退。
 
 ## 部署要求
 

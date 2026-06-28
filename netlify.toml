@@ -26,6 +26,11 @@
   status = 200
 
 [[redirects]]
+  from = "/api/quality-prices"
+  to = "/.netlify/functions/quality-prices"
+  status = 200
+
+[[redirects]]
   from = "/api/admin/users"
   to = "/.netlify/functions/admin-users"
   status = 200
@@ -33,4 +38,9 @@
 [[redirects]]
   from = "/api/admin/set-role"
   to = "/.netlify/functions/admin-set-role"
+  status = 200
+
+[[redirects]]
+  from = "/api/admin/quality-prices"
+  to = "/.netlify/functions/admin-quality-prices"
   status = 200

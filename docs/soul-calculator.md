@@ -3,7 +3,7 @@
 页面：`flipgame/SoulAscensionCalculator.html`  
 访问权限：注册会员。页面加载时会调用 `/api/me` 检查当前登录账号，禁用账号不可访问。  
 主数据：`flipgame/soul_tiers.csv`  
-价格数据：`flipgame/quality_prices.json`，直接维护 JSON。
+价格数据：线上优先读取 `/api/quality-prices`；本地静态预览或 API 不可用时回退到 `flipgame/quality_prices.json`。
 兼容候选：`凝魂.csv`
 
 ## CSV 字段口径
@@ -91,7 +91,7 @@ X 当前实测推导：
 
 ## 升格成本
 
-页面从当前资质段 `升格需求` 读取材料配方，并使用 `quality_prices.json` 中对应资质的 `foodPrice` 计算升格成本。
+页面从当前资质段 `升格需求` 读取材料配方，并使用当前价格数据中对应资质的 `foodPrice` 计算升格成本。线上价格由 `Admin.html` 的“资质价格”面板写入 Netlify Blobs；`quality_prices.json` 是默认值和本地回退。
 
 示例：
 
@@ -103,7 +103,7 @@ sss 升格需求 = 1s,1ss,1sss
 
 ## 凝魂性价比
 
-页面使用 `quality_prices.json` 的 `foodPrice`，以及 CSV 中该资质的凝魂经验来源，计算达到所需总经验的最低成本喂法。
+页面使用当前价格数据的 `foodPrice`，以及 CSV 中该资质的凝魂经验来源，计算达到所需总经验的最低成本喂法。
 
 价格 JSON 中不存在或无效的资质会被忽略。
 

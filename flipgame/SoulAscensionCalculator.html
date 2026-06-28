@@ -841,7 +841,7 @@
       }
 
       async function loadQualityPrices() {
-        const candidates = ['quality_prices.json', './quality_prices.json', '/flipgame/quality_prices.json'];
+        const candidates = ['/api/quality-prices', 'quality_prices.json', './quality_prices.json', '/flipgame/quality_prices.json'];
         let lastErr = null;
         for (const p of candidates) {
           try {
