@@ -30,6 +30,8 @@
 - `mechanics/attributes-affixes.md`：属性词缀、基础战斗规则和通用乘区。
 - `mechanics/boss-damage-formula.md`：章鱼 Boss 伤害公式和阿斯布主 C 相关乘区。
 - `mechanics/damage-types.md`：传统伤害、真实伤害、惩戒伤害，以及哪些属性对不同伤害类型生效。
+- `mechanics/hero-upgrade-progression.md`：普通 E5 英雄从 E9、根源 120 到神六的资源链路。
+- `mechanics/destiny-temple.md`：飞升殿堂、神能等级、Destiny/Divine Power 术语和资源口径；完整 1-30 级数据在 `flipgame/destiny_temple_levels.json`。
 - `mechanics/control-types.md`：沉默、恐惧、光之封印、双封、变形术、目眩、嘲讽等控制类型和交互。
 - `awaken copy/README.md`：觉醒资质等级、词条门槛和各资质数值表。
 - `expedition star imprints/README.md`：远征星印数量、套装规则、远见 4 件套和常用 4+2 配置。

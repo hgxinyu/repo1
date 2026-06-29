@@ -35,7 +35,9 @@ http://localhost:8000/
 - AI玩放置（VIP）：`flipgame/AIAsk.html`
 - 攻略图片：`flipgame/GuideImages.html`
 - 九宫格翻牌：`flipgame/flipgame.html`
+- 计算器入口：`flipgame/Calculators.html`
 - 核心计算器：`flipgame/CoreCalculator.html`
+- 殿堂 / 飞升计算器：`flipgame/DestinyCalculator.html`
 - 星钻计算器：`flipgame/StarDiamondCalculator.html`
 - 觉醒冲榜模拟器（VIP）：`flipgame/AwakeningRushSimulator.html`
 - 登录：`flipgame/Login.html`
@@ -69,6 +71,7 @@ http://localhost:8000/
 - Agent 规则：`AGENTS.md`
 - 知识库模块：`docs/ihassistant.md`
 - 凝魂模块：`docs/soul-calculator.md`
+- 计算器与飞升资源：`docs/core-calculator.md`
 - 远征模块：`docs/expedition-calculator.md`
 - AI玩放置：`docs/ai-ask.md`
 - 放置奇兵兑换码：`docs/discord-digest.md`

@@ -354,6 +354,7 @@
 <body>
   <nav id="topbar-nav" aria-label="页面导航">
     <a href="index.html" id="navHome">回到主页</a>
+    <a href="Calculators.html" id="navCalculators">计算器入口</a>
   </nav>
 
   <div class="langbar" style="display:none;">
@@ -413,6 +414,7 @@
     (function () {
       const langToggle = document.getElementById('langToggle');
       const navHome = document.getElementById('navHome');
+      const navCalculators = document.getElementById('navCalculators');
       const navFlip = document.getElementById('navFlip');
       const navStar = document.getElementById('navStar');
       const pageTitle = document.getElementById('pageTitle');
@@ -452,6 +454,7 @@
           title: '核心计算器 · ShinE',
           nav_label: '页面导航',
           nav_home: '回到主页',
+          nav_calculators: '计算器入口',
           nav_flip: '九宫格翻牌',
           nav_star: '星钻计算器',
           page_title: '核心计算器',
@@ -475,7 +478,7 @@
           item_fly4_100: '飞4-100',
           item_fly5_100: '飞5-100',
           item_fly6_100: '飞6-100',
-          item_extra_blue_k: '额外蓝碎（K）',
+          item_extra_blue_k: '额外星碎/蓝碎/印痕（K）',
           lang_toggle_en: 'EN',
           lang_toggle_zh: '中文'
         },
@@ -483,6 +486,7 @@
           title: 'Core Calculator · ShinE',
           nav_label: 'Page Navigation',
           nav_home: 'Home',
+          nav_calculators: 'Calculators',
           nav_flip: '3x3 Flip Cards',
           nav_star: 'Star Diamond Calculator',
           page_title: 'Core Calculator',
@@ -500,13 +504,13 @@
           item_e9: 'E9',
           item_v400: '400',
           item_v420: '420',
-          item_fly1_100: 'Flight 1-100',
-          item_fly2_100: 'Flight 2-100',
-          item_fly3_100: 'Flight 3-100',
-          item_fly4_100: 'Flight 4-100',
-          item_fly5_100: 'Flight 5-100',
-          item_fly6_100: 'Flight 6-100',
-          item_extra_blue_k: 'Extra Blue Shards (K)',
+          item_fly1_100: 'Destiny 1-100',
+          item_fly2_100: 'Destiny 2-100',
+          item_fly3_100: 'Destiny 3-100',
+          item_fly4_100: 'Destiny 4-100',
+          item_fly5_100: 'Destiny 5-100',
+          item_fly6_100: 'Destiny 6-100',
+          item_extra_blue_k: 'Extra Stellar Shards (K)',
           lang_toggle_en: 'EN',
           lang_toggle_zh: '中文'
         }
@@ -542,6 +546,7 @@
         document.documentElement.lang = currentLang === 'zh' ? 'zh-Hans' : 'en';
         if (topbarNav) topbarNav.setAttribute('aria-label', t('nav_label'));
         if (navHome) navHome.textContent = t('nav_home');
+        if (navCalculators) navCalculators.textContent = t('nav_calculators');
         if (navFlip) navFlip.textContent = t('nav_flip');
         if (navStar) navStar.textContent = t('nav_star');
         if (pageTitle) pageTitle.textContent = t('page_title');

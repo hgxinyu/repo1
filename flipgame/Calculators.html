@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>计算器入口 · ShinE</title>
+  <script>
+    (function () {
+      var host = (window.location.hostname || '').toLowerCase();
+      var isLocal = host === 'localhost' || host === '127.0.0.1' || host === '::1';
+      var isStage = host === 'stage' || host.startsWith('stage.') || host.startsWith('stage-') || host.startsWith('stage--') || host.indexOf('--stage') !== -1 || host.indexOf('-stage.') !== -1;
+      var svg = isLocal ? 'assets/local-logo.svg' : (isStage ? 'assets/stage-logo.svg' : 'assets/shine-logo.svg');
+      var png32 = isLocal ? 'assets/local-logo-32.png' : (isStage ? 'assets/stage-logo-32.png' : 'assets/shine-logo-32.png');
+      var ico = isLocal ? 'assets/local-favicon.ico' : (isStage ? 'assets/stage-favicon.ico' : 'assets/favicon.ico');
+      var apple = isLocal ? 'assets/local-logo-180.png' : (isStage ? 'assets/stage-logo-180.png' : 'assets/shine-logo-180.png');
+      var manifest = isLocal ? 'site.local.webmanifest' : (isStage ? 'site.stage.webmanifest' : 'site.webmanifest');
+      var theme = isLocal ? '#fb7185' : (isStage ? '#0891b2' : '#0f766e');
+      document.write('<link rel="icon" type="image/svg+xml" href="' + svg + '">');
+      document.write('<link rel="icon" type="image/png" sizes="32x32" href="' + png32 + '">');
+      document.write('<link rel="shortcut icon" href="' + ico + '">');
+      document.write('<link rel="apple-touch-icon" sizes="180x180" href="' + apple + '">');
+      document.write('<link rel="manifest" href="' + manifest + '">');
+      document.write('<meta name="theme-color" content="' + theme + '">');
+    })();
+  </script>
+  <style>
+    :root {
+      --ink: #10201c;
+      --muted: #65756f;
+      --line: #d8e4de;
+      --paper: #fffdf7;
+      --wash: #eef7f2;
+      --brand: #0f766e;
+      --brand-2: #b45309;
+      --shadow: 0 18px 40px rgba(16, 32, 28, 0.14);
+      --radius: 8px;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background:
+        linear-gradient(135deg, rgba(15, 118, 110, 0.08), transparent 34%),
+        linear-gradient(315deg, rgba(180, 83, 9, 0.09), transparent 34%),
+        var(--wash);
+      color: var(--ink);
+      font-family: "Segoe UI", "Microsoft YaHei", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.55;
+    }
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+    }
+    .shell {
+      width: min(980px, 100%);
+      display: grid;
+      gap: 18px;
+    }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .topbar a,
+    .langbar button {
+      border: 1px solid rgba(15, 118, 110, 0.24);
+      background: rgba(255, 253, 247, 0.86);
+      color: var(--brand);
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 13px;
+      text-decoration: none;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(15, 118, 110, 0.08);
+    }
+    .hero {
+      border: 1px solid var(--line);
+      background: rgba(255, 253, 247, 0.92);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      padding: clamp(22px, 5vw, 42px);
+    }
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--brand-2);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(28px, 7vw, 54px);
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+    .intro {
+      margin: 14px 0 0;
+      max-width: 680px;
+      color: var(--muted);
+      font-size: 15px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .calc-card {
+      min-height: 190px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 18px;
+      padding: clamp(18px, 4vw, 28px);
+      color: inherit;
+      text-decoration: none;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 253, 247, 0.95);
+      box-shadow: 0 12px 30px rgba(16, 32, 28, 0.1);
+      transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+    .calc-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(15, 118, 110, 0.42);
+      box-shadow: 0 18px 42px rgba(16, 32, 28, 0.16);
+    }
+    .calc-card:focus-visible {
+      outline: 3px solid rgba(15, 118, 110, 0.28);
+      outline-offset: 3px;
+    }
+    .label {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      background: #10201c;
+      color: #fffdf7;
+      font-weight: 800;
+      font-size: 14px;
+    }
+    .calc-card h2 {
+      margin: 0;
+      font-size: clamp(20px, 4.5vw, 28px);
+      letter-spacing: 0;
+    }
+    .calc-card p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .arrow {
+      align-self: flex-start;
+      color: var(--brand);
+      font-weight: 800;
+      font-size: 15px;
+    }
+    @media (max-width: 720px) {
+      body { align-items: stretch; }
+      .grid { grid-template-columns: 1fr; }
+      .calc-card { min-height: 160px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <nav class="topbar" aria-label="页面导航">
+      <a href="index.html" id="navHome">回到主页</a>
+      <span class="langbar"><button id="langToggle" type="button">EN</button></span>
+    </nav>
+    <section class="hero">
+      <p class="eyebrow" id="eyebrow">Calculator Index</p>
+      <h1 id="pageTitle">选择计算器</h1>
+      <p class="intro" id="pageDesc">核心换算和殿堂/飞升资源拆开维护，按当前问题进入对应页面。</p>
+    </section>
+    <section class="grid" aria-label="计算器列表">
+      <a class="calc-card" href="CoreCalculator.html">
+        <span class="label">01</span>
+        <span>
+          <h2 id="coreTitle">核心计算器</h2>
+          <p id="coreDesc">输入 E9、飞升阶段和额外星碎，估算核心需求。</p>
+        </span>
+        <span class="arrow" id="coreAction">进入核心换算</span>
+      </a>
+      <a class="calc-card" href="DestinyCalculator.html">
+        <span class="label">02</span>
+        <span>
+          <h2 id="destinyTitle">殿堂 / 飞升计算器</h2>
+          <p id="destinyDesc">按当前殿堂等级计算下一殿堂资源，也可计算单英雄 E5 到目标飞升等级。</p>
+        </span>
+        <span class="arrow" id="destinyAction">进入资源计算</span>
+      </a>
+    </section>
+  </main>
+  <script>
+    (function () {
+      const langToggle = document.getElementById('langToggle');
+      const I18N = {
+        zh: {
+          title: '计算器入口 · ShinE',
+          nav_home: '回到主页',
+          lang_toggle_en: 'EN',
+          lang_toggle_zh: '中文',
+          eyebrow: 'Calculator Index',
+          page_title: '选择计算器',
+          page_desc: '核心换算和殿堂/飞升资源拆开维护，按当前问题进入对应页面。',
+          core_title: '核心计算器',
+          core_desc: '输入 E9、飞升阶段和额外星碎，估算核心需求。',
+          core_action: '进入核心换算',
+          destiny_title: '殿堂 / 飞升计算器',
+          destiny_desc: '按当前殿堂等级计算下一殿堂资源，也可计算单英雄 E5 到目标飞升等级。',
+          destiny_action: '进入资源计算'
+        },
+        en: {
+          title: 'Calculator Index · ShinE',
+          nav_home: 'Home',
+          lang_toggle_en: 'EN',
+          lang_toggle_zh: '中文',
+          eyebrow: 'Calculator Index',
+          page_title: 'Choose a calculator',
+          page_desc: 'Core conversion and Destiny resources are split so each question opens the right calculator.',
+          core_title: 'Core Calculator',
+          core_desc: 'Estimate core needs from E9, Destiny stages, and extra Stellar Shards.',
+          core_action: 'Open core calculator',
+          destiny_title: 'Destiny / Temple Calculator',
+          destiny_desc: 'Calculate the next Temple upgrade and single-hero E5 to target Destiny resources.',
+          destiny_action: 'Open resource calculator'
+        }
+      };
+      const refs = {
+        nav_home: document.getElementById('navHome'),
+        eyebrow: document.getElementById('eyebrow'),
+        page_title: document.getElementById('pageTitle'),
+        page_desc: document.getElementById('pageDesc'),
+        core_title: document.getElementById('coreTitle'),
+        core_desc: document.getElementById('coreDesc'),
+        core_action: document.getElementById('coreAction'),
+        destiny_title: document.getElementById('destinyTitle'),
+        destiny_desc: document.getElementById('destinyDesc'),
+        destiny_action: document.getElementById('destinyAction')
+      };
+      let currentLang = (localStorage.getItem('flipgame_lang') || '').toLowerCase();
+      if (currentLang !== 'zh' && currentLang !== 'en') {
+        currentLang = ((navigator.language || '').toLowerCase().startsWith('zh')) ? 'zh' : 'en';
+      }
+      function t(key) {
+        return (I18N[currentLang] && I18N[currentLang][key]) || I18N.zh[key] || '';
+      }
+      function setStaticText() {
+        document.title = t('title');
+        document.documentElement.lang = currentLang === 'zh' ? 'zh-Hans' : 'en';
+        Object.keys(refs).forEach((key) => {
+          if (refs[key]) refs[key].textContent = t(key);
+        });
+        if (langToggle) langToggle.textContent = currentLang === 'zh' ? t('lang_toggle_en') : t('lang_toggle_zh');
+      }
+      if (langToggle) {
+        langToggle.addEventListener('click', () => {
+          currentLang = currentLang === 'zh' ? 'en' : 'zh';
+          localStorage.setItem('flipgame_lang', currentLang);
+          setStaticText();
+        });
+      }
+      setStaticText();
+    })();
+  </script>
+</body>
+</html>
