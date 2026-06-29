@@ -1,4 +1,4 @@
-# 凝魂升格 & 魂力计算
+# 凝魂魂力计算器
 
 页面：`flipgame/SoulAscensionCalculator.html`  
 访问权限：注册会员。页面加载时会调用 `/api/me` 检查当前登录账号，禁用账号不可访问。  

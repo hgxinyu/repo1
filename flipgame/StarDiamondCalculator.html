@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>星钻计算器 · ShinE</title>  <script>
+  <title>星钻交易计算器 · ShinE</title>  <script>
     (function () {
       var host = (window.location.hostname || '').toLowerCase();
       var isLocal = host === 'localhost' || host === '127.0.0.1' || host === '::1';
@@ -116,7 +116,7 @@
     }
     .wrap {
       width: min(960px, 100%);
-      margin: 12px auto 24px;
+      margin: 72px auto 24px;
       padding: clamp(20px, 4vw, 36px);
       display: flex;
       flex-direction: column;
@@ -286,6 +286,9 @@
         align-self: flex-end;
         margin: 8px 8px 0 auto;
       }
+      .wrap {
+        margin: 12px auto 24px;
+      }
       .site-header {
         flex-direction: column;
         align-items: stretch;
@@ -342,7 +345,7 @@
   <div class="wrap">
     <header class="site-header">
       <div class="title">
-        <h1 id="pageTitle">星钻计算器</h1>
+        <h1 id="pageTitle">星钻交易计算器</h1>
       </div>
       <div class="tools">
         <button class="btn" id="clearBtn" type="button">清空</button>
@@ -407,12 +410,12 @@
 
       const I18N = {
         zh: {
-          title: '星钻计算器 · ShinE',
+          title: '星钻交易计算器 · ShinE',
           nav_label: '页面导航',
           nav_home: '回到主页',
           nav_flip: '九宫格翻牌',
           nav_core: '核心计算器',
-          page_title: '星钻计算器',
+          page_title: '星钻交易计算器',
           calc_title: '输入星钻与比例获取结果',
           star_label: '星钻数量',
           ratio_label: '比例 1 : X',
@@ -427,12 +430,12 @@
           lang_toggle_zh: '中文'
         },
         en: {
-          title: 'Star Diamond Calculator · ShinE',
+          title: 'Star Diamond Trade Calculator · ShinE',
           nav_label: 'Page Navigation',
           nav_home: 'Home',
           nav_flip: '3x3 Flip Cards',
           nav_core: 'Core Calculator',
-          page_title: 'Star Diamond Calculator',
+          page_title: 'Star Diamond Trade Calculator',
           calc_title: 'Enter diamonds and ratio to get results',
           star_label: 'Star Diamonds',
           ratio_label: 'Ratio 1 : X',
