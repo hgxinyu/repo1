@@ -6,6 +6,12 @@
 
 `IHassistant/` 用来沉淀游戏机制、英雄、神器、水晶、魔兽、Boss、星魂、远征星印、印痕灌注和阵容资料。它当前作为内部知识库维护，未来可接入 VIP 页面，向有权限账号提供知识库访问。
 
+## 分支与发布
+
+- 日常开发和测试在 `stage` 分支进行。
+- 测试完成后，再从 `stage` 合并到 production 对应分支/环境。
+- 当前 stage 和 production 暂时不拆分数据；测试后台写入、Blobs、账号权限或价格配置时，要按共享/线上数据处理。
+
 ## 本地启动
 
 ```bash
@@ -29,7 +35,9 @@ http://localhost:8000/
 - AI玩放置（VIP）：`flipgame/AIAsk.html`
 - 攻略图片：`flipgame/GuideImages.html`
 - 九宫格翻牌：`flipgame/flipgame.html`
+- 计算器入口：`flipgame/Calculators.html`
 - 核心计算器：`flipgame/CoreCalculator.html`
+- 殿堂 / 飞升计算器：`flipgame/DestinyCalculator.html`
 - 星钻计算器：`flipgame/StarDiamondCalculator.html`
 - 觉醒冲榜模拟器（VIP）：`flipgame/AwakeningRushSimulator.html`
 - 登录：`flipgame/Login.html`
@@ -55,7 +63,7 @@ http://localhost:8000/
 - 远征积分数据：`flipgame/seboss_all.json`
 - 远征原始表：`flipgame/SE Boss New.xlsx`
 - 攻略图片：`flipgame/images/`
-- 图标与 PWA 资源：`flipgame/assets/`、`flipgame/site.webmanifest`、`flipgame/site.local.webmanifest`
+- 图标与 PWA 资源：`flipgame/assets/`、`flipgame/site.webmanifest`、`flipgame/site.stage.webmanifest`、`flipgame/site.local.webmanifest`
 - 知识库截图与资料：`IHassistant/knowledge/`
 
 ## 文档
@@ -63,6 +71,7 @@ http://localhost:8000/
 - Agent 规则：`AGENTS.md`
 - 知识库模块：`docs/ihassistant.md`
 - 凝魂模块：`docs/soul-calculator.md`
+- 计算器与飞升资源：`docs/core-calculator.md`
 - 远征模块：`docs/expedition-calculator.md`
 - AI玩放置：`docs/ai-ask.md`
 - 放置奇兵兑换码：`docs/discord-digest.md`

@@ -7,12 +7,13 @@
     (function () {
       var host = (window.location.hostname || '').toLowerCase();
       var isLocal = host === 'localhost' || host === '127.0.0.1' || host === '::1';
-      var svg = isLocal ? 'assets/local-logo.svg' : 'assets/shine-logo.svg';
-      var png32 = isLocal ? 'assets/local-logo-32.png' : 'assets/shine-logo-32.png';
-      var ico = isLocal ? 'assets/local-favicon.ico' : 'assets/favicon.ico';
-      var apple = isLocal ? 'assets/local-logo-180.png' : 'assets/shine-logo-180.png';
-      var manifest = isLocal ? 'site.local.webmanifest' : 'site.webmanifest';
-      var theme = isLocal ? '#fb7185' : '#6366f1';
+      var isStage = host === 'stage' || host.startsWith('stage.') || host.startsWith('stage-') || host.startsWith('stage--') || host.indexOf('--stage') !== -1 || host.indexOf('-stage.') !== -1;
+      var svg = isLocal ? 'assets/local-logo.svg' : (isStage ? 'assets/stage-logo.svg' : 'assets/shine-logo.svg');
+      var png32 = isLocal ? 'assets/local-logo-32.png' : (isStage ? 'assets/stage-logo-32.png' : 'assets/shine-logo-32.png');
+      var ico = isLocal ? 'assets/local-favicon.ico' : (isStage ? 'assets/stage-favicon.ico' : 'assets/favicon.ico');
+      var apple = isLocal ? 'assets/local-logo-180.png' : (isStage ? 'assets/stage-logo-180.png' : 'assets/shine-logo-180.png');
+      var manifest = isLocal ? 'site.local.webmanifest' : (isStage ? 'site.stage.webmanifest' : 'site.webmanifest');
+      var theme = isLocal ? '#fb7185' : (isStage ? '#0891b2' : '#6366f1');
       document.write('<link rel="icon" type="image/svg+xml" href="' + svg + '">');
       document.write('<link rel="icon" type="image/png" sizes="32x32" href="' + png32 + '">');
       document.write('<link rel="shortcut icon" href="' + ico + '">');
@@ -311,7 +312,8 @@
       overflow: hidden;
       z-index: 20;
     }
-    .recruit-panel {
+    .recruit-panel,
+    .calculator-panel {
       position: fixed;
       right: 16px;
       bottom: 170px;
@@ -327,6 +329,71 @@
       gap: 14px;
       overflow: hidden;
       z-index: 21;
+    }
+    .calculator-panel {
+      width: min(390px, calc(100% - 32px));
+      z-index: 22;
+    }
+    .calculator-panel header {
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding-right: 22px;
+    }
+    .calculator-panel header h2 {
+      margin: 0;
+      font-size: 18px;
+    }
+    .calculator-panel header p {
+      margin: 0;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .calculator-options {
+      display: grid;
+      gap: 10px;
+      overflow-y: auto;
+      padding-right: 2px;
+    }
+    .calculator-option {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 14px;
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: 14px;
+      background: rgba(248, 250, 252, 0.92);
+      color: var(--ink);
+      text-decoration: none;
+      transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+    .calculator-option:hover,
+    .calculator-option:focus-visible {
+      transform: translateY(-1px);
+      border-color: rgba(99, 102, 241, 0.42);
+      box-shadow: 0 14px 28px rgba(99, 102, 241, 0.16);
+      outline: none;
+    }
+    .calculator-option strong {
+      font-size: 16px;
+      line-height: 1.25;
+    }
+    .calculator-option span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .calculator-panel .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      background: none;
+      border: none;
+      font-size: 18px;
+      line-height: 1;
+      cursor: pointer;
+      color: var(--muted);
     }
     .recruit-panel header {
       text-align: left;
@@ -497,7 +564,8 @@
         bottom: 96px;
         width: auto;
       }
-      .recruit-panel {
+      .recruit-panel,
+      .calculator-panel {
         right: 16px;
         left: 16px;
         bottom: 96px;
@@ -550,14 +618,18 @@
         <span class="title" id="cardDiscordTitle">放置奇兵兑换码</span>
         <span class="subtitle" id="cardDiscordSub">及时更新放置奇兵兑换码。</span>
       </a>
+      <a class="card-link" id="adminCard" href="Admin.html" style="display:none;">
+        <span class="title" id="cardAdminTitle">Admin Portal</span>
+        <span class="subtitle" id="cardAdminSub">本地 Mock 预览或管理员后台。</span>
+      </a>
       <a class="card-link" href="flipgame.html">
         <span class="title" id="cardFlipTitle">九宫格翻牌</span>
         <span class="subtitle" id="cardFlipSub">模拟翻牌流程，记录并计算最佳组合。</span>
       </a>
-      <a class="card-link" href="CoreCalculator.html">
-        <span class="title" id="cardCoreTitle">核心计算器</span>
-        <span class="subtitle" id="cardCoreSub">输入各资源数量，一键估算总核心需求。</span>
-      </a>
+      <button class="card-link card-button" id="calculatorCard" type="button" aria-haspopup="dialog" aria-controls="calculatorPanel">
+        <span class="title" id="cardCoreTitle">核心/殿堂/飞升 计算</span>
+        <span class="subtitle" id="cardCoreSub">选择核心换算或殿堂/飞升资源计算器。</span>
+      </button>
       <a class="card-link" href="StarDiamondCalculator.html">
         <span class="title" id="cardStarTitle">星钻计算器</span>
         <span class="subtitle" id="cardStarSub">按比例换算金额与赠送额度。</span>
@@ -639,6 +711,24 @@
     </form>
   </section>
 
+  <section class="calculator-panel" id="calculatorPanel" aria-hidden="true" role="dialog" aria-labelledby="calculatorPanelTitle">
+    <button class="close-btn" type="button" aria-label="关闭计算器选择" id="calculatorClose">×</button>
+    <header>
+      <h2 id="calculatorPanelTitle">选择计算器</h2>
+      <p id="calculatorPanelDesc">根据当前要算的问题进入对应页面。</p>
+    </header>
+    <div class="calculator-options">
+      <a class="calculator-option" href="CoreCalculator.html">
+        <strong id="calculatorCoreTitle">核心计算器</strong>
+        <span id="calculatorCoreDesc">输入 E9、飞升阶段和额外星碎，估算核心需求。</span>
+      </a>
+      <a class="calculator-option" href="DestinyCalculator.html">
+        <strong id="calculatorDestinyTitle">殿堂 / 飞升计算器</strong>
+        <span id="calculatorDestinyDesc">计算下一殿堂资源，或单英雄 E5 到目标飞升等级。</span>
+      </a>
+    </div>
+  </section>
+
   <div class="logo-bottom-right">
     <span class="logo-dot"></span>
     <span class="logo-by">By</span>
@@ -665,6 +755,7 @@
       const accountName = document.getElementById('accountName');
       const accountVipBadge = document.getElementById('accountVipBadge');
       const adminLink = document.getElementById('adminLink');
+      const adminCard = document.getElementById('adminCard');
       const pageTitle = document.getElementById('pageTitle');
       const pageDesc = document.getElementById('pageDesc');
       const navGrid = document.getElementById('navGrid');
@@ -680,12 +771,15 @@
       const cardAiSub = document.getElementById('cardAiSub');
       const cardDiscordTitle = document.getElementById('cardDiscordTitle');
       const cardDiscordSub = document.getElementById('cardDiscordSub');
+      const cardAdminTitle = document.getElementById('cardAdminTitle');
+      const cardAdminSub = document.getElementById('cardAdminSub');
       const cardSoulTitle = document.getElementById('cardSoulTitle');
       const cardSoulSub = document.getElementById('cardSoulSub');
       const cardExpeditionTitle = document.getElementById('cardExpeditionTitle');
       const cardExpeditionSub = document.getElementById('cardExpeditionSub');
       const cardAwakeningTitle = document.getElementById('cardAwakeningTitle');
       const cardAwakeningSub = document.getElementById('cardAwakeningSub');
+      const calculatorCard = document.getElementById('calculatorCard');
       const recruitCard = document.getElementById('recruitCard');
       const cardRecruitTitle = document.getElementById('cardRecruitTitle');
       const cardRecruitSub = document.getElementById('cardRecruitSub');
@@ -715,6 +809,14 @@
       const recruitGameIdLabel = document.getElementById('recruitGameIdLabel');
       const recruitGameId = document.getElementById('recruitGameId');
       const recruitSubmit = document.getElementById('recruitSubmit');
+      const calculatorPanel = document.getElementById('calculatorPanel');
+      const calculatorClose = document.getElementById('calculatorClose');
+      const calculatorPanelTitle = document.getElementById('calculatorPanelTitle');
+      const calculatorPanelDesc = document.getElementById('calculatorPanelDesc');
+      const calculatorCoreTitle = document.getElementById('calculatorCoreTitle');
+      const calculatorCoreDesc = document.getElementById('calculatorCoreDesc');
+      const calculatorDestinyTitle = document.getElementById('calculatorDestinyTitle');
+      const calculatorDestinyDesc = document.getElementById('calculatorDestinyDesc');
 
       const I18N = {
         zh: {
@@ -728,13 +830,15 @@
           account_signed_in: '已登录',
           account_vip_label: 'VIP 账号',
           admin_link: '管理后台',
+          card_admin_title: 'Admin Portal',
+          card_admin_sub: '本地 Mock 预览或管理员后台。',
           member_badge: '会员',
           vip_badge: 'VIP',
           nav_label: '工具导航',
           card_flip_title: '九宫格翻牌',
           card_flip_sub: '模拟翻牌流程，记录并计算最佳组合。',
-          card_core_title: '核心计算器',
-          card_core_sub: '输入各资源数量，一键估算总核心需求。',
+          card_core_title: '核心/殿堂/飞升 计算',
+          card_core_sub: '选择核心换算或殿堂/飞升资源计算器。',
           card_star_title: '星钻计算器',
           card_star_sub: '按比例换算金额与赠送额度。',
           card_hidden_title: '攻略图片',
@@ -751,6 +855,13 @@
           card_awakening_sub: 'VIP 专属，按绑钻数量随机模拟冲榜分数与 A- 以上保留数量。',
           card_recruit_title: '公会招募',
           card_recruit_sub: '欢迎加入iOS 国风，点击填写信息或申请公会ID 31939。公会免费送 VIP。',
+          calculator_panel_title: '选择计算器',
+          calculator_panel_desc: '根据当前要算的问题进入对应页面。',
+          calculator_core_title: '核心计算器',
+          calculator_core_desc: '输入 E9、飞升阶段和额外星碎，估算核心需求。',
+          calculator_destiny_title: '殿堂 / 飞升计算器',
+          calculator_destiny_desc: '计算下一殿堂资源，或单英雄 E5 到目标飞升等级。',
+          calculator_close_label: '关闭计算器选择',
           feedback_toggle: '反馈建议',
           feedback_title: '反馈中心',
           feedback_desc: '欢迎留言提供建议或问题反馈。',
@@ -794,13 +905,15 @@
           account_signed_in: 'Signed in',
           account_vip_label: 'VIP account',
           admin_link: 'Admin',
+          card_admin_title: 'Admin Portal',
+          card_admin_sub: 'Local mock preview or admin console.',
           member_badge: 'Member',
           vip_badge: 'VIP',
           nav_label: 'Tool Navigation',
           card_flip_title: '3x3 Flip Cards',
           card_flip_sub: 'Simulate flips, track cards, and compute the best line.',
-          card_core_title: 'Core Calculator',
-          card_core_sub: 'Enter resources and estimate total core needs.',
+          card_core_title: 'Core / Temple / Destiny Calculator',
+          card_core_sub: 'Choose core conversion or Destiny / Temple resource calculator.',
           card_star_title: 'Star Diamond Calculator',
           card_star_sub: 'Convert amounts and bonus ratios.',
           card_hidden_title: 'Guide Images',
@@ -817,6 +930,13 @@
           card_awakening_sub: 'VIP only. Simulate score and kept A-+ copies from bound diamonds.',
           card_recruit_title: 'Guild Recruitment',
           card_recruit_sub: 'Join iOS Guofeng. Submit your info or apply to Guild ID 31939. Guild members get VIP for free.',
+          calculator_panel_title: 'Choose a calculator',
+          calculator_panel_desc: 'Open the page that matches the resource question.',
+          calculator_core_title: 'Core Calculator',
+          calculator_core_desc: 'Estimate core needs from E9, Destiny stages, and extra Stellar Shards.',
+          calculator_destiny_title: 'Destiny / Temple Calculator',
+          calculator_destiny_desc: 'Calculate next Temple resources or one hero from E5 to target Destiny.',
+          calculator_close_label: 'Close calculator chooser',
           feedback_toggle: 'Feedback',
           feedback_title: 'Feedback Center',
           feedback_desc: 'Leave suggestions or report issues.',
@@ -871,11 +991,13 @@
         if (registerLink) registerLink.textContent = t('register_link');
         if (logoutBtn) logoutBtn.textContent = t('logout_link');
         if (accountName && accountName.dataset.placeholder === 'true') accountName.textContent = t('account_signed_in');
-        if (accountVipBadge) accountVipBadge.textContent = t('vip_badge');
+        if (accountVipBadge) accountVipBadge.textContent = accountVipBadge.dataset.badgeOverride || t('vip_badge');
         if (accountBtn && accountName && accountVipBadge && !accountVipBadge.hidden) {
           accountBtn.setAttribute('aria-label', `${accountName.textContent} ${t('vip_badge')}`);
         }
         if (adminLink) adminLink.textContent = t('admin_link');
+        if (cardAdminTitle) cardAdminTitle.textContent = t('card_admin_title');
+        if (cardAdminSub) cardAdminSub.textContent = t('card_admin_sub');
         document.querySelectorAll('[data-member-badge]').forEach((badge) => { badge.textContent = t('member_badge'); });
         document.querySelectorAll('[data-vip-badge]').forEach((badge) => { badge.textContent = t('vip_badge'); });
         if (navGrid) navGrid.setAttribute('aria-label', t('nav_label'));
@@ -899,6 +1021,13 @@
         if (cardAwakeningSub) cardAwakeningSub.textContent = t('card_awakening_sub');
         if (cardRecruitTitle) cardRecruitTitle.textContent = t('card_recruit_title');
         if (cardRecruitSub) cardRecruitSub.textContent = t('card_recruit_sub');
+        if (calculatorPanelTitle) calculatorPanelTitle.textContent = t('calculator_panel_title');
+        if (calculatorPanelDesc) calculatorPanelDesc.textContent = t('calculator_panel_desc');
+        if (calculatorCoreTitle) calculatorCoreTitle.textContent = t('calculator_core_title');
+        if (calculatorCoreDesc) calculatorCoreDesc.textContent = t('calculator_core_desc');
+        if (calculatorDestinyTitle) calculatorDestinyTitle.textContent = t('calculator_destiny_title');
+        if (calculatorDestinyDesc) calculatorDestinyDesc.textContent = t('calculator_destiny_desc');
+        if (calculatorClose) calculatorClose.setAttribute('aria-label', t('calculator_close_label'));
         if (feedbackToggleText) feedbackToggleText.textContent = t('feedback_toggle');
         if (feedbackTitle) feedbackTitle.textContent = t('feedback_title');
         if (feedbackDesc) feedbackDesc.textContent = t('feedback_desc');
@@ -945,6 +1074,14 @@
           recruitPanel.querySelector('textarea').focus();
         }
       }
+      function setCalculatorPanel(open) {
+        calculatorPanel.style.display = open ? 'flex' : 'none';
+        calculatorPanel.setAttribute('aria-hidden', open ? 'false' : 'true');
+        if (open) {
+          const firstOption = calculatorPanel.querySelector('.calculator-option');
+          if (firstOption) firstOption.focus();
+        }
+      }
 
       toggle.addEventListener('click', () => {
         const isHidden = panel.getAttribute('aria-hidden') !== 'false';
@@ -952,8 +1089,15 @@
       });
 
       closeBtn.addEventListener('click', () => setPanel(false));
+      calculatorCard.addEventListener('click', () => {
+        setPanel(false);
+        setRecruitPanel(false);
+        setCalculatorPanel(true);
+      });
+      calculatorClose.addEventListener('click', () => setCalculatorPanel(false));
       recruitCard.addEventListener('click', () => {
         setPanel(false);
+        setCalculatorPanel(false);
         setRecruitPanel(true);
       });
       recruitClose.addEventListener('click', () => setRecruitPanel(false));
@@ -981,11 +1125,15 @@
           const target = event.target;
           const feedbackOpen = panel.getAttribute('aria-hidden') === 'false';
           const recruitOpen = recruitPanel.getAttribute('aria-hidden') === 'false';
+          const calculatorOpen = calculatorPanel.getAttribute('aria-hidden') === 'false';
           if (feedbackOpen && !panel.contains(target) && !toggle.contains(target)) {
             setPanel(false);
           }
           if (recruitOpen && !recruitPanel.contains(target) && !recruitCard.contains(target)) {
             setRecruitPanel(false);
+          }
+          if (calculatorOpen && !calculatorPanel.contains(target) && !calculatorCard.contains(target)) {
+            setCalculatorPanel(false);
           }
         });
       }
@@ -994,6 +1142,7 @@
         if (event.key === 'Escape') {
           setPanel(false);
           setRecruitPanel(false);
+          setCalculatorPanel(false);
         }
       });
 
@@ -1129,9 +1278,10 @@
     })();
   </script>
   <script type="module">
-    import * as identity from "https://esm.sh/@netlify/identity?bundle";
-
+    const LOCAL_MOCK_MODE = isLocalHomepagePreview();
+    let identity = null;
     const adminLink = document.getElementById("adminLink");
+    const adminCard = document.getElementById("adminCard");
     const loginLink = document.getElementById("loginLink");
     const registerLink = document.getElementById("registerLink");
     const accountMenu = document.getElementById("accountMenu");
@@ -1140,12 +1290,49 @@
     const accountVipBadge = document.getElementById("accountVipBadge");
     const logoutBtn = document.getElementById("logoutBtn");
 
-    async function restoreIdentitySession() {
-      await identity.handleAuthCallback().catch(() => null);
-      if (typeof identity.hydrateSession === "function") {
-        await identity.hydrateSession().catch(() => null);
+    function isLocalHomepagePreview() {
+      const host = (window.location.hostname || "").toLowerCase();
+      return window.location.protocol === "file:"
+        || host === "localhost"
+        || host === "127.0.0.1"
+        || host === "0.0.0.0"
+        || host === "::1";
+    }
+
+    async function loadIdentity() {
+      if (!identity) {
+        identity = await import("https://esm.sh/@netlify/identity?bundle");
       }
-      return identity.getUser().catch(() => null);
+      return identity;
+    }
+
+    async function restoreIdentitySession() {
+      const identityApi = await loadIdentity();
+      await identityApi.handleAuthCallback().catch(() => null);
+      if (typeof identityApi.hydrateSession === "function") {
+        await identityApi.hydrateSession().catch(() => null);
+      }
+      return identityApi.getUser().catch(() => null);
+    }
+
+    function showLocalAdminPreview() {
+      if (loginLink) loginLink.style.display = "none";
+      if (registerLink) registerLink.style.display = "none";
+      if (accountMenu) accountMenu.style.display = "inline-flex";
+      if (accountName) {
+        accountName.textContent = "Local Admin";
+        accountName.dataset.placeholder = "false";
+      }
+      if (accountVipBadge) {
+        accountVipBadge.hidden = false;
+        accountVipBadge.textContent = "ADMIN";
+        accountVipBadge.dataset.badgeOverride = "ADMIN";
+      }
+      if (accountBtn) {
+        accountBtn.setAttribute("aria-label", "Local Admin");
+      }
+      if (adminLink) adminLink.style.display = "inline-flex";
+      if (adminCard) adminCard.style.display = "";
     }
 
     async function updateAccountLinks() {
@@ -1154,13 +1341,18 @@
         window.location.replace(`Login.html${window.location.search}${window.location.hash}`);
         return;
       }
+      if (LOCAL_MOCK_MODE) {
+        showLocalAdminPreview();
+        return;
+      }
       const user = await restoreIdentitySession();
       if (!user) return;
 
       const response = await fetch("/api/me", { credentials: "include" });
       const data = await response.json().catch(() => ({}));
       if (response.status === 401) {
-        await identity.logout().catch(() => null);
+        const identityApi = await loadIdentity();
+        await identityApi.logout().catch(() => null);
         return;
       }
       if (loginLink) loginLink.style.display = "none";
@@ -1183,6 +1375,9 @@
       if (response.ok && data.isAdmin && adminLink) {
         adminLink.style.display = "inline-flex";
       }
+      if (response.ok && data.isAdmin && adminCard) {
+        adminCard.style.display = "";
+      }
     }
 
     if (accountBtn && accountMenu) {
@@ -1201,7 +1396,9 @@
 
     if (logoutBtn) {
       logoutBtn.addEventListener("click", async () => {
-        await identity.logout();
+        if (LOCAL_MOCK_MODE) return;
+        const identityApi = await loadIdentity();
+        await identityApi.logout();
         window.location.href = "index.html";
       });
     }

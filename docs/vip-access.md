@@ -90,7 +90,11 @@ Autoconfirm = Off
 
 如果注册页只显示 `AuthError` 或提示不允许注册，优先检查 Identity 是否启用，以及 Registration 是否仍为 Invite only/Disabled。
 
-本地 `python3 -m http.server 8000` 只能预览静态页面，不能完整验证 Netlify Identity、Functions、Blobs。账号注册、登录、管理员后台、注册会员权限和 VIP 权限需要部署到 Netlify 后测试。
+本地 `python3 -m http.server 8000` 只能预览静态页面，不能完整验证 Netlify Identity、Functions、Blobs。账号注册、登录、真实管理员后台、注册会员权限和 VIP 权限需要部署到 Netlify 后测试。
+
+首页在 `file://`、`localhost`、`127.0.0.1`、`0.0.0.0`、`::1` 下会默认显示 `Local Admin` 和 Admin Portal 入口，方便打开本地后台 UI。
+
+`Admin.html` 在同样的本地地址下会进入本地 Mock 预览模式，只渲染示例用户和本地 `quality_prices.json` 价格。Mock 模式不会读取真实 Identity，不会调用 admin API，也不会写入 Netlify Blobs。后台两个主面板默认折叠，点击标题区域或“展开”按钮后查看内容。
 
 为了方便本地静态预览，会员页和 VIP 页在 `file://`、`localhost`、`127.0.0.1`、`0.0.0.0`、`::1`，以及私有局域网 IPv4（`10.*`、`172.16.*` 至 `172.31.*`、`192.168.*`）下会跳过前端权限门。线上 Netlify 地址仍必须登录并通过 `/api/me` 权限检查。
 

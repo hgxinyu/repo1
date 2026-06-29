@@ -1,0 +1,1815 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "image": "Weixin Image_20260628202226_11664_38.jpg",
+    "extractedAt": "2026-06-29",
+    "notes": [
+      "User confirmed: 飞 = Destiny; 神 = Divine Power Level; Divine Power Level = Destiny Level + Divine Power Bonus.",
+      "Requirement rows are stored as Destiny requirements. actualDisplay is derived by adding divinePowerBonus.",
+      "Temple level 1 prerequisites cross-check with ordinary hero progression: E9 stellar shards 4,935,000 + root level 120 imprints 9,994,100 = 14,929,100; root level 120 spiritual essence is 1,248,120.",
+      "User later added that entering the Destiny phase also requires 8 Core of Origin boxes (50 shards each, 400 shards total) and 16 skill points at 45K Essence Sublimation each (720K total). The 16 points are split as 4 active, 4 passive 1, 4 passive 2, and 4 passive 3. These are not represented in the screenshot prerequisite columns.",
+      "First-row increase values are null because the screenshot starts from level 1 rather than level 0.",
+      "Level 30 progressPercent is recorded as 100.00 by inference because the screenshot edge cuts off the final progress cell."
+    ]
+  },
+  "terms": {
+    "destinyTempleLevel": {
+      "zh": "飞升殿堂",
+      "aliases": [
+        "神殿"
+      ],
+      "en": "Destiny Temple Level"
+    },
+    "divinePowerBonus": {
+      "zh": "神能加成",
+      "en": "Divine Power Bonus"
+    },
+    "destinyLevel": {
+      "zh": "飞升等级",
+      "aliases": [
+        "飞"
+      ],
+      "en": "Destiny Level"
+    },
+    "divinePowerLevel": {
+      "zh": "神能等级",
+      "aliases": [
+        "神"
+      ],
+      "en": "Divine Power Level"
+    },
+    "auroraGem": {
+      "zh": "神玉",
+      "aliases": [
+        "蓝玉"
+      ],
+      "en": "Aurora Gem"
+    },
+    "stellarShards": {
+      "zh": "星碎",
+      "aliases": [
+        "蓝碎",
+        "印痕"
+      ],
+      "en": "Stellar Shards"
+    },
+    "spiritualEssence": {
+      "zh": "意识",
+      "aliases": [
+        "意识精华",
+        "树精华"
+      ],
+      "en": "Spiritual Essence"
+    },
+    "scatteredSpiritveinShard": {
+      "zh": "灵碎",
+      "aliases": [
+        "黄碎",
+        "黄玉"
+      ],
+      "en": "Scattered Spiritvein Shard"
+    },
+    "crystalOfTranscendence": {
+      "zh": "时晶",
+      "aliases": [
+        "时空结晶",
+        "紫碎"
+      ],
+      "en": "Crystal of Transcendence"
+    }
+  },
+  "levels": [
+    {
+      "templeLevel": 1,
+      "divinePowerBonus": 0,
+      "prerequisites": {
+        "stellarShards": 14929100,
+        "stellarShardsIncrease": null,
+        "spiritualEssence": 1248120,
+        "spiritualEssenceIncrease": null
+      },
+      "heroCount": 1,
+      "upgradeRequirements": [
+        {
+          "destinyLevel": 1,
+          "count": 1
+        }
+      ],
+      "actualDisplay": [
+        {
+          "divinePowerLevel": 1,
+          "count": 1
+        }
+      ],
+      "resources": {
+        "auroraGem": {
+          "total": 5,
+          "increase": null
+        },
+        "scatteredSpiritveinShard": {
+          "total": 197236,
+          "increase": null
+        },
+        "stellarShards": {
+          "total": 821540,
+          "increase": null
+        },
+        "crystalOfTranscendenceK": {
+          "total": 420,
+          "increase": null
+        }
+      },
+      "progressPercent": 0.19
+    },
+    {
+      "templeLevel": 2,
+      "divinePowerBonus": 0,
+      "prerequisites": {
+        "stellarShards": 44787300,
+        "stellarShardsIncrease": 29858200,
+        "spiritualEssence": 3744360,
+        "spiritualEssenceIncrease": 2496240
+      },
+      "heroCount": 3,
+      "upgradeRequirements": [
+        {
+          "destinyLevel": 1,
+          "count": 3
+        }
+      ],
+      "actualDisplay": [
+        {
+          "divinePowerLevel": 1,
+          "count": 3
+        }
+      ],
+      "resources": {
+        "auroraGem": {
+          "total": 15,
+          "increase": 10
+        },
+        "scatteredSpiritveinShard": {
+          "total": 591708,
+          "increase": 394472
+        },
+        "stellarShards": {
+          "total": 2464620,
+          "increase": 1643080
+        },
+        "crystalOfTranscendenceK": {
+          "total": 1260,
+          "increase": 840
+        }
+      },
+      "progressPercent": 0.57
+    },
+    {
+      "templeLevel": 3,
+      "divinePowerBonus": 1,
+      "prerequisites": {
+        "stellarShards": 59716400,
+        "stellarShardsIncrease": 14929100,
+        "spiritualEssence": 4992480,
+        "spiritualEssenceIncrease": 1248120
+      },
+      "heroCount": 4,
+      "upgradeRequirements": [
+        {
+          "destinyLevel": 1,
+          "count": 2
+        },
+        {
+          "destinyLevel": 2,
+          "count": 2
+        }
+      ],
+      "actualDisplay": [
+        {
+          "divinePowerLevel": 2,
+          "count": 2
+        },
+        {
+          "divinePowerLevel": 3,
+          "count": 2
+        }
+      ],
+      "resources": {
+        "auroraGem": {
+          "total": 34,
+          "increase": 19
+        },
+        "scatteredSpiritveinShard": {
+          "total": 1343344,
+          "increase": 751636
+        },
+        "stellarShards": {
+          "total": 5596160,
+          "increase": 3131540
+        },
+        "crystalOfTranscendenceK": {
+          "total": 2860,
+          "increase": 1600
+        }
+      },
+      "progressPercent": 1.29
+    },
+    {
+      "templeLevel": 4,
+      "divinePowerBonus": 2,
+      "prerequisites": {
+        "stellarShards": 44787300,
+        "stellarShardsIncrease": -14929100,
+        "spiritualEssence": 3744360,
+        "spiritualEssenceIncrease": -1248120
+      },
+      "heroCount": 3,
+      "upgradeRequirements": [
+        {
+          "destinyLevel": 2,
+          "count": 1
+        },
+        {
+          "destinyLevel": 3,
+          "count": 2
+        }
+      ],
+      "actualDisplay": [
+        {
+          "divinePowerLevel": 4,
+          "count": 1
+        },
+        {
+          "divinePowerLevel": 5,
+          "count": 2
+        }
+      ],
+      "resources": {
+        "auroraGem": {
+          "total": 54,
+          "increase": 20
+        },
+        "scatteredSpiritveinShard": {
+          "total": 2136108,
+          "increase": 792764
+        },
+        "stellarShards": {
+          "total": 8899620,
+          "increase": 3303460
+        },
+        "crystalOfTranscendenceK": {
+          "total": 4530,
+          "increase": 1670
+        }
+      },
+      "progressPercent": 2.05
+    },
+    {
+      "templeLevel": 5,
+      "divinePowerBonus": 3,
+      "prerequisites": {
+        "stellarShards": 74645500,
+        "stellarShardsIncrease": 29858200,
+        "spiritualEssence": 6240600,
+        "spiritualEssenceIncrease": 2496240
+      },
+      "heroCount": 5,
+      "upgradeRequirements": [
+        {
+          "destinyLevel": 1,
+          "count": 2
+        },
+        {
+          "destinyLevel": 2,
+          "count": 1
+        },
+        {
+          "destinyLevel": 3,
+          "count": 1
+        },
+        {
+          "destinyLevel": 4,
+          "count": 1
+        }
+      ],
+      "actualDisplay": [
+        {
+          "divinePowerLevel": 4,
+          "count": 2
+        },
+        {
+          "divinePowerLevel": 5,
+          "count": 1
+        },
+        {
+          "divinePowerLevel": 6,
+          "count": 1
+        },
+        {
+          "divinePowerLevel": 7,
+          "count": 1
+        }
+      ],
+      "resources": {
+        "auroraGem": {
+          "total": 75,
+          "increase": 21
+        },
+        "scatteredSpiritveinShard": {
+          "total": 2966180,
+          "increase": 830072
+        },
+        "stellarShards": {
+          "total": 12357700,
+          "increase": 3458080
+        },
+        "crystalOfTranscendenceK": {
+          "total": 6290,
+          "increase": 1760
+        }
+      },
+      "progressPercent": 2.85
+    },
+    {
+      "templeLevel": 6,
+      "divinePowerBonus": 4,
+      "prerequisites": {
+        "stellarShards": 74645500,
+        "stellarShardsIncrease": 0,
+        "spiritualEssence": 6240600,
+        "spiritualEssenceIncrease": 0
+      },
+      "heroCount": 5,
+      "upgradeRequirements": [
+        {
+          "destinyLevel": 2,
+          "count": 2
+        },
+        {
+          "destinyLevel": 3,
+          "count": 2
+        },
+        {
+          "destinyLevel": 4,
+          "count": 1
+        }
+      ],
+      "actualDisplay": [
+        {
+          "divinePowerLevel": 6,
+          "count": 2
+        },
+        {
+          "divinePowerLevel": 7,
+          "count": 2
+        },
+        {
+          "divinePowerLevel": 8,
+          "count": 1
+        }
+      ],
+      "resources": {
+        "auroraGem": {
+          "total": 98,
+          "increase": 23
+        },
+        "scatteredSpiritveinShard": {
+          "total": 3876980,
+          "increase": 910800
+        },
+        "stellarShards": {
+          "total": 16152700,
+          "increase": 3795000
+        },
+        "crystalOfTranscendenceK": {
+          "total": 8220,
+          "increase": 1930
+        }
+      },
+      "progressPercent": 3.73
+    },
+    {
+      "templeLevel": 7,
+      "divinePowerBonus": 4,
+      "prerequisites": {
+        "stellarShards": 89574600,
+        "stellarShardsIncrease": 14929100,
+        "spiritualEssence": 7488720,
+        "spiritualEssenceIncrease": 1248120
+      },
+      "heroCount": 6,
+      "upgradeRequirements": [
+        {
+          "destinyLevel": 1,
+          "count": 1
+        },
+        {
+          "destinyLevel": 2,
+          "count": 1
+        },
+        {
+          "destinyLevel": 3,
+          "count": 2
+        },
+        {
+          "destinyLevel": 4,
+          "count": 2
+        }
+      ],
+      "actualDisplay": [
+        {
+          "divinePowerLevel": 5,
+          "count": 1
+        },
+        {
+          "divinePowerLevel": 6,
+          "count": 1
+        },
+        {
+          "divinePowerLevel": 7,
+          "count": 2
+        },
+        {
+          "divinePowerLevel": 8,
+          "count": 2
+        }
+      ],
+      "resources": {
+        "auroraGem": {
+          "total": 123,
+          "increase": 25
+        },
+        "scatteredSpiritveinShard": {
+          "total": 4866216,
+          "increase": 989236
+        },
+        "stellarShards": {
+          "total": 20274240,
+          "increase": 4121540
+        },
+        "crystalOfTranscendenceK": {
+          "total": 10310,
+          "increase": 2090
+        }
+      },
+      "progressPercent": 4.68
+    },
+    {
+      "templeLevel": 8,
+      "divinePowerBonus": 5,
+      "prerequisites": {
+        "stellarShards": 74645500,
+        "stellarShardsIncrease": -14929100,
+        "spiritualEssence": 6240600,
+        "spiritualEssenceIncrease": -1248120
+      },
+      "heroCount": 5,
+      "upgradeRequirements": [
+        {
+          "destinyLevel": 3,
+          "count": 2
+        },
+        {
+          "destinyLevel": 4,
+          "count": 2
+        },
+        {
+          "destinyLevel": 5,
+          "count": 1
+        }
+      ],
+      "actualDisplay": [
+        {
+          "divinePowerLevel": 8,
+          "count": 2
+        },
+        {
+          "divinePowerLevel": 9,
+          "count": 2
+        },
+        {
+          "divinePowerLevel": 10,
+          "count": 1
+        }
+      ],
+      "resources": {
+        "auroraGem": {
+          "total": 151,
+          "increase": 28
+        },
+        "scatteredSpiritveinShard": {
+          "total": 5975780,
+          "increase": 1109564
+        },
+        "stellarShards": {
+          "total": 24897700,
+          "increase": 4623460
+        },
+        "crystalOfTranscendenceK": {
+          "total": 12660,
+          "increase": 2350
+        }
+      },
+      "progressPercent": 5.76
+    },
+    {
+      "templeLevel": 9,
+      "divinePowerBonus": 5,
+      "prerequisites": {
+        "stellarShards": 89574600,
+        "stellarShardsIncrease": 14929100,
+        "spiritualEssence": 7488720,
+        "spiritualEssenceIncrease": 1248120
+      },
+      "heroCount": 6,
+      "upgradeRequirements": [
+        {
+          "destinyLevel": 3,
+          "count": 2
+        },
+        {
+          "destinyLevel": 4,
+          "count": 3
+        },
+        {
+          "destinyLevel": 5,
+          "count": 1
+        }
+      ],
+      "actualDisplay": [
+        {
+          "divinePowerLevel": 8,
+          "count": 2
+        },
+        {
+          "divinePowerLevel": 9,
+          "count": 3
+        },
+        {
+          "divinePowerLevel": 10,
+          "count": 1
+        }
+      ],
+      "resources": {
+        "auroraGem": {
+          "total": 183,
+          "increase": 32
+        },
+        "scatteredSpiritveinShard": {
+          "total": 7242216,
+          "increase": 1266456
+        },
+        "stellarShards": {
+          "total": 30174240,
+          "increase": 5276540
+        },
+        "crystalOfTranscendenceK": {
+          "total": 15340,
+          "increase": 2680
+        }
+      },
+      "progressPercent": 6.96
+    },
+    {
+      "templeLevel": 10,
+      "divinePowerBonus": 6,
+      "prerequisites": {
+        "stellarShards": 104503700,
+        "stellarShardsIncrease": 14929100,
+        "spiritualEssence": 8736840,
+        "spiritualEssenceIncrease": 1248120
+      },
+      "heroCount": 7,
+      "upgradeRequirements": [
+        {
+          "destinyLevel": 3,
+          "count": 3
+        },
+        {
+          "destinyLevel": 4,
+          "count": 2
+        },
+        {
+          "destinyLevel": 5,
+          "count": 2
+        }
+      ],
+      "actualDisplay": [
+        {
+          "divinePowerLevel": 9,
+          "count": 3
+        },
+        {
+          "divinePowerLevel": 10,
+          "count": 2
+        },
+        {
+          "divinePowerLevel": 11,
+          "count": 2
+        }
+      ],
+      "resources": {
+        "auroraGem": {
+          "total": 217,
+          "increase": 34
+        },
+        "scatteredSpiritveinShard": {
+          "total": 8587852,
+          "increase": 1345636
+        },
+        "stellarShards": {
+          "total": 35780780,
+          "increase": 5606540
+        },
+        "crystalOfTranscendenceK": {
+          "total": 18200,
+          "increase": 2860
+        }
+      },
+      "progressPercent": 8.26
+    },
+    {
+      "templeLevel": 11,
+      "divinePowerBonus": 6,
+      "prerequisites": {
+        "stellarShards": 104503700,
+        "stellarShardsIncrease": 0,
+        "spiritualEssence": 8736840,
+        "spiritualEssenceIncrease": 0
+      },
+      "heroCount": 7,
+      "upgradeRequirements": [
+        {
+          "destinyLevel": 3,
+          "count": 2
+        },
+        {
+          "destinyLevel": 4,
+          "count": 2
+        },
+        {
+          "destinyLevel": 5,
+          "count": 2
+        },
+        {
+          "destinyLevel": 6,
+          "count": 1
+        }
+      ],
+      "actualDisplay": [
+        {
+          "divinePowerLevel": 9,
+          "count": 2
+        },
+        {
+          "divinePowerLevel": 10,
+          "count": 2
+        },
+        {
+          "divinePowerLevel": 11,
+          "count": 2
+        },
+        {
+          "divinePowerLevel": 12,
+          "count": 1
+        }
+      ],
+      "resources": {
+        "auroraGem": {
+          "total": 256,
+          "increase": 39
+        },
+        "scatteredSpiritveinShard": {
+          "total": 10157552,
+          "increase": 1569700
+        },
+        "stellarShards": {
+          "total": 42319730,
+          "increase": 6538950
+        },
+        "crystalOfTranscendenceK": {
+          "total": 21470,
+          "increase": 3270
+        }
+      },
+      "progressPercent": 9.74
+    },
+    {
+      "templeLevel": 12,
+      "divinePowerBonus": 7,
+      "prerequisites": {
+        "stellarShards": 119432800,
+        "stellarShardsIncrease": 14929100,
+        "spiritualEssence": 9984960,
+        "spiritualEssenceIncrease": 1248120
+      },
+      "heroCount": 8,
+      "upgradeRequirements": [
+        {
+          "destinyLevel": 3,
+          "count": 1
+        },
+        {
+          "destinyLevel": 4,
+          "count": 3
+        },
+        {
+          "destinyLevel": 5,
+          "count": 3
+        },
+        {
+          "destinyLevel": 6,
+          "count": 1
+        }
+      ],
+      "actualDisplay": [
+        {
+          "divinePowerLevel": 10,
+          "count": 1
+        },
+        {
+          "divinePowerLevel": 11,
+          "count": 3
+        },
+        {
+          "divinePowerLevel": 12,
+          "count": 3
+        },
+        {
+          "divinePowerLevel": 13,
+          "count": 1
+        }
+      ],
+      "resources": {
+        "auroraGem": {
+          "total": 312,
+          "increase": 56
+        },
+        "scatteredSpiritveinShard": {
+          "total": 12374388,
+          "increase": 2216836
+        },
+        "stellarShards": {
+          "total": 51556270,
+          "increase": 9236540
+        },
+        "crystalOfTranscendenceK": {
+          "total": 26170,
+          "increase": 4700
+        }
+      },
+      "progressPercent": 11.87
+    },
+    {
+      "templeLevel": 13,
+      "divinePowerBonus": 7,
+      "prerequisites": {
+        "stellarShards": 134361900,
+        "stellarShardsIncrease": 14929100,
+        "spiritualEssence": 11233080,
+        "spiritualEssenceIncrease": 1248120
+      },
+      "heroCount": 9,
+      "upgradeRequirements": [
+        {
+          "destinyLevel": 3,
+          "count": 1
+        },
+        {
+          "destinyLevel": 4,
+          "count": 3
+        },
+        {
+          "destinyLevel": 5,
+          "count": 3
+        },
+        {
+          "destinyLevel": 6,
+          "count": 2
+        }
+      ],
+      "actualDisplay": [
+        {
+          "divinePowerLevel": 10,
+          "count": 1
+        },
+        {
+          "divinePowerLevel": 11,
+          "count": 3
+        },
+        {
+          "divinePowerLevel": 12,
+          "count": 3
+        },
+        {
+          "divinePowerLevel": 13,
+          "count": 2
+        }
+      ],
+      "resources": {
+        "auroraGem": {
+          "total": 372,
+          "increase": 60
+        },
+        "scatteredSpiritveinShard": {
+          "total": 14774924,
+          "increase": 2400536
+        },
+        "stellarShards": {
+          "total": 61556760,
+          "increase": 10000490
+        },
+        "crystalOfTranscendenceK": {
+          "total": 31200,
+          "increase": 5030
+        }
+      },
+      "progressPercent": 14.16
+    },
+    {
+      "templeLevel": 14,
+      "divinePowerBonus": 8,
+      "prerequisites": {
+        "stellarShards": 149291000,
+        "stellarShardsIncrease": 14929100,
+        "spiritualEssence": 12481200,
+        "spiritualEssenceIncrease": 1248120
+      },
+      "heroCount": 10,
+      "upgradeRequirements": [
+        {
+          "destinyLevel": 4,
+          "count": 4
+        },
+        {
+          "destinyLevel": 5,
+          "count": 3
+        },
+        {
+          "destinyLevel": 6,
+          "count": 3
+        }
+      ],
+      "actualDisplay": [
+        {
+          "divinePowerLevel": 12,
+          "count": 4
+        },
+        {
+          "divinePowerLevel": 13,
+          "count": 3
+        },
+        {
+          "divinePowerLevel": 14,
+          "count": 3
+        }
+      ],
+      "resources": {
+        "auroraGem": {
+          "total": 443,
+          "increase": 71
+        },
+        "scatteredSpiritveinShard": {
+          "total": 17611060,
+          "increase": 2836136
+        },
+        "stellarShards": {
+          "total": 73372250,
+          "increase": 11815490
+        },
+        "crystalOfTranscendenceK": {
+          "total": 37150,
+          "increase": 5950
+        }
+      },
+      "progressPercent": 16.86
+    },
+    {
+      "templeLevel": 15,
+      "divinePowerBonus": 8,
+      "prerequisites": {
+        "stellarShards": 179149200,
+        "stellarShardsIncrease": 29858200,
+        "spiritualEssence": 14977440,
+        "spiritualEssenceIncrease": 2496240
+      },
+      "heroCount": 12,
+      "upgradeRequirements": [
+        {
+          "destinyLevel": 4,
+          "count": 5
+        },
+        {
+          "destinyLevel": 5,
+          "count": 4
+        },
+        {
+          "destinyLevel": 6,
+          "count": 3
+        }
+      ],
+      "actualDisplay": [
+        {
+          "divinePowerLevel": 12,
+          "count": 5
+        },
+        {
+          "divinePowerLevel": 13,
+          "count": 4
+        },
+        {
+          "divinePowerLevel": 14,
+          "count": 3
+        }
+      ],
+      "resources": {
+        "auroraGem": {
+          "total": 520,
+          "increase": 77
+        },
+        "scatteredSpiritveinShard": {
+          "total": 20658732,
+          "increase": 3047672
+        },
+        "stellarShards": {
+          "total": 86070330,
+          "increase": 12698080
+        },
+        "crystalOfTranscendenceK": {
+          "total": 43610,
+          "increase": 6460
+        }
+      },
+      "progressPercent": 19.79
+    },
+    {
+      "templeLevel": 16,
+      "divinePowerBonus": 9,
+      "prerequisites": {
+        "stellarShards": 209007400,
+        "stellarShardsIncrease": 29858200,
+        "spiritualEssence": 17473680,
+        "spiritualEssenceIncrease": 2496240
+      },
+      "heroCount": 14,
+      "upgradeRequirements": [
+        {
+          "destinyLevel": 4,
+          "count": 6
+        },
+        {
+          "destinyLevel": 5,
+          "count": 4
+        },
+        {
+          "destinyLevel": 6,
+          "count": 4
+        }
+      ],
+      "actualDisplay": [
+        {
+          "divinePowerLevel": 13,
+          "count": 6
+        },
+        {
+          "divinePowerLevel": 14,
+          "count": 4
+        },
+        {
+          "divinePowerLevel": 15,
+          "count": 4
+        }
+      ],
+      "resources": {
+        "auroraGem": {
+          "total": 612,
+          "increase": 92
+        },
+        "scatteredSpiritveinShard": {
+          "total": 24325704,
+          "increase": 3666972
+        },
+        "stellarShards": {
+          "total": 101347360,
+          "increase": 15277030
+        },
+        "crystalOfTranscendenceK": {
+          "total": 51320,
+          "increase": 7710
+        }
+      },
+      "progressPercent": 23.29
+    },
+    {
+      "templeLevel": 17,
+      "divinePowerBonus": 9,
+      "prerequisites": {
+        "stellarShards": 268723800,
+        "stellarShardsIncrease": 59716400,
+        "spiritualEssence": 22466160,
+        "spiritualEssenceIncrease": 4992480
+      },
+      "heroCount": 18,
+      "upgradeRequirements": [
+        {
+          "destinyLevel": 4,
+          "count": 8
+        },
+        {
+          "destinyLevel": 5,
+          "count": 6
+        },
+        {
+          "destinyLevel": 6,
+          "count": 4
+        }
+      ],
+      "actualDisplay": [
+        {
+          "divinePowerLevel": 13,
+          "count": 8
+        },
+        {
+          "divinePowerLevel": 14,
+          "count": 6
+        },
+        {
+          "divinePowerLevel": 15,
+          "count": 4
+        }
+      ],
+      "resources": {
+        "auroraGem": {
+          "total": 766,
+          "increase": 154
+        },
+        "scatteredSpiritveinShard": {
+          "total": 30421048,
+          "increase": 6095344
+        },
+        "stellarShards": {
+          "total": 126743520,
+          "increase": 25396160
+        },
+        "crystalOfTranscendenceK": {
+          "total": 64240,
+          "increase": 12920
+        }
+      },
+      "progressPercent": 29.15
+    },
+    {
+      "templeLevel": 18,
+      "divinePowerBonus": 9,
+      "prerequisites": {
+        "stellarShards": 313511100,
+        "stellarShardsIncrease": 44787300,
+        "spiritualEssence": 26210520,
+        "spiritualEssenceIncrease": 3744360
+      },
+      "heroCount": 21,
+      "upgradeRequirements": [
+        {
+          "destinyLevel": 4,
+          "count": 10
+        },
+        {
+          "destinyLevel": 5,
+          "count": 6
+        },
+        {
+          "destinyLevel": 6,
+          "count": 5
+        }
+      ],
+      "actualDisplay": [
+        {
+          "divinePowerLevel": 13,
+          "count": 10
+        },
+        {
+          "divinePowerLevel": 14,
+          "count": 6
+        },
+        {
+          "divinePowerLevel": 15,
+          "count": 5
+        }
+      ],
+      "resources": {
+        "auroraGem": {
+          "total": 890,
+          "increase": 124
+        },
+        "scatteredSpiritveinShard": {
+          "total": 35354456,
+          "increase": 4933408
+        },
+        "stellarShards": {
+          "total": 147297090,
+          "increase": 20553570
+        },
+        "crystalOfTranscendenceK": {
+          "total": 74630,
+          "increase": 10390
+        }
+      },
+      "progressPercent": 33.87
+    },
+    {
+      "templeLevel": 19,
+      "divinePowerBonus": 10,
+      "prerequisites": {
+        "stellarShards": 373227500,
+        "stellarShardsIncrease": 59716400,
+        "spiritualEssence": 31203000,
+        "spiritualEssenceIncrease": 4992480
+      },
+      "heroCount": 25,
+      "upgradeRequirements": [
+        {
+          "destinyLevel": 4,
+          "count": 12
+        },
+        {
+          "destinyLevel": 5,
+          "count": 8
+        },
+        {
+          "destinyLevel": 6,
+          "count": 5
+        }
+      ],
+      "actualDisplay": [
+        {
+          "divinePowerLevel": 14,
+          "count": 12
+        },
+        {
+          "divinePowerLevel": 15,
+          "count": 8
+        },
+        {
+          "divinePowerLevel": 16,
+          "count": 5
+        }
+      ],
+      "resources": {
+        "auroraGem": {
+          "total": 1044,
+          "increase": 154
+        },
+        "scatteredSpiritveinShard": {
+          "total": 41449800,
+          "increase": 6095344
+        },
+        "stellarShards": {
+          "total": 172693250,
+          "increase": 25396160
+        },
+        "crystalOfTranscendenceK": {
+          "total": 87550,
+          "increase": 12920
+        }
+      },
+      "progressPercent": 39.73
+    },
+    {
+      "templeLevel": 20,
+      "divinePowerBonus": 10,
+      "prerequisites": {
+        "stellarShards": 388156600,
+        "stellarShardsIncrease": 14929100,
+        "spiritualEssence": 32451120,
+        "spiritualEssenceIncrease": 1248120
+      },
+      "heroCount": 26,
+      "upgradeRequirements": [
+        {
+          "destinyLevel": 4,
+          "count": 12
+        },
+        {
+          "destinyLevel": 5,
+          "count": 8
+        },
+        {
+          "destinyLevel": 6,
+          "count": 6
+        }
+      ],
+      "actualDisplay": [
+        {
+          "divinePowerLevel": 14,
+          "count": 12
+        },
+        {
+          "divinePowerLevel": 15,
+          "count": 8
+        },
+        {
+          "divinePowerLevel": 16,
+          "count": 6
+        }
+      ],
+      "resources": {
+        "auroraGem": {
+          "total": 1104,
+          "increase": 60
+        },
+        "scatteredSpiritveinShard": {
+          "total": 43850336,
+          "increase": 2400536
+        },
+        "stellarShards": {
+          "total": 182693740,
+          "increase": 10000490
+        },
+        "crystalOfTranscendenceK": {
+          "total": 92580,
+          "increase": 5030
+        }
+      },
+      "progressPercent": 42.01
+    },
+    {
+      "templeLevel": 21,
+      "divinePowerBonus": 10,
+      "prerequisites": {
+        "stellarShards": 447873000,
+        "stellarShardsIncrease": 59716400,
+        "spiritualEssence": 37443600,
+        "spiritualEssenceIncrease": 4992480
+      },
+      "heroCount": 30,
+      "upgradeRequirements": [
+        {
+          "destinyLevel": 4,
+          "count": 14
+        },
+        {
+          "destinyLevel": 5,
+          "count": 10
+        },
+        {
+          "destinyLevel": 6,
+          "count": 6
+        }
+      ],
+      "actualDisplay": [
+        {
+          "divinePowerLevel": 14,
+          "count": 14
+        },
+        {
+          "divinePowerLevel": 15,
+          "count": 10
+        },
+        {
+          "divinePowerLevel": 16,
+          "count": 6
+        }
+      ],
+      "resources": {
+        "auroraGem": {
+          "total": 1258,
+          "increase": 154
+        },
+        "scatteredSpiritveinShard": {
+          "total": 49945680,
+          "increase": 6095344
+        },
+        "stellarShards": {
+          "total": 208089900,
+          "increase": 25396160
+        },
+        "crystalOfTranscendenceK": {
+          "total": 105500,
+          "increase": 12920
+        }
+      },
+      "progressPercent": 47.87
+    },
+    {
+      "templeLevel": 22,
+      "divinePowerBonus": 10,
+      "prerequisites": {
+        "stellarShards": 537447600,
+        "stellarShardsIncrease": 89574600,
+        "spiritualEssence": 44932320,
+        "spiritualEssenceIncrease": 7488720
+      },
+      "heroCount": 36,
+      "upgradeRequirements": [
+        {
+          "destinyLevel": 4,
+          "count": 16
+        },
+        {
+          "destinyLevel": 5,
+          "count": 12
+        },
+        {
+          "destinyLevel": 6,
+          "count": 8
+        }
+      ],
+      "actualDisplay": [
+        {
+          "divinePowerLevel": 14,
+          "count": 16
+        },
+        {
+          "divinePowerLevel": 15,
+          "count": 12
+        },
+        {
+          "divinePowerLevel": 16,
+          "count": 8
+        }
+      ],
+      "resources": {
+        "auroraGem": {
+          "total": 1532,
+          "increase": 264
+        },
+        "scatteredSpiritveinShard": {
+          "total": 60842096,
+          "increase": 10896416
+        },
+        "stellarShards": {
+          "total": 253487040,
+          "increase": 45397140
+        },
+        "crystalOfTranscendenceK": {
+          "total": 128480,
+          "increase": 22980
+        }
+      },
+      "progressPercent": 58.3
+    },
+    {
+      "templeLevel": 23,
+      "divinePowerBonus": 11,
+      "prerequisites": {
+        "stellarShards": 567305800,
+        "stellarShardsIncrease": 29858200,
+        "spiritualEssence": 47428560,
+        "spiritualEssenceIncrease": 2496240
+      },
+      "heroCount": 38,
+      "upgradeRequirements": [
+        {
+          "destinyLevel": 4,
+          "count": 16
+        },
+        {
+          "destinyLevel": 5,
+          "count": 14
+        },
+        {
+          "destinyLevel": 6,
+          "count": 8
+        }
+      ],
+      "actualDisplay": [
+        {
+          "divinePowerLevel": 15,
+          "count": 16
+        },
+        {
+          "divinePowerLevel": 16,
+          "count": 14
+        },
+        {
+          "divinePowerLevel": 17,
+          "count": 8
+        }
+      ],
+      "resources": {
+        "auroraGem": {
+          "total": 1622,
+          "increase": 90
+        },
+        "scatteredSpiritveinShard": {
+          "total": 64404568,
+          "increase": 3562472
+        },
+        "stellarShards": {
+          "total": 268330120,
+          "increase": 14843080
+        },
+        "crystalOfTranscendenceK": {
+          "total": 136040,
+          "increase": 7560
+        }
+      },
+      "progressPercent": 61.72
+    },
+    {
+      "templeLevel": 24,
+      "divinePowerBonus": 11,
+      "prerequisites": {
+        "stellarShards": 627022200,
+        "stellarShardsIncrease": 59716400,
+        "spiritualEssence": 52421040,
+        "spiritualEssenceIncrease": 4992480
+      },
+      "heroCount": 42,
+      "upgradeRequirements": [
+        {
+          "destinyLevel": 4,
+          "count": 18
+        },
+        {
+          "destinyLevel": 5,
+          "count": 14
+        },
+        {
+          "destinyLevel": 6,
+          "count": 10
+        }
+      ],
+      "actualDisplay": [
+        {
+          "divinePowerLevel": 15,
+          "count": 18
+        },
+        {
+          "divinePowerLevel": 16,
+          "count": 14
+        },
+        {
+          "divinePowerLevel": 17,
+          "count": 10
+        }
+      ],
+      "resources": {
+        "auroraGem": {
+          "total": 1806,
+          "increase": 184
+        },
+        "scatteredSpiritveinShard": {
+          "total": 71738512,
+          "increase": 7333944
+        },
+        "stellarShards": {
+          "total": 298884180,
+          "increase": 30554060
+        },
+        "crystalOfTranscendenceK": {
+          "total": 151460,
+          "increase": 15420
+        }
+      },
+      "progressPercent": 68.72
+    },
+    {
+      "templeLevel": 25,
+      "divinePowerBonus": 12,
+      "prerequisites": {
+        "stellarShards": 686738600,
+        "stellarShardsIncrease": 59716400,
+        "spiritualEssence": 57413520,
+        "spiritualEssenceIncrease": 4992480
+      },
+      "heroCount": 46,
+      "upgradeRequirements": [
+        {
+          "destinyLevel": 4,
+          "count": 20
+        },
+        {
+          "destinyLevel": 5,
+          "count": 16
+        },
+        {
+          "destinyLevel": 6,
+          "count": 10
+        }
+      ],
+      "actualDisplay": [
+        {
+          "divinePowerLevel": 16,
+          "count": 20
+        },
+        {
+          "divinePowerLevel": 17,
+          "count": 16
+        },
+        {
+          "divinePowerLevel": 18,
+          "count": 10
+        }
+      ],
+      "resources": {
+        "auroraGem": {
+          "total": 1960,
+          "increase": 154
+        },
+        "scatteredSpiritveinShard": {
+          "total": 77833856,
+          "increase": 6095344
+        },
+        "stellarShards": {
+          "total": 324280340,
+          "increase": 25396160
+        },
+        "crystalOfTranscendenceK": {
+          "total": 164380,
+          "increase": 12920
+        }
+      },
+      "progressPercent": 74.58
+    },
+    {
+      "templeLevel": 26,
+      "divinePowerBonus": 12,
+      "prerequisites": {
+        "stellarShards": 716596800,
+        "stellarShardsIncrease": 29858200,
+        "spiritualEssence": 59909760,
+        "spiritualEssenceIncrease": 2496240
+      },
+      "heroCount": 48,
+      "upgradeRequirements": [
+        {
+          "destinyLevel": 4,
+          "count": 20
+        },
+        {
+          "destinyLevel": 5,
+          "count": 16
+        },
+        {
+          "destinyLevel": 6,
+          "count": 12
+        }
+      ],
+      "actualDisplay": [
+        {
+          "divinePowerLevel": 16,
+          "count": 20
+        },
+        {
+          "divinePowerLevel": 17,
+          "count": 16
+        },
+        {
+          "divinePowerLevel": 18,
+          "count": 12
+        }
+      ],
+      "resources": {
+        "auroraGem": {
+          "total": 2080,
+          "increase": 120
+        },
+        "scatteredSpiritveinShard": {
+          "total": 82634928,
+          "increase": 4801072
+        },
+        "stellarShards": {
+          "total": 344281320,
+          "increase": 20000980
+        },
+        "crystalOfTranscendenceK": {
+          "total": 174440,
+          "increase": 10060
+        }
+      },
+      "progressPercent": 79.15
+    },
+    {
+      "templeLevel": 27,
+      "divinePowerBonus": 13,
+      "prerequisites": {
+        "stellarShards": 776313200,
+        "stellarShardsIncrease": 59716400,
+        "spiritualEssence": 64902240,
+        "spiritualEssenceIncrease": 4992480
+      },
+      "heroCount": 52,
+      "upgradeRequirements": [
+        {
+          "destinyLevel": 4,
+          "count": 22
+        },
+        {
+          "destinyLevel": 5,
+          "count": 18
+        },
+        {
+          "destinyLevel": 6,
+          "count": 12
+        }
+      ],
+      "actualDisplay": [
+        {
+          "divinePowerLevel": 17,
+          "count": 22
+        },
+        {
+          "divinePowerLevel": 18,
+          "count": 18
+        },
+        {
+          "divinePowerLevel": 19,
+          "count": 12
+        }
+      ],
+      "resources": {
+        "auroraGem": {
+          "total": 2234,
+          "increase": 154
+        },
+        "scatteredSpiritveinShard": {
+          "total": 88730272,
+          "increase": 6095344
+        },
+        "stellarShards": {
+          "total": 369677480,
+          "increase": 25396160
+        },
+        "crystalOfTranscendenceK": {
+          "total": 187360,
+          "increase": 12920
+        }
+      },
+      "progressPercent": 85.01
+    },
+    {
+      "templeLevel": 28,
+      "divinePowerBonus": 13,
+      "prerequisites": {
+        "stellarShards": 806171400,
+        "stellarShardsIncrease": 29858200,
+        "spiritualEssence": 67398480,
+        "spiritualEssenceIncrease": 2496240
+      },
+      "heroCount": 54,
+      "upgradeRequirements": [
+        {
+          "destinyLevel": 4,
+          "count": 22
+        },
+        {
+          "destinyLevel": 5,
+          "count": 18
+        },
+        {
+          "destinyLevel": 6,
+          "count": 14
+        }
+      ],
+      "actualDisplay": [
+        {
+          "divinePowerLevel": 17,
+          "count": 22
+        },
+        {
+          "divinePowerLevel": 18,
+          "count": 18
+        },
+        {
+          "divinePowerLevel": 19,
+          "count": 14
+        }
+      ],
+      "resources": {
+        "auroraGem": {
+          "total": 2354,
+          "increase": 120
+        },
+        "scatteredSpiritveinShard": {
+          "total": 93531344,
+          "increase": 4801072
+        },
+        "stellarShards": {
+          "total": 389678460,
+          "increase": 20000980
+        },
+        "crystalOfTranscendenceK": {
+          "total": 197420,
+          "increase": 10060
+        }
+      },
+      "progressPercent": 89.57
+    },
+    {
+      "templeLevel": 29,
+      "divinePowerBonus": 14,
+      "prerequisites": {
+        "stellarShards": 865887800,
+        "stellarShardsIncrease": 59716400,
+        "spiritualEssence": 72390960,
+        "spiritualEssenceIncrease": 4992480
+      },
+      "heroCount": 58,
+      "upgradeRequirements": [
+        {
+          "destinyLevel": 4,
+          "count": 24
+        },
+        {
+          "destinyLevel": 5,
+          "count": 20
+        },
+        {
+          "destinyLevel": 6,
+          "count": 14
+        }
+      ],
+      "actualDisplay": [
+        {
+          "divinePowerLevel": 18,
+          "count": 24
+        },
+        {
+          "divinePowerLevel": 19,
+          "count": 20
+        },
+        {
+          "divinePowerLevel": 20,
+          "count": 14
+        }
+      ],
+      "resources": {
+        "auroraGem": {
+          "total": 2508,
+          "increase": 154
+        },
+        "scatteredSpiritveinShard": {
+          "total": 99626688,
+          "increase": 6095344
+        },
+        "stellarShards": {
+          "total": 415074620,
+          "increase": 25396160
+        },
+        "crystalOfTranscendenceK": {
+          "total": 210340,
+          "increase": 12920
+        }
+      },
+      "progressPercent": 95.43
+    },
+    {
+      "templeLevel": 30,
+      "divinePowerBonus": 15,
+      "prerequisites": {
+        "stellarShards": 895746000,
+        "stellarShardsIncrease": 29858200,
+        "spiritualEssence": 74887200,
+        "spiritualEssenceIncrease": 2496240
+      },
+      "heroCount": 60,
+      "upgradeRequirements": [
+        {
+          "destinyLevel": 4,
+          "count": 24
+        },
+        {
+          "destinyLevel": 5,
+          "count": 20
+        },
+        {
+          "destinyLevel": 6,
+          "count": 16
+        }
+      ],
+      "actualDisplay": [
+        {
+          "divinePowerLevel": 19,
+          "count": 24
+        },
+        {
+          "divinePowerLevel": 20,
+          "count": 20
+        },
+        {
+          "divinePowerLevel": 21,
+          "count": 16
+        }
+      ],
+      "resources": {
+        "auroraGem": {
+          "total": 2628,
+          "increase": 120
+        },
+        "scatteredSpiritveinShard": {
+          "total": 104427760,
+          "increase": 4801072
+        },
+        "stellarShards": {
+          "total": 435075600,
+          "increase": 20000980
+        },
+        "crystalOfTranscendenceK": {
+          "total": 220400,
+          "increase": 10060
+        }
+      },
+      "progressPercent": 100
+    }
+  ]
+}

@@ -12,6 +12,8 @@ cd flipgame && python3 -m http.server 8000
 
 Open `http://localhost:8000/`. Do not validate `fetch()` pages through `file://`.
 
+When previewing locally, `index.html` shows a `Local Admin` account and Admin Portal entry by default. `Admin.html` uses local mock data only; it must not call real admin APIs or write Netlify Blobs from local preview.
+
 ## Project Shape
 
 - Main app files are standalone HTML pages in `flipgame/`.
@@ -19,7 +21,7 @@ Open `http://localhost:8000/`. Do not validate `fetch()` pages through `file://`
 - Netlify Functions live under `flipgame/netlify/functions/` and use `flipgame/package.json` for deploy dependencies.
 - Shared data is stored as CSV/JSON next to the pages that load it.
 - The site supports zh/en text through per-page I18N objects.
-- Local and production app icons are selected by hostname in each page header.
+- Local, stage, and production app icons are selected by hostname in each page header.
 - `IHassistant/` is the Idle Heroes knowledge base. It stores game mechanics, heroes, artifacts, soulstones, monsters, bosses, modes, lineups, screenshots, and source notes.
 - `IHassistant/` is not automatically public site content. Do not copy knowledge files into `flipgame/` unless the user explicitly asks to expose them through a public or VIP page.
 
@@ -37,6 +39,8 @@ Open `http://localhost:8000/`. Do not validate `fetch()` pages through `file://`
 
 ## Git / Deploy Rules
 
+- Use `stage` as the normal development and testing branch. Do feature work there first.
+- Merge from `stage` to the production branch/environment only after testing is complete and the user explicitly asks for that merge or production release.
 - Do not push after every small change by default. Netlify deploys consume credits on each push.
 - Prefer batching related changes into one commit and one push after the user confirms the work is ready.
 - Do not carry push, commit, production deploy, or Netlify deploy permission across turns. Even if the user asked to push earlier, require an explicit current-turn request before committing, pushing, or deploying again.
@@ -44,7 +48,9 @@ Open `http://localhost:8000/`. Do not validate `fetch()` pages through `file://`
 
 ## Data Rules
 
+- Stage and production data are not separated yet. Treat data writes made while testing `stage` as writes to shared/live data unless the user confirms a separate data environment exists.
 - Soul calculator data source: `flipgame/soul_tiers.csv`.
+- Core / Temple / Destiny calculator documentation: `docs/core-calculator.md`. The calculator entry page is `flipgame/Calculators.html`; page implementations live in `flipgame/CoreCalculator.html` and `flipgame/DestinyCalculator.html`. Destiny Temple / Divine Power terminology lives in `IHassistant/knowledge/mechanics/destiny-temple.md`; the transcribed 1-30 level table lives in `flipgame/destiny_temple_levels.json`.
 - Expedition calculator data source: `flipgame/seboss_all.json`.
 - Guide images live under `flipgame/images/`.
 - Knowledge base images and source screenshots live under `IHassistant/knowledge/`.
@@ -87,3 +93,5 @@ Open `http://localhost:8000/`. Do not validate `fetch()` pages through `file://`
 - Artifact shorthand: `万灵秘境` is `镜子`; `断罪之剪` is `剪刀`.
 - Damage formulas that mention `鹿角` default to extreme/deific tier 1 antlers' per-round damage increase coefficient. Earlier formula text saying `粉鹿角` is a typo and should be understood as `极鹿角`.
 - Hero action order is determined by final speed. When a hero acts, energy below 100 uses normal attack; energy at 100 or more uses active skill.
+- Destiny Temple terminology: `飞` = Destiny Level, `神能加成` = Divine Power Bonus, `神` = Divine Power Level, and `神能等级 = 飞升等级 + 神能加成`.
+- Destiny Temple resource aliases: `神玉/蓝玉` = Aurora Gem; `星碎/蓝碎/印痕` = Stellar Shards; `意识/意识精华/树精华` = Spiritual Essence; `灵碎/黄碎/黄玉` = Scattered Spiritvein Shard; `时晶/时空结晶/紫碎` = Crystal of Transcendence.

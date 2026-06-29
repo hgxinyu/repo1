@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>殿堂 / 飞升计算器 · ShinE</title>
+  <script>
+    (function () {
+      var host = (window.location.hostname || '').toLowerCase();
+      var isLocal = host === 'localhost' || host === '127.0.0.1' || host === '::1';
+      var isStage = host === 'stage' || host.startsWith('stage.') || host.startsWith('stage-') || host.startsWith('stage--') || host.indexOf('--stage') !== -1 || host.indexOf('-stage.') !== -1;
+      var svg = isLocal ? 'assets/local-logo.svg' : (isStage ? 'assets/stage-logo.svg' : 'assets/shine-logo.svg');
+      var png32 = isLocal ? 'assets/local-logo-32.png' : (isStage ? 'assets/stage-logo-32.png' : 'assets/shine-logo-32.png');
+      var ico = isLocal ? 'assets/local-favicon.ico' : (isStage ? 'assets/stage-favicon.ico' : 'assets/favicon.ico');
+      var apple = isLocal ? 'assets/local-logo-180.png' : (isStage ? 'assets/stage-logo-180.png' : 'assets/shine-logo-180.png');
+      var manifest = isLocal ? 'site.local.webmanifest' : (isStage ? 'site.stage.webmanifest' : 'site.webmanifest');
+      var theme = isLocal ? '#fb7185' : (isStage ? '#0891b2' : '#0f766e');
+      document.write('<link rel="icon" type="image/svg+xml" href="' + svg + '">');
+      document.write('<link rel="icon" type="image/png" sizes="32x32" href="' + png32 + '">');
+      document.write('<link rel="shortcut icon" href="' + ico + '">');
+      document.write('<link rel="apple-touch-icon" sizes="180x180" href="' + apple + '">');
+      document.write('<link rel="manifest" href="' + manifest + '">');
+      document.write('<meta name="theme-color" content="' + theme + '">');
+    })();
+  </script>
+  <style>
+    :root {
+      --ink: #10201c;
+      --muted: #65756f;
+      --line: #d8e4de;
+      --paper: #fffdf7;
+      --wash: #f8fafc;
+      --brand: #0f766e;
+      --brand-2: #b45309;
+      --danger: #b91c1c;
+      --shadow: 0 18px 40px rgba(16, 32, 28, 0.13);
+      --radius: 8px;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--wash);
+      color: var(--ink);
+      font-family: "Segoe UI", "Microsoft YaHei", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.55;
+    }
+    body { min-height: 100vh; }
+    .shell {
+      width: min(1180px, 100%);
+      margin: 0 auto;
+      padding: 14px clamp(14px, 3vw, 28px) 34px;
+      display: grid;
+      gap: 16px;
+    }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .nav-links {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .topbar a,
+    .langbar button {
+      border: 1px solid rgba(15, 118, 110, 0.24);
+      background: rgba(255, 253, 247, 0.88);
+      color: var(--brand);
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 13px;
+      text-decoration: none;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(15, 118, 110, 0.08);
+    }
+    .hero {
+      border: 1px solid var(--line);
+      background: rgba(255, 253, 247, 0.93);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: clamp(20px, 4vw, 34px);
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(260px, 0.7fr);
+      gap: 18px;
+      align-items: end;
+    }
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--brand-2);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(28px, 6vw, 50px);
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+    .intro {
+      margin: 12px 0 0;
+      max-width: 680px;
+      color: var(--muted);
+      font-size: 15px;
+    }
+    .stamp {
+      justify-self: end;
+      width: min(230px, 100%);
+      border: 1px solid rgba(15, 118, 110, 0.22);
+      background: rgba(238, 247, 242, 0.84);
+      border-radius: var(--radius);
+      padding: 14px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .stamp strong {
+      display: block;
+      color: var(--ink);
+      font-size: 22px;
+      line-height: 1.1;
+      margin-bottom: 4px;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .panel {
+      min-width: 0;
+      border: 1px solid var(--line);
+      background: rgba(255, 253, 247, 0.94);
+      border-radius: var(--radius);
+      box-shadow: 0 12px 28px rgba(16, 32, 28, 0.1);
+      padding: clamp(16px, 3vw, 24px);
+      display: grid;
+      gap: 14px;
+    }
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    h2 {
+      margin: 0;
+      font-size: clamp(19px, 4vw, 25px);
+      letter-spacing: 0;
+    }
+    .note {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+    select {
+      width: 100%;
+      appearance: none;
+      border: 1px solid rgba(15, 118, 110, 0.28);
+      border-radius: var(--radius);
+      background: #fffdf7;
+      color: var(--ink);
+      padding: 11px 12px;
+      font: inherit;
+      font-size: 15px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    }
+    select:focus-visible {
+      outline: 3px solid rgba(15, 118, 110, 0.24);
+      outline-offset: 2px;
+    }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+      gap: 10px;
+    }
+    .metric {
+      border: 1px solid rgba(15, 118, 110, 0.18);
+      background: rgba(238, 247, 242, 0.72);
+      border-radius: var(--radius);
+      padding: 12px;
+      min-width: 0;
+    }
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .metric strong {
+      display: block;
+      margin-top: 4px;
+      font-size: clamp(18px, 3.5vw, 26px);
+      line-height: 1.05;
+      overflow-wrap: anywhere;
+    }
+    .metric .metric-detail {
+      margin-top: 6px;
+      color: var(--brand);
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.3;
+      overflow-wrap: anywhere;
+    }
+    .metric.requirement-metric strong {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: flex-start;
+      font-size: 14px;
+      line-height: 1.35;
+    }
+    .requirement-chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      max-width: 100%;
+      padding: 4px 8px;
+      border: 1px solid rgba(15, 118, 110, 0.2);
+      border-radius: 999px;
+      background: rgba(255, 253, 247, 0.78);
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fffdf7;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 520px;
+      font-size: 14px;
+    }
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      color: #33443e;
+      background: rgba(15, 118, 110, 0.08);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    td.value {
+      font-variant-numeric: tabular-nums;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    td.small {
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .status {
+      border: 1px solid rgba(185, 28, 28, 0.22);
+      background: rgba(254, 242, 242, 0.86);
+      color: var(--danger);
+      border-radius: var(--radius);
+      padding: 12px;
+      font-size: 13px;
+    }
+    .status:empty { display: none; }
+    @media (max-width: 900px) {
+      .hero, .layout { grid-template-columns: 1fr; }
+      .stamp { justify-self: stretch; }
+    }
+    @media (max-width: 620px) {
+      .summary { grid-template-columns: 1fr; }
+      table { min-width: 470px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <nav class="topbar" aria-label="页面导航">
+      <span class="nav-links">
+        <a href="index.html" id="navHome">回到主页</a>
+        <a href="Calculators.html" id="navCalculators">计算器入口</a>
+      </span>
+      <span class="langbar"><button id="langToggle" type="button">EN</button></span>
+    </nav>
+    <section class="hero">
+      <div>
+        <p class="eyebrow" id="eyebrow">Destiny Ledger</p>
+        <h1 id="pageTitle">殿堂 / 飞升计算器</h1>
+        <p class="intro" id="pageDesc">选择当前殿堂等级查看升到下一殿堂的总资源，也可计算单个英雄从 E5 到指定飞升等级的资源。</p>
+      </div>
+      <aside class="stamp">
+        <strong id="stampValue">5,000K</strong>
+        <span id="stampText">普通英雄转时空英雄的时空结晶会计入结果。</span>
+      </aside>
+    </section>
+    <section class="layout">
+      <article class="panel">
+        <div class="panel-head">
+          <div>
+            <h2 id="templeTitle">下一殿堂资源</h2>
+            <p class="note" id="templeDesc">当前等级到下一等级，包含前置差值、升满差值和新增时空英雄转换成本。</p>
+          </div>
+        </div>
+        <label for="templeLevel" id="templeLevelLabel">
+          当前殿堂等级
+          <select id="templeLevel"></select>
+        </label>
+        <div class="summary">
+          <div class="metric">
+            <span id="currentTempleLabel">当前殿堂</span>
+            <strong id="currentTempleValue">-</strong>
+            <span class="metric-detail" id="currentTempleDetail">-</span>
+          </div>
+          <div class="metric">
+            <span id="nextTempleLabel">下一殿堂</span>
+            <strong id="nextTempleValue">-</strong>
+            <span class="metric-detail" id="nextTempleDetail">-</span>
+          </div>
+          <div class="metric">
+            <span id="newHeroLabel">新增英雄</span>
+            <strong id="newHeroValue">-</strong>
+          </div>
+          <div class="metric requirement-metric">
+            <span id="targetReqLabel">升级要求</span>
+            <strong id="targetReqValue">-</strong>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th id="templeResourceHead">资源</th>
+                <th id="templeTotalHead">本次需要</th>
+                <th id="templeBreakdownHead">拆分</th>
+              </tr>
+            </thead>
+            <tbody id="templeRows"></tbody>
+          </table>
+        </div>
+        <div class="status" id="templeStatus" role="status"></div>
+      </article>
+      <article class="panel">
+        <div class="panel-head">
+          <div>
+            <h2 id="heroTitle">单英雄 E5 到飞升</h2>
+            <p class="note" id="heroDesc">包含 E9、根源 120、Core of Origin、技能点、转时空英雄和飞升段资源。</p>
+          </div>
+        </div>
+        <label for="heroDestiny" id="heroDestinyLabel">
+          目标飞升等级
+          <select id="heroDestiny"></select>
+        </label>
+        <div class="summary">
+          <div class="metric">
+            <span id="heroTargetLabel">目标</span>
+            <strong id="heroTargetValue">-</strong>
+          </div>
+          <div class="metric">
+            <span id="skillPointLabel">技能点</span>
+            <strong id="skillPointValue">16</strong>
+          </div>
+          <div class="metric">
+            <span id="coreBoxLabel">Core 箱子</span>
+            <strong id="coreBoxValue">8</strong>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th id="heroResourceHead">资源</th>
+                <th id="heroTotalHead">总需求</th>
+                <th id="heroBreakdownHead">拆分</th>
+              </tr>
+            </thead>
+            <tbody id="heroRows"></tbody>
+          </table>
+        </div>
+        <div class="status" id="heroStatus" role="status"></div>
+      </article>
+    </section>
+  </main>
+  <script>
+    (function () {
+      const HERO_BASE = {
+        e9Stellar: 4935000,
+        rootStellar: 9994100,
+        rootEssence: 1248120,
+        coreBoxes: 8,
+        coreShards: 400,
+        skillPoints: 16,
+        essenceSublimationK: 720,
+        transcendenceCrystalK: 5000
+      };
+      const FLY_COSTS = [
+        { level: 1, title: '源初', auroraGem: 5, scatteredSpiritveinShard: 197236, crystalOfTranscendenceK: 420, stellarShards: 821540 },
+        { level: 2, title: '进发', auroraGem: 7, scatteredSpiritveinShard: 277200, crystalOfTranscendenceK: 590, stellarShards: 1155000 },
+        { level: 3, title: '混沌', auroraGem: 9, scatteredSpiritveinShard: 356400, crystalOfTranscendenceK: 750, stellarShards: 1485000 },
+        { level: 4, title: '凝核', auroraGem: 11, scatteredSpiritveinShard: 435600, crystalOfTranscendenceK: 920, stellarShards: 1815000 },
+        { level: 5, title: '聚星', auroraGem: 13, scatteredSpiritveinShard: 514800, crystalOfTranscendenceK: 1100, stellarShards: 2145000 },
+        { level: 6, title: '超脱', auroraGem: 15, scatteredSpiritveinShard: 619300, crystalOfTranscendenceK: 1250, stellarShards: 2578950 }
+      ];
+      const I18N = {
+        zh: {
+          title: '殿堂 / 飞升计算器 · ShinE',
+          nav_home: '回到主页',
+          nav_calculators: '计算器入口',
+          lang_toggle_en: 'EN',
+          lang_toggle_zh: '中文',
+          eyebrow: 'Destiny Ledger',
+          page_title: '殿堂 / 飞升计算器',
+          page_desc: '选择当前殿堂等级查看升到下一殿堂的总资源，也可计算单个英雄从 E5 到指定飞升等级的资源。',
+          stamp_text: '普通英雄转时空英雄的时空结晶会计入结果。',
+          temple_title: '下一殿堂资源',
+          temple_desc: '当前等级到下一等级，包含前置差值、升满差值和新增时空英雄转换成本。',
+          temple_level_label: '当前殿堂等级',
+          current_temple_label: '当前殿堂',
+          next_temple_label: '下一殿堂',
+          divine_power_formula: '神能等级 +',
+          new_hero_label: '新增英雄',
+          target_req_label: '升级要求',
+          temple_resource_head: '资源',
+          temple_total_head: '本次需要',
+          temple_breakdown_head: '拆分',
+          hero_title: '单英雄 E5 到飞升',
+          hero_desc: '包含 E9、根源 120、Core of Origin、技能点、转时空英雄和飞升段资源。',
+          hero_destiny_label: '目标飞升等级',
+          hero_target_label: '目标',
+          skill_point_label: '技能点',
+          core_box_label: 'Core 箱子',
+          hero_resource_head: '资源',
+          hero_total_head: '总需求',
+          hero_breakdown_head: '拆分',
+          level_zero: '0 / 未开启',
+          level_prefix: '殿堂 ',
+          destiny_prefix: '飞 ',
+          hero_count_suffix: ' 个',
+          no_next: '已是最高殿堂等级。',
+          data_fail: '数据读取失败，请通过本地服务器打开本页。',
+          requirement_none: '无',
+          stellar: '星碎 / 蓝碎 / 印痕',
+          essence: '意识精华',
+          aurora: '光玉',
+          spiritvein: '灵碎',
+          crystal_k: '时空结晶（K）',
+          crystal_plain: '时空结晶',
+          core_boxes: 'Core of Origin 箱子',
+          core_shards: 'Core of Origin 碎片',
+          sublimation_k: 'Essence Sublimation（K）',
+          prereq: '前置',
+          upgrade: '升满',
+          trans: '普通英雄转时空',
+          e9: 'E5 -> E9',
+          root: 'E9 -> 根源 120',
+          fly: '飞升段',
+          skills: '主动/被动1/被动2/被动3 各 4 点',
+          boxes: '8 箱，每箱 50 碎片',
+          total: '合计'
+        },
+        en: {
+          title: 'Destiny / Temple Calculator · ShinE',
+          nav_home: 'Home',
+          nav_calculators: 'Calculators',
+          lang_toggle_en: 'EN',
+          lang_toggle_zh: '中文',
+          eyebrow: 'Destiny Ledger',
+          page_title: 'Destiny / Temple Calculator',
+          page_desc: 'Select a current Temple level to calculate the next upgrade, or calculate one hero from E5 to a target Destiny level.',
+          stamp_text: 'The 5,000K Crystal cost to convert a regular hero is included.',
+          temple_title: 'Next Temple Resources',
+          temple_desc: 'From current level to next level, including prerequisite delta, max-out delta, and new Transcendence hero conversion cost.',
+          temple_level_label: 'Current Temple level',
+          current_temple_label: 'Current Temple',
+          next_temple_label: 'Next Temple',
+          divine_power_formula: 'Power level +',
+          new_hero_label: 'New heroes',
+          target_req_label: 'Requirement',
+          temple_resource_head: 'Resource',
+          temple_total_head: 'Needed now',
+          temple_breakdown_head: 'Breakdown',
+          hero_title: 'Single Hero E5 to Destiny',
+          hero_desc: 'Includes E9, root 120, Core of Origin, skill points, Transcendence conversion, and Destiny stage costs.',
+          hero_destiny_label: 'Target Destiny level',
+          hero_target_label: 'Target',
+          skill_point_label: 'Skill points',
+          core_box_label: 'Core boxes',
+          hero_resource_head: 'Resource',
+          hero_total_head: 'Total needed',
+          hero_breakdown_head: 'Breakdown',
+          level_zero: '0 / Not opened',
+          level_prefix: 'Temple ',
+          destiny_prefix: 'Destiny ',
+          hero_count_suffix: '',
+          no_next: 'Already at max Temple level.',
+          data_fail: 'Failed to load data. Open this page through the local server.',
+          requirement_none: 'None',
+          stellar: 'Stellar Shards',
+          essence: 'Spiritual Essence',
+          aurora: 'Aurora Gem',
+          spiritvein: 'Scattered Spiritvein Shard',
+          crystal_k: 'Crystal of Transcendence (K)',
+          crystal_plain: 'Crystal of Transcendence',
+          core_boxes: 'Core of Origin Boxes',
+          core_shards: 'Core of Origin Shards',
+          sublimation_k: 'Essence Sublimation (K)',
+          prereq: 'Prerequisite',
+          upgrade: 'Max-out',
+          trans: 'Regular hero to Transcendence',
+          e9: 'E5 -> E9',
+          root: 'E9 -> Root 120',
+          fly: 'Destiny stages',
+          skills: '4 active / 4 passive 1 / 4 passive 2 / 4 passive 3',
+          boxes: '8 boxes, 50 shards each',
+          total: 'Total'
+        }
+      };
+      const refs = {
+        nav_home: document.getElementById('navHome'),
+        nav_calculators: document.getElementById('navCalculators'),
+        eyebrow: document.getElementById('eyebrow'),
+        page_title: document.getElementById('pageTitle'),
+        page_desc: document.getElementById('pageDesc'),
+        stamp_text: document.getElementById('stampText'),
+        temple_title: document.getElementById('templeTitle'),
+        temple_desc: document.getElementById('templeDesc'),
+        temple_level_label: document.getElementById('templeLevelLabel').firstChild,
+        current_temple_label: document.getElementById('currentTempleLabel'),
+        next_temple_label: document.getElementById('nextTempleLabel'),
+        new_hero_label: document.getElementById('newHeroLabel'),
+        target_req_label: document.getElementById('targetReqLabel'),
+        temple_resource_head: document.getElementById('templeResourceHead'),
+        temple_total_head: document.getElementById('templeTotalHead'),
+        temple_breakdown_head: document.getElementById('templeBreakdownHead'),
+        hero_title: document.getElementById('heroTitle'),
+        hero_desc: document.getElementById('heroDesc'),
+        hero_destiny_label: document.getElementById('heroDestinyLabel').firstChild,
+        hero_target_label: document.getElementById('heroTargetLabel'),
+        skill_point_label: document.getElementById('skillPointLabel'),
+        core_box_label: document.getElementById('coreBoxLabel'),
+        hero_resource_head: document.getElementById('heroResourceHead'),
+        hero_total_head: document.getElementById('heroTotalHead'),
+        hero_breakdown_head: document.getElementById('heroBreakdownHead')
+      };
+      const langToggle = document.getElementById('langToggle');
+      const templeLevelSelect = document.getElementById('templeLevel');
+      const heroDestinySelect = document.getElementById('heroDestiny');
+      const templeRows = document.getElementById('templeRows');
+      const heroRows = document.getElementById('heroRows');
+      const templeStatus = document.getElementById('templeStatus');
+      const heroStatus = document.getElementById('heroStatus');
+      const currentTempleValue = document.getElementById('currentTempleValue');
+      const currentTempleDetail = document.getElementById('currentTempleDetail');
+      const nextTempleValue = document.getElementById('nextTempleValue');
+      const nextTempleDetail = document.getElementById('nextTempleDetail');
+      const newHeroValue = document.getElementById('newHeroValue');
+      const targetReqValue = document.getElementById('targetReqValue');
+      const heroTargetValue = document.getElementById('heroTargetValue');
+      let templeData = [];
+      let currentLang = (localStorage.getItem('flipgame_lang') || '').toLowerCase();
+      if (currentLang !== 'zh' && currentLang !== 'en') {
+        currentLang = ((navigator.language || '').toLowerCase().startsWith('zh')) ? 'zh' : 'en';
+      }
+      function t(key) {
+        return (I18N[currentLang] && I18N[currentLang][key]) || I18N.zh[key] || '';
+      }
+      function formatInt(value) {
+        return Math.round(value).toLocaleString(currentLang === 'zh' ? 'zh-CN' : 'en-US');
+      }
+      function formatK(value) {
+        return `${formatInt(value)}K`;
+      }
+      function getLevel(level) {
+        return templeData.find((item) => item.templeLevel === level) || null;
+      }
+      function formatTempleLabel(level) {
+        return level === 0 ? t('level_zero') : `${t('level_prefix')}${level}`;
+      }
+      function formatDivinePower(item) {
+        const bonus = item ? Number(item.divinePowerBonus || 0) : 0;
+        return `${t('divine_power_formula')}${bonus}`;
+      }
+      function cumulativeFlyCost(targetLevel) {
+        return FLY_COSTS.slice(0, targetLevel).reduce((sum, item) => ({
+          auroraGem: sum.auroraGem + item.auroraGem,
+          scatteredSpiritveinShard: sum.scatteredSpiritveinShard + item.scatteredSpiritveinShard,
+          crystalOfTranscendenceK: sum.crystalOfTranscendenceK + item.crystalOfTranscendenceK,
+          stellarShards: sum.stellarShards + item.stellarShards
+        }), { auroraGem: 0, scatteredSpiritveinShard: 0, crystalOfTranscendenceK: 0, stellarShards: 0 });
+      }
+      function resourceRow(label, value, detail, isK) {
+        const display = isK ? formatK(value) : formatInt(value);
+        return `<tr><td>${label}</td><td class="value">${display}</td><td class="small">${detail}</td></tr>`;
+      }
+      function formatRequirement(requirements) {
+        if (!requirements || !requirements.length) return t('requirement_none');
+        return requirements.map((item) => `${item.count}${currentLang === 'zh' ? '飞' : 'D'}${item.destinyLevel}`);
+      }
+      function setRequirement(requirements) {
+        const formatted = formatRequirement(requirements);
+        if (!Array.isArray(formatted)) {
+          targetReqValue.textContent = formatted;
+          return;
+        }
+        targetReqValue.innerHTML = formatted.map((text) => `<span class="requirement-chip">${text}</span>`).join('');
+      }
+      function setStaticText() {
+        document.title = t('title');
+        document.documentElement.lang = currentLang === 'zh' ? 'zh-Hans' : 'en';
+        Object.keys(refs).forEach((key) => {
+          if (refs[key]) refs[key].textContent = t(key);
+        });
+        if (langToggle) langToggle.textContent = currentLang === 'zh' ? t('lang_toggle_en') : t('lang_toggle_zh');
+        document.getElementById('stampValue').textContent = '5,000K';
+      }
+      function populateSelects() {
+        templeLevelSelect.innerHTML = '';
+        const maxCurrent = Math.max(0, templeData.length - 1);
+        for (let level = 0; level <= maxCurrent; level += 1) {
+          const option = document.createElement('option');
+          option.value = String(level);
+          option.textContent = level === 0 ? t('level_zero') : `${t('level_prefix')}${level}`;
+          templeLevelSelect.appendChild(option);
+        }
+        heroDestinySelect.innerHTML = '';
+        FLY_COSTS.forEach((item) => {
+          const option = document.createElement('option');
+          option.value = String(item.level);
+          option.textContent = `${t('destiny_prefix')}${item.level} · ${item.title}`;
+          heroDestinySelect.appendChild(option);
+        });
+        templeLevelSelect.value = String(Math.min(16, maxCurrent));
+        heroDestinySelect.value = '6';
+      }
+      function renderTemple() {
+        if (!templeData.length) return;
+        const currentLevel = Number(templeLevelSelect.value || 0);
+        const next = getLevel(currentLevel + 1);
+        const current = getLevel(currentLevel);
+        currentTempleValue.textContent = formatTempleLabel(currentLevel);
+        currentTempleDetail.textContent = formatDivinePower(current);
+        if (!next) {
+          templeRows.innerHTML = '';
+          nextTempleValue.textContent = '-';
+          nextTempleDetail.textContent = '-';
+          newHeroValue.textContent = '-';
+          targetReqValue.textContent = '-';
+          templeStatus.textContent = t('no_next');
+          return;
+        }
+        templeStatus.textContent = '';
+        const currentPrereq = current ? current.prerequisites : { stellarShards: 0, spiritualEssence: 0 };
+        const currentResources = current ? current.resources : {};
+        const currentHeroCount = current ? current.heroCount : 0;
+        const prereqStellar = Math.max(0, next.prerequisites.stellarShards - currentPrereq.stellarShards);
+        const prereqEssence = Math.max(0, next.prerequisites.spiritualEssence - currentPrereq.spiritualEssence);
+        const upgradeStellar = next.resources.stellarShards.total - ((currentResources.stellarShards && currentResources.stellarShards.total) || 0);
+        const upgradeAurora = next.resources.auroraGem.total - ((currentResources.auroraGem && currentResources.auroraGem.total) || 0);
+        const upgradeSpiritvein = next.resources.scatteredSpiritveinShard.total - ((currentResources.scatteredSpiritveinShard && currentResources.scatteredSpiritveinShard.total) || 0);
+        const upgradeCrystalK = next.resources.crystalOfTranscendenceK.total - ((currentResources.crystalOfTranscendenceK && currentResources.crystalOfTranscendenceK.total) || 0);
+        const newHeroes = Math.max(0, next.heroCount - currentHeroCount);
+        const transCrystalK = newHeroes * HERO_BASE.transcendenceCrystalK;
+        nextTempleValue.textContent = formatTempleLabel(next.templeLevel);
+        nextTempleDetail.textContent = formatDivinePower(next);
+        newHeroValue.textContent = `${formatInt(newHeroes)}${t('hero_count_suffix')}`;
+        setRequirement(next.upgradeRequirements);
+        templeRows.innerHTML = [
+          resourceRow(t('stellar'), prereqStellar + upgradeStellar, `${t('prereq')} ${formatInt(prereqStellar)} + ${t('upgrade')} ${formatInt(upgradeStellar)}`),
+          resourceRow(t('essence'), prereqEssence, `${t('prereq')} ${formatInt(prereqEssence)}`),
+          resourceRow(t('aurora'), upgradeAurora, `${t('upgrade')} ${formatInt(upgradeAurora)}`),
+          resourceRow(t('spiritvein'), upgradeSpiritvein, `${t('upgrade')} ${formatInt(upgradeSpiritvein)}`),
+          resourceRow(t('crystal_k'), upgradeCrystalK + transCrystalK, `${t('upgrade')} ${formatK(upgradeCrystalK)} + ${t('trans')} ${formatK(transCrystalK)}`, true)
+        ].join('');
+      }
+      function renderHero() {
+        const target = Number(heroDestinySelect.value || 1);
+        const fly = cumulativeFlyCost(target);
+        heroStatus.textContent = '';
+        heroTargetValue.textContent = `${t('destiny_prefix')}${target}`;
+        const baseStellar = HERO_BASE.e9Stellar + HERO_BASE.rootStellar;
+        heroRows.innerHTML = [
+          resourceRow(t('stellar'), baseStellar + fly.stellarShards, `${t('e9')} ${formatInt(HERO_BASE.e9Stellar)} + ${t('root')} ${formatInt(HERO_BASE.rootStellar)} + ${t('fly')} ${formatInt(fly.stellarShards)}`),
+          resourceRow(t('essence'), HERO_BASE.rootEssence, `${t('root')} ${formatInt(HERO_BASE.rootEssence)}`),
+          resourceRow(t('core_boxes'), HERO_BASE.coreBoxes, t('boxes')),
+          resourceRow(t('core_shards'), HERO_BASE.coreShards, `${t('total')} ${formatInt(HERO_BASE.coreShards)}`),
+          resourceRow(t('sublimation_k'), HERO_BASE.essenceSublimationK, t('skills'), true),
+          resourceRow(t('aurora'), fly.auroraGem, `${t('fly')} ${formatInt(fly.auroraGem)}`),
+          resourceRow(t('spiritvein'), fly.scatteredSpiritveinShard, `${t('fly')} ${formatInt(fly.scatteredSpiritveinShard)}`),
+          resourceRow(t('crystal_k'), HERO_BASE.transcendenceCrystalK + fly.crystalOfTranscendenceK, `${t('trans')} ${formatK(HERO_BASE.transcendenceCrystalK)} + ${t('fly')} ${formatK(fly.crystalOfTranscendenceK)}`, true)
+        ].join('');
+      }
+      function rerender() {
+        setStaticText();
+        if (templeData.length) {
+          const templeValue = templeLevelSelect.value || '0';
+          const heroValue = heroDestinySelect.value || '6';
+          populateSelects();
+          templeLevelSelect.value = templeValue;
+          heroDestinySelect.value = heroValue;
+          renderTemple();
+          renderHero();
+        }
+      }
+      templeLevelSelect.addEventListener('change', renderTemple);
+      heroDestinySelect.addEventListener('change', renderHero);
+      if (langToggle) {
+        langToggle.addEventListener('click', () => {
+          currentLang = currentLang === 'zh' ? 'en' : 'zh';
+          localStorage.setItem('flipgame_lang', currentLang);
+          rerender();
+        });
+      }
+      setStaticText();
+      fetch('destiny_temple_levels.json')
+        .then((response) => {
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          return response.json();
+        })
+        .then((data) => {
+          templeData = Array.isArray(data.levels) ? data.levels : [];
+          populateSelects();
+          renderTemple();
+          renderHero();
+        })
+        .catch(() => {
+          templeStatus.textContent = t('data_fail');
+          heroStatus.textContent = t('data_fail');
+        });
+    })();
+  </script>
+</body>
+</html>
