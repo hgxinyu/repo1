@@ -378,8 +378,12 @@
     .calculator-option strong {
       font-size: 16px;
       line-height: 1.25;
+      display: inline-flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
     }
-    .calculator-option span {
+    .calculator-option .option-desc {
       color: var(--muted);
       font-size: 13px;
       line-height: 1.45;
@@ -610,7 +614,7 @@
   <div class="wrap">
     <header>
       <h1 id="pageTitle">放置工具集</h1>
-      <p id="pageDesc">自用的放置类工具合集，涵盖九宫格翻牌、核心换算、星钻计算和凝魂升格等功能。</p>
+      <p id="pageDesc">自用的放置类工具合集，涵盖九宫格翻牌、放置计算器、攻略图片和 AI 问答等功能。</p>
     </header>
 
     <nav class="card-grid" aria-label="工具导航" id="navGrid">
@@ -627,13 +631,9 @@
         <span class="subtitle" id="cardFlipSub">模拟翻牌流程，记录并计算最佳组合。</span>
       </a>
       <button class="card-link card-button" id="calculatorCard" type="button" aria-haspopup="dialog" aria-controls="calculatorPanel">
-        <span class="title" id="cardCoreTitle">核心/殿堂/飞升 计算</span>
-        <span class="subtitle" id="cardCoreSub">选择核心换算或殿堂/飞升资源计算器。</span>
+        <span class="title" id="cardCoreTitle">放置计算器</span>
+        <span class="subtitle" id="cardCoreSub">统一进入星钻交易、核心、殿堂飞升、凝魂魂力和远征积分。</span>
       </button>
-      <a class="card-link" href="StarDiamondCalculator.html">
-        <span class="title" id="cardStarTitle">星钻计算器</span>
-        <span class="subtitle" id="cardStarSub">按比例换算金额与赠送额度。</span>
-      </a>
       <a class="card-link" href="GuideImages.html">
         <span class="title" id="cardHiddenTitle">攻略图片</span>
         <span class="subtitle" id="cardHiddenSub">集中查看各类攻略图，持续更新。</span>
@@ -642,14 +642,6 @@
         <span class="title" id="cardRecruitTitle">公会招募</span>
         <span class="subtitle" id="cardRecruitSub">欢迎加入iOS 国风，点击填写信息或申请公会ID 31939。公会免费送 VIP。</span>
       </button>
-      <a class="card-link" href="SoulAscensionCalculator.html">
-        <span class="title"><span id="cardSoulTitle">凝魂升格 & 魂力计算</span><span class="vip-badge member-badge" data-member-badge>会员</span></span>
-        <span class="subtitle" id="cardSoulSub">注册会员可用，检验属性区间并估算凝魂次数与魂力值。</span>
-      </a>
-      <a class="card-link" href="ExpeditionCalculator.html">
-        <span class="title"><span id="cardExpeditionTitle">远征积分计算器</span><span class="vip-badge member-badge" data-member-badge>会员</span></span>
-        <span class="subtitle" id="cardExpeditionSub">注册会员可用，按层数和剩余血量快速估算剩余积分（万亿）。</span>
-      </a>
       <a class="card-link" href="AwakeningRushSimulator.html">
         <span class="title"><span id="cardAwakeningTitle">觉醒冲榜模拟器</span><span class="vip-badge" data-vip-badge>VIP</span></span>
         <span class="subtitle" id="cardAwakeningSub">VIP 专属，按绑钻数量随机模拟冲榜分数与 A- 以上保留数量。</span>
@@ -714,17 +706,29 @@
   <section class="calculator-panel" id="calculatorPanel" aria-hidden="true" role="dialog" aria-labelledby="calculatorPanelTitle">
     <button class="close-btn" type="button" aria-label="关闭计算器选择" id="calculatorClose">×</button>
     <header>
-      <h2 id="calculatorPanelTitle">选择计算器</h2>
-      <p id="calculatorPanelDesc">根据当前要算的问题进入对应页面。</p>
+      <h2 id="calculatorPanelTitle">放置计算器</h2>
+      <p id="calculatorPanelDesc">根据当前要算的问题进入对应页面，会员页面仍按原权限检查。</p>
     </header>
     <div class="calculator-options">
+      <a class="calculator-option" href="StarDiamondCalculator.html">
+        <strong id="calculatorStarTitle">星钻交易计算器</strong>
+        <span class="option-desc" id="calculatorStarDesc">按星钻数量和交易比例，换算金额与赠送额度。</span>
+      </a>
       <a class="calculator-option" href="CoreCalculator.html">
         <strong id="calculatorCoreTitle">核心计算器</strong>
-        <span id="calculatorCoreDesc">输入 E9、飞升阶段和额外星碎，估算核心需求。</span>
+        <span class="option-desc" id="calculatorCoreDesc">输入 E9、飞升阶段和额外星碎，估算核心需求。</span>
       </a>
       <a class="calculator-option" href="DestinyCalculator.html">
         <strong id="calculatorDestinyTitle">殿堂 / 飞升计算器</strong>
-        <span id="calculatorDestinyDesc">计算下一殿堂资源，或单英雄 E5 到目标飞升等级。</span>
+        <span class="option-desc" id="calculatorDestinyDesc">计算下一殿堂资源，或单英雄 E5 到目标飞升等级。</span>
+      </a>
+      <a class="calculator-option" href="SoulAscensionCalculator.html">
+        <strong><span id="calculatorSoulTitle">凝魂魂力计算器</span><span class="vip-badge member-badge" data-member-badge>会员</span></strong>
+        <span class="option-desc" id="calculatorSoulDesc">注册会员可用，检验属性区间并估算凝魂次数与魂力值。</span>
+      </a>
+      <a class="calculator-option" href="ExpeditionCalculator.html">
+        <strong><span id="calculatorExpeditionTitle">远征积分计算器</span><span class="vip-badge member-badge" data-member-badge>会员</span></strong>
+        <span class="option-desc" id="calculatorExpeditionDesc">注册会员可用，按层数和剩余血量快速估算剩余积分（万亿）。</span>
       </a>
     </div>
   </section>
@@ -813,16 +817,22 @@
       const calculatorClose = document.getElementById('calculatorClose');
       const calculatorPanelTitle = document.getElementById('calculatorPanelTitle');
       const calculatorPanelDesc = document.getElementById('calculatorPanelDesc');
+      const calculatorStarTitle = document.getElementById('calculatorStarTitle');
+      const calculatorStarDesc = document.getElementById('calculatorStarDesc');
       const calculatorCoreTitle = document.getElementById('calculatorCoreTitle');
       const calculatorCoreDesc = document.getElementById('calculatorCoreDesc');
       const calculatorDestinyTitle = document.getElementById('calculatorDestinyTitle');
       const calculatorDestinyDesc = document.getElementById('calculatorDestinyDesc');
+      const calculatorSoulTitle = document.getElementById('calculatorSoulTitle');
+      const calculatorSoulDesc = document.getElementById('calculatorSoulDesc');
+      const calculatorExpeditionTitle = document.getElementById('calculatorExpeditionTitle');
+      const calculatorExpeditionDesc = document.getElementById('calculatorExpeditionDesc');
 
       const I18N = {
         zh: {
           title: '放置工具集 · ShinE',
           page_title: '放置工具集',
-          page_desc: '自用的放置类工具合集，涵盖九宫格翻牌、核心换算、星钻计算和凝魂升格等功能。',
+          page_desc: '自用的放置类工具合集，涵盖九宫格翻牌、放置计算器、攻略图片和 AI 问答等功能。',
           help_link: '安装APP帮助',
           login_link: '登录',
           register_link: '注册',
@@ -837,9 +847,9 @@
           nav_label: '工具导航',
           card_flip_title: '九宫格翻牌',
           card_flip_sub: '模拟翻牌流程，记录并计算最佳组合。',
-          card_core_title: '核心/殿堂/飞升 计算',
-          card_core_sub: '选择核心换算或殿堂/飞升资源计算器。',
-          card_star_title: '星钻计算器',
+          card_core_title: '放置计算器',
+          card_core_sub: '统一进入星钻交易、核心、殿堂飞升、凝魂魂力和远征积分。',
+          card_star_title: '星钻交易计算器',
           card_star_sub: '按比例换算金额与赠送额度。',
           card_hidden_title: '攻略图片',
           card_hidden_sub: '集中查看各类攻略图，持续更新。',
@@ -847,7 +857,7 @@
           card_ai_sub: 'VIP 专属，基于公开工具文档回答凝魂、远征和权限问题。',
           card_discord_title: '放置奇兵兑换码',
           card_discord_sub: '及时更新放置奇兵兑换码。',
-          card_soul_title: '凝魂升格 & 魂力计算',
+          card_soul_title: '凝魂魂力计算器',
           card_soul_sub: '注册会员可用，检验属性区间并估算凝魂次数与魂力值。',
           card_expedition_title: '远征积分计算器',
           card_expedition_sub: '注册会员可用，按层数和剩余血量快速估算剩余积分（万亿）。',
@@ -855,12 +865,18 @@
           card_awakening_sub: 'VIP 专属，按绑钻数量随机模拟冲榜分数与 A- 以上保留数量。',
           card_recruit_title: '公会招募',
           card_recruit_sub: '欢迎加入iOS 国风，点击填写信息或申请公会ID 31939。公会免费送 VIP。',
-          calculator_panel_title: '选择计算器',
-          calculator_panel_desc: '根据当前要算的问题进入对应页面。',
+          calculator_panel_title: '放置计算器',
+          calculator_panel_desc: '根据当前要算的问题进入对应页面，会员页面仍按原权限检查。',
+          calculator_star_title: '星钻交易计算器',
+          calculator_star_desc: '按星钻数量和交易比例，换算金额与赠送额度。',
           calculator_core_title: '核心计算器',
           calculator_core_desc: '输入 E9、飞升阶段和额外星碎，估算核心需求。',
           calculator_destiny_title: '殿堂 / 飞升计算器',
           calculator_destiny_desc: '计算下一殿堂资源，或单英雄 E5 到目标飞升等级。',
+          calculator_soul_title: '凝魂魂力计算器',
+          calculator_soul_desc: '注册会员可用，检验属性区间并估算凝魂次数与魂力值。',
+          calculator_expedition_title: '远征积分计算器',
+          calculator_expedition_desc: '注册会员可用，按层数和剩余血量快速估算剩余积分（万亿）。',
           calculator_close_label: '关闭计算器选择',
           feedback_toggle: '反馈建议',
           feedback_title: '反馈中心',
@@ -897,7 +913,7 @@
         en: {
           title: 'Idle Tools · ShinE',
           page_title: 'Idle Tools',
-          page_desc: 'A personal collection of idle tools: flip game, core converter, star diamond, and soul perfection/soul merge.',
+          page_desc: 'A personal collection of idle tools: flip game, idle calculator, guide images, and AI Q&A.',
           help_link: 'PWA Guide',
           login_link: 'Login',
           register_link: 'Sign up',
@@ -912,9 +928,9 @@
           nav_label: 'Tool Navigation',
           card_flip_title: '3x3 Flip Cards',
           card_flip_sub: 'Simulate flips, track cards, and compute the best line.',
-          card_core_title: 'Core / Temple / Destiny Calculator',
-          card_core_sub: 'Choose core conversion or Destiny / Temple resource calculator.',
-          card_star_title: 'Star Diamond Calculator',
+          card_core_title: 'Idle Calculator',
+          card_core_sub: 'Open star diamond trading, core, Temple and Destiny, soul power, and expedition score tools.',
+          card_star_title: 'Star Diamond Trade Calculator',
           card_star_sub: 'Convert amounts and bonus ratios.',
           card_hidden_title: 'Guide Images',
           card_hidden_sub: 'Browse strategy images in one place.',
@@ -922,20 +938,26 @@
           card_ai_sub: 'VIP only. Ask questions about public tool docs, including soul, expedition, and access rules.',
           card_discord_title: 'Idle Heroes Codes',
           card_discord_sub: 'Timely updates for Idle Heroes codes.',
-          card_soul_title: 'Soul Perfection & Merge + Soul Power Calculator',
+          card_soul_title: 'Soul Power Calculator',
           card_soul_sub: 'Registered members can use it to check stat ranges and estimate soul perfection count and soul power.',
-          card_expedition_title: 'Start Expedition Score Calculator',
+          card_expedition_title: 'Star Expedition Score Calculator',
           card_expedition_sub: 'Registered members can estimate remaining score by floor and remaining HP (trillion).',
           card_awakening_title: 'Awakening Rush Simulator',
           card_awakening_sub: 'VIP only. Simulate score and kept A-+ copies from bound diamonds.',
           card_recruit_title: 'Guild Recruitment',
           card_recruit_sub: 'Join iOS Guofeng. Submit your info or apply to Guild ID 31939. Guild members get VIP for free.',
-          calculator_panel_title: 'Choose a calculator',
-          calculator_panel_desc: 'Open the page that matches the resource question.',
+          calculator_panel_title: 'Idle Calculator',
+          calculator_panel_desc: 'Open the page that matches the resource question. Member pages keep their original access checks.',
+          calculator_star_title: 'Star Diamond Trade Calculator',
+          calculator_star_desc: 'Convert star diamonds, trading ratio, amount, and bonus value.',
           calculator_core_title: 'Core Calculator',
           calculator_core_desc: 'Estimate core needs from E9, Destiny stages, and extra Stellar Shards.',
           calculator_destiny_title: 'Destiny / Temple Calculator',
           calculator_destiny_desc: 'Calculate next Temple resources or one hero from E5 to target Destiny.',
+          calculator_soul_title: 'Soul Power Calculator',
+          calculator_soul_desc: 'Registered members can check stat ranges and estimate soul perfection count and soul power.',
+          calculator_expedition_title: 'Star Expedition Score Calculator',
+          calculator_expedition_desc: 'Registered members can estimate remaining score by floor and remaining HP (trillion).',
           calculator_close_label: 'Close calculator chooser',
           feedback_toggle: 'Feedback',
           feedback_title: 'Feedback Center',
@@ -1023,10 +1045,16 @@
         if (cardRecruitSub) cardRecruitSub.textContent = t('card_recruit_sub');
         if (calculatorPanelTitle) calculatorPanelTitle.textContent = t('calculator_panel_title');
         if (calculatorPanelDesc) calculatorPanelDesc.textContent = t('calculator_panel_desc');
+        if (calculatorStarTitle) calculatorStarTitle.textContent = t('calculator_star_title');
+        if (calculatorStarDesc) calculatorStarDesc.textContent = t('calculator_star_desc');
         if (calculatorCoreTitle) calculatorCoreTitle.textContent = t('calculator_core_title');
         if (calculatorCoreDesc) calculatorCoreDesc.textContent = t('calculator_core_desc');
         if (calculatorDestinyTitle) calculatorDestinyTitle.textContent = t('calculator_destiny_title');
         if (calculatorDestinyDesc) calculatorDestinyDesc.textContent = t('calculator_destiny_desc');
+        if (calculatorSoulTitle) calculatorSoulTitle.textContent = t('calculator_soul_title');
+        if (calculatorSoulDesc) calculatorSoulDesc.textContent = t('calculator_soul_desc');
+        if (calculatorExpeditionTitle) calculatorExpeditionTitle.textContent = t('calculator_expedition_title');
+        if (calculatorExpeditionDesc) calculatorExpeditionDesc.textContent = t('calculator_expedition_desc');
         if (calculatorClose) calculatorClose.setAttribute('aria-label', t('calculator_close_label'));
         if (feedbackToggleText) feedbackToggleText.textContent = t('feedback_toggle');
         if (feedbackTitle) feedbackTitle.textContent = t('feedback_title');

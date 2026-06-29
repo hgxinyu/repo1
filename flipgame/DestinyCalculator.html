@@ -291,7 +291,7 @@
     <nav class="topbar" aria-label="页面导航">
       <span class="nav-links">
         <a href="index.html" id="navHome">回到主页</a>
-        <a href="Calculators.html" id="navCalculators">计算器入口</a>
+        <a href="Calculators.html" id="navCalculators">放置计算器</a>
       </span>
       <span class="langbar"><button id="langToggle" type="button">EN</button></span>
     </nav>
@@ -355,28 +355,18 @@
       <article class="panel">
         <div class="panel-head">
           <div>
-            <h2 id="heroTitle">单英雄 E5 到飞升</h2>
-            <p class="note" id="heroDesc">包含 E9、根源 120、Core of Origin、技能点、转时空英雄和飞升段资源。</p>
+            <h2 id="heroTitle">单英雄飞升计算</h2>
+            <p class="note" id="heroDesc">选择初始等级和目标飞升等级，计算剩余根源、核武、技能点、转时空英雄和飞升段资源。</p>
           </div>
         </div>
+        <label for="heroStart" id="heroStartLabel">
+          初始等级
+          <select id="heroStart"></select>
+        </label>
         <label for="heroDestiny" id="heroDestinyLabel">
           目标飞升等级
           <select id="heroDestiny"></select>
         </label>
-        <div class="summary">
-          <div class="metric">
-            <span id="heroTargetLabel">目标</span>
-            <strong id="heroTargetValue">-</strong>
-          </div>
-          <div class="metric">
-            <span id="skillPointLabel">技能点</span>
-            <strong id="skillPointValue">16</strong>
-          </div>
-          <div class="metric">
-            <span id="coreBoxLabel">Core 箱子</span>
-            <strong id="coreBoxValue">8</strong>
-          </div>
-        </div>
         <div class="table-wrap">
           <table>
             <thead>
@@ -413,16 +403,26 @@
         { level: 5, title: '聚星', auroraGem: 13, scatteredSpiritveinShard: 514800, crystalOfTranscendenceK: 1100, stellarShards: 2145000 },
         { level: 6, title: '超脱', auroraGem: 15, scatteredSpiritveinShard: 619300, crystalOfTranscendenceK: 1250, stellarShards: 2578950 }
       ];
+      const HERO_STARTS = [
+        { value: 'e5', labelKey: 'start_e5', completedE9: false, completedRoot: false, completedTrans: false, completedFly: 0 },
+        { value: 'e9', labelKey: 'start_e9', completedE9: true, completedRoot: false, completedTrans: false, completedFly: 0 },
+        { value: 'root120', labelKey: 'start_root120', completedE9: true, completedRoot: true, completedTrans: false, completedFly: 0 },
+        { value: 'fly1', labelKey: 'start_fly1', completedE9: true, completedRoot: true, completedTrans: true, completedFly: 1 },
+        { value: 'fly2', labelKey: 'start_fly2', completedE9: true, completedRoot: true, completedTrans: true, completedFly: 2 },
+        { value: 'fly3', labelKey: 'start_fly3', completedE9: true, completedRoot: true, completedTrans: true, completedFly: 3 },
+        { value: 'fly4', labelKey: 'start_fly4', completedE9: true, completedRoot: true, completedTrans: true, completedFly: 4 },
+        { value: 'fly5', labelKey: 'start_fly5', completedE9: true, completedRoot: true, completedTrans: true, completedFly: 5 }
+      ];
       const I18N = {
         zh: {
           title: '殿堂 / 飞升计算器 · ShinE',
           nav_home: '回到主页',
-          nav_calculators: '计算器入口',
+          nav_calculators: '放置计算器',
           lang_toggle_en: 'EN',
           lang_toggle_zh: '中文',
           eyebrow: 'Destiny Ledger',
           page_title: '殿堂 / 飞升计算器',
-          page_desc: '选择当前殿堂等级查看升到下一殿堂的总资源，也可计算单个英雄从 E5 到指定飞升等级的资源。',
+          page_desc: '选择当前殿堂等级查看升到下一殿堂的总资源，也可按初始等级计算单个英雄到指定飞升等级的剩余资源。',
           stamp_text: '普通英雄转时空英雄的时空结晶会计入结果。',
           temple_title: '下一殿堂资源',
           temple_desc: '当前等级到下一等级，包含前置差值、升满差值和新增时空英雄转换成本。',
@@ -435,15 +435,21 @@
           temple_resource_head: '资源',
           temple_total_head: '本次需要',
           temple_breakdown_head: '拆分',
-          hero_title: '单英雄 E5 到飞升',
-          hero_desc: '包含 E9、根源 120、Core of Origin、技能点、转时空英雄和飞升段资源。',
+          hero_title: '单英雄飞升计算',
+          hero_desc: '选择初始等级和目标飞升等级，计算剩余根源、核武、技能点、转时空英雄和飞升段资源。',
+          hero_start_label: '初始等级',
           hero_destiny_label: '目标飞升等级',
-          hero_target_label: '目标',
-          skill_point_label: '技能点',
-          core_box_label: 'Core 箱子',
           hero_resource_head: '资源',
           hero_total_head: '总需求',
           hero_breakdown_head: '拆分',
+          start_e5: 'E5',
+          start_e9: 'E9',
+          start_root120: '根源 120 满',
+          start_fly1: '飞 1',
+          start_fly2: '飞 2',
+          start_fly3: '飞 3',
+          start_fly4: '飞 4',
+          start_fly5: '飞 5',
           level_zero: '0 / 未开启',
           level_prefix: '殿堂 ',
           destiny_prefix: '飞 ',
@@ -457,8 +463,7 @@
           spiritvein: '灵碎',
           crystal_k: '时空结晶（K）',
           crystal_plain: '时空结晶',
-          core_boxes: 'Core of Origin 箱子',
-          core_shards: 'Core of Origin 碎片',
+          core_boxes_shards: '核武箱子/碎片',
           sublimation_k: 'Essence Sublimation（K）',
           prereq: '前置',
           upgrade: '升满',
@@ -467,18 +472,19 @@
           root: 'E9 -> 根源 120',
           fly: '飞升段',
           skills: '主动/被动1/被动2/被动3 各 4 点',
-          boxes: '8 箱，每箱 50 碎片',
+          boxes_shards: '8 箱 / 400 碎片',
+          none_needed: '无需额外资源',
           total: '合计'
         },
         en: {
           title: 'Destiny / Temple Calculator · ShinE',
           nav_home: 'Home',
-          nav_calculators: 'Calculators',
+          nav_calculators: 'Idle Calculator',
           lang_toggle_en: 'EN',
           lang_toggle_zh: '中文',
           eyebrow: 'Destiny Ledger',
           page_title: 'Destiny / Temple Calculator',
-          page_desc: 'Select a current Temple level to calculate the next upgrade, or calculate one hero from E5 to a target Destiny level.',
+          page_desc: 'Select a current Temple level to calculate the next upgrade, or calculate one hero from a starting level to a target Destiny level.',
           stamp_text: 'The 5,000K Crystal cost to convert a regular hero is included.',
           temple_title: 'Next Temple Resources',
           temple_desc: 'From current level to next level, including prerequisite delta, max-out delta, and new Transcendence hero conversion cost.',
@@ -491,15 +497,21 @@
           temple_resource_head: 'Resource',
           temple_total_head: 'Needed now',
           temple_breakdown_head: 'Breakdown',
-          hero_title: 'Single Hero E5 to Destiny',
-          hero_desc: 'Includes E9, root 120, Core of Origin, skill points, Transcendence conversion, and Destiny stage costs.',
+          hero_title: 'Single Hero Destiny Calculator',
+          hero_desc: 'Choose a starting level and target Destiny level to calculate remaining root, Core, skill point, Transcendence conversion, and Destiny stage costs.',
+          hero_start_label: 'Starting level',
           hero_destiny_label: 'Target Destiny level',
-          hero_target_label: 'Target',
-          skill_point_label: 'Skill points',
-          core_box_label: 'Core boxes',
           hero_resource_head: 'Resource',
           hero_total_head: 'Total needed',
           hero_breakdown_head: 'Breakdown',
+          start_e5: 'E5',
+          start_e9: 'E9',
+          start_root120: 'Root 120 max',
+          start_fly1: 'Destiny 1',
+          start_fly2: 'Destiny 2',
+          start_fly3: 'Destiny 3',
+          start_fly4: 'Destiny 4',
+          start_fly5: 'Destiny 5',
           level_zero: '0 / Not opened',
           level_prefix: 'Temple ',
           destiny_prefix: 'Destiny ',
@@ -513,8 +525,7 @@
           spiritvein: 'Scattered Spiritvein Shard',
           crystal_k: 'Crystal of Transcendence (K)',
           crystal_plain: 'Crystal of Transcendence',
-          core_boxes: 'Core of Origin Boxes',
-          core_shards: 'Core of Origin Shards',
+          core_boxes_shards: 'Core boxes / shards',
           sublimation_k: 'Essence Sublimation (K)',
           prereq: 'Prerequisite',
           upgrade: 'Max-out',
@@ -523,7 +534,8 @@
           root: 'E9 -> Root 120',
           fly: 'Destiny stages',
           skills: '4 active / 4 passive 1 / 4 passive 2 / 4 passive 3',
-          boxes: '8 boxes, 50 shards each',
+          boxes_shards: '8 boxes / 400 shards',
+          none_needed: 'No extra resources',
           total: 'Total'
         }
       };
@@ -546,16 +558,15 @@
         temple_breakdown_head: document.getElementById('templeBreakdownHead'),
         hero_title: document.getElementById('heroTitle'),
         hero_desc: document.getElementById('heroDesc'),
+        hero_start_label: document.getElementById('heroStartLabel').firstChild,
         hero_destiny_label: document.getElementById('heroDestinyLabel').firstChild,
-        hero_target_label: document.getElementById('heroTargetLabel'),
-        skill_point_label: document.getElementById('skillPointLabel'),
-        core_box_label: document.getElementById('coreBoxLabel'),
         hero_resource_head: document.getElementById('heroResourceHead'),
         hero_total_head: document.getElementById('heroTotalHead'),
         hero_breakdown_head: document.getElementById('heroBreakdownHead')
       };
       const langToggle = document.getElementById('langToggle');
       const templeLevelSelect = document.getElementById('templeLevel');
+      const heroStartSelect = document.getElementById('heroStart');
       const heroDestinySelect = document.getElementById('heroDestiny');
       const templeRows = document.getElementById('templeRows');
       const heroRows = document.getElementById('heroRows');
@@ -567,7 +578,6 @@
       const nextTempleDetail = document.getElementById('nextTempleDetail');
       const newHeroValue = document.getElementById('newHeroValue');
       const targetReqValue = document.getElementById('targetReqValue');
-      const heroTargetValue = document.getElementById('heroTargetValue');
       let templeData = [];
       let currentLang = (localStorage.getItem('flipgame_lang') || '').toLowerCase();
       if (currentLang !== 'zh' && currentLang !== 'en') {
@@ -592,17 +602,32 @@
         const bonus = item ? Number(item.divinePowerBonus || 0) : 0;
         return `${t('divine_power_formula')}${bonus}`;
       }
-      function cumulativeFlyCost(targetLevel) {
-        return FLY_COSTS.slice(0, targetLevel).reduce((sum, item) => ({
+      function segmentFlyCost(fromCompletedLevel, targetLevel) {
+        if (targetLevel <= fromCompletedLevel) {
+          return { auroraGem: 0, scatteredSpiritveinShard: 0, crystalOfTranscendenceK: 0, stellarShards: 0 };
+        }
+        return FLY_COSTS.slice(fromCompletedLevel, targetLevel).reduce((sum, item) => ({
           auroraGem: sum.auroraGem + item.auroraGem,
           scatteredSpiritveinShard: sum.scatteredSpiritveinShard + item.scatteredSpiritveinShard,
           crystalOfTranscendenceK: sum.crystalOfTranscendenceK + item.crystalOfTranscendenceK,
           stellarShards: sum.stellarShards + item.stellarShards
         }), { auroraGem: 0, scatteredSpiritveinShard: 0, crystalOfTranscendenceK: 0, stellarShards: 0 });
       }
+      function getHeroStart(value) {
+        return HERO_STARTS.find((item) => item.value === value) || HERO_STARTS[0];
+      }
+      function formatHeroStart(value) {
+        return t(getHeroStart(value).labelKey);
+      }
       function resourceRow(label, value, detail, isK) {
         const display = isK ? formatK(value) : formatInt(value);
         return `<tr><td>${label}</td><td class="value">${display}</td><td class="small">${detail}</td></tr>`;
+      }
+      function resourceTextRow(label, valueText, detail) {
+        return `<tr><td>${label}</td><td class="value">${valueText}</td><td class="small">${detail}</td></tr>`;
+      }
+      function detailOrNone(parts) {
+        return parts.length ? parts.join(' + ') : t('none_needed');
       }
       function formatRequirement(requirements) {
         if (!requirements || !requirements.length) return t('requirement_none');
@@ -635,14 +660,30 @@
           templeLevelSelect.appendChild(option);
         }
         heroDestinySelect.innerHTML = '';
-        FLY_COSTS.forEach((item) => {
+        heroStartSelect.innerHTML = '';
+        HERO_STARTS.forEach((item) => {
+          const option = document.createElement('option');
+          option.value = item.value;
+          option.textContent = t(item.labelKey);
+          heroStartSelect.appendChild(option);
+        });
+        templeLevelSelect.value = String(Math.min(16, maxCurrent));
+        heroStartSelect.value = 'e5';
+        updateHeroTargetOptions('6');
+      }
+      function updateHeroTargetOptions(preferredValue) {
+        const start = getHeroStart(heroStartSelect.value);
+        const minTarget = Math.min(6, start.completedFly + 1);
+        const preferred = Number(preferredValue || heroDestinySelect.value || 6);
+        heroDestinySelect.innerHTML = '';
+        FLY_COSTS.filter((item) => item.level >= minTarget).forEach((item) => {
           const option = document.createElement('option');
           option.value = String(item.level);
           option.textContent = `${t('destiny_prefix')}${item.level} · ${item.title}`;
           heroDestinySelect.appendChild(option);
         });
-        templeLevelSelect.value = String(Math.min(16, maxCurrent));
-        heroDestinySelect.value = '6';
+        const nextValue = preferred >= minTarget ? Math.min(preferred, 6) : minTarget;
+        heroDestinySelect.value = String(nextValue);
       }
       function renderTemple() {
         if (!templeData.length) return;
@@ -685,35 +726,55 @@
         ].join('');
       }
       function renderHero() {
+        updateHeroTargetOptions(heroDestinySelect.value);
+        const start = getHeroStart(heroStartSelect.value);
         const target = Number(heroDestinySelect.value || 1);
-        const fly = cumulativeFlyCost(target);
+        const fly = segmentFlyCost(start.completedFly, target);
+        const e9Stellar = start.completedE9 ? 0 : HERO_BASE.e9Stellar;
+        const rootStellar = start.completedRoot ? 0 : HERO_BASE.rootStellar;
+        const rootEssence = start.completedRoot ? 0 : HERO_BASE.rootEssence;
+        const coreBoxes = start.completedRoot ? 0 : HERO_BASE.coreBoxes;
+        const coreShards = start.completedRoot ? 0 : HERO_BASE.coreShards;
+        const skillPoints = start.completedRoot ? 0 : HERO_BASE.skillPoints;
+        const essenceSublimationK = start.completedRoot ? 0 : HERO_BASE.essenceSublimationK;
+        const transCrystalK = start.completedTrans ? 0 : HERO_BASE.transcendenceCrystalK;
         heroStatus.textContent = '';
-        heroTargetValue.textContent = `${t('destiny_prefix')}${target}`;
-        const baseStellar = HERO_BASE.e9Stellar + HERO_BASE.rootStellar;
+        const stellarParts = [];
+        if (e9Stellar) stellarParts.push(`${t('e9')} ${formatInt(e9Stellar)}`);
+        if (rootStellar) stellarParts.push(`${t('root')} ${formatInt(rootStellar)}`);
+        if (fly.stellarShards) stellarParts.push(`${t('fly')} ${formatInt(fly.stellarShards)}`);
+        const crystalParts = [];
+        if (transCrystalK) crystalParts.push(`${t('trans')} ${formatK(transCrystalK)}`);
+        if (fly.crystalOfTranscendenceK) crystalParts.push(`${t('fly')} ${formatK(fly.crystalOfTranscendenceK)}`);
         heroRows.innerHTML = [
-          resourceRow(t('stellar'), baseStellar + fly.stellarShards, `${t('e9')} ${formatInt(HERO_BASE.e9Stellar)} + ${t('root')} ${formatInt(HERO_BASE.rootStellar)} + ${t('fly')} ${formatInt(fly.stellarShards)}`),
-          resourceRow(t('essence'), HERO_BASE.rootEssence, `${t('root')} ${formatInt(HERO_BASE.rootEssence)}`),
-          resourceRow(t('core_boxes'), HERO_BASE.coreBoxes, t('boxes')),
-          resourceRow(t('core_shards'), HERO_BASE.coreShards, `${t('total')} ${formatInt(HERO_BASE.coreShards)}`),
-          resourceRow(t('sublimation_k'), HERO_BASE.essenceSublimationK, t('skills'), true),
-          resourceRow(t('aurora'), fly.auroraGem, `${t('fly')} ${formatInt(fly.auroraGem)}`),
-          resourceRow(t('spiritvein'), fly.scatteredSpiritveinShard, `${t('fly')} ${formatInt(fly.scatteredSpiritveinShard)}`),
-          resourceRow(t('crystal_k'), HERO_BASE.transcendenceCrystalK + fly.crystalOfTranscendenceK, `${t('trans')} ${formatK(HERO_BASE.transcendenceCrystalK)} + ${t('fly')} ${formatK(fly.crystalOfTranscendenceK)}`, true)
+          resourceRow(t('stellar'), e9Stellar + rootStellar + fly.stellarShards, detailOrNone(stellarParts)),
+          resourceRow(t('essence'), rootEssence, rootEssence ? `${t('root')} ${formatInt(rootEssence)}` : t('none_needed')),
+          resourceTextRow(t('core_boxes_shards'), `${formatInt(coreBoxes)}/${formatInt(coreShards)}`, coreBoxes ? t('boxes_shards') : t('none_needed')),
+          resourceRow(t('sublimation_k'), essenceSublimationK, skillPoints ? t('skills') : t('none_needed'), true),
+          resourceRow(t('aurora'), fly.auroraGem, fly.auroraGem ? `${t('fly')} ${formatInt(fly.auroraGem)}` : t('none_needed')),
+          resourceRow(t('spiritvein'), fly.scatteredSpiritveinShard, fly.scatteredSpiritveinShard ? `${t('fly')} ${formatInt(fly.scatteredSpiritveinShard)}` : t('none_needed')),
+          resourceRow(t('crystal_k'), transCrystalK + fly.crystalOfTranscendenceK, detailOrNone(crystalParts), true)
         ].join('');
       }
       function rerender() {
         setStaticText();
         if (templeData.length) {
           const templeValue = templeLevelSelect.value || '0';
+          const startValue = heroStartSelect.value || 'e5';
           const heroValue = heroDestinySelect.value || '6';
           populateSelects();
           templeLevelSelect.value = templeValue;
-          heroDestinySelect.value = heroValue;
+          heroStartSelect.value = startValue;
+          updateHeroTargetOptions(heroValue);
           renderTemple();
           renderHero();
         }
       }
       templeLevelSelect.addEventListener('change', renderTemple);
+      heroStartSelect.addEventListener('change', () => {
+        updateHeroTargetOptions(heroDestinySelect.value);
+        renderHero();
+      });
       heroDestinySelect.addEventListener('change', renderHero);
       if (langToggle) {
         langToggle.addEventListener('click', () => {
