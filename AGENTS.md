@@ -50,6 +50,7 @@ When previewing locally, `index.html` shows a `Local Admin` account and Admin Po
 
 - Stage and production data are not separated yet. Treat data writes made while testing `stage` as writes to shared/live data unless the user confirms a separate data environment exists.
 - Soul calculator data source: `flipgame/soul_tiers.csv`.
+- Core / Temple / Destiny calculator documentation: `docs/core-calculator.md`. The calculator entry page is `flipgame/Calculators.html`; page implementations live in `flipgame/CoreCalculator.html` and `flipgame/DestinyCalculator.html`. Destiny Temple / Divine Power terminology lives in `IHassistant/knowledge/mechanics/destiny-temple.md`; the transcribed 1-30 level table lives in `flipgame/destiny_temple_levels.json`.
 - Expedition calculator data source: `flipgame/seboss_all.json`.
 - Guide images live under `flipgame/images/`.
 - Knowledge base images and source screenshots live under `IHassistant/knowledge/`.
@@ -92,3 +93,5 @@ When previewing locally, `index.html` shows a `Local Admin` account and Admin Po
 - Artifact shorthand: `万灵秘境` is `镜子`; `断罪之剪` is `剪刀`.
 - Damage formulas that mention `鹿角` default to extreme/deific tier 1 antlers' per-round damage increase coefficient. Earlier formula text saying `粉鹿角` is a typo and should be understood as `极鹿角`.
 - Hero action order is determined by final speed. When a hero acts, energy below 100 uses normal attack; energy at 100 or more uses active skill.
+- Destiny Temple terminology: `飞` = Destiny Level, `神能加成` = Divine Power Bonus, `神` = Divine Power Level, and `神能等级 = 飞升等级 + 神能加成`.
+- Destiny Temple resource aliases: `神玉/蓝玉` = Aurora Gem; `星碎/蓝碎/印痕` = Stellar Shards; `意识/意识精华/树精华` = Spiritual Essence; `灵碎/黄碎/黄玉` = Scattered Spiritvein Shard; `时晶/时空结晶/紫碎` = Crystal of Transcendence.
