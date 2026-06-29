@@ -1,7 +1,7 @@
 - Added `flipgame/Calculators.html` as the calculator entry page and `flipgame/DestinyCalculator.html` for Temple / Destiny resource calculations.
 - Updated the home calculator card to open an inline calculator chooser, while keeping the calculator entry page and original core conversion page available.
 - Destiny calculator now computes current Temple -> next Temple resources, includes 5,000K Crystal of Transcendence per newly required regular-to-Transcendence hero, and computes single-hero E5 -> target Destiny resources.
-- Added the extra E9 -> root-full entry gate: 8 Core of Origin boxes, 400 Core of Origin shards total, and 16 skill points requiring 720K Essence Sublimation total; split skill points as active/passive 1/passive 2/passive 3 with 4 points each.
+- Added the extra E9 -> root-full entry gate: 8 Core of Origin boxes, 400 Core of Origin shards total, and skill points written as 16/720K; split skill points as active/passive 1/passive 2/passive 3 with 4 points each.
 - Added ordinary E5 hero upgrade progression notes: E5 -> E9 blue shards, E9 -> root 120 resources from `genyuan.jpeg`, and root 120 -> Divine Power 6 costs.
 - Added `IHassistant/knowledge/mechanics/hero-upgrade-progression.md` and regenerated the IH knowledge index.
 - Added Destiny Temple / Divine Power terminology notes and transcribed the 1-30 level table to `flipgame/destiny_temple_levels.json` for future Core Calculator integration.

@@ -68,7 +68,7 @@ Divine Power Level = Destiny Level + Divine Power Bonus
 普通 E5 英雄升级链路：
 
 - E5 -> E9：当前按 `4,935,000` 蓝碎记录。
-- E9 -> 根源 120：`9,994,100` 印痕 + `1,248,120` 意识精华 + `8` 个核武箱子（每个 `50` 碎片，合计 `400` 碎片）+ 主动 / 被动 1 / 被动 2 / 被动 3 各 `4` 个技能点（合计 `16` 点；每点 `45K` Essence Sublimation，合计 `720K`）。
+- E9 -> 根源 120：`9,994,100` 印痕 + `1,248,120` 意识精华 + `8` 个核武箱子（每个 `50` 碎片，合计 `400` 碎片）+ 主动 / 被动 1 / 被动 2 / 被动 3 各 `4` 个技能点，技能点需求写作 `16/720K`。
 - 根源 120 -> 神六：`60` 光玉 + `2,400,536` 灵碎 + `5,030,000` 时空结晶 + `10,000,490` 星辰碎片。
 
 交叉校验：
@@ -79,7 +79,7 @@ Divine Power Level = Destiny Level + Divine Power Bonus
 
 这个结果等于 `flipgame/destiny_temple_levels.json` 中飞升殿堂 1 级的 `前置星碎`；根源 120 意识精华 `1,248,120` 等于飞升殿堂 1 级的 `前置意识`。
 
-核武和 Essence Sublimation 是额外进入飞升门槛，不在飞升殿堂截图的前置星碎 / 前置意识列里。
+核武和技能点是额外进入飞升门槛，不在飞升殿堂截图的前置星碎 / 前置意识列里。
 
 ## 殿堂 / 飞升计算器
 
@@ -89,7 +89,7 @@ Divine Power Level = Destiny Level + Divine Power Bonus
 
 - 殿堂 1-30 级数据读取 `flipgame/destiny_temple_levels.json`。
 - 单英雄飞 1-6 成本来自 `flipgame/images/飞升1.jpg`，已按表内数值写入页面脚本。
-- E5 -> E9、根源 120、核武、Essence Sublimation 口径记录在 `IHassistant/knowledge/mechanics/hero-upgrade-progression.md`。
+- E5 -> E9、根源 120、核武、技能点口径记录在 `IHassistant/knowledge/mechanics/hero-upgrade-progression.md`。
 
 下一殿堂计算：
 
