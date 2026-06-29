@@ -7,7 +7,7 @@
       "User confirmed: 飞 = Destiny; 神 = Divine Power Level; Divine Power Level = Destiny Level + Divine Power Bonus.",
       "Requirement rows are stored as Destiny requirements. actualDisplay is derived by adding divinePowerBonus.",
       "Temple level 1 prerequisites cross-check with ordinary hero progression: E9 stellar shards 4,935,000 + root level 120 imprints 9,994,100 = 14,929,100; root level 120 spiritual essence is 1,248,120.",
-      "User later added that entering the Destiny phase also requires 8 Core of Origin boxes (50 shards each, 400 shards total) and 16 skill points at 45K Essence Sublimation each (720K total). The 16 points are split as 4 active, 4 passive 1, 4 passive 2, and 4 passive 3. These are not represented in the screenshot prerequisite columns.",
+      "User later added that entering the Destiny phase also requires 8 Core of Origin boxes (50 shards each, 400 shards total) and skill points written as 16/720K. The 16 points are split as 4 active, 4 passive 1, 4 passive 2, and 4 passive 3. These are not represented in the screenshot prerequisite columns.",
       "First-row increase values are null because the screenshot starts from level 1 rather than level 0.",
       "Level 30 progressPercent is recorded as 100.00 by inference because the screenshot edge cuts off the final progress cell."
     ]
