@@ -290,16 +290,66 @@
       body { padding: 12px; }
       .hero,
       .layout,
-      .field-grid,
       .result {
         grid-template-columns: 1fr;
       }
       .totals { min-width: 0; }
     }
     @media (max-width: 520px) {
-      .swatches,
+      body { padding: 10px; }
+      .shell { gap: 10px; }
+      .hero,
+      .panel {
+        padding: 14px;
+      }
+      .hero {
+        gap: 12px;
+      }
+      .panel {
+        gap: 12px;
+      }
+      h1 {
+        font-size: 30px;
+      }
       .totals {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 6px;
+      }
+      .total-chip {
+        padding: 8px 7px;
+      }
+      .total-chip strong {
+        font-size: 18px;
+      }
+      .total-chip span {
+        font-size: 11px;
+        line-height: 1.25;
+      }
+      .field-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+      label {
+        gap: 4px;
+        font-size: 12px;
+      }
+      select {
+        min-height: 42px;
+        padding: 9px 8px;
+        font-size: 14px;
+      }
+      .swatches {
+        gap: 6px;
+      }
+      .swatch {
+        min-height: 44px;
+        gap: 5px;
+        padding: 6px 5px;
+        font-size: 13px;
+      }
+      .swatch::before {
+        width: 11px;
+        height: 11px;
       }
       .topbar a,
       .langbar button,
