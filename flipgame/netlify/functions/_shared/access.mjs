@@ -1,5 +1,5 @@
 import { getStore } from "@netlify/blobs";
-import { getUser } from "@netlify/identity";
+import { getUser, refreshSession } from "@netlify/identity";
 
 const USER_PREFIX = "users/";
 const ROLES = new Set(["pending", "free", "vip", "admin", "blocked"]);
@@ -67,6 +67,7 @@ export async function writeProfile(profile) {
 
 export async function currentUser() {
   try {
+    await refreshSession().catch(() => null);
     return await getUser();
   } catch (error) {
     return null;

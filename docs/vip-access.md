@@ -30,6 +30,7 @@ VIP 账号可额外访问觉醒冲榜模拟器和 AI玩放置
 - 用户从密码重置邮件链接返回站点后，会进入设置新密码页面；完成后用新密码登录。
 - 如果密码重置邮件默认跳回首页，首页会把 recovery token 转交给 `Login.html` 处理。
 - 首页、会员页、VIP 页和管理后台加载时会先尝试恢复 Netlify Identity session，再读取当前用户和 `/api/me` 权限。
+- 登录成功后，浏览器会把 Netlify Identity 的 `nf_jwt` / `nf_refresh` cookie 保持约 14 天；页面重新打开时会先从本地 Identity session 恢复这些 cookie，再调用 `/api/me`。
 - VIP 或管理员账号登录首页后，右上角账号按钮会显示醒目的 `VIP` 标记；普通注册会员和待审核账号不显示该标记。
 - 会员页和 VIP 页在 session 恢复与权限检查完成前只显示检查状态；确认未登录后才显示登录/注册入口。
 

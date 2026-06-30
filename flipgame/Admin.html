@@ -453,6 +453,8 @@
   </div>
 
   <script type="module">
+    import { clearPersistentIdentityCookies, restoreIdentitySession as restoreNetlifyIdentitySession } from "./assets/auth-session.js";
+
     const LOCAL_MOCK_MODE = isLocalAdminPreview();
     let identity = null;
     const userStatusEl = document.getElementById("userStatus");
@@ -517,11 +519,7 @@
 
     async function restoreIdentitySession() {
       const identityApi = await loadIdentity();
-      await identityApi.handleAuthCallback().catch(() => null);
-      if (typeof identityApi.hydrateSession === "function") {
-        await identityApi.hydrateSession().catch(() => null);
-      }
-      return identityApi.getUser().catch(() => null);
+      return restoreNetlifyIdentitySession(identityApi);
     }
 
     async function api(path, options) {
@@ -783,6 +781,7 @@
       }
       const identityApi = await loadIdentity();
       await identityApi.logout();
+      clearPersistentIdentityCookies();
       window.location.href = "Login.html?next=Admin.html";
     });
 

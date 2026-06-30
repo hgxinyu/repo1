@@ -142,6 +142,7 @@
 
   <script type="module">
     import * as identity from "https://esm.sh/@netlify/identity?bundle";
+    import { IDENTITY_SESSION_DAYS, installIdentityCookiePersistence, persistIdentityCookiesFromStorage } from "./assets/auth-session.js";
 
     const loginForm = document.getElementById("loginForm");
     const forgotForm = document.getElementById("forgotForm");
@@ -154,6 +155,7 @@
       if (saved === "zh" || saved === "en") return saved;
       return (navigator.language || "").toLowerCase().startsWith("zh") ? "zh" : "en";
     })();
+    installIdentityCookiePersistence(identity, IDENTITY_SESSION_DAYS);
 
     const I18N = {
       zh: {
@@ -385,6 +387,7 @@
       const password = document.getElementById("password").value;
       try {
         await identity.login(email, password);
+        persistIdentityCookiesFromStorage(IDENTITY_SESSION_DAYS);
         window.location.href = next;
       } catch (error) {
         statusEl.textContent = t("login_failed") + describeAuthError(error);
