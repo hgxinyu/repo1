@@ -471,6 +471,7 @@
           e9: 'E5 -> E9',
           root: 'E9 -> 根源 120',
           fly: '飞升段',
+          destiny_gate: '新增英雄飞升门槛',
           skills: '主动/被动1/被动2/被动3 各 4 点',
           boxes_shards: '8 箱 / 400 碎片',
           none_needed: '无需额外资源',
@@ -533,6 +534,7 @@
           e9: 'E5 -> E9',
           root: 'E9 -> Root 120',
           fly: 'Destiny stages',
+          destiny_gate: 'New hero Destiny gate',
           skills: '4 active / 4 passive 1 / 4 passive 2 / 4 passive 3',
           boxes_shards: '8 boxes / 400 shards',
           none_needed: 'No extra resources',
@@ -713,6 +715,10 @@
         const upgradeCrystalK = next.resources.crystalOfTranscendenceK.total - ((currentResources.crystalOfTranscendenceK && currentResources.crystalOfTranscendenceK.total) || 0);
         const newHeroes = Math.max(0, next.heroCount - currentHeroCount);
         const transCrystalK = newHeroes * HERO_BASE.transcendenceCrystalK;
+        const coreBoxes = newHeroes * HERO_BASE.coreBoxes;
+        const coreShards = newHeroes * HERO_BASE.coreShards;
+        const skillPoints = newHeroes * HERO_BASE.skillPoints;
+        const essenceSublimationK = newHeroes * HERO_BASE.essenceSublimationK;
         nextTempleValue.textContent = formatTempleLabel(next.templeLevel);
         nextTempleDetail.textContent = formatDivinePower(next);
         newHeroValue.textContent = `${formatInt(newHeroes)}${t('hero_count_suffix')}`;
@@ -720,6 +726,8 @@
         templeRows.innerHTML = [
           resourceRow(t('stellar'), prereqStellar + upgradeStellar, `${t('prereq')} ${formatInt(prereqStellar)} + ${t('upgrade')} ${formatInt(upgradeStellar)}`),
           resourceRow(t('essence'), prereqEssence, `${t('prereq')} ${formatInt(prereqEssence)}`),
+          resourceTextRow(t('core_boxes_shards'), `${formatInt(coreBoxes)}/${formatInt(coreShards)}`, coreBoxes ? `${t('destiny_gate')} ${formatInt(newHeroes)} × ${t('boxes_shards')}` : t('none_needed')),
+          resourceTextRow(t('sublimation_k'), `${formatInt(skillPoints)}/${formatK(essenceSublimationK)}`, skillPoints ? `${t('destiny_gate')} ${formatInt(newHeroes)} × ${t('skills')}` : t('none_needed')),
           resourceRow(t('aurora'), upgradeAurora, `${t('upgrade')} ${formatInt(upgradeAurora)}`),
           resourceRow(t('spiritvein'), upgradeSpiritvein, `${t('upgrade')} ${formatInt(upgradeSpiritvein)}`),
           resourceRow(t('crystal_k'), upgradeCrystalK + transCrystalK, `${t('upgrade')} ${formatK(upgradeCrystalK)} + ${t('trans')} ${formatK(transCrystalK)}`, true)

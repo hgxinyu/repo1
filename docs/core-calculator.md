@@ -6,12 +6,13 @@
 - `flipgame/StarDiamondCalculator.html`：星钻交易计算器。
 - `flipgame/CoreCalculator.html`：核心换算。
 - `flipgame/DestinyCalculator.html`：殿堂 / 飞升资源计算。
+- `flipgame/TreasureCalculator.html`：珍宝升级碎片计算。
 - `flipgame/SoulAscensionCalculator.html`：凝魂魂力计算器，访问权限为注册会员。
 - `flipgame/ExpeditionCalculator.html`：远征积分计算器，访问权限为注册会员。
 
 核心计算器当前用于把常见资源/阶段换算成核心数量。页面采用单文件 HTML 结构，文案通过页面内 `I18N` 对象维护。
 
-首页的放置计算器卡片会直接打开计算器选择面板，由用户选择星钻交易、核心换算、殿堂 / 飞升资源计算、凝魂魂力或远征积分。`flipgame/Calculators.html` 仍保留为可直接访问的统一入口页。会员页的访问需求不因入口聚合而改变；觉醒冲榜模拟器继续作为首页独立 VIP 工具入口。
+首页的放置计算器卡片会直接打开计算器选择面板，由用户选择星钻交易、核心换算、殿堂 / 飞升资源计算、珍宝升级、凝魂魂力或远征积分。`flipgame/Calculators.html` 仍保留为可直接访问的统一入口页。会员页的访问需求不因入口聚合而改变；觉醒冲榜模拟器继续作为首页独立 VIP 工具入口。
 
 ## 当前数据
 
@@ -96,7 +97,8 @@ Divine Power Level = Destiny Level + Divine Power Bonus
 - 用户选择当前殿堂等级，页面计算当前等级到下一殿堂等级。
 - 前置星碎 / 前置意识使用 `max(0, 下一等级前置 - 当前等级前置)`，避免前置条件降低时出现负数。
 - 升满资源使用下一等级累计需求减当前等级累计需求。
-- 如果下一等级 `heroCount` 高于当前等级，每个新增英雄额外计入 `5,000K` 时空结晶，用于普通英雄升级成时空英雄。
+- 如果下一等级 `heroCount` 高于当前等级，每个新增英雄额外计入进入飞升门槛的 `8` 个核武箱子 / `400` 核武碎片、`16/720K` 技能点，以及 `5,000K` 时空结晶转时空成本。
+- 页面把下一殿堂新增英雄的核武箱子和碎片合并显示为一行，格式为 `箱子/碎片`；技能点显示为 `技能点/精华K`，例如 `16/720K`。
 
 单英雄飞升计算：
 
@@ -106,6 +108,18 @@ Divine Power Level = Destiny Level + Divine Power Bonus
 - 从 `根源 120 满` 起算时不再计入 E5 -> E9、根源、核武和技能点，只计入转时空英雄和目标飞升段资源。
 - 从 `飞 1` 到 `飞 5` 起算时只计入已完成飞升等级之后到目标飞升等级的飞升段资源。
 - 页面把核武箱子和碎片合并显示为一行，格式为 `箱子/碎片`，例如 `8/400`。
+
+## 珍宝升级计算器
+
+页面：`flipgame/TreasureCalculator.html`
+
+数据源：
+
+- 浏览器数据：`flipgame/treasure_upgrade_costs.json`
+- 原始图：`flipgame/images/珍宝.jpg`
+- 规则文档：`docs/treasure-calculator.md`
+
+页面按颜色和“当前阶段 + 当前阶段小等级”到“目标阶段 + 目标阶段小等级”计算区间碎片和。珍宝阶段使用实际星级变化，例如 `0星 -> 1星`、`1星 -> 2星`；五星满级是 `4星 -> 5星` 的 `10` 级。
 
 ## 维护规则
 

@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>珍宝升级计算器 · ShinE</title>
+  <script>
+    (function () {
+      var host = (window.location.hostname || '').toLowerCase();
+      var isLocal = host === 'localhost' || host === '127.0.0.1' || host === '::1';
+      var isStage = host === 'stage' || host.startsWith('stage.') || host.startsWith('stage-') || host.startsWith('stage--') || host.indexOf('--stage') !== -1 || host.indexOf('-stage.') !== -1;
+      var svg = isLocal ? 'assets/local-logo.svg' : (isStage ? 'assets/stage-logo.svg' : 'assets/shine-logo.svg');
+      var png32 = isLocal ? 'assets/local-logo-32.png' : (isStage ? 'assets/stage-logo-32.png' : 'assets/shine-logo-32.png');
+      var ico = isLocal ? 'assets/local-favicon.ico' : (isStage ? 'assets/stage-favicon.ico' : 'assets/favicon.ico');
+      var apple = isLocal ? 'assets/local-logo-180.png' : (isStage ? 'assets/stage-logo-180.png' : 'assets/shine-logo-180.png');
+      var manifest = isLocal ? 'site.local.webmanifest' : (isStage ? 'site.stage.webmanifest' : 'site.webmanifest');
+      var theme = isLocal ? '#fb7185' : (isStage ? '#0891b2' : '#7c2d12');
+      document.write('<link rel="icon" type="image/svg+xml" href="' + svg + '">');
+      document.write('<link rel="icon" type="image/png" sizes="32x32" href="' + png32 + '">');
+      document.write('<link rel="shortcut icon" href="' + ico + '">');
+      document.write('<link rel="apple-touch-icon" sizes="180x180" href="' + apple + '">');
+      document.write('<link rel="manifest" href="' + manifest + '">');
+      document.write('<meta name="theme-color" content="' + theme + '">');
+    })();
+  </script>
+  <style>
+    :root {
+      --ink: #1c1917;
+      --muted: #6f625a;
+      --line: #e5d7c9;
+      --paper: #fffaf2;
+      --soft: #f4eee6;
+      --brand: #7c2d12;
+      --gold: #b7791f;
+      --green: #047857;
+      --red: #b91c1c;
+      --shadow: 0 18px 48px rgba(70, 43, 24, 0.14);
+      --radius: 8px;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background:
+        linear-gradient(135deg, rgba(124, 45, 18, 0.08), transparent 34%),
+        linear-gradient(315deg, rgba(4, 120, 87, 0.08), transparent 36%),
+        var(--soft);
+      color: var(--ink);
+      font-family: "Segoe UI", "Microsoft YaHei", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.55;
+    }
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 18px;
+    }
+    .shell {
+      width: min(1120px, 100%);
+      display: grid;
+      gap: 16px;
+      align-content: start;
+    }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .topbar a,
+    .langbar button,
+    .ghost-btn {
+      border: 1px solid rgba(124, 45, 18, 0.22);
+      background: rgba(255, 250, 242, 0.88);
+      color: var(--brand);
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 13px;
+      text-decoration: none;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(70, 43, 24, 0.08);
+    }
+    .hero,
+    .panel {
+      border: 1px solid var(--line);
+      background: rgba(255, 250, 242, 0.94);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .hero {
+      padding: clamp(20px, 5vw, 42px);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 18px;
+      align-items: end;
+    }
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--gold);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(30px, 7vw, 56px);
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+    .intro {
+      max-width: 720px;
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+    .totals {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(90px, 1fr));
+      gap: 8px;
+      min-width: min(360px, 100%);
+    }
+    .total-chip {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fffdf8;
+      padding: 10px 12px;
+    }
+    .total-chip strong {
+      display: block;
+      font-size: 22px;
+      line-height: 1.1;
+    }
+    .total-chip span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+      gap: 16px;
+      align-items: start;
+    }
+    .panel {
+      padding: clamp(16px, 3vw, 24px);
+      display: grid;
+      gap: 16px;
+    }
+    h2 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.25;
+    }
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+    select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fffdf8;
+      color: var(--ink);
+      padding: 11px 12px;
+      font-size: 15px;
+    }
+    select:focus-visible,
+    button:focus-visible,
+    a:focus-visible {
+      outline: 3px solid rgba(183, 121, 31, 0.28);
+      outline-offset: 2px;
+    }
+    .swatches {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .swatch {
+      min-height: 52px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fffdf8;
+      color: var(--ink);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-weight: 800;
+    }
+    .swatch::before {
+      content: "";
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      background: var(--swatch);
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--swatch), transparent 82%);
+    }
+    .swatch[aria-pressed="true"] {
+      border-color: color-mix(in srgb, var(--swatch), #1c1917 20%);
+      background: color-mix(in srgb, var(--swatch), #fffdf8 88%);
+    }
+    .quick-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .result {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 10px;
+    }
+    .result-main {
+      grid-column: 1 / -1;
+      border-radius: var(--radius);
+      background: #1c1917;
+      color: #fffaf2;
+      padding: 18px;
+    }
+    .result-main span {
+      display: block;
+      color: rgba(255, 250, 242, 0.72);
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .result-main strong {
+      display: block;
+      margin-top: 4px;
+      font-size: clamp(38px, 11vw, 70px);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+    .mini-stat {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fffdf8;
+      padding: 12px;
+    }
+    .mini-stat span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .mini-stat strong {
+      display: block;
+      margin-top: 4px;
+      font-size: 22px;
+    }
+    .breakdown {
+      display: grid;
+      gap: 8px;
+    }
+    .breakdown-row {
+      display: grid;
+      grid-template-columns: minmax(130px, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fffdf8;
+      padding: 10px 12px;
+      font-size: 14px;
+    }
+    .breakdown-row span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .breakdown-row strong {
+      font-size: 18px;
+    }
+    .muted {
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .status {
+      color: var(--red);
+      font-size: 14px;
+      min-height: 1.4em;
+    }
+    @media (max-width: 820px) {
+      body { padding: 12px; }
+      .hero,
+      .layout,
+      .field-grid,
+      .result {
+        grid-template-columns: 1fr;
+      }
+      .totals { min-width: 0; }
+    }
+    @media (max-width: 520px) {
+      .swatches,
+      .totals {
+        grid-template-columns: 1fr;
+      }
+      .topbar a,
+      .langbar button,
+      .ghost-btn {
+        padding: 8px 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <nav class="topbar" aria-label="页面导航">
+      <a href="index.html" id="navHome">回到主页</a>
+      <a href="Calculators.html" id="navCalculators">放置计算器</a>
+      <span class="langbar"><button id="langToggle" type="button">EN</button></span>
+    </nav>
+
+    <section class="hero">
+      <div>
+        <p class="eyebrow" id="eyebrow">Treasure Upgrade</p>
+        <h1 id="pageTitle">珍宝升级计算器</h1>
+      </div>
+      <div class="totals" id="totalChips" aria-label="满级总碎片"></div>
+    </section>
+
+    <section class="layout">
+      <section class="panel" aria-labelledby="calcTitle">
+        <h2 id="calcTitle">升级区间</h2>
+        <div class="swatches" id="colorButtons" role="group" aria-label="珍宝颜色"></div>
+        <div class="field-grid">
+          <label>
+            <span id="startPhaseLabel">当前阶段</span>
+            <select id="startPhase"></select>
+          </label>
+          <label>
+            <span id="startLevelLabel">当前阶段小等级</span>
+            <select id="startLevel"></select>
+          </label>
+          <label>
+            <span id="targetPhaseLabel">目标阶段</span>
+            <select id="targetPhase"></select>
+          </label>
+          <label>
+            <span id="targetLevelLabel">目标阶段小等级</span>
+            <select id="targetLevel"></select>
+          </label>
+        </div>
+        <div class="quick-actions">
+          <button class="ghost-btn" type="button" id="fullBtn">算到五星满级</button>
+          <button class="ghost-btn" type="button" id="resetBtn">重置到起点</button>
+        </div>
+        <div class="status" id="status" role="status"></div>
+      </section>
+
+      <section class="panel" aria-labelledby="resultTitle">
+        <h2 id="resultTitle">结果</h2>
+        <div class="result">
+          <div class="result-main" aria-live="polite">
+            <span id="needLabel">还需要碎片</span>
+            <strong id="needValue">0</strong>
+          </div>
+          <div class="mini-stat">
+            <span id="ownedLabel">当前颜色满级总量</span>
+            <strong id="fullTotal">0</strong>
+          </div>
+          <div class="mini-stat">
+            <span id="progressLabel">已消耗区间估算</span>
+            <strong id="spentBefore">0</strong>
+          </div>
+        </div>
+        <div class="breakdown" id="breakdown"></div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      const DATA_URL = 'treasure_upgrade_costs.json';
+      const I18N = {
+        zh: {
+          title: '珍宝升级计算器 · ShinE',
+          nav_home: '回到主页',
+          nav_calculators: '放置计算器',
+          lang_toggle_en: 'EN',
+          lang_toggle_zh: '中文',
+          eyebrow: 'Treasure Upgrade',
+          page_title: '珍宝升级计算器',
+          calc_title: '升级区间',
+          start_phase: '当前阶段',
+          start_level: '当前阶段小等级',
+          target_phase: '目标阶段',
+          target_level: '目标阶段小等级',
+          full_btn: '算到五星满级',
+          reset_btn: '重置到起点',
+          result_title: '结果',
+          need_label: '还需要碎片',
+          owned_label: '当前颜色满级总量',
+          progress_label: '已消耗区间估算',
+          load_error: '数据加载失败，请从本地 server 打开页面。',
+          invalid_range: '目标不能早于当前进度。',
+          stage_full: '满级总计',
+          shard_unit: '片',
+          level_name: (n) => `${n}级`,
+          zero_stage_level: (n) => n === 0 ? '未到1星' : '已到1星',
+          phase_label: (phase) => phase.labelZh
+        },
+        en: {
+          title: 'Treasure Upgrade Calculator · ShinE',
+          nav_home: 'Home',
+          nav_calculators: 'Idle Calculator',
+          lang_toggle_en: 'EN',
+          lang_toggle_zh: '中文',
+          eyebrow: 'Treasure Upgrade',
+          page_title: 'Treasure Upgrade Calculator',
+          calc_title: 'Upgrade Range',
+          start_phase: 'Current stage',
+          start_level: 'Current stage level',
+          target_phase: 'Target stage',
+          target_level: 'Target stage level',
+          full_btn: 'Calculate to 5-star full',
+          reset_btn: 'Reset to start',
+          result_title: 'Result',
+          need_label: 'Shards needed',
+          owned_label: 'Full cost for this color',
+          progress_label: 'Spent before range',
+          load_error: 'Data failed to load. Open this page from the local server.',
+          invalid_range: 'Target cannot be earlier than current progress.',
+          stage_full: 'Full total',
+          shard_unit: 'shards',
+          level_name: (n) => `Lv ${n}`,
+          zero_stage_level: (n) => n === 0 ? 'Before 1-star' : '1-star reached',
+          phase_label: (phase) => phase.labelEn
+        }
+      };
+      const refs = {
+        nav_home: document.getElementById('navHome'),
+        nav_calculators: document.getElementById('navCalculators'),
+        eyebrow: document.getElementById('eyebrow'),
+        page_title: document.getElementById('pageTitle'),
+        calc_title: document.getElementById('calcTitle'),
+        start_phase: document.getElementById('startPhaseLabel'),
+        start_level: document.getElementById('startLevelLabel'),
+        target_phase: document.getElementById('targetPhaseLabel'),
+        target_level: document.getElementById('targetLevelLabel'),
+        full_btn: document.getElementById('fullBtn'),
+        reset_btn: document.getElementById('resetBtn'),
+        result_title: document.getElementById('resultTitle'),
+        need_label: document.getElementById('needLabel'),
+        owned_label: document.getElementById('ownedLabel'),
+        progress_label: document.getElementById('progressLabel')
+      };
+      const els = {
+        langToggle: document.getElementById('langToggle'),
+        colorButtons: document.getElementById('colorButtons'),
+        startPhase: document.getElementById('startPhase'),
+        startLevel: document.getElementById('startLevel'),
+        targetPhase: document.getElementById('targetPhase'),
+        targetLevel: document.getElementById('targetLevel'),
+        fullBtn: document.getElementById('fullBtn'),
+        resetBtn: document.getElementById('resetBtn'),
+        status: document.getElementById('status'),
+        needValue: document.getElementById('needValue'),
+        fullTotal: document.getElementById('fullTotal'),
+        spentBefore: document.getElementById('spentBefore'),
+        breakdown: document.getElementById('breakdown'),
+        totalChips: document.getElementById('totalChips')
+      };
+      let data = null;
+      let currentColorId = 'pinkOrange';
+      let currentLang = (localStorage.getItem('flipgame_lang') || '').toLowerCase();
+      if (currentLang !== 'zh' && currentLang !== 'en') {
+        currentLang = ((navigator.language || '').toLowerCase().startsWith('zh')) ? 'zh' : 'en';
+      }
+
+      function t(key) {
+        return (I18N[currentLang] && I18N[currentLang][key]) || I18N.zh[key] || '';
+      }
+      function labelFor(color) {
+        return currentLang === 'zh' ? color.labelZh : color.labelEn;
+      }
+      function formatInt(value) {
+        return Number(value || 0).toLocaleString(currentLang === 'zh' ? 'zh-CN' : 'en-US');
+      }
+      function phaseMeta(star) {
+        return data.phases.find((phase) => Number(phase.star) === Number(star));
+      }
+      function levelLabel(star, level) {
+        if (Number(star) === 1) return t('zero_stage_level')(Number(level));
+        return t('level_name')(Number(level));
+      }
+      function colorData() {
+        return data.colors.find((color) => color.id === currentColorId) || data.colors[0];
+      }
+      function phaseData(color, star) {
+        return color.phases.find((phase) => Number(phase.star) === Number(star));
+      }
+      function phaseIndex(star) {
+        return data.phases.findIndex((phase) => Number(phase.star) === Number(star));
+      }
+      function pointValue(star, level) {
+        return phaseIndex(star) * 100 + Number(level);
+      }
+      function phaseCost(color, star, fromLevel, toLevel) {
+        const row = phaseData(color, star);
+        let total = 0;
+        for (let level = fromLevel; level < toLevel; level += 1) {
+          total += Number(row.costs[level] || 0);
+        }
+        return total;
+      }
+      function totalForColor(color) {
+        return color.phases.reduce((sum, phase) => sum + Number(phase.total || 0), 0);
+      }
+      function spentBefore(color, star, level) {
+        let total = 0;
+        for (const phase of data.phases) {
+          if (Number(phase.star) < Number(star)) total += Number(phaseData(color, phase.star).total || 0);
+        }
+        total += phaseCost(color, star, 0, Number(level));
+        return total;
+      }
+      function setStaticText() {
+        document.title = t('title');
+        document.documentElement.lang = currentLang === 'zh' ? 'zh-Hans' : 'en';
+        Object.keys(refs).forEach((key) => {
+          if (refs[key]) refs[key].textContent = typeof t(key) === 'function' ? '' : t(key);
+        });
+        if (els.langToggle) els.langToggle.textContent = currentLang === 'zh' ? t('lang_toggle_en') : t('lang_toggle_zh');
+      }
+      function fillPhaseSelect(select, value) {
+        select.innerHTML = data.phases.map((phase) => {
+          const label = t('phase_label')(phase);
+          return `<option value="${phase.star}">${label}</option>`;
+        }).join('');
+        select.value = String(value);
+      }
+      function fillLevelSelect(select, star, value) {
+        const max = phaseMeta(star).maxLevel;
+        const clamped = Math.min(Math.max(Number(value), 0), max);
+        let html = '';
+        for (let level = 0; level <= max; level += 1) {
+          html += `<option value="${level}">${levelLabel(star, level)}</option>`;
+        }
+        select.innerHTML = html;
+        select.value = String(clamped);
+      }
+      function renderColorButtons() {
+        els.colorButtons.innerHTML = data.colors.map((color) => {
+          const pressed = color.id === currentColorId ? 'true' : 'false';
+          return `<button class="swatch" type="button" style="--swatch:${color.swatch}" data-color="${color.id}" aria-pressed="${pressed}">${labelFor(color)}</button>`;
+        }).join('');
+      }
+      function renderTotals() {
+        els.totalChips.innerHTML = data.colors.map((color) => `
+          <div class="total-chip">
+            <strong>${formatInt(totalForColor(color))}</strong>
+            <span>${labelFor(color)} ${t('stage_full')}</span>
+          </div>
+        `).join('');
+      }
+      function ensureRange() {
+        const startStar = Number(els.startPhase.value);
+        const targetStar = Number(els.targetPhase.value);
+        fillLevelSelect(els.startLevel, startStar, els.startLevel.value);
+        fillLevelSelect(els.targetLevel, targetStar, els.targetLevel.value);
+      }
+      function calculate() {
+        if (!data) return;
+        ensureRange();
+        const color = colorData();
+        const startStar = Number(els.startPhase.value);
+        const targetStar = Number(els.targetPhase.value);
+        const startLevel = Number(els.startLevel.value);
+        const targetLevel = Number(els.targetLevel.value);
+        const invalid = pointValue(targetStar, targetLevel) < pointValue(startStar, startLevel);
+        els.status.textContent = invalid ? t('invalid_range') : '';
+        let total = 0;
+        const details = [];
+        if (!invalid) {
+          data.phases.forEach((phase) => {
+            const star = Number(phase.star);
+            if (star < startStar || star > targetStar) return;
+            const fromLevel = star === startStar ? startLevel : 0;
+            const toLevel = star === targetStar ? targetLevel : phase.maxLevel;
+            if (toLevel <= fromLevel) return;
+            const cost = phaseCost(color, star, fromLevel, toLevel);
+            total += cost;
+            details.push({
+              phase,
+              fromLevel,
+              toLevel,
+              cost
+            });
+          });
+        }
+        els.needValue.textContent = formatInt(total);
+        els.fullTotal.textContent = formatInt(totalForColor(color));
+        els.spentBefore.textContent = formatInt(spentBefore(color, startStar, startLevel));
+        els.breakdown.innerHTML = details.length ? details.map((item) => `
+          <div class="breakdown-row">
+            <div>
+              <strong>${t('phase_label')(item.phase)}</strong>
+              <span>${levelLabel(item.phase.star, item.fromLevel)} -> ${levelLabel(item.phase.star, item.toLevel)}</span>
+            </div>
+            <strong>${formatInt(item.cost)}</strong>
+          </div>
+        `).join('') : '';
+      }
+      function initializeControls() {
+        fillPhaseSelect(els.startPhase, 1);
+        fillPhaseSelect(els.targetPhase, 5);
+        fillLevelSelect(els.startLevel, 1, 0);
+        fillLevelSelect(els.targetLevel, 5, 10);
+        renderColorButtons();
+        renderTotals();
+        calculate();
+      }
+      function rerenderForLanguage() {
+        setStaticText();
+        const state = {
+          startPhase: els.startPhase.value,
+          startLevel: els.startLevel.value,
+          targetPhase: els.targetPhase.value,
+          targetLevel: els.targetLevel.value
+        };
+        fillPhaseSelect(els.startPhase, state.startPhase);
+        fillPhaseSelect(els.targetPhase, state.targetPhase);
+        fillLevelSelect(els.startLevel, state.startPhase, state.startLevel);
+        fillLevelSelect(els.targetLevel, state.targetPhase, state.targetLevel);
+        renderColorButtons();
+        renderTotals();
+        calculate();
+      }
+      els.colorButtons.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-color]');
+        if (!button) return;
+        currentColorId = button.dataset.color;
+        renderColorButtons();
+        calculate();
+      });
+      [els.startPhase, els.startLevel, els.targetPhase, els.targetLevel].forEach((select) => {
+        select.addEventListener('change', calculate);
+      });
+      els.fullBtn.addEventListener('click', () => {
+        els.targetPhase.value = '5';
+        fillLevelSelect(els.targetLevel, 5, 10);
+        calculate();
+      });
+      els.resetBtn.addEventListener('click', () => {
+        els.startPhase.value = '1';
+        fillLevelSelect(els.startLevel, 1, 0);
+        calculate();
+      });
+      if (els.langToggle) {
+        els.langToggle.addEventListener('click', () => {
+          currentLang = currentLang === 'zh' ? 'en' : 'zh';
+          localStorage.setItem('flipgame_lang', currentLang);
+          rerenderForLanguage();
+        });
+      }
+      setStaticText();
+      fetch(DATA_URL)
+        .then((response) => {
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          return response.json();
+        })
+        .then((json) => {
+          data = json;
+          initializeControls();
+        })
+        .catch(() => {
+          els.status.textContent = t('load_error');
+        });
+    })();
+  </script>
+</body>
+</html>

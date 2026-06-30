@@ -197,7 +197,7 @@
     <section class="hero">
       <p class="eyebrow" id="eyebrow">Idle Calculator Index</p>
       <h1 id="pageTitle">放置计算器</h1>
-      <p class="intro" id="pageDesc">星钻交易、核心换算、殿堂飞升、凝魂魂力和远征积分统一从这里进入。</p>
+      <p class="intro" id="pageDesc">星钻交易、核心换算、殿堂飞升、珍宝升级、凝魂魂力和远征积分统一从这里进入。</p>
     </section>
     <section class="grid" aria-label="计算器列表">
       <a class="calc-card" href="StarDiamondCalculator.html">
@@ -224,8 +224,16 @@
         </span>
         <span class="arrow" id="destinyAction">进入资源计算</span>
       </a>
-      <a class="calc-card" href="SoulAscensionCalculator.html">
+      <a class="calc-card" href="TreasureCalculator.html">
         <span class="label">04</span>
+        <span>
+          <h2 id="treasureTitle">珍宝升级计算器</h2>
+          <p id="treasureDesc">按绿、红、粉橙珍宝颜色和升星小等级，计算剩余碎片需求。</p>
+        </span>
+        <span class="arrow" id="treasureAction">进入珍宝升级</span>
+      </a>
+      <a class="calc-card" href="SoulAscensionCalculator.html">
+        <span class="label">05</span>
         <span>
           <h2><span id="soulTitle">凝魂魂力计算器</span><span class="access-badge member" data-member-badge>会员</span></h2>
           <p id="soulDesc">注册会员可用，检验属性区间并估算凝魂次数与魂力值。</p>
@@ -233,7 +241,7 @@
         <span class="arrow" id="soulAction">进入凝魂魂力</span>
       </a>
       <a class="calc-card" href="ExpeditionCalculator.html">
-        <span class="label">05</span>
+        <span class="label">06</span>
         <span>
           <h2><span id="expeditionTitle">远征积分计算器</span><span class="access-badge member" data-member-badge>会员</span></h2>
           <p id="expeditionDesc">注册会员可用，按层数和剩余血量快速估算剩余积分（万亿）。</p>
@@ -255,7 +263,7 @@
           vip_badge: 'VIP',
           eyebrow: 'Idle Calculator Index',
           page_title: '放置计算器',
-          page_desc: '星钻交易、核心换算、殿堂飞升、凝魂魂力和远征积分统一从这里进入。',
+          page_desc: '星钻交易、核心换算、殿堂飞升、珍宝升级、凝魂魂力和远征积分统一从这里进入。',
           star_title: '星钻交易计算器',
           star_desc: '按星钻数量和交易比例，换算金额与赠送额度。',
           star_action: '进入星钻交易',
@@ -265,6 +273,9 @@
           destiny_title: '殿堂 / 飞升计算器',
           destiny_desc: '按当前殿堂等级计算下一殿堂资源，也可计算单英雄 E5 到目标飞升等级。',
           destiny_action: '进入资源计算',
+          treasure_title: '珍宝升级计算器',
+          treasure_desc: '按绿、红、粉橙珍宝颜色和升星小等级，计算剩余碎片需求。',
+          treasure_action: '进入珍宝升级',
           soul_title: '凝魂魂力计算器',
           soul_desc: '注册会员可用，检验属性区间并估算凝魂次数与魂力值。',
           soul_action: '进入凝魂魂力',
@@ -281,7 +292,7 @@
           vip_badge: 'VIP',
           eyebrow: 'Idle Calculator Index',
           page_title: 'Idle Calculator',
-          page_desc: 'Open star diamond trading, core conversion, Temple and Destiny, soul power, and expedition score tools here.',
+          page_desc: 'Open star diamond trading, core conversion, Temple and Destiny, treasure upgrades, soul power, and expedition score tools here.',
           star_title: 'Star Diamond Trade Calculator',
           star_desc: 'Convert star diamonds, trading ratio, amount, and bonus value.',
           star_action: 'Open star diamond trade',
@@ -291,6 +302,9 @@
           destiny_title: 'Destiny / Temple Calculator',
           destiny_desc: 'Calculate the next Temple upgrade and single-hero E5 to target Destiny resources.',
           destiny_action: 'Open resource calculator',
+          treasure_title: 'Treasure Upgrade Calculator',
+          treasure_desc: 'Calculate remaining shards by green, red, or pink/orange treasure color and upgrade level.',
+          treasure_action: 'Open treasure upgrade',
           soul_title: 'Soul Power Calculator',
           soul_desc: 'Registered members can check stat ranges and estimate soul perfection count and soul power.',
           soul_action: 'Open soul power',
@@ -313,6 +327,9 @@
         destiny_title: document.getElementById('destinyTitle'),
         destiny_desc: document.getElementById('destinyDesc'),
         destiny_action: document.getElementById('destinyAction'),
+        treasure_title: document.getElementById('treasureTitle'),
+        treasure_desc: document.getElementById('treasureDesc'),
+        treasure_action: document.getElementById('treasureAction'),
         soul_title: document.getElementById('soulTitle'),
         soul_desc: document.getElementById('soulDesc'),
         soul_action: document.getElementById('soulAction'),

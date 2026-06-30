@@ -245,16 +245,6 @@
         <span class="title" id="cardIconTitle">战斗Buff/Debuff图标</span>
         <span class="subtitle" id="cardIconSub">查看战斗Buff/Debuff图标攻略图</span>
       </a>
-      <a class="card-link" href="images/%E7%8F%8D%E5%AE%9D.jpg" data-image="images/珍宝.jpg">
-        <span class="thumb"><img src="images/珍宝.jpg" alt="珍宝升级" id="treasureImg" /></span>
-        <span class="title" id="cardTreasureTitle">珍宝升级</span>
-        <span class="subtitle" id="cardTreasureSub">查看珍宝升级攻略图</span>
-      </a>
-      <a class="card-link" href="images/%E9%A3%9E%E5%8D%871.jpg" data-images="images/飞升1.jpg|images/飞升2.jpg">
-        <span class="thumb"><img src="images/飞升1.jpg" alt="飞升升级资源" id="ascendResImg" /></span>
-        <span class="title" id="cardAscendResTitle">飞升升级资源</span>
-        <span class="subtitle" id="cardAscendResSub">查看飞升1 / 飞升2攻略图</span>
-      </a>
       <a class="card-link" href="images/%E5%B1%9E%E6%80%A7%E8%A7%A3%E9%87%8A.jpg" data-image="images/属性解释.jpg">
         <span class="thumb"><img src="images/属性解释.jpg" alt="属性具体解释和算法" id="attrExplainImg" /></span>
         <span class="title" id="cardAttrExplainTitle">属性具体解释和算法</span>
@@ -303,12 +293,6 @@
       const cardIconTitle = document.getElementById('cardIconTitle');
       const cardIconSub = document.getElementById('cardIconSub');
       const iconImg = document.getElementById('iconImg');
-      const cardTreasureTitle = document.getElementById('cardTreasureTitle');
-      const cardTreasureSub = document.getElementById('cardTreasureSub');
-      const treasureImg = document.getElementById('treasureImg');
-      const cardAscendResTitle = document.getElementById('cardAscendResTitle');
-      const cardAscendResSub = document.getElementById('cardAscendResSub');
-      const ascendResImg = document.getElementById('ascendResImg');
       const cardAttrExplainTitle = document.getElementById('cardAttrExplainTitle');
       const cardAttrExplainSub = document.getElementById('cardAttrExplainSub');
       const attrExplainImg = document.getElementById('attrExplainImg');
@@ -358,12 +342,6 @@
           card_icon_title: '战斗Buff/Debuff图标',
           card_icon_sub: '查看战斗Buff/Debuff图标攻略图',
           icon_alt: '战斗Buff/Debuff图标',
-          card_treasure_title: '珍宝升级',
-          card_treasure_sub: '查看珍宝升级攻略图',
-          treasure_alt: '珍宝升级',
-          card_ascendres_title: '飞升升级资源',
-          card_ascendres_sub: '查看飞升1 / 飞升2攻略图',
-          ascendres_alt: '飞升升级资源',
           card_attrexplain_title: '属性具体解释和算法',
           card_attrexplain_sub: '查看属性解释攻略图',
           attrexplain_alt: '属性具体解释和算法'
@@ -403,12 +381,6 @@
           card_icon_title: 'Battle Buff/Debuff Icons',
           card_icon_sub: 'Open the battle Buff/Debuff icon guide image',
           icon_alt: 'Battle Buff and Debuff icon guide',
-          card_treasure_title: 'Treasure Upgrade',
-          card_treasure_sub: 'Open the treasure upgrade guide image',
-          treasure_alt: 'Treasure upgrade guide',
-          card_ascendres_title: 'Destiny Upgrade Resources',
-          card_ascendres_sub: 'Open Destiny 1 / Destiny 2 guide images',
-          ascendres_alt: 'Destiny upgrade resources',
           card_attrexplain_title: 'Attribute Explanation & Formula',
           card_attrexplain_sub: 'Open the attribute explanation guide image',
           attrexplain_alt: 'Attribute explanation and formula guide'
@@ -455,12 +427,6 @@
         if (cardIconTitle) cardIconTitle.textContent = t('card_icon_title');
         if (cardIconSub) cardIconSub.textContent = t('card_icon_sub');
         if (iconImg) iconImg.setAttribute('alt', t('icon_alt'));
-        if (cardTreasureTitle) cardTreasureTitle.textContent = t('card_treasure_title');
-        if (cardTreasureSub) cardTreasureSub.textContent = t('card_treasure_sub');
-        if (treasureImg) treasureImg.setAttribute('alt', t('treasure_alt'));
-        if (cardAscendResTitle) cardAscendResTitle.textContent = t('card_ascendres_title');
-        if (cardAscendResSub) cardAscendResSub.textContent = t('card_ascendres_sub');
-        if (ascendResImg) ascendResImg.setAttribute('alt', t('ascendres_alt'));
         if (cardAttrExplainTitle) cardAttrExplainTitle.textContent = t('card_attrexplain_title');
         if (cardAttrExplainSub) cardAttrExplainSub.textContent = t('card_attrexplain_sub');
         if (attrExplainImg) attrExplainImg.setAttribute('alt', t('attrexplain_alt'));
