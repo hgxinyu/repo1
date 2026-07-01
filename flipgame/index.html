@@ -679,10 +679,6 @@
         <span class="title" id="cardDiscordTitle">放置奇兵兑换码</span>
         <span class="subtitle" id="cardDiscordSub">及时更新放置奇兵兑换码。</span>
       </a>
-      <a class="card-link" id="adminCard" href="Admin.html" style="display:none;">
-        <span class="title" id="cardAdminTitle">Admin Portal</span>
-        <span class="subtitle" id="cardAdminSub">本地 Mock 预览或管理员后台。</span>
-      </a>
       <a class="card-link" href="flipgame.html">
         <span class="title" id="cardFlipTitle">九宫格翻牌</span>
         <span class="subtitle" id="cardFlipSub">模拟翻牌流程，记录并计算最佳组合。</span>
@@ -820,7 +816,6 @@
       const accountName = document.getElementById('accountName');
       const accountVipBadge = document.getElementById('accountVipBadge');
       const adminLink = document.getElementById('adminLink');
-      const adminCard = document.getElementById('adminCard');
       const pageTitle = document.getElementById('pageTitle');
       const pageDesc = document.getElementById('pageDesc');
       const navGrid = document.getElementById('navGrid');
@@ -836,8 +831,6 @@
       const cardAiSub = document.getElementById('cardAiSub');
       const cardDiscordTitle = document.getElementById('cardDiscordTitle');
       const cardDiscordSub = document.getElementById('cardDiscordSub');
-      const cardAdminTitle = document.getElementById('cardAdminTitle');
-      const cardAdminSub = document.getElementById('cardAdminSub');
       const cardSoulTitle = document.getElementById('cardSoulTitle');
       const cardSoulSub = document.getElementById('cardSoulSub');
       const cardExpeditionTitle = document.getElementById('cardExpeditionTitle');
@@ -903,8 +896,6 @@
           account_signed_in: '已登录',
           account_vip_label: 'VIP 账号',
           admin_link: '管理后台',
-          card_admin_title: 'Admin Portal',
-          card_admin_sub: '本地 Mock 预览或管理员后台。',
           member_badge: '会员',
           vip_badge: 'VIP',
           nav_label: '工具导航',
@@ -986,8 +977,6 @@
           account_signed_in: 'Signed in',
           account_vip_label: 'VIP account',
           admin_link: 'Admin',
-          card_admin_title: 'Admin Portal',
-          card_admin_sub: 'Local mock preview or admin console.',
           member_badge: 'Member',
           vip_badge: 'VIP',
           nav_label: 'Tool Navigation',
@@ -1085,8 +1074,6 @@
           accountBtn.setAttribute('aria-label', `${accountName.textContent} ${t('vip_badge')}`);
         }
         if (adminLink) adminLink.textContent = t('admin_link');
-        if (cardAdminTitle) cardAdminTitle.textContent = t('card_admin_title');
-        if (cardAdminSub) cardAdminSub.textContent = t('card_admin_sub');
         document.querySelectorAll('[data-member-badge]').forEach((badge) => { badge.textContent = t('member_badge'); });
         document.querySelectorAll('[data-vip-badge]').forEach((badge) => { badge.textContent = t('vip_badge'); });
         if (navGrid) navGrid.setAttribute('aria-label', t('nav_label'));
@@ -1384,7 +1371,6 @@
     const LOCAL_MOCK_MODE = isLocalHomepagePreview();
     let identity = null;
     const adminLink = document.getElementById("adminLink");
-    const adminCard = document.getElementById("adminCard");
     const loginLink = document.getElementById("loginLink");
     const registerLink = document.getElementById("registerLink");
     const accountMenu = document.getElementById("accountMenu");
@@ -1442,7 +1428,6 @@
         accountBtn.setAttribute("aria-label", "Local Admin");
       }
       if (adminLink) adminLink.style.display = "inline-flex";
-      if (adminCard) adminCard.style.display = "";
     }
 
     async function updateAccountLinks() {
@@ -1485,9 +1470,6 @@
       }
       if (response.ok && data.isAdmin && adminLink) {
         adminLink.style.display = "inline-flex";
-      }
-      if (response.ok && data.isAdmin && adminCard) {
-        adminCard.style.display = "";
       }
     }
 
