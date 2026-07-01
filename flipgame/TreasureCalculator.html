@@ -289,8 +289,7 @@
     @media (max-width: 820px) {
       body { padding: 12px; }
       .hero,
-      .layout,
-      .result {
+      .layout {
         grid-template-columns: 1fr;
       }
       .totals { min-width: 0; }
@@ -387,7 +386,7 @@
 
     <section class="layout">
       <section class="panel" aria-labelledby="calcTitle">
-        <h2 id="calcTitle">升级区间</h2>
+        <h2 id="calcTitle">当前进度</h2>
         <div class="swatches" id="colorButtons" role="group" aria-label="珍宝颜色"></div>
         <div class="field-grid">
           <label>
@@ -398,17 +397,8 @@
             <span id="startLevelLabel">当前阶段小等级</span>
             <select id="startLevel"></select>
           </label>
-          <label>
-            <span id="targetPhaseLabel">目标阶段</span>
-            <select id="targetPhase"></select>
-          </label>
-          <label>
-            <span id="targetLevelLabel">目标阶段小等级</span>
-            <select id="targetLevel"></select>
-          </label>
         </div>
         <div class="quick-actions">
-          <button class="ghost-btn" type="button" id="fullBtn">算到五星满级</button>
           <button class="ghost-btn" type="button" id="resetBtn">重置到起点</button>
         </div>
         <div class="status" id="status" role="status"></div>
@@ -418,7 +408,7 @@
         <h2 id="resultTitle">结果</h2>
         <div class="result">
           <div class="result-main" aria-live="polite">
-            <span id="needLabel">还需要碎片</span>
+            <span id="needLabel">升到五星满级还需要</span>
             <strong id="needValue">0</strong>
           </div>
           <div class="mini-stat">
@@ -447,21 +437,19 @@
           lang_toggle_zh: '中文',
           eyebrow: 'Treasure Upgrade',
           page_title: '珍宝升级计算器',
-          calc_title: '升级区间',
+          calc_title: '当前进度',
           start_phase: '当前阶段',
           start_level: '当前阶段小等级',
-          target_phase: '目标阶段',
-          target_level: '目标阶段小等级',
-          full_btn: '算到五星满级',
           reset_btn: '重置到起点',
           result_title: '结果',
-          need_label: '还需要碎片',
+          need_label: '升到五星满级还需要',
           owned_label: '当前颜色满级总量',
-          progress_label: '已消耗区间估算',
+          progress_label: '当前已消耗估算',
           load_error: '数据加载失败，请从本地 server 打开页面。',
-          invalid_range: '目标不能早于当前进度。',
+          maxed_status: '已是五星满级。',
           stage_full: '满级总计',
           shard_unit: '片',
+          target_list_title: '升级到各星级累计还需要',
           level_name: (n) => `${n}级`,
           zero_stage_level: (n) => n === 0 ? '未到1星' : '已到1星',
           phase_label: (phase) => phase.labelZh
@@ -474,21 +462,19 @@
           lang_toggle_zh: '中文',
           eyebrow: 'Treasure Upgrade',
           page_title: 'Treasure Upgrade Calculator',
-          calc_title: 'Upgrade Range',
+          calc_title: 'Current Progress',
           start_phase: 'Current stage',
           start_level: 'Current stage level',
-          target_phase: 'Target stage',
-          target_level: 'Target stage level',
-          full_btn: 'Calculate to 5-star full',
           reset_btn: 'Reset to start',
           result_title: 'Result',
-          need_label: 'Shards needed',
+          need_label: 'Needed to 5-star full',
           owned_label: 'Full cost for this color',
-          progress_label: 'Spent before range',
+          progress_label: 'Estimated spent so far',
           load_error: 'Data failed to load. Open this page from the local server.',
-          invalid_range: 'Target cannot be earlier than current progress.',
+          maxed_status: 'Already at 5-star full.',
           stage_full: 'Full total',
           shard_unit: 'shards',
+          target_list_title: 'Cumulative needs for each star upgrade',
           level_name: (n) => `Lv ${n}`,
           zero_stage_level: (n) => n === 0 ? 'Before 1-star' : '1-star reached',
           phase_label: (phase) => phase.labelEn
@@ -502,9 +488,6 @@
         calc_title: document.getElementById('calcTitle'),
         start_phase: document.getElementById('startPhaseLabel'),
         start_level: document.getElementById('startLevelLabel'),
-        target_phase: document.getElementById('targetPhaseLabel'),
-        target_level: document.getElementById('targetLevelLabel'),
-        full_btn: document.getElementById('fullBtn'),
         reset_btn: document.getElementById('resetBtn'),
         result_title: document.getElementById('resultTitle'),
         need_label: document.getElementById('needLabel'),
@@ -516,9 +499,6 @@
         colorButtons: document.getElementById('colorButtons'),
         startPhase: document.getElementById('startPhase'),
         startLevel: document.getElementById('startLevel'),
-        targetPhase: document.getElementById('targetPhase'),
-        targetLevel: document.getElementById('targetLevel'),
-        fullBtn: document.getElementById('fullBtn'),
         resetBtn: document.getElementById('resetBtn'),
         status: document.getElementById('status'),
         needValue: document.getElementById('needValue'),
@@ -620,59 +600,67 @@
           </div>
         `).join('');
       }
-      function ensureRange() {
+      function ensureCurrentPoint() {
         const startStar = Number(els.startPhase.value);
-        const targetStar = Number(els.targetPhase.value);
         fillLevelSelect(els.startLevel, startStar, els.startLevel.value);
-        fillLevelSelect(els.targetLevel, targetStar, els.targetLevel.value);
+      }
+      function costBetween(color, startStar, startLevel, targetStar, targetLevel) {
+        let total = 0;
+        data.phases.forEach((phase) => {
+          const star = Number(phase.star);
+          if (star < startStar || star > targetStar) return;
+          const fromLevel = star === startStar ? startLevel : 0;
+          const toLevel = star === targetStar ? targetLevel : phase.maxLevel;
+          if (toLevel <= fromLevel) return;
+          total += phaseCost(color, star, fromLevel, toLevel);
+        });
+        return total;
+      }
+      function targetPhasesAfter(startStar, startLevel) {
+        const startValue = pointValue(startStar, startLevel);
+        const points = [];
+        data.phases.forEach((phase) => {
+          const star = Number(phase.star);
+          const level = Number(phase.maxLevel);
+          if (pointValue(star, level) <= startValue) return;
+          points.push({ phase, star, level });
+        });
+        return points;
       }
       function calculate() {
         if (!data) return;
-        ensureRange();
+        ensureCurrentPoint();
         const color = colorData();
         const startStar = Number(els.startPhase.value);
-        const targetStar = Number(els.targetPhase.value);
         const startLevel = Number(els.startLevel.value);
-        const targetLevel = Number(els.targetLevel.value);
-        const invalid = pointValue(targetStar, targetLevel) < pointValue(startStar, startLevel);
-        els.status.textContent = invalid ? t('invalid_range') : '';
-        let total = 0;
-        const details = [];
-        if (!invalid) {
-          data.phases.forEach((phase) => {
-            const star = Number(phase.star);
-            if (star < startStar || star > targetStar) return;
-            const fromLevel = star === startStar ? startLevel : 0;
-            const toLevel = star === targetStar ? targetLevel : phase.maxLevel;
-            if (toLevel <= fromLevel) return;
-            const cost = phaseCost(color, star, fromLevel, toLevel);
-            total += cost;
-            details.push({
-              phase,
-              fromLevel,
-              toLevel,
-              cost
-            });
-          });
-        }
+        const finalPhase = data.phases[data.phases.length - 1];
+        const finalStar = Number(finalPhase.star);
+        const finalLevel = Number(finalPhase.maxLevel);
+        const total = costBetween(color, startStar, startLevel, finalStar, finalLevel);
+        const targets = targetPhasesAfter(startStar, startLevel).map((point) => ({
+          phase: point.phase,
+          level: point.level,
+          cost: costBetween(color, startStar, startLevel, point.star, point.level)
+        }));
+        els.status.textContent = targets.length ? '' : t('maxed_status');
         els.needValue.textContent = formatInt(total);
         els.fullTotal.textContent = formatInt(totalForColor(color));
         els.spentBefore.textContent = formatInt(spentBefore(color, startStar, startLevel));
-        els.breakdown.innerHTML = details.length ? details.map((item) => `
+        els.breakdown.innerHTML = targets.length ? `
+          <div class="muted">${t('target_list_title')}</div>
+          ${targets.map((item) => `
           <div class="breakdown-row">
             <div>
               <strong>${t('phase_label')(item.phase)}</strong>
-              <span>${levelLabel(item.phase.star, item.fromLevel)} -> ${levelLabel(item.phase.star, item.toLevel)}</span>
             </div>
             <strong>${formatInt(item.cost)}</strong>
           </div>
-        `).join('') : '';
+          `).join('')}
+        ` : '';
       }
       function initializeControls() {
         fillPhaseSelect(els.startPhase, 1);
-        fillPhaseSelect(els.targetPhase, 5);
         fillLevelSelect(els.startLevel, 1, 0);
-        fillLevelSelect(els.targetLevel, 5, 10);
         renderColorButtons();
         renderTotals();
         calculate();
@@ -681,14 +669,10 @@
         setStaticText();
         const state = {
           startPhase: els.startPhase.value,
-          startLevel: els.startLevel.value,
-          targetPhase: els.targetPhase.value,
-          targetLevel: els.targetLevel.value
+          startLevel: els.startLevel.value
         };
         fillPhaseSelect(els.startPhase, state.startPhase);
-        fillPhaseSelect(els.targetPhase, state.targetPhase);
         fillLevelSelect(els.startLevel, state.startPhase, state.startLevel);
-        fillLevelSelect(els.targetLevel, state.targetPhase, state.targetLevel);
         renderColorButtons();
         renderTotals();
         calculate();
@@ -700,13 +684,8 @@
         renderColorButtons();
         calculate();
       });
-      [els.startPhase, els.startLevel, els.targetPhase, els.targetLevel].forEach((select) => {
+      [els.startPhase, els.startLevel].forEach((select) => {
         select.addEventListener('change', calculate);
-      });
-      els.fullBtn.addEventListener('click', () => {
-        els.targetPhase.value = '5';
-        fillLevelSelect(els.targetLevel, 5, 10);
-        calculate();
       });
       els.resetBtn.addEventListener('click', () => {
         els.startPhase.value = '1';
