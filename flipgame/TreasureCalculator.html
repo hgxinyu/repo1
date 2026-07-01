@@ -7,7 +7,7 @@
   <script>
     (function () {
       var host = (window.location.hostname || '').toLowerCase();
-      var isLocal = host === 'localhost' || host === '127.0.0.1' || host === '::1';
+      var isLocal = host === '' || host === 'localhost' || host === '0.0.0.0' || host === '127.0.0.1' || host === '::1' || /^10\./.test(host) || /^192\.168\./.test(host) || /^172\.(1[6-9]|2\d|3[01])\./.test(host);
       var isStage = host === 'stage' || host.startsWith('stage.') || host.startsWith('stage-') || host.startsWith('stage--') || host.indexOf('--stage') !== -1 || host.indexOf('-stage.') !== -1;
       var svg = isLocal ? 'assets/local-logo.svg' : (isStage ? 'assets/stage-logo.svg' : 'assets/shine-logo.svg');
       var png32 = isLocal ? 'assets/local-logo-32.png' : (isStage ? 'assets/stage-logo-32.png' : 'assets/shine-logo-32.png');
@@ -300,16 +300,25 @@
       .shell { gap: 10px; }
       .hero,
       .panel {
-        padding: 14px;
+        padding: 12px;
       }
       .hero {
-        gap: 12px;
+        gap: 10px;
       }
       .panel {
-        gap: 12px;
+        gap: 10px;
+      }
+      .eyebrow {
+        margin-bottom: 4px;
+        font-size: 12px;
       }
       h1 {
-        font-size: 30px;
+        font-size: 28px;
+      }
+      .intro {
+        margin-top: 8px;
+        font-size: 13px;
+        line-height: 1.4;
       }
       .totals {
         grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -354,7 +363,8 @@
       .topbar a,
       .langbar button,
       .ghost-btn {
-        padding: 8px 12px;
+        padding: 7px 11px;
+        font-size: 12px;
       }
     }
   </style>

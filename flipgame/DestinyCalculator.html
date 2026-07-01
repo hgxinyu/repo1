@@ -7,7 +7,7 @@
   <script>
     (function () {
       var host = (window.location.hostname || '').toLowerCase();
-      var isLocal = host === 'localhost' || host === '127.0.0.1' || host === '::1';
+      var isLocal = host === '' || host === 'localhost' || host === '0.0.0.0' || host === '127.0.0.1' || host === '::1' || /^10\./.test(host) || /^192\.168\./.test(host) || /^172\.(1[6-9]|2\d|3[01])\./.test(host);
       var isStage = host === 'stage' || host.startsWith('stage.') || host.startsWith('stage-') || host.startsWith('stage--') || host.indexOf('--stage') !== -1 || host.indexOf('-stage.') !== -1;
       var svg = isLocal ? 'assets/local-logo.svg' : (isStage ? 'assets/stage-logo.svg' : 'assets/shine-logo.svg');
       var png32 = isLocal ? 'assets/local-logo-32.png' : (isStage ? 'assets/stage-logo-32.png' : 'assets/shine-logo-32.png');
@@ -281,7 +281,66 @@
       .stamp { justify-self: stretch; }
     }
     @media (max-width: 620px) {
-      .summary { grid-template-columns: 1fr; }
+      .shell {
+        padding: 10px;
+        gap: 10px;
+      }
+      .topbar {
+        gap: 8px;
+      }
+      .topbar a,
+      .langbar button {
+        padding: 7px 11px;
+        font-size: 12px;
+      }
+      .hero,
+      .panel {
+        padding: 13px;
+      }
+      .hero,
+      .panel,
+      .layout {
+        gap: 10px;
+      }
+      .eyebrow {
+        margin-bottom: 4px;
+        font-size: 12px;
+      }
+      h1 {
+        font-size: 29px;
+      }
+      .intro {
+        margin-top: 8px;
+        font-size: 13px;
+        line-height: 1.4;
+      }
+      .stamp {
+        padding: 10px;
+      }
+      .stamp strong {
+        font-size: 18px;
+      }
+      .summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+      .metric {
+        padding: 9px;
+      }
+      .metric strong {
+        font-size: 17px;
+      }
+      .metric.requirement-metric {
+        grid-column: 1 / -1;
+      }
+      select {
+        padding: 9px 10px;
+        font-size: 14px;
+      }
+      th, td {
+        padding: 7px 8px;
+        font-size: 12.5px;
+      }
       table { min-width: 470px; }
     }
   </style>
@@ -586,7 +645,10 @@
         currentLang = ((navigator.language || '').toLowerCase().startsWith('zh')) ? 'zh' : 'en';
       }
       function t(key) {
-        return (I18N[currentLang] && I18N[currentLang][key]) || I18N.zh[key] || '';
+        if (I18N[currentLang] && Object.prototype.hasOwnProperty.call(I18N[currentLang], key)) {
+          return I18N[currentLang][key];
+        }
+        return I18N.zh[key] || '';
       }
       function formatInt(value) {
         return Math.round(value).toLocaleString(currentLang === 'zh' ? 'zh-CN' : 'en-US');

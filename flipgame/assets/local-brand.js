@@ -1,6 +1,6 @@
 (function () {
   var host = (window.location.hostname || '').toLowerCase();
-  var isLocal = host === 'localhost' || host === '127.0.0.1' || host === '::1';
+  var isLocal = host === '' || host === 'localhost' || host === '0.0.0.0' || host === '127.0.0.1' || host === '::1' || /^10\./.test(host) || /^192\.168\./.test(host) || /^172\.(1[6-9]|2\d|3[01])\./.test(host);
   var isStage = host === 'stage' || host.startsWith('stage.') || host.startsWith('stage-') || host.startsWith('stage--') || host.indexOf('--stage') !== -1 || host.indexOf('-stage.') !== -1;
   if (!isLocal && !isStage) return;
   var prefix = isLocal ? 'local' : 'stage';

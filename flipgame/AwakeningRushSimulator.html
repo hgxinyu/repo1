@@ -6,7 +6,7 @@
   <title>觉醒冲榜模拟器 · ShinE</title>  <script>
     (function () {
       var host = (window.location.hostname || '').toLowerCase();
-      var isLocal = host === 'localhost' || host === '127.0.0.1' || host === '::1';
+      var isLocal = host === '' || host === 'localhost' || host === '0.0.0.0' || host === '127.0.0.1' || host === '::1' || /^10\./.test(host) || /^192\.168\./.test(host) || /^172\.(1[6-9]|2\d|3[01])\./.test(host);
       var isStage = host === 'stage' || host.startsWith('stage.') || host.startsWith('stage-') || host.startsWith('stage--') || host.indexOf('--stage') !== -1 || host.indexOf('-stage.') !== -1;
       var svg = isLocal ? 'assets/local-logo.svg' : (isStage ? 'assets/stage-logo.svg' : 'assets/shine-logo.svg');
       var png32 = isLocal ? 'assets/local-logo-32.png' : (isStage ? 'assets/stage-logo-32.png' : 'assets/shine-logo-32.png');
@@ -993,10 +993,10 @@
           lang_toggle_zh: '中文'
         },
         en: {
-          title: 'Awakening Rush Simulator · ShinE',
+          title: 'Awakening Gala Simulator · ShinE',
           nav_label: 'Page Navigation',
           nav_home: 'Home',
-          page_title: 'Awakening Rush Simulator',
+          page_title: 'Awakening Gala Simulator',
           page_desc: 'Each awakening scores first. B+ and below are recycled. A- and above are kept.',
           calc_title: 'Enter bound diamonds and simulate one run',
           kept_title: 'Tier Distribution',
@@ -1010,7 +1010,7 @@
           hint: 'Limit: 2,000,000 bound diamonds. Click again for a new random run.',
           hint_over: 'Calculated with the 2,000,000 bound diamond limit.',
           score_label: 'Total Score',
-          score_desc: 'Rush score',
+          score_desc: 'Gala score',
           a_count_label: 'A Count',
           a_count_desc: 'A- / A / A+',
           s_count_label: 'S Count',
