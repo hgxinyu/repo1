@@ -159,12 +159,12 @@
     .image-overlay.is-open { display: flex; }
     #overlayImages {
       width: max-content;
-      max-width: none;
+      max-width: 100%;
       margin: 0 auto;
     }
     .image-overlay img {
       width: auto;
-      max-width: none;
+      max-width: calc(100vw - 56px);
       height: auto;
       display: block;
     }
@@ -186,6 +186,9 @@
       nav#topbar-nav a { padding: 8px 12px; font-size: 13px; }
       .wrap { padding-top: 16px; }
       .image-overlay { padding: 16px; }
+      .image-overlay img {
+        max-width: calc(100vw - 32px);
+      }
     }
   </style>
 </head>
