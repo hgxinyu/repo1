@@ -2,6 +2,8 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
+from guide_image_style import draw_guide_footnote
+
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "flipgame" / "images" / "tubiao.jpg"
@@ -131,8 +133,7 @@ def main():
     left_h = draw_table(canvas, draw, source, margin, start_y, col_w, "增益 Buff", BUFF_ROWS, "#1d4ed8", "#eef6ff")
     right_h = draw_table(canvas, draw, source, margin + col_w + col_gap, start_y, col_w, "减益 Debuff", DEBUFF_ROWS, "#991b1b", "#fff1f2")
 
-    footer_y = start_y + max(left_h, right_h) + 34
-    draw.text((w - margin - 230, footer_y + 10), "By 国风*ShinE", font=font(24, True), fill="#2b2118")
+    draw_guide_footnote(draw, w, h, margin, font, rounded)
 
     canvas.save(OUT)
     print(OUT)

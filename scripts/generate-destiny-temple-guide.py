@@ -3,6 +3,8 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
+from guide_image_style import draw_brand_footnote
+
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "flipgame" / "destiny_temple_levels.json"
@@ -136,6 +138,7 @@ def main():
     draw.text((margin + 24, footer_y + 18), "说明", font=font(23, True), fill="#6f3b12")
     draw.text((margin + 96, footer_y + 20), "神能等级 = 飞升等级 + 神能加成；展示(神)由要求(飞)自动推导。", font=font(20), fill=ink)
     draw.text((margin + 96, footer_y + 54), "前置星碎 / 前置意识是升级门槛；神玉、时晶、灵碎、星碎为当前殿堂升满累计资源。", font=font(20), fill=ink)
+    draw_brand_footnote(draw, w - margin - 24, footer_y + 112, font)
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     img.save(OUT, optimize=True)

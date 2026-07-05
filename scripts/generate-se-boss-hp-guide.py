@@ -3,6 +3,8 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
+from guide_image_style import draw_brand_footnote
+
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "flipgame" / "seboss_all.json"
@@ -157,6 +159,7 @@ def main():
     draw.text((margin + 24, footer_y + 18), "说明", font=font(23, True), fill="#6f3b12")
     draw.text((margin + 96, footer_y + 20), "单位：万亿。总积分按四舍五入显示，1% 血量积分保留两位小数。", font=font(21), fill="#20130c")
     draw.text((margin + 96, footer_y + 56), "计算剩余积分：当前层总积分 × 剩余血量百分比。", font=font(21, True), fill=red)
+    draw_brand_footnote(draw, w - margin - 24, footer_y + 84, font)
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     img.save(OUT, optimize=True)

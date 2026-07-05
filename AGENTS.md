@@ -53,6 +53,7 @@ When previewing locally, `index.html` shows a `Local Admin` account and Admin Po
 - Core / Temple / Destiny calculator documentation: `docs/core-calculator.md`. The calculator entry page is `flipgame/Calculators.html`; page implementations live in `flipgame/CoreCalculator.html` and `flipgame/DestinyCalculator.html`. Destiny Temple / Divine Power terminology lives in `IHassistant/knowledge/mechanics/destiny-temple.md`; the transcribed 1-30 level table lives in `flipgame/destiny_temple_levels.json`.
 - Expedition calculator data source: `flipgame/seboss_all.json`.
 - Guide images live under `flipgame/images/`.
+- Generated guide images should use the right-side ShineGame logo/QR treatment in the headnote. The brand footnote text is `ShineGame · Idle Heroes Guide`; if the image already has a bottom note/rule/explanation card, merge the brand footnote into that existing card instead of adding a separate bottom bar. Use the standalone rounded bottom footnote style from the void invasion guide only when there is no existing footer card.
 - Knowledge base images and source screenshots live under `IHassistant/knowledge/`.
 - AI玩放置 / Play IH with AI knowledge index: `flipgame/netlify/functions/_shared/ih-knowledge-index.mjs`, generated from game-related Markdown files and `IHassistant/knowledge/` text data.
 - If data is regenerated from Excel, keep final browser data in CSV/JSON and document the source file.

@@ -2,6 +2,8 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
+from guide_image_style import draw_brand_footnote
+
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "flipgame" / "images" / "starsoul-upgrade-guide.png"
@@ -245,6 +247,7 @@ def main():
     footer_y = h - 130
     draw_requirements(draw, margin, footer_y, w - margin * 2)
     draw.text((margin + 24, h - 33), "换算：1 个星魂本体 = 5,000 星魂碎片。", font=font(18, True), fill="#6f3b12")
+    draw_brand_footnote(draw, w - margin - 24, h - 33, font)
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     img.save(OUT, optimize=True)

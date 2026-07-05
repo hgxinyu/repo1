@@ -2,6 +2,8 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
+from guide_image_style import draw_brand_footnote
+
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "flipgame" / "images" / "breakdown-soulpower-guide.png"
@@ -62,7 +64,7 @@ def tier_style(tier):
 
 
 def main():
-    w, h = 1080, 780
+    w, h = 1080, 820
     img = Image.new("RGB", (w, h), "#f7efe0")
     draw = ImageDraw.Draw(img)
 
@@ -127,6 +129,7 @@ def main():
     rounded(draw, (margin, footer_y, w - margin, h - 36), 22, "#ffffff", "#e6d5b5", 2)
     left_text(draw, (margin + 24, footer_y + 18), "说明", font(23, True), "#6f3b12")
     left_text(draw, (margin + 96, footer_y + 20), "数值来自原分解资质魂力攻略图；比值越高，单位分解价换到的充能进度越多。", font(21), ink)
+    draw_brand_footnote(draw, w - margin - 24, footer_y + 66, font)
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     img.save(OUT, optimize=True)

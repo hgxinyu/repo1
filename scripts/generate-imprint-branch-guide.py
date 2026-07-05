@@ -2,6 +2,8 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
+from guide_image_style import draw_guide_footnote
+
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "flipgame" / "images" / "imprint-branch-guide.png"
@@ -288,9 +290,7 @@ def main():
 
         y += section_h + section_gap
 
-    footer_y = h - footer_h - 42
-    rounded(draw, (margin, footer_y, w - margin, h - 54), 24, "#ffffff", "#cbd5e1", 2)
-    draw.text((w - margin - 360, footer_y + 24), "ShineGame · Idle Heroes Guide", font=font(21, True), fill="#64748b")
+    draw_guide_footnote(draw, w, h, margin, font, rounded, bottom=54, card_height=footer_h)
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     img.save(OUT, optimize=True)

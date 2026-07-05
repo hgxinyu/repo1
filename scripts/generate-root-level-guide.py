@@ -2,6 +2,8 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
+from guide_image_style import draw_brand_footnote
+
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "flipgame" / "images" / "root-level-guide.png"
@@ -130,6 +132,7 @@ def main():
     left_text(draw, (margin + 24, footer_y + 18), "说明", font(23, True), "#6f3b12")
     left_text(draw, (margin + 96, footer_y + 20), "资源为从 E9 到对应根源等级的累计值；120 级为当前满根源。", font(21), ink)
     left_text(draw, (margin + 96, footer_y + 56), "满根源累计：9,994,100 印痕 / 1,248,120 意识精华。", font(21, True), red)
+    draw_brand_footnote(draw, w - margin - 24, footer_y + 58, font)
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     img.save(OUT, optimize=True)

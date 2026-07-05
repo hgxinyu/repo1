@@ -2,6 +2,8 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
+from guide_image_style import draw_brand_footnote
+
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT_DIR = ROOT / "flipgame" / "images"
@@ -254,6 +256,7 @@ def draw_explanation():
         THEME["ink"],
         820,
     )
+    draw_brand_footnote(draw, 1080 - margin - 24, footer_y + 72, font)
 
     out = OUT_DIR / "attribute-explanation-guide.png"
     img.save(out, optimize=True)
@@ -306,6 +309,7 @@ def draw_formula():
         THEME["ink"],
         820,
     )
+    draw_brand_footnote(draw, 1080 - margin - 24, footer_y + 82, font)
 
     out = OUT_DIR / "attribute-formula-guide.png"
     img.save(out, optimize=True)

@@ -2,6 +2,8 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
+from guide_image_style import draw_brand_footnote
+
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "flipgame" / "images" / "imprint-infusion-guide.png"
@@ -123,6 +125,7 @@ def main():
     rounded(draw, (margin, footer_y, w - margin, h - 36), 22, "#ffffff", "#e6d5b5", 2)
     left_text(draw, (margin + 24, footer_y + 18), "规则", font(23, True), "#6f3b12")
     left_text(draw, (margin + 96, footer_y + 20), "每级需要点数如表；满印痕灌注合计 63 点。", font(22), ink)
+    draw_brand_footnote(draw, w - margin - 24, footer_y + 58, font)
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     img.save(OUT, optimize=True)

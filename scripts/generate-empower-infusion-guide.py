@@ -2,6 +2,8 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
+from guide_image_style import draw_brand_footnote
+
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "flipgame" / "images" / "empower-infusion-guide.png"
@@ -169,6 +171,7 @@ def main():
     draw_wrapped(draw, (margin + 96, footer_y + 18), "每个赋能位从 3 个选项中选 1 个；赋能 1 和 4 使用同一组选项。", font(21), ink, 840)
     draw_wrapped(draw, (margin + 96, footer_y + 54), "所有魔典灌注 Lv3：生命值 +5.5%，攻击 +4%。", font(21, True), red, 840)
     draw_wrapped(draw, (margin + 96, footer_y + 92), "E1 前置：魔典等级 50，需 2,042,800 魔典精华 + 1 个赋能灌注石。", font(20), ink, 840)
+    draw_brand_footnote(draw, w - margin - 24, footer_y + 132, font)
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     img.save(OUT, optimize=True)

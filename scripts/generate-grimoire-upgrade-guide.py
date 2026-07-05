@@ -2,6 +2,8 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
+from guide_image_style import draw_brand_footnote
+
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "flipgame" / "images" / "grimoire-upgrade-guide.png"
@@ -151,6 +153,7 @@ def main():
     draw.text((margin + 24, footer_y + 18), "说明", font=font(23, True), fill="#6f3b12")
     draw.text((margin + 96, footer_y + 20), "Chapter 1 = 赋能魔典，只消耗魔典精华。", font=font(21), fill=ink)
     draw.text((margin + 96, footer_y + 54), "Chapter 2 = 印痕魔典，同时消耗魔典精华和魔典印痕精华。", font=font(21), fill=ink)
+    draw_brand_footnote(draw, w - margin - 24, footer_y + 23, font)
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     img.save(OUT, optimize=True)

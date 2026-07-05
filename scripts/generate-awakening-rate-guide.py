@@ -2,6 +2,8 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
+from guide_image_style import draw_brand_footnote
+
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "flipgame" / "images" / "awakening-rate-guide.png"
@@ -143,6 +145,7 @@ def main():
     left_text(draw, (margin + 24, footer_y + 18), "拆分口径", font(23, True), "#6f3b12")
     left_text(draw, (margin + 146, footer_y + 20), "S / SS / SSS 各 0.0005%，积分 18 / 19 / 20；合并展示为 0.0015% / 19 分。", font(21), ink)
     left_text(draw, (margin + 24, footer_y + 58), "概率合计 100%，积分期望合计 5.92963。", font(22, True), green)
+    draw_brand_footnote(draw, w - margin - 24, footer_y + 84, font)
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     img.save(OUT, optimize=True)

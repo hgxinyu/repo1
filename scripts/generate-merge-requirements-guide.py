@@ -2,6 +2,8 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
+from guide_image_style import draw_brand_footnote
+
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "flipgame" / "images" / "merge-requirements-guide.png"
@@ -127,6 +129,7 @@ def main():
     rounded(draw, (margin, footer_y, w - margin, h - 36), 22, "#ffffff", "#e6d5b5", 2)
     left_text(draw, (margin + 24, footer_y + 18), "说明", font(23, True), "#6f3b12")
     left_text(draw, (margin + 96, footer_y + 20), "属性随机分配给攻击 / 生命 / 速度；分给速度时按数值 ÷ 100。", font(21), ink)
+    draw_brand_footnote(draw, w - margin - 24, footer_y + 50, font)
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     img.save(OUT, optimize=True)

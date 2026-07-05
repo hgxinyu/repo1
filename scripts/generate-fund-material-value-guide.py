@@ -2,6 +2,8 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
+from guide_image_style import draw_brand_footnote
+
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "flipgame" / "images" / "fund-material-value-guide.png"
@@ -175,6 +177,7 @@ def main():
     draw.text((margin + 24, footer_y + 18), "说明", font=font(23, True), fill="#6f3b12")
     draw_wrapped(draw, (margin + 96, footer_y + 20), "比例 = 基金12倍 ÷ 任务每10材料换取量；倍数越高代表基金越实惠。", font(21), ink, 820)
     draw_wrapped(draw, (margin + 96, footer_y + 56), "比例按从高到低高亮：深黄最高，浅黄次之；粉色为最低两档。", font(21, True), red, 820)
+    draw_brand_footnote(draw, w - margin - 24, footer_y + 88, font)
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     img.save(OUT, optimize=True)

@@ -2,6 +2,8 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
+from guide_image_style import draw_guide_footnote
+
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "IHassistant" / "knowledge" / "bosses" / "void-invasion" / "Weixin Image_20260705105439_130_58.jpg"
@@ -281,9 +283,7 @@ def main():
         y1 = start_y + row * (card_h + row_gap)
         draw_card(canvas, draw, source, (x1, y1, x1 + card_w, y1 + card_h), boss, palettes[row % len(palettes)])
 
-    footer_y = h - footer_h - 42
-    rounded(draw, (margin, footer_y, w - margin, h - 46), 24, "#ffffff", "#cbd5e1", 2)
-    draw.text((w - margin - 364, footer_y + 26), "ShineGame · Idle Heroes Guide", font=font(22, True), fill="#64748b")
+    draw_guide_footnote(draw, w, h, margin, font, rounded, bottom=46, card_height=footer_h)
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     canvas.save(OUT, optimize=True)

@@ -2,6 +2,8 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
+from guide_image_style import draw_brand_footnote
+
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "flipgame" / "images" / "destiny-upgrade-guide.png"
@@ -167,6 +169,7 @@ def main():
         values = [stage, fmt(spirit_day), fmt(spirit_month), fmt(aurora_day), fmt(aurora_month)]
         for i, value in enumerate(values):
             center_text(draw, (dxs[i], y, dxs[i + 1], y + 30), value, font(15, True) if i == 0 else font(15), ink)
+    draw_brand_footnote(draw, margin + left_w - 24, info_y + 186, font)
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     img.save(OUT, optimize=True)
