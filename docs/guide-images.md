@@ -14,9 +14,13 @@
 - 分解资质魂力新版图由 `scripts/generate-breakdown-soulpower-guide.py` 生成，数据来自旧图 `flipgame/images/fengjiehunli.png`，输出为 `flipgame/images/breakdown-soulpower-guide.png`。
 - 升格需求新版图由 `scripts/generate-merge-requirements-guide.py` 生成，数据来自旧图 `flipgame/images/shengexuqiu.jpg`，输出为 `flipgame/images/merge-requirements-guide.png`。
 - 根源等级新版图由 `scripts/generate-root-level-guide.py` 生成，数据来自旧图 `flipgame/images/genyuan.jpeg` 和 `IHassistant/knowledge/mechanics/hero-upgrade-progression.md`，输出为 `flipgame/images/root-level-guide.png`。
+- 飞升升级资源图由 `scripts/generate-destiny-upgrade-guide.py` 生成，数据来自用户提供 `IMG_5996.jpg`，并与 `IHassistant/knowledge/mechanics/hero-upgrade-progression.md` 对照一致，输出为 `flipgame/images/destiny-upgrade-guide.png`。
+- 飞升殿堂升级资料图由 `scripts/generate-destiny-temple-guide.py` 生成，数据来自 `flipgame/destiny_temple_levels.json` 和 `IHassistant/knowledge/mechanics/destiny-temple.md`，输出为 `flipgame/images/destiny-temple-guide.png`。
 - 属性解释与算法新版图由 `scripts/generate-attribute-guides.py` 生成，数据来自旧图 `flipgame/images/属性解释.jpg` 和 `IHassistant/knowledge/mechanics/attributes-affixes.md`，输出为 `flipgame/images/attribute-explanation-guide.png` 与 `flipgame/images/attribute-formula-guide.png`。
 - 赋能灌注新版图由 `scripts/generate-empower-infusion-guide.py` 生成，数据来自旧英文图 `flipgame/images/funengguanzhu.jpg` 和 `IHassistant/knowledge/hero enabling/README.md`，输出为 `flipgame/images/empower-infusion-guide.png`。
 - 基金材料性价比图由 `scripts/generate-fund-material-value-guide.py` 生成，数据来自用户提供截图 `Weixin Image_20260704213500_128_58.jpg` 和 `IHassistant/knowledge/mechanics/fund-material-value.md`，输出为 `flipgame/images/fund-material-value-guide.png`。
+- 魔典升级需求图由 `scripts/generate-grimoire-upgrade-guide.py` 生成，数据来自用户提供截图 `image.png` 和 `IHassistant/knowledge/mechanics/grimoire-upgrade.md`，输出为 `flipgame/images/grimoire-upgrade-guide.png`。
+- 星魂升级材料图由 `scripts/generate-starsoul-upgrade-guide.py` 生成，数据来自用户提供截图 `RDT_20240908_1722111431203826012194248.png` 和 `IHassistant/knowledge/starsoul/upgrade-requirements.md`，输出为 `flipgame/images/starsoul-upgrade-guide.png`。
 
 ## 打开图片
 

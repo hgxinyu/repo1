@@ -214,6 +214,16 @@
         <span class="title" id="cardGenyuanTitle">根源等级</span>
         <span class="subtitle" id="cardGenyuanSub">查看根源等级攻略图</span>
       </a>
+      <a class="card-link" href="images/destiny-upgrade-guide.png" data-image="images/destiny-upgrade-guide.png">
+        <span class="thumb"><img src="images/destiny-upgrade-guide.png" alt="飞升升级资源" id="destinyUpgradeImg" /></span>
+        <span class="title" id="cardDestinyUpgradeTitle">飞升升级资源</span>
+        <span class="subtitle" id="cardDestinyUpgradeSub">查看飞升 1 到 6 资源攻略图</span>
+      </a>
+      <a class="card-link" href="images/destiny-temple-guide.png" data-image="images/destiny-temple-guide.png">
+        <span class="thumb"><img src="images/destiny-temple-guide.png" alt="飞升殿堂升级资料" id="destinyTempleImg" /></span>
+        <span class="title" id="cardDestinyTempleTitle">飞升殿堂升级资料</span>
+        <span class="subtitle" id="cardDestinyTempleSub">查看殿堂 1 到 30 升级资料图</span>
+      </a>
       <a class="card-link" href="images/root-infusion-set-guide.png" data-image="images/root-infusion-set-guide.png">
         <span class="thumb"><img src="images/root-infusion-set-guide.png" alt="根源灌注套装效果" id="rootInfusionSetImg" /></span>
         <span class="title" id="cardRootInfusionSetTitle">根源灌注套装效果</span>
@@ -254,6 +264,16 @@
         <span class="title" id="cardFundMaterialTitle">基金材料性价比</span>
         <span class="subtitle" id="cardFundMaterialSub">查看基金材料兑换性价比攻略图</span>
       </a>
+      <a class="card-link" href="images/grimoire-upgrade-guide.png" data-image="images/grimoire-upgrade-guide.png">
+        <span class="thumb"><img src="images/grimoire-upgrade-guide.png" alt="魔典升级需求" id="grimoireUpgradeImg" /></span>
+        <span class="title" id="cardGrimoireUpgradeTitle">魔典升级需求</span>
+        <span class="subtitle" id="cardGrimoireUpgradeSub">查看赋能魔典和印痕魔典升级材料</span>
+      </a>
+      <a class="card-link" href="images/starsoul-upgrade-guide.png" data-image="images/starsoul-upgrade-guide.png">
+        <span class="thumb"><img src="images/starsoul-upgrade-guide.png" alt="星魂升级材料" id="starsoulUpgradeImg" /></span>
+        <span class="title" id="cardStarsoulUpgradeTitle">星魂升级材料</span>
+        <span class="subtitle" id="cardStarsoulUpgradeSub">查看星魂到 24 级和命轨升级材料需求</span>
+      </a>
       <a class="card-link" href="images/tubiao.jpg" data-image="images/tubiao.jpg">
         <span class="thumb"><img src="images/tubiao.jpg" alt="战斗Buff/Debuff图标" id="iconImg" /></span>
         <span class="title" id="cardIconTitle">战斗Buff/Debuff图标</span>
@@ -283,6 +303,12 @@
       const cardGenyuanTitle = document.getElementById('cardGenyuanTitle');
       const cardGenyuanSub = document.getElementById('cardGenyuanSub');
       const genyuanImg = document.getElementById('genyuanImg');
+      const cardDestinyUpgradeTitle = document.getElementById('cardDestinyUpgradeTitle');
+      const cardDestinyUpgradeSub = document.getElementById('cardDestinyUpgradeSub');
+      const destinyUpgradeImg = document.getElementById('destinyUpgradeImg');
+      const cardDestinyTempleTitle = document.getElementById('cardDestinyTempleTitle');
+      const cardDestinyTempleSub = document.getElementById('cardDestinyTempleSub');
+      const destinyTempleImg = document.getElementById('destinyTempleImg');
       const cardRootInfusionSetTitle = document.getElementById('cardRootInfusionSetTitle');
       const cardRootInfusionSetSub = document.getElementById('cardRootInfusionSetSub');
       const rootInfusionSetImg = document.getElementById('rootInfusionSetImg');
@@ -307,6 +333,12 @@
       const cardFundMaterialTitle = document.getElementById('cardFundMaterialTitle');
       const cardFundMaterialSub = document.getElementById('cardFundMaterialSub');
       const fundMaterialImg = document.getElementById('fundMaterialImg');
+      const cardGrimoireUpgradeTitle = document.getElementById('cardGrimoireUpgradeTitle');
+      const cardGrimoireUpgradeSub = document.getElementById('cardGrimoireUpgradeSub');
+      const grimoireUpgradeImg = document.getElementById('grimoireUpgradeImg');
+      const cardStarsoulUpgradeTitle = document.getElementById('cardStarsoulUpgradeTitle');
+      const cardStarsoulUpgradeSub = document.getElementById('cardStarsoulUpgradeSub');
+      const starsoulUpgradeImg = document.getElementById('starsoulUpgradeImg');
       const cardIconTitle = document.getElementById('cardIconTitle');
       const cardIconSub = document.getElementById('cardIconSub');
       const iconImg = document.getElementById('iconImg');
@@ -335,6 +367,12 @@
           card_genyuan_title: '根源等级',
           card_genyuan_sub: '查看根源等级攻略图',
           genyuan_alt: '根源等级',
+          card_destinyupgrade_title: '飞升升级资源',
+          card_destinyupgrade_sub: '查看飞升 1 到 6 资源攻略图',
+          destinyupgrade_alt: '飞升升级资源',
+          card_destinytemple_title: '飞升殿堂升级资料',
+          card_destinytemple_sub: '查看殿堂 1 到 30 升级资料图',
+          destinytemple_alt: '飞升殿堂升级资料',
           card_rootinfusionset_title: '根源灌注套装效果',
           card_rootinfusionset_sub: '查看六种唤醒套装 Lv1→Lv7 效果速览',
           rootinfusionset_alt: '根源灌注套装效果',
@@ -359,6 +397,12 @@
           card_fundmaterial_title: '基金材料性价比',
           card_fundmaterial_sub: '查看基金材料兑换性价比攻略图',
           fundmaterial_alt: '基金材料性价比',
+          card_grimoireupgrade_title: '魔典升级需求',
+          card_grimoireupgrade_sub: '查看赋能魔典和印痕魔典升级材料',
+          grimoireupgrade_alt: '魔典升级需求',
+          card_starsoulupgrade_title: '星魂升级材料',
+          card_starsoulupgrade_sub: '查看星魂到 24 级和命轨升级材料需求',
+          starsoulupgrade_alt: '星魂升级材料',
           card_icon_title: '战斗Buff/Debuff图标',
           card_icon_sub: '查看战斗Buff/Debuff图标攻略图',
           icon_alt: '战斗Buff/Debuff图标',
@@ -377,6 +421,12 @@
           card_genyuan_title: 'Origin Level',
           card_genyuan_sub: 'Open the origin level guide image',
           genyuan_alt: 'Origin level guide',
+          card_destinyupgrade_title: 'Destiny Upgrade Resources',
+          card_destinyupgrade_sub: 'Open the Destiny 1 to 6 resource guide image',
+          destinyupgrade_alt: 'Destiny upgrade resource guide',
+          card_destinytemple_title: 'Destiny Temple Upgrade Data',
+          card_destinytemple_sub: 'Open the Temple level 1 to 30 upgrade data guide',
+          destinytemple_alt: 'Destiny Temple upgrade data guide',
           card_rootinfusionset_title: 'Origin Infusion Set Effects',
           card_rootinfusionset_sub: 'Open the Lv1 to Lv7 quick reference for the six awakening sets',
           rootinfusionset_alt: 'Origin infusion set effects guide',
@@ -401,6 +451,12 @@
           card_fundmaterial_title: 'Fund Material Value',
           card_fundmaterial_sub: 'Open the fund material value guide image',
           fundmaterial_alt: 'Fund material value guide',
+          card_grimoireupgrade_title: 'Grimoire Upgrade Requirements',
+          card_grimoireupgrade_sub: 'Open the Enabling and Imprint Grimoire upgrade material guide',
+          grimoireupgrade_alt: 'Grimoire upgrade requirements guide',
+          card_starsoulupgrade_title: 'Star Soul Upgrade Materials',
+          card_starsoulupgrade_sub: 'Open the Star Soul Lv24 and Destiny Trail upgrade material guide',
+          starsoulupgrade_alt: 'Star Soul upgrade material guide',
           card_icon_title: 'Battle Buff/Debuff Icons',
           card_icon_sub: 'Open the battle Buff/Debuff icon guide image',
           icon_alt: 'Battle Buff and Debuff icon guide',
@@ -426,6 +482,12 @@
         if (cardGenyuanTitle) cardGenyuanTitle.textContent = t('card_genyuan_title');
         if (cardGenyuanSub) cardGenyuanSub.textContent = t('card_genyuan_sub');
         if (genyuanImg) genyuanImg.setAttribute('alt', t('genyuan_alt'));
+        if (cardDestinyUpgradeTitle) cardDestinyUpgradeTitle.textContent = t('card_destinyupgrade_title');
+        if (cardDestinyUpgradeSub) cardDestinyUpgradeSub.textContent = t('card_destinyupgrade_sub');
+        if (destinyUpgradeImg) destinyUpgradeImg.setAttribute('alt', t('destinyupgrade_alt'));
+        if (cardDestinyTempleTitle) cardDestinyTempleTitle.textContent = t('card_destinytemple_title');
+        if (cardDestinyTempleSub) cardDestinyTempleSub.textContent = t('card_destinytemple_sub');
+        if (destinyTempleImg) destinyTempleImg.setAttribute('alt', t('destinytemple_alt'));
         if (cardRootInfusionSetTitle) cardRootInfusionSetTitle.textContent = t('card_rootinfusionset_title');
         if (cardRootInfusionSetSub) cardRootInfusionSetSub.textContent = t('card_rootinfusionset_sub');
         if (rootInfusionSetImg) rootInfusionSetImg.setAttribute('alt', t('rootinfusionset_alt'));
@@ -450,6 +512,12 @@
         if (cardFundMaterialTitle) cardFundMaterialTitle.textContent = t('card_fundmaterial_title');
         if (cardFundMaterialSub) cardFundMaterialSub.textContent = t('card_fundmaterial_sub');
         if (fundMaterialImg) fundMaterialImg.setAttribute('alt', t('fundmaterial_alt'));
+        if (cardGrimoireUpgradeTitle) cardGrimoireUpgradeTitle.textContent = t('card_grimoireupgrade_title');
+        if (cardGrimoireUpgradeSub) cardGrimoireUpgradeSub.textContent = t('card_grimoireupgrade_sub');
+        if (grimoireUpgradeImg) grimoireUpgradeImg.setAttribute('alt', t('grimoireupgrade_alt'));
+        if (cardStarsoulUpgradeTitle) cardStarsoulUpgradeTitle.textContent = t('card_starsoulupgrade_title');
+        if (cardStarsoulUpgradeSub) cardStarsoulUpgradeSub.textContent = t('card_starsoulupgrade_sub');
+        if (starsoulUpgradeImg) starsoulUpgradeImg.setAttribute('alt', t('starsoulupgrade_alt'));
         if (cardIconTitle) cardIconTitle.textContent = t('card_icon_title');
         if (cardIconSub) cardIconSub.textContent = t('card_icon_sub');
         if (iconImg) iconImg.setAttribute('alt', t('icon_alt'));
