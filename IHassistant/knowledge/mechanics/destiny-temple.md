@@ -6,6 +6,8 @@
 
 普通 E5 英雄从 E5 到神六的完整升级链路另见：`hero-upgrade-progression.md`。
 
+攻略图输出：`flipgame/images/destiny-temple-guide.png`，由 `scripts/generate-destiny-temple-guide.py` 从结构化数据生成。
+
 ## 术语
 
 | 中文 | 别名 | 英文建议 | 代码字段建议 |

@@ -1,11 +1,8 @@
 import * as identity from "https://esm.sh/@netlify/identity?bundle";
+import { restoreIdentitySession as restoreNetlifyIdentitySession } from "./auth-session.js";
 
 async function restoreIdentitySession() {
-  await identity.handleAuthCallback().catch(() => null);
-  if (typeof identity.hydrateSession === "function") {
-    await identity.hydrateSession().catch(() => null);
-  }
-  return identity.getUser().catch(() => null);
+  return restoreNetlifyIdentitySession(identity);
 }
 
 function isLocalPreview() {

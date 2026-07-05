@@ -7,7 +7,7 @@
   <script>
     (function () {
       var host = (window.location.hostname || '').toLowerCase();
-      var isLocal = host === 'localhost' || host === '127.0.0.1' || host === '::1';
+      var isLocal = host === '' || host === 'localhost' || host === '0.0.0.0' || host === '127.0.0.1' || host === '::1' || /^10\./.test(host) || /^192\.168\./.test(host) || /^172\.(1[6-9]|2\d|3[01])\./.test(host);
       var isStage = host === 'stage' || host.startsWith('stage.') || host.startsWith('stage-') || host.startsWith('stage--') || host.indexOf('--stage') !== -1 || host.indexOf('-stage.') !== -1;
       var svg = isLocal ? 'assets/local-logo.svg' : (isStage ? 'assets/stage-logo.svg' : 'assets/shine-logo.svg');
       var png32 = isLocal ? 'assets/local-logo-32.png' : (isStage ? 'assets/stage-logo-32.png' : 'assets/shine-logo-32.png');
@@ -281,7 +281,66 @@
       .stamp { justify-self: stretch; }
     }
     @media (max-width: 620px) {
-      .summary { grid-template-columns: 1fr; }
+      .shell {
+        padding: 10px;
+        gap: 10px;
+      }
+      .topbar {
+        gap: 8px;
+      }
+      .topbar a,
+      .langbar button {
+        padding: 7px 11px;
+        font-size: 12px;
+      }
+      .hero,
+      .panel {
+        padding: 13px;
+      }
+      .hero,
+      .panel,
+      .layout {
+        gap: 10px;
+      }
+      .eyebrow {
+        margin-bottom: 4px;
+        font-size: 12px;
+      }
+      h1 {
+        font-size: 29px;
+      }
+      .intro {
+        margin-top: 8px;
+        font-size: 13px;
+        line-height: 1.4;
+      }
+      .stamp {
+        padding: 10px;
+      }
+      .stamp strong {
+        font-size: 18px;
+      }
+      .summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+      .metric {
+        padding: 9px;
+      }
+      .metric strong {
+        font-size: 17px;
+      }
+      .metric.requirement-metric {
+        grid-column: 1 / -1;
+      }
+      select {
+        padding: 9px 10px;
+        font-size: 14px;
+      }
+      th, td {
+        padding: 7px 8px;
+        font-size: 12.5px;
+      }
       table { min-width: 470px; }
     }
   </style>
@@ -471,6 +530,7 @@
           e9: 'E5 -> E9',
           root: 'E9 -> 根源 120',
           fly: '飞升段',
+          destiny_gate: '新增英雄飞升门槛',
           skills: '主动/被动1/被动2/被动3 各 4 点',
           boxes_shards: '8 箱 / 400 碎片',
           none_needed: '无需额外资源',
@@ -533,6 +593,7 @@
           e9: 'E5 -> E9',
           root: 'E9 -> Root 120',
           fly: 'Destiny stages',
+          destiny_gate: 'New hero Destiny gate',
           skills: '4 active / 4 passive 1 / 4 passive 2 / 4 passive 3',
           boxes_shards: '8 boxes / 400 shards',
           none_needed: 'No extra resources',
@@ -584,7 +645,10 @@
         currentLang = ((navigator.language || '').toLowerCase().startsWith('zh')) ? 'zh' : 'en';
       }
       function t(key) {
-        return (I18N[currentLang] && I18N[currentLang][key]) || I18N.zh[key] || '';
+        if (I18N[currentLang] && Object.prototype.hasOwnProperty.call(I18N[currentLang], key)) {
+          return I18N[currentLang][key];
+        }
+        return I18N.zh[key] || '';
       }
       function formatInt(value) {
         return Math.round(value).toLocaleString(currentLang === 'zh' ? 'zh-CN' : 'en-US');
@@ -713,6 +777,10 @@
         const upgradeCrystalK = next.resources.crystalOfTranscendenceK.total - ((currentResources.crystalOfTranscendenceK && currentResources.crystalOfTranscendenceK.total) || 0);
         const newHeroes = Math.max(0, next.heroCount - currentHeroCount);
         const transCrystalK = newHeroes * HERO_BASE.transcendenceCrystalK;
+        const coreBoxes = newHeroes * HERO_BASE.coreBoxes;
+        const coreShards = newHeroes * HERO_BASE.coreShards;
+        const skillPoints = newHeroes * HERO_BASE.skillPoints;
+        const essenceSublimationK = newHeroes * HERO_BASE.essenceSublimationK;
         nextTempleValue.textContent = formatTempleLabel(next.templeLevel);
         nextTempleDetail.textContent = formatDivinePower(next);
         newHeroValue.textContent = `${formatInt(newHeroes)}${t('hero_count_suffix')}`;
@@ -720,6 +788,8 @@
         templeRows.innerHTML = [
           resourceRow(t('stellar'), prereqStellar + upgradeStellar, `${t('prereq')} ${formatInt(prereqStellar)} + ${t('upgrade')} ${formatInt(upgradeStellar)}`),
           resourceRow(t('essence'), prereqEssence, `${t('prereq')} ${formatInt(prereqEssence)}`),
+          resourceTextRow(t('core_boxes_shards'), `${formatInt(coreBoxes)}/${formatInt(coreShards)}`, coreBoxes ? `${t('destiny_gate')} ${formatInt(newHeroes)} × ${t('boxes_shards')}` : t('none_needed')),
+          resourceTextRow(t('sublimation_k'), `${formatInt(skillPoints)}/${formatK(essenceSublimationK)}`, skillPoints ? `${t('destiny_gate')} ${formatInt(newHeroes)} × ${t('skills')}` : t('none_needed')),
           resourceRow(t('aurora'), upgradeAurora, `${t('upgrade')} ${formatInt(upgradeAurora)}`),
           resourceRow(t('spiritvein'), upgradeSpiritvein, `${t('upgrade')} ${formatInt(upgradeSpiritvein)}`),
           resourceRow(t('crystal_k'), upgradeCrystalK + transCrystalK, `${t('upgrade')} ${formatK(upgradeCrystalK)} + ${t('trans')} ${formatK(transCrystalK)}`, true)

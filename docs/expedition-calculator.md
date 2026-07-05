@@ -4,6 +4,7 @@
 访问权限：注册会员。页面加载时会调用 `/api/me` 检查当前登录账号，禁用账号不可访问。  
 页面数据：`flipgame/seboss_all.json`  
 原始数据：`flipgame/SE Boss New.xlsx`
+攻略图：`flipgame/images/se-boss-hp-guide.png`，由 `scripts/generate-se-boss-hp-guide.py` 生成。
 
 ## 数据口径
 

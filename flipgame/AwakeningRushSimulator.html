@@ -6,7 +6,7 @@
   <title>觉醒冲榜模拟器 · ShinE</title>  <script>
     (function () {
       var host = (window.location.hostname || '').toLowerCase();
-      var isLocal = host === 'localhost' || host === '127.0.0.1' || host === '::1';
+      var isLocal = host === '' || host === 'localhost' || host === '0.0.0.0' || host === '127.0.0.1' || host === '::1' || /^10\./.test(host) || /^192\.168\./.test(host) || /^172\.(1[6-9]|2\d|3[01])\./.test(host);
       var isStage = host === 'stage' || host.startsWith('stage.') || host.startsWith('stage-') || host.startsWith('stage--') || host.indexOf('--stage') !== -1 || host.indexOf('-stage.') !== -1;
       var svg = isLocal ? 'assets/local-logo.svg' : (isStage ? 'assets/stage-logo.svg' : 'assets/shine-logo.svg');
       var png32 = isLocal ? 'assets/local-logo-32.png' : (isStage ? 'assets/stage-logo-32.png' : 'assets/shine-logo-32.png');
@@ -769,6 +769,10 @@
             <label for="diamonds" id="diamondsLabel">绑钻数量</label>
             <input id="diamonds" type="number" inputmode="numeric" min="0" max="2000000" step="1" placeholder="例如 50000" value="50000" />
           </div>
+          <div class="col">
+            <label for="actualKeptStar" id="actualKeptStarLabel">真实出货星钻（可选）</label>
+            <input id="actualKeptStar" type="number" inputmode="numeric" min="0" step="1" placeholder="不填则使用模拟出货" />
+          </div>
           <div class="tools">
             <button class="btn primary" id="simulateBtn" type="button">开始模拟</button>
           </div>
@@ -910,6 +914,8 @@
       const expectedColumnLabel = document.getElementById('expectedColumnLabel');
       const diamondsLabel = document.getElementById('diamondsLabel');
       const diamondsEl = document.getElementById('diamonds');
+      const actualKeptStarLabel = document.getElementById('actualKeptStarLabel');
+      const actualKeptStarEl = document.getElementById('actualKeptStar');
       const simulateBtn = document.getElementById('simulateBtn');
       const clearBtn = document.getElementById('clearBtn');
       const hintText = document.getElementById('hintText');
@@ -963,6 +969,8 @@
           expected_column_label: '理论期望',
           diamonds_label: '绑钻数量',
           diamonds_placeholder: '例如 50000',
+          actual_kept_star_label: '真实出货星钻（可选）',
+          actual_kept_star_placeholder: '不填则使用模拟出货',
           simulate: '开始模拟',
           clear: '清空',
           hint: '上限 2,000,000 绑钻；每次点击会重新随机模拟。',
@@ -987,16 +995,18 @@
           expected_pulls_desc: '初始绑钻 / 52.269',
           net_star_label: '净投入',
           net_star_desc: '投入星钻 - 出货星钻',
+          net_star_desc_simulated: '投入星钻 - 模拟出货星钻',
+          net_star_desc_actual: '投入星钻 - 真实出货星钻',
           price_load_failed: '未能加载资质价格（quality_prices.json），出货收益暂按 0 计算。',
           dash: '—',
           lang_toggle_en: 'EN',
           lang_toggle_zh: '中文'
         },
         en: {
-          title: 'Awakening Rush Simulator · ShinE',
+          title: 'Awakening Gala Simulator · ShinE',
           nav_label: 'Page Navigation',
           nav_home: 'Home',
-          page_title: 'Awakening Rush Simulator',
+          page_title: 'Awakening Gala Simulator',
           page_desc: 'Each awakening scores first. B+ and below are recycled. A- and above are kept.',
           calc_title: 'Enter bound diamonds and simulate one run',
           kept_title: 'Tier Distribution',
@@ -1005,12 +1015,14 @@
           expected_column_label: 'Expected',
           diamonds_label: 'Bound Diamonds',
           diamonds_placeholder: 'e.g. 50000',
+          actual_kept_star_label: 'Actual Kept Star Diamonds (optional)',
+          actual_kept_star_placeholder: 'Blank uses simulated kept value',
           simulate: 'Simulate',
           clear: 'Clear',
           hint: 'Limit: 2,000,000 bound diamonds. Click again for a new random run.',
           hint_over: 'Calculated with the 2,000,000 bound diamond limit.',
           score_label: 'Total Score',
-          score_desc: 'Rush score',
+          score_desc: 'Gala score',
           a_count_label: 'A Count',
           a_count_desc: 'A- / A / A+',
           s_count_label: 'S Count',
@@ -1029,6 +1041,8 @@
           expected_pulls_desc: 'Initial diamonds / 52.269',
           net_star_label: 'Net Input',
           net_star_desc: 'Input star diamonds - kept value',
+          net_star_desc_simulated: 'Input star diamonds - simulated kept value',
+          net_star_desc_actual: 'Input star diamonds - actual kept value',
           price_load_failed: 'Failed to load quality_prices.json. Kept value is temporarily calculated as 0.',
           dash: '—',
           lang_toggle_en: 'EN',
@@ -1043,6 +1057,8 @@
       }
       let starDiamondBoundDiamondRatio = null;
       let keptPrices = new Map();
+      let lastStartDiamonds = 0;
+      let lastResult = null;
 
       function t(key) {
         return (I18N[currentLang] && I18N[currentLang][key]) || I18N.zh[key] || '';
@@ -1102,6 +1118,8 @@
         if (expectedColumnLabel) expectedColumnLabel.textContent = t('expected_column_label');
         if (diamondsLabel) diamondsLabel.textContent = t('diamonds_label');
         if (diamondsEl) diamondsEl.setAttribute('placeholder', t('diamonds_placeholder'));
+        if (actualKeptStarLabel) actualKeptStarLabel.textContent = t('actual_kept_star_label');
+        if (actualKeptStarEl) actualKeptStarEl.setAttribute('placeholder', t('actual_kept_star_placeholder'));
         if (simulateBtn) simulateBtn.textContent = t('simulate');
         if (clearBtn) clearBtn.textContent = t('clear');
         if (hintText) hintText.textContent = t('hint');
@@ -1138,6 +1156,18 @@
         const parsed = Math.floor(Number(diamondsEl.value));
         if (!Number.isFinite(parsed) || parsed < 0) return 0;
         return Math.min(parsed, MAX_DIAMONDS);
+      }
+
+      function getActualKeptStar() {
+        if (!actualKeptStarEl) return null;
+        const raw = String(actualKeptStarEl.value || '').trim();
+        if (!raw) return null;
+        const parsed = Math.max(0, Math.floor(Number(raw)));
+        if (!Number.isFinite(parsed)) return null;
+        if (String(parsed) !== raw) {
+          actualKeptStarEl.value = String(parsed);
+        }
+        return parsed;
       }
 
       function formatInt(value) {
@@ -1277,10 +1307,13 @@
           const count = result.kept[tier] || 0;
           return total + count * (Number.isFinite(price) ? price : 0);
         }, 0);
-        const netStar = inputStar - keptStar;
+        const actualKeptStar = getActualKeptStar();
+        const effectiveKeptStar = actualKeptStar === null ? keptStar : actualKeptStar;
+        const netStar = inputStar - effectiveKeptStar;
         outputEls.netStar.textContent = formatInt(netStar);
         if (netStarDesc) {
-          netStarDesc.textContent = `${formatInt(inputStar)} - ${formatInt(keptStar)} = ${formatInt(netStar)}`;
+          const descKey = actualKeptStar === null ? 'net_star_desc_simulated' : 'net_star_desc_actual';
+          netStarDesc.textContent = `${t(descKey)}: ${formatInt(inputStar)} - ${formatInt(effectiveKeptStar)} = ${formatInt(netStar)}`;
         }
       }
 
@@ -1292,6 +1325,8 @@
         }
         hintText.textContent = raw > MAX_DIAMONDS ? t('hint_over') : t('hint');
         const result = runSimulation(startDiamonds);
+        lastStartDiamonds = startDiamonds;
+        lastResult = result;
         outputEls.totalScore.textContent = formatInt(result.score);
         outputEls.aCount.textContent = formatInt(result.aCount);
         outputEls.sCount.textContent = formatInt(result.sCount);
@@ -1306,8 +1341,20 @@
       diamondsEl.addEventListener('keydown', function (event) {
         if (event.key === 'Enter') simulate();
       });
+      if (actualKeptStarEl) {
+        actualKeptStarEl.addEventListener('input', function () {
+          if (lastResult) updateInvestment(lastStartDiamonds, lastResult);
+        });
+        actualKeptStarEl.addEventListener('change', function () {
+          if (lastResult) updateInvestment(lastStartDiamonds, lastResult);
+        });
+        actualKeptStarEl.addEventListener('keydown', function (event) {
+          if (event.key === 'Enter' && lastResult) updateInvestment(lastStartDiamonds, lastResult);
+        });
+      }
       clearBtn.addEventListener('click', function () {
         diamondsEl.value = '0';
+        if (actualKeptStarEl) actualKeptStarEl.value = '';
         simulate();
         diamondsEl.focus();
       });
@@ -1330,6 +1377,7 @@
   </script>
   <script type="module">
     import * as identity from "https://esm.sh/@netlify/identity?bundle";
+    import { restoreIdentitySession as restoreNetlifyIdentitySession } from "./assets/auth-session.js";
 
     const authTitle = document.getElementById("authTitle");
     const authMessage = document.getElementById("authMessage");
@@ -1353,11 +1401,7 @@
       || isPrivateIpv4Host(host);
 
     async function restoreIdentitySession() {
-      await identity.handleAuthCallback().catch(() => null);
-      if (typeof identity.hydrateSession === "function") {
-        await identity.hydrateSession().catch(() => null);
-      }
-      return identity.getUser().catch(() => null);
+      return restoreNetlifyIdentitySession(identity);
     }
 
     async function checkAccess() {

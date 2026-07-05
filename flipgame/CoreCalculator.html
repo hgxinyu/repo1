@@ -6,7 +6,7 @@
   <title>核心计算器 · ShinE</title>  <script>
     (function () {
       var host = (window.location.hostname || '').toLowerCase();
-      var isLocal = host === 'localhost' || host === '127.0.0.1' || host === '::1';
+      var isLocal = host === '' || host === 'localhost' || host === '0.0.0.0' || host === '127.0.0.1' || host === '::1' || /^10\./.test(host) || /^192\.168\./.test(host) || /^172\.(1[6-9]|2\d|3[01])\./.test(host);
       var isStage = host === 'stage' || host.startsWith('stage.') || host.startsWith('stage-') || host.startsWith('stage--') || host.indexOf('--stage') !== -1 || host.indexOf('-stage.') !== -1;
       var svg = isLocal ? 'assets/local-logo.svg' : (isStage ? 'assets/stage-logo.svg' : 'assets/shine-logo.svg');
       var png32 = isLocal ? 'assets/local-logo-32.png' : (isStage ? 'assets/stage-logo-32.png' : 'assets/shine-logo-32.png');
@@ -330,6 +330,22 @@
       html, body {
         font-size: 15px;
       }
+      .wrap {
+        margin: 8px auto 18px;
+        padding: 12px;
+        gap: 12px;
+      }
+      .site-header {
+        gap: 8px;
+      }
+      .title h1 {
+        font-size: 22px;
+      }
+      .title p {
+        margin-top: 2px;
+        font-size: 12.5px;
+        line-height: 1.35;
+      }
       nav#topbar-nav {
         gap: 6px;
         padding: 6px 10px;
@@ -342,14 +358,35 @@
         font-size: 13px;
         padding: 8px 14px;
       }
+      main.main,
+      .card {
+        gap: 10px;
+      }
+      .card {
+        padding: 12px;
+        border-radius: 12px;
+        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.1);
+      }
+      .card h2 {
+        font-size: 15px;
+      }
+      th, td {
+        padding: 7px 8px;
+        font-size: 12.5px;
+      }
+      .result-card {
+        padding: 10px;
+        gap: 6px;
+      }
       input[type="number"] {
         font-size: 13.5px;
         padding: 7px 9px;
       }
       .logo-bottom-left {
         position: static;
-        margin: 28px auto 16px;
+        margin: 18px auto 10px;
         justify-content: center;
+        padding: 6px 11px;
       }
     }
   </style>
@@ -653,23 +690,20 @@
           dx = 0;
           dy = 0;
           horizontalIntent = false;
-          active = true;
+          active = startX <= 36;
         }, { passive: true });
         document.addEventListener('touchmove', (event) => {
           if (!active || !event.touches || !event.touches.length) return;
           dx = event.touches[0].clientX - startX;
           dy = event.touches[0].clientY - startY;
-          if (!horizontalIntent && Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy) * 1.15) {
+          if (!horizontalIntent && dx > 18 && dx > Math.abs(dy) * 1.35) {
             horizontalIntent = true;
           }
-          if (horizontalIntent) {
-            event.preventDefault();
-          }
-        }, { passive: false });
+        }, { passive: true });
         document.addEventListener('touchend', () => {
           if (!active) return;
           active = false;
-          if (horizontalIntent && Math.abs(dx) >= 70 && Math.abs(dy) <= 60) {
+          if (horizontalIntent && dx >= 72 && Math.abs(dy) <= 54) {
             requestAnimationFrame(() => {
               window.location.replace('index.html');
             });

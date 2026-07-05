@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1" id="viewportMeta">
-  <title>放置工具集 · ShinE</title>  <script>
+  <title>放置工具集</title>  <script>
     (function () {
       var host = (window.location.hostname || '').toLowerCase();
-      var isLocal = host === 'localhost' || host === '127.0.0.1' || host === '::1';
+      var isLocal = host === '' || host === 'localhost' || host === '0.0.0.0' || host === '127.0.0.1' || host === '::1' || /^10\./.test(host) || /^192\.168\./.test(host) || /^172\.(1[6-9]|2\d|3[01])\./.test(host);
       var isStage = host === 'stage' || host.startsWith('stage.') || host.startsWith('stage-') || host.startsWith('stage--') || host.indexOf('--stage') !== -1 || host.indexOf('-stage.') !== -1;
       var svg = isLocal ? 'assets/local-logo.svg' : (isStage ? 'assets/stage-logo.svg' : 'assets/shine-logo.svg');
       var png32 = isLocal ? 'assets/local-logo-32.png' : (isStage ? 'assets/stage-logo-32.png' : 'assets/shine-logo-32.png');
@@ -551,29 +551,86 @@
         font-size: 15px;
       }
       .wrap {
-        padding-top: 40px;
-        padding-bottom: 72px;
+        padding: 34px 12px 58px;
+        gap: 14px;
+      }
+      header {
+        gap: 6px;
+      }
+      header h1 {
+        font-size: 26px;
+      }
+      header p {
+        font-size: 13px;
+        line-height: 1.45;
+      }
+      .card-grid {
+        gap: 10px;
+      }
+      .card-link {
+        gap: 3px;
+        padding: 13px 14px;
+        border-radius: 14px;
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.1);
+      }
+      .card-link span.title {
+        font-size: 17px;
+      }
+      .card-link span.subtitle {
+        font-size: 12.5px;
+        line-height: 1.35;
       }
       .logo-bottom-right {
         position: static;
-        margin: 32px auto 12px;
+        margin: 18px auto 8px;
+        padding: 6px 11px;
       }
       .feedback-toggle {
-        right: 16px;
-        bottom: 16px;
+        right: 12px;
+        bottom: 12px;
+        padding: 10px 13px;
+        font-size: 13px;
       }
       .feedback-panel {
-        right: 16px;
-        left: 16px;
-        bottom: 96px;
+        right: 10px;
+        left: 10px;
+        bottom: 72px;
         width: auto;
+        max-height: min(72vh, 520px);
+        padding: 16px;
+        gap: 10px;
       }
       .recruit-panel,
       .calculator-panel {
-        right: 16px;
-        left: 16px;
-        bottom: 96px;
+        right: 10px;
+        left: 10px;
+        bottom: 72px;
         width: auto;
+        max-height: min(76vh, 560px);
+        padding: 16px;
+        gap: 10px;
+      }
+      .calculator-panel header h2 {
+        font-size: 17px;
+      }
+      .calculator-panel header p {
+        font-size: 12.5px;
+        line-height: 1.35;
+      }
+      .calculator-options {
+        gap: 7px;
+      }
+      .calculator-option {
+        gap: 2px;
+        padding: 10px 12px;
+        border-radius: 12px;
+      }
+      .calculator-option strong {
+        font-size: 14px;
+      }
+      .calculator-option .option-desc {
+        font-size: 12px;
+        line-height: 1.3;
       }
     }
     @media (display-mode: standalone), (display-mode: fullscreen) {
@@ -622,17 +679,13 @@
         <span class="title" id="cardDiscordTitle">放置奇兵兑换码</span>
         <span class="subtitle" id="cardDiscordSub">及时更新放置奇兵兑换码。</span>
       </a>
-      <a class="card-link" id="adminCard" href="Admin.html" style="display:none;">
-        <span class="title" id="cardAdminTitle">Admin Portal</span>
-        <span class="subtitle" id="cardAdminSub">本地 Mock 预览或管理员后台。</span>
-      </a>
       <a class="card-link" href="flipgame.html">
         <span class="title" id="cardFlipTitle">九宫格翻牌</span>
         <span class="subtitle" id="cardFlipSub">模拟翻牌流程，记录并计算最佳组合。</span>
       </a>
       <button class="card-link card-button" id="calculatorCard" type="button" aria-haspopup="dialog" aria-controls="calculatorPanel">
         <span class="title" id="cardCoreTitle">放置计算器</span>
-        <span class="subtitle" id="cardCoreSub">统一进入星钻交易、核心、殿堂飞升、凝魂魂力和远征积分。</span>
+        <span class="subtitle" id="cardCoreSub">统一进入星钻交易、核心、殿堂飞升、珍宝升级、凝魂魂力和远征积分。</span>
       </button>
       <a class="card-link" href="GuideImages.html">
         <span class="title" id="cardHiddenTitle">攻略图片</span>
@@ -722,6 +775,10 @@
         <strong id="calculatorDestinyTitle">殿堂 / 飞升计算器</strong>
         <span class="option-desc" id="calculatorDestinyDesc">计算下一殿堂资源，或单英雄 E5 到目标飞升等级。</span>
       </a>
+      <a class="calculator-option" href="TreasureCalculator.html">
+        <strong id="calculatorTreasureTitle">珍宝升级计算器</strong>
+        <span class="option-desc" id="calculatorTreasureDesc">按珍宝颜色和升星小等级，计算剩余碎片需求。</span>
+      </a>
       <a class="calculator-option" href="SoulAscensionCalculator.html">
         <strong><span id="calculatorSoulTitle">凝魂魂力计算器</span><span class="vip-badge member-badge" data-member-badge>会员</span></strong>
         <span class="option-desc" id="calculatorSoulDesc">注册会员可用，检验属性区间并估算凝魂次数与魂力值。</span>
@@ -759,7 +816,6 @@
       const accountName = document.getElementById('accountName');
       const accountVipBadge = document.getElementById('accountVipBadge');
       const adminLink = document.getElementById('adminLink');
-      const adminCard = document.getElementById('adminCard');
       const pageTitle = document.getElementById('pageTitle');
       const pageDesc = document.getElementById('pageDesc');
       const navGrid = document.getElementById('navGrid');
@@ -775,8 +831,6 @@
       const cardAiSub = document.getElementById('cardAiSub');
       const cardDiscordTitle = document.getElementById('cardDiscordTitle');
       const cardDiscordSub = document.getElementById('cardDiscordSub');
-      const cardAdminTitle = document.getElementById('cardAdminTitle');
-      const cardAdminSub = document.getElementById('cardAdminSub');
       const cardSoulTitle = document.getElementById('cardSoulTitle');
       const cardSoulSub = document.getElementById('cardSoulSub');
       const cardExpeditionTitle = document.getElementById('cardExpeditionTitle');
@@ -823,6 +877,8 @@
       const calculatorCoreDesc = document.getElementById('calculatorCoreDesc');
       const calculatorDestinyTitle = document.getElementById('calculatorDestinyTitle');
       const calculatorDestinyDesc = document.getElementById('calculatorDestinyDesc');
+      const calculatorTreasureTitle = document.getElementById('calculatorTreasureTitle');
+      const calculatorTreasureDesc = document.getElementById('calculatorTreasureDesc');
       const calculatorSoulTitle = document.getElementById('calculatorSoulTitle');
       const calculatorSoulDesc = document.getElementById('calculatorSoulDesc');
       const calculatorExpeditionTitle = document.getElementById('calculatorExpeditionTitle');
@@ -830,7 +886,7 @@
 
       const I18N = {
         zh: {
-          title: '放置工具集 · ShinE',
+          title: '放置工具集',
           page_title: '放置工具集',
           page_desc: '自用的放置类工具合集，涵盖九宫格翻牌、放置计算器、攻略图片和 AI 问答等功能。',
           help_link: '安装APP帮助',
@@ -840,15 +896,13 @@
           account_signed_in: '已登录',
           account_vip_label: 'VIP 账号',
           admin_link: '管理后台',
-          card_admin_title: 'Admin Portal',
-          card_admin_sub: '本地 Mock 预览或管理员后台。',
           member_badge: '会员',
           vip_badge: 'VIP',
           nav_label: '工具导航',
           card_flip_title: '九宫格翻牌',
           card_flip_sub: '模拟翻牌流程，记录并计算最佳组合。',
           card_core_title: '放置计算器',
-          card_core_sub: '统一进入星钻交易、核心、殿堂飞升、凝魂魂力和远征积分。',
+          card_core_sub: '统一进入星钻交易、核心、殿堂飞升、珍宝升级、凝魂魂力和远征积分。',
           card_star_title: '星钻交易计算器',
           card_star_sub: '按比例换算金额与赠送额度。',
           card_hidden_title: '攻略图片',
@@ -873,6 +927,8 @@
           calculator_core_desc: '输入 E9、飞升阶段和额外星碎，估算核心需求。',
           calculator_destiny_title: '殿堂 / 飞升计算器',
           calculator_destiny_desc: '计算下一殿堂资源，或单英雄 E5 到目标飞升等级。',
+          calculator_treasure_title: '珍宝升级计算器',
+          calculator_treasure_desc: '按珍宝颜色和升星小等级，计算剩余碎片需求。',
           calculator_soul_title: '凝魂魂力计算器',
           calculator_soul_desc: '注册会员可用，检验属性区间并估算凝魂次数与魂力值。',
           calculator_expedition_title: '远征积分计算器',
@@ -911,7 +967,7 @@
           lang_toggle_zh: '中文'
         },
         en: {
-          title: 'Idle Tools · ShinE',
+          title: 'Idle Tools',
           page_title: 'Idle Tools',
           page_desc: 'A personal collection of idle tools: flip game, idle calculator, guide images, and AI Q&A.',
           help_link: 'PWA Guide',
@@ -921,15 +977,13 @@
           account_signed_in: 'Signed in',
           account_vip_label: 'VIP account',
           admin_link: 'Admin',
-          card_admin_title: 'Admin Portal',
-          card_admin_sub: 'Local mock preview or admin console.',
           member_badge: 'Member',
           vip_badge: 'VIP',
           nav_label: 'Tool Navigation',
           card_flip_title: '3x3 Flip Cards',
           card_flip_sub: 'Simulate flips, track cards, and compute the best line.',
           card_core_title: 'Idle Calculator',
-          card_core_sub: 'Open star diamond trading, core, Temple and Destiny, soul power, and expedition score tools.',
+          card_core_sub: 'Open star diamond trading, core, Temple and Destiny, treasure upgrades, soul power, and expedition score tools.',
           card_star_title: 'Star Diamond Trade Calculator',
           card_star_sub: 'Convert amounts and bonus ratios.',
           card_hidden_title: 'Guide Images',
@@ -942,10 +996,10 @@
           card_soul_sub: 'Registered members can use it to check stat ranges and estimate soul perfection count and soul power.',
           card_expedition_title: 'Star Expedition Score Calculator',
           card_expedition_sub: 'Registered members can estimate remaining score by floor and remaining HP (trillion).',
-          card_awakening_title: 'Awakening Rush Simulator',
+          card_awakening_title: 'Awakening Gala Simulator',
           card_awakening_sub: 'VIP only. Simulate score and kept A-+ copies from bound diamonds.',
           card_recruit_title: 'Guild Recruitment',
-          card_recruit_sub: 'Join iOS Guofeng. Submit your info or apply to Guild ID 31939. Guild members get VIP for free.',
+          card_recruit_sub: 'Join iOS Aurora. Submit your info or apply to Guild ID 31939. Guild members get VIP for free.',
           calculator_panel_title: 'Idle Calculator',
           calculator_panel_desc: 'Open the page that matches the resource question. Member pages keep their original access checks.',
           calculator_star_title: 'Star Diamond Trade Calculator',
@@ -954,6 +1008,8 @@
           calculator_core_desc: 'Estimate core needs from E9, Destiny stages, and extra Stellar Shards.',
           calculator_destiny_title: 'Destiny / Temple Calculator',
           calculator_destiny_desc: 'Calculate next Temple resources or one hero from E5 to target Destiny.',
+          calculator_treasure_title: 'Treasure Upgrade Calculator',
+          calculator_treasure_desc: 'Calculate remaining shards by treasure color and upgrade level.',
           calculator_soul_title: 'Soul Power Calculator',
           calculator_soul_desc: 'Registered members can check stat ranges and estimate soul perfection count and soul power.',
           calculator_expedition_title: 'Star Expedition Score Calculator',
@@ -972,8 +1028,8 @@
           fb_contact_placeholder: 'Email / WeChat / ID',
           fb_submit: 'Send',
           fb_close_label: 'Close feedback panel',
-          recruit_title: 'iOS Guofeng Guild Recruitment',
-          recruit_desc: 'Welcome to join our iOS Guofeng family. We will contact you after submission.',
+          recruit_title: 'iOS Aurora Guild Recruitment',
+          recruit_desc: 'Welcome to join our iOS Aurora family. We will contact you after submission.',
           recruit_account_label: 'Account Summary (Destiny/Star Soul/Grimoire/PVP-PVE)',
           recruit_account_placeholder: 'e.g. Destiny 3, Star Soul 8, Grimoire 5, mainly PVP',
           recruit_wechat_label: 'WeChat ID',
@@ -1018,8 +1074,6 @@
           accountBtn.setAttribute('aria-label', `${accountName.textContent} ${t('vip_badge')}`);
         }
         if (adminLink) adminLink.textContent = t('admin_link');
-        if (cardAdminTitle) cardAdminTitle.textContent = t('card_admin_title');
-        if (cardAdminSub) cardAdminSub.textContent = t('card_admin_sub');
         document.querySelectorAll('[data-member-badge]').forEach((badge) => { badge.textContent = t('member_badge'); });
         document.querySelectorAll('[data-vip-badge]').forEach((badge) => { badge.textContent = t('vip_badge'); });
         if (navGrid) navGrid.setAttribute('aria-label', t('nav_label'));
@@ -1051,6 +1105,8 @@
         if (calculatorCoreDesc) calculatorCoreDesc.textContent = t('calculator_core_desc');
         if (calculatorDestinyTitle) calculatorDestinyTitle.textContent = t('calculator_destiny_title');
         if (calculatorDestinyDesc) calculatorDestinyDesc.textContent = t('calculator_destiny_desc');
+        if (calculatorTreasureTitle) calculatorTreasureTitle.textContent = t('calculator_treasure_title');
+        if (calculatorTreasureDesc) calculatorTreasureDesc.textContent = t('calculator_treasure_desc');
         if (calculatorSoulTitle) calculatorSoulTitle.textContent = t('calculator_soul_title');
         if (calculatorSoulDesc) calculatorSoulDesc.textContent = t('calculator_soul_desc');
         if (calculatorExpeditionTitle) calculatorExpeditionTitle.textContent = t('calculator_expedition_title');
@@ -1123,6 +1179,10 @@
         setCalculatorPanel(true);
       });
       calculatorClose.addEventListener('click', () => setCalculatorPanel(false));
+      calculatorPanel.querySelectorAll('.calculator-option').forEach((option) => {
+        option.addEventListener('click', () => setCalculatorPanel(false));
+      });
+      window.addEventListener('pageshow', () => setCalculatorPanel(false));
       recruitCard.addEventListener('click', () => {
         setPanel(false);
         setCalculatorPanel(false);
@@ -1306,10 +1366,11 @@
     })();
   </script>
   <script type="module">
+    import { clearPersistentIdentityCookies, restoreIdentitySession as restoreNetlifyIdentitySession } from "./assets/auth-session.js";
+
     const LOCAL_MOCK_MODE = isLocalHomepagePreview();
     let identity = null;
     const adminLink = document.getElementById("adminLink");
-    const adminCard = document.getElementById("adminCard");
     const loginLink = document.getElementById("loginLink");
     const registerLink = document.getElementById("registerLink");
     const accountMenu = document.getElementById("accountMenu");
@@ -1324,7 +1385,18 @@
         || host === "localhost"
         || host === "127.0.0.1"
         || host === "0.0.0.0"
-        || host === "::1";
+        || host === "::1"
+        || isPrivateIpv4Host(host);
+    }
+
+    function isPrivateIpv4Host(value) {
+      const parts = value.split(".").map((part) => Number(part));
+      if (parts.length !== 4 || parts.some((part) => !Number.isInteger(part) || part < 0 || part > 255)) {
+        return false;
+      }
+      return parts[0] === 10
+        || (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31)
+        || (parts[0] === 192 && parts[1] === 168);
     }
 
     async function loadIdentity() {
@@ -1336,11 +1408,7 @@
 
     async function restoreIdentitySession() {
       const identityApi = await loadIdentity();
-      await identityApi.handleAuthCallback().catch(() => null);
-      if (typeof identityApi.hydrateSession === "function") {
-        await identityApi.hydrateSession().catch(() => null);
-      }
-      return identityApi.getUser().catch(() => null);
+      return restoreNetlifyIdentitySession(identityApi);
     }
 
     function showLocalAdminPreview() {
@@ -1360,7 +1428,6 @@
         accountBtn.setAttribute("aria-label", "Local Admin");
       }
       if (adminLink) adminLink.style.display = "inline-flex";
-      if (adminCard) adminCard.style.display = "";
     }
 
     async function updateAccountLinks() {
@@ -1381,6 +1448,7 @@
       if (response.status === 401) {
         const identityApi = await loadIdentity();
         await identityApi.logout().catch(() => null);
+        clearPersistentIdentityCookies();
         return;
       }
       if (loginLink) loginLink.style.display = "none";
@@ -1403,9 +1471,6 @@
       if (response.ok && data.isAdmin && adminLink) {
         adminLink.style.display = "inline-flex";
       }
-      if (response.ok && data.isAdmin && adminCard) {
-        adminCard.style.display = "";
-      }
     }
 
     if (accountBtn && accountMenu) {
@@ -1427,6 +1492,7 @@
         if (LOCAL_MOCK_MODE) return;
         const identityApi = await loadIdentity();
         await identityApi.logout();
+        clearPersistentIdentityCookies();
         window.location.href = "index.html";
       });
     }

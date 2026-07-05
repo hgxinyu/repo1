@@ -7,7 +7,7 @@
   <script>
     (function () {
       var host = (window.location.hostname || '').toLowerCase();
-      var isLocal = host === 'localhost' || host === '127.0.0.1' || host === '::1';
+      var isLocal = host === '' || host === 'localhost' || host === '0.0.0.0' || host === '127.0.0.1' || host === '::1' || /^10\./.test(host) || /^192\.168\./.test(host) || /^172\.(1[6-9]|2\d|3[01])\./.test(host);
       var isStage = host === 'stage' || host.startsWith('stage.') || host.startsWith('stage-') || host.startsWith('stage--') || host.indexOf('--stage') !== -1 || host.indexOf('-stage.') !== -1;
       var svg = isLocal ? 'assets/local-logo.svg' : (isStage ? 'assets/stage-logo.svg' : 'assets/shine-logo.svg');
       var png32 = isLocal ? 'assets/local-logo-32.png' : (isStage ? 'assets/stage-logo-32.png' : 'assets/shine-logo-32.png');
@@ -154,12 +154,19 @@
       align-items: flex-start;
       justify-content: center;
       overflow: auto;
-      padding: 0;
+      padding: 28px;
     }
     .image-overlay.is-open { display: flex; }
+    #overlayImages {
+      width: max-content;
+      max-width: 100%;
+      margin: 0 auto;
+      transform-origin: 0 0;
+      will-change: transform;
+    }
     .image-overlay img {
-      width: 100vw;
-      max-width: 100vw;
+      width: auto;
+      max-width: calc(100vw - 56px);
       height: auto;
       display: block;
     }
@@ -176,10 +183,18 @@
       font-size: 13px;
       cursor: pointer;
     }
+    .image-overlay.is-zooming {
+      cursor: grab;
+      overscroll-behavior: contain;
+    }
     @media (max-width: 560px) {
       nav#topbar-nav { position: static; align-self: flex-end; margin: 8px 8px 0 auto; }
       nav#topbar-nav a { padding: 8px 12px; font-size: 13px; }
       .wrap { padding-top: 16px; }
+      .image-overlay { padding: 16px; }
+      .image-overlay img {
+        max-width: calc(100vw - 32px);
+      }
     }
   </style>
 </head>
@@ -200,63 +215,93 @@
         <span class="title" id="cardQihuanTitle">奇幻梦工厂隐藏关</span>
         <span class="subtitle" id="cardQihuanSub">查看隐藏关参考图与说明</span>
       </a>
-      <a class="card-link" href="images/genyuan.jpeg" data-image="images/genyuan.jpeg">
-        <span class="thumb"><img src="images/genyuan.jpeg" alt="根源等级" id="genyuanImg" /></span>
+      <a class="card-link" href="images/root-level-guide.png" data-image="images/root-level-guide.png">
+        <span class="thumb"><img src="images/root-level-guide.png" alt="根源等级" id="genyuanImg" /></span>
         <span class="title" id="cardGenyuanTitle">根源等级</span>
         <span class="subtitle" id="cardGenyuanSub">查看根源等级攻略图</span>
       </a>
-      <a class="card-link" href="images/guanzhu.png" data-image="images/guanzhu.png">
-        <span class="thumb"><img src="images/guanzhu.png" alt="印痕灌注" id="guanzhuImg" /></span>
+      <a class="card-link" href="images/destiny-upgrade-guide.png" data-image="images/destiny-upgrade-guide.png">
+        <span class="thumb"><img src="images/destiny-upgrade-guide.png" alt="飞升升级资源" id="destinyUpgradeImg" /></span>
+        <span class="title" id="cardDestinyUpgradeTitle">飞升升级资源</span>
+        <span class="subtitle" id="cardDestinyUpgradeSub">查看飞升 1 到 6 资源攻略图</span>
+      </a>
+      <a class="card-link" href="images/destiny-temple-guide.png" data-image="images/destiny-temple-guide.png">
+        <span class="thumb"><img src="images/destiny-temple-guide.png" alt="飞升殿堂升级资料" id="destinyTempleImg" /></span>
+        <span class="title" id="cardDestinyTempleTitle">飞升殿堂升级资料</span>
+        <span class="subtitle" id="cardDestinyTempleSub">查看殿堂 1 到 30 升级资料图</span>
+      </a>
+      <a class="card-link" href="images/root-infusion-set-guide.png" data-image="images/root-infusion-set-guide.png">
+        <span class="thumb"><img src="images/root-infusion-set-guide.png" alt="根源灌注套装效果" id="rootInfusionSetImg" /></span>
+        <span class="title" id="cardRootInfusionSetTitle">根源灌注套装效果</span>
+        <span class="subtitle" id="cardRootInfusionSetSub">查看六种唤醒套装 Lv1→Lv7 效果速览</span>
+      </a>
+      <a class="card-link" href="images/imprint-infusion-guide.png" data-image="images/imprint-infusion-guide.png">
+        <span class="thumb"><img src="images/imprint-infusion-guide.png" alt="印痕灌注" id="guanzhuImg" /></span>
         <span class="title" id="cardGuanzhuTitle">印痕灌注</span>
         <span class="subtitle" id="cardGuanzhuSub">查看印痕灌注攻略图</span>
       </a>
-      <a class="card-link" href="images/se%20boss%20hp.png" data-image="images/se boss hp.png">
-        <span class="thumb"><img src="images/se boss hp.png" alt="远征BOSS血量" id="bossHpImg" /></span>
-        <span class="title" id="cardBossTitle">远征BOSS血量</span>
-        <span class="subtitle" id="cardBossSub">查看远征BOSS血量攻略图</span>
+      <a class="card-link" href="images/imprint-branch-guide.png" data-image="images/imprint-branch-guide.png">
+        <span class="thumb"><img src="images/imprint-branch-guide.png" alt="印痕灌注分支选择" id="imprintBranchImg" /></span>
+        <span class="title" id="cardImprintBranchTitle">印痕灌注分支选择</span>
+        <span class="subtitle" id="cardImprintBranchSub">查看利刃、强壁、精神 18 条分支选择建议</span>
       </a>
       <a class="card-link" href="images/%E8%BF%9C%E5%BE%81%E6%8E%A8%E5%9B%BE.jpeg" data-image="images/远征推图.jpeg">
         <span class="thumb"><img src="images/远征推图.jpeg" alt="远征推图" id="mapImg" /></span>
         <span class="title" id="cardMapTitle">远征推图</span>
         <span class="subtitle" id="cardMapSub">查看远征推图攻略图</span>
       </a>
-      <a class="card-link" href="images/juexingailv.jpg" data-image="images/juexingailv.jpg">
-        <span class="thumb"><img src="images/juexingailv.jpg" alt="觉醒概率" id="awakenImg" /></span>
+      <a class="card-link" href="images/void-invasion-boss-guide.png" data-image="images/void-invasion-boss-guide.png">
+        <span class="thumb"><img src="images/void-invasion-boss-guide.png" alt="虚空入侵 Boss 技能" id="voidInvasionBossImg" /></span>
+        <span class="title" id="cardVoidInvasionBossTitle">虚空入侵 Boss 技能</span>
+        <span class="subtitle" id="cardVoidInvasionBossSub">查看图一到图七 Boss 技能与应对重点</span>
+      </a>
+      <a class="card-link" href="images/se-boss-hp-guide.png" data-image="images/se-boss-hp-guide.png">
+        <span class="thumb"><img src="images/se-boss-hp-guide.png" alt="彩章血量积分" id="seBossHpImg" /></span>
+        <span class="title" id="cardSeBossHpTitle">彩章血量积分</span>
+        <span class="subtitle" id="cardSeBossHpSub">查看远征章鱼 100 到 1 层血量积分</span>
+      </a>
+      <a class="card-link" href="images/awakening-rate-guide.png" data-image="images/awakening-rate-guide.png">
+        <span class="thumb"><img src="images/awakening-rate-guide.png" alt="觉醒概率" id="awakenImg" /></span>
         <span class="title" id="cardAwakenTitle">觉醒概率</span>
         <span class="subtitle" id="cardAwakenSub">查看觉醒概率攻略图</span>
       </a>
-      <a class="card-link" href="images/shengexuqiu.jpg" data-image="images/shengexuqiu.jpg">
-        <span class="thumb"><img src="images/shengexuqiu.jpg" alt="升格需求" id="mergeNeedImg" /></span>
+      <a class="card-link" href="images/merge-requirements-guide.png" data-image="images/merge-requirements-guide.png">
+        <span class="thumb"><img src="images/merge-requirements-guide.png" alt="升格需求" id="mergeNeedImg" /></span>
         <span class="title" id="cardMergeNeedTitle">升格需求</span>
         <span class="subtitle" id="cardMergeNeedSub">查看升格需求攻略图</span>
       </a>
-      <a class="card-link" href="images/fengjiehunli.png" data-image="images/fengjiehunli.png">
-        <span class="thumb"><img src="images/fengjiehunli.png" alt="分解资质所得魂力性价比" id="breakdownImg" /></span>
+      <a class="card-link" href="images/breakdown-soulpower-guide.png" data-image="images/breakdown-soulpower-guide.png">
+        <span class="thumb"><img src="images/breakdown-soulpower-guide.png" alt="分解资质所得魂力性价比" id="breakdownImg" /></span>
         <span class="title" id="cardBreakdownTitle">分解资质所得魂力性价比</span>
         <span class="subtitle" id="cardBreakdownSub">查看分解资质魂力性价比攻略图</span>
       </a>
-      <a class="card-link" href="images/funengguanzhu.jpg" data-image="images/funengguanzhu.jpg">
-        <span class="thumb"><img src="images/funengguanzhu.jpg" alt="赋能灌注" id="empowerImg" /></span>
+      <a class="card-link" href="images/empower-infusion-guide.png" data-image="images/empower-infusion-guide.png">
+        <span class="thumb"><img src="images/empower-infusion-guide.png" alt="赋能灌注" id="empowerImg" /></span>
         <span class="title" id="cardEmpowerTitle">赋能灌注</span>
         <span class="subtitle" id="cardEmpowerSub">查看赋能灌注攻略图</span>
+      </a>
+      <a class="card-link" href="images/fund-material-value-guide.png" data-image="images/fund-material-value-guide.png">
+        <span class="thumb"><img src="images/fund-material-value-guide.png" alt="基金材料性价比" id="fundMaterialImg" /></span>
+        <span class="title" id="cardFundMaterialTitle">基金材料性价比</span>
+        <span class="subtitle" id="cardFundMaterialSub">查看基金材料兑换性价比攻略图</span>
+      </a>
+      <a class="card-link" href="images/grimoire-upgrade-guide.png" data-image="images/grimoire-upgrade-guide.png">
+        <span class="thumb"><img src="images/grimoire-upgrade-guide.png" alt="魔典升级需求" id="grimoireUpgradeImg" /></span>
+        <span class="title" id="cardGrimoireUpgradeTitle">魔典升级需求</span>
+        <span class="subtitle" id="cardGrimoireUpgradeSub">查看赋能魔典和印痕魔典升级材料</span>
+      </a>
+      <a class="card-link" href="images/starsoul-upgrade-guide.png" data-image="images/starsoul-upgrade-guide.png">
+        <span class="thumb"><img src="images/starsoul-upgrade-guide.png" alt="星魂升级材料" id="starsoulUpgradeImg" /></span>
+        <span class="title" id="cardStarsoulUpgradeTitle">星魂升级材料</span>
+        <span class="subtitle" id="cardStarsoulUpgradeSub">查看星魂到 24 级和命轨升级材料需求</span>
       </a>
       <a class="card-link" href="images/tubiao.jpg" data-image="images/tubiao.jpg">
         <span class="thumb"><img src="images/tubiao.jpg" alt="战斗Buff/Debuff图标" id="iconImg" /></span>
         <span class="title" id="cardIconTitle">战斗Buff/Debuff图标</span>
         <span class="subtitle" id="cardIconSub">查看战斗Buff/Debuff图标攻略图</span>
       </a>
-      <a class="card-link" href="images/%E7%8F%8D%E5%AE%9D.jpg" data-image="images/珍宝.jpg">
-        <span class="thumb"><img src="images/珍宝.jpg" alt="珍宝升级" id="treasureImg" /></span>
-        <span class="title" id="cardTreasureTitle">珍宝升级</span>
-        <span class="subtitle" id="cardTreasureSub">查看珍宝升级攻略图</span>
-      </a>
-      <a class="card-link" href="images/%E9%A3%9E%E5%8D%871.jpg" data-images="images/飞升1.jpg|images/飞升2.jpg">
-        <span class="thumb"><img src="images/飞升1.jpg" alt="飞升升级资源" id="ascendResImg" /></span>
-        <span class="title" id="cardAscendResTitle">飞升升级资源</span>
-        <span class="subtitle" id="cardAscendResSub">查看飞升1 / 飞升2攻略图</span>
-      </a>
-      <a class="card-link" href="images/%E5%B1%9E%E6%80%A7%E8%A7%A3%E9%87%8A.jpg" data-image="images/属性解释.jpg">
-        <span class="thumb"><img src="images/属性解释.jpg" alt="属性具体解释和算法" id="attrExplainImg" /></span>
+      <a class="card-link" href="images/attribute-explanation-guide.png" data-images="images/attribute-explanation-guide.png|images/attribute-formula-guide.png">
+        <span class="thumb"><img src="images/attribute-explanation-guide.png" alt="属性具体解释和算法" id="attrExplainImg" /></span>
         <span class="title" id="cardAttrExplainTitle">属性具体解释和算法</span>
         <span class="subtitle" id="cardAttrExplainSub">查看属性解释攻略图</span>
       </a>
@@ -279,15 +324,30 @@
       const cardGenyuanTitle = document.getElementById('cardGenyuanTitle');
       const cardGenyuanSub = document.getElementById('cardGenyuanSub');
       const genyuanImg = document.getElementById('genyuanImg');
+      const cardDestinyUpgradeTitle = document.getElementById('cardDestinyUpgradeTitle');
+      const cardDestinyUpgradeSub = document.getElementById('cardDestinyUpgradeSub');
+      const destinyUpgradeImg = document.getElementById('destinyUpgradeImg');
+      const cardDestinyTempleTitle = document.getElementById('cardDestinyTempleTitle');
+      const cardDestinyTempleSub = document.getElementById('cardDestinyTempleSub');
+      const destinyTempleImg = document.getElementById('destinyTempleImg');
+      const cardRootInfusionSetTitle = document.getElementById('cardRootInfusionSetTitle');
+      const cardRootInfusionSetSub = document.getElementById('cardRootInfusionSetSub');
+      const rootInfusionSetImg = document.getElementById('rootInfusionSetImg');
       const cardGuanzhuTitle = document.getElementById('cardGuanzhuTitle');
       const cardGuanzhuSub = document.getElementById('cardGuanzhuSub');
       const guanzhuImg = document.getElementById('guanzhuImg');
-      const cardBossTitle = document.getElementById('cardBossTitle');
-      const cardBossSub = document.getElementById('cardBossSub');
-      const bossHpImg = document.getElementById('bossHpImg');
+      const cardImprintBranchTitle = document.getElementById('cardImprintBranchTitle');
+      const cardImprintBranchSub = document.getElementById('cardImprintBranchSub');
+      const imprintBranchImg = document.getElementById('imprintBranchImg');
       const cardMapTitle = document.getElementById('cardMapTitle');
       const cardMapSub = document.getElementById('cardMapSub');
       const mapImg = document.getElementById('mapImg');
+      const cardVoidInvasionBossTitle = document.getElementById('cardVoidInvasionBossTitle');
+      const cardVoidInvasionBossSub = document.getElementById('cardVoidInvasionBossSub');
+      const voidInvasionBossImg = document.getElementById('voidInvasionBossImg');
+      const cardSeBossHpTitle = document.getElementById('cardSeBossHpTitle');
+      const cardSeBossHpSub = document.getElementById('cardSeBossHpSub');
+      const seBossHpImg = document.getElementById('seBossHpImg');
       const cardAwakenTitle = document.getElementById('cardAwakenTitle');
       const cardAwakenSub = document.getElementById('cardAwakenSub');
       const awakenImg = document.getElementById('awakenImg');
@@ -300,15 +360,18 @@
       const cardEmpowerTitle = document.getElementById('cardEmpowerTitle');
       const cardEmpowerSub = document.getElementById('cardEmpowerSub');
       const empowerImg = document.getElementById('empowerImg');
+      const cardFundMaterialTitle = document.getElementById('cardFundMaterialTitle');
+      const cardFundMaterialSub = document.getElementById('cardFundMaterialSub');
+      const fundMaterialImg = document.getElementById('fundMaterialImg');
+      const cardGrimoireUpgradeTitle = document.getElementById('cardGrimoireUpgradeTitle');
+      const cardGrimoireUpgradeSub = document.getElementById('cardGrimoireUpgradeSub');
+      const grimoireUpgradeImg = document.getElementById('grimoireUpgradeImg');
+      const cardStarsoulUpgradeTitle = document.getElementById('cardStarsoulUpgradeTitle');
+      const cardStarsoulUpgradeSub = document.getElementById('cardStarsoulUpgradeSub');
+      const starsoulUpgradeImg = document.getElementById('starsoulUpgradeImg');
       const cardIconTitle = document.getElementById('cardIconTitle');
       const cardIconSub = document.getElementById('cardIconSub');
       const iconImg = document.getElementById('iconImg');
-      const cardTreasureTitle = document.getElementById('cardTreasureTitle');
-      const cardTreasureSub = document.getElementById('cardTreasureSub');
-      const treasureImg = document.getElementById('treasureImg');
-      const cardAscendResTitle = document.getElementById('cardAscendResTitle');
-      const cardAscendResSub = document.getElementById('cardAscendResSub');
-      const ascendResImg = document.getElementById('ascendResImg');
       const cardAttrExplainTitle = document.getElementById('cardAttrExplainTitle');
       const cardAttrExplainSub = document.getElementById('cardAttrExplainSub');
       const attrExplainImg = document.getElementById('attrExplainImg');
@@ -334,15 +397,30 @@
           card_genyuan_title: '根源等级',
           card_genyuan_sub: '查看根源等级攻略图',
           genyuan_alt: '根源等级',
+          card_destinyupgrade_title: '飞升升级资源',
+          card_destinyupgrade_sub: '查看飞升 1 到 6 资源攻略图',
+          destinyupgrade_alt: '飞升升级资源',
+          card_destinytemple_title: '飞升殿堂升级资料',
+          card_destinytemple_sub: '查看殿堂 1 到 30 升级资料图',
+          destinytemple_alt: '飞升殿堂升级资料',
+          card_rootinfusionset_title: '根源灌注套装效果',
+          card_rootinfusionset_sub: '查看六种唤醒套装 Lv1→Lv7 效果速览',
+          rootinfusionset_alt: '根源灌注套装效果',
           card_guanzhu_title: '印痕灌注',
           card_guanzhu_sub: '查看印痕灌注攻略图',
           guanzhu_alt: '印痕灌注',
-          card_boss_title: '远征BOSS血量',
-          card_boss_sub: '查看远征BOSS血量攻略图',
-          boss_alt: '远征BOSS血量',
+          card_imprintbranch_title: '印痕灌注分支选择',
+          card_imprintbranch_sub: '查看利刃、强壁、精神 18 条分支选择建议',
+          imprintbranch_alt: '印痕灌注分支选择',
           card_map_title: '远征推图',
           card_map_sub: '查看远征推图攻略图',
           map_alt: '远征推图',
+          card_voidinvasionboss_title: '虚空入侵 Boss 技能',
+          card_voidinvasionboss_sub: '查看图一到图七 Boss 技能与应对重点',
+          voidinvasionboss_alt: '虚空入侵 Boss 技能',
+          card_sebosshp_title: '彩章血量积分',
+          card_sebosshp_sub: '查看远征章鱼 100 到 1 层血量积分',
+          sebosshp_alt: '彩章血量积分',
           card_awaken_title: '觉醒概率',
           card_awaken_sub: '查看觉醒概率攻略图',
           awaken_alt: '觉醒概率',
@@ -355,15 +433,18 @@
           card_empower_title: '赋能灌注',
           card_empower_sub: '查看赋能灌注攻略图',
           empower_alt: '赋能灌注',
+          card_fundmaterial_title: '基金材料性价比',
+          card_fundmaterial_sub: '查看基金材料兑换性价比攻略图',
+          fundmaterial_alt: '基金材料性价比',
+          card_grimoireupgrade_title: '魔典升级需求',
+          card_grimoireupgrade_sub: '查看赋能魔典和印痕魔典升级材料',
+          grimoireupgrade_alt: '魔典升级需求',
+          card_starsoulupgrade_title: '星魂升级材料',
+          card_starsoulupgrade_sub: '查看星魂到 24 级和命轨升级材料需求',
+          starsoulupgrade_alt: '星魂升级材料',
           card_icon_title: '战斗Buff/Debuff图标',
           card_icon_sub: '查看战斗Buff/Debuff图标攻略图',
           icon_alt: '战斗Buff/Debuff图标',
-          card_treasure_title: '珍宝升级',
-          card_treasure_sub: '查看珍宝升级攻略图',
-          treasure_alt: '珍宝升级',
-          card_ascendres_title: '飞升升级资源',
-          card_ascendres_sub: '查看飞升1 / 飞升2攻略图',
-          ascendres_alt: '飞升升级资源',
           card_attrexplain_title: '属性具体解释和算法',
           card_attrexplain_sub: '查看属性解释攻略图',
           attrexplain_alt: '属性具体解释和算法'
@@ -379,15 +460,30 @@
           card_genyuan_title: 'Origin Level',
           card_genyuan_sub: 'Open the origin level guide image',
           genyuan_alt: 'Origin level guide',
+          card_destinyupgrade_title: 'Destiny Upgrade Resources',
+          card_destinyupgrade_sub: 'Open the Destiny 1 to 6 resource guide image',
+          destinyupgrade_alt: 'Destiny upgrade resource guide',
+          card_destinytemple_title: 'Destiny Temple Upgrade Data',
+          card_destinytemple_sub: 'Open the Temple level 1 to 30 upgrade data guide',
+          destinytemple_alt: 'Destiny Temple upgrade data guide',
+          card_rootinfusionset_title: 'Origin Infusion Set Effects',
+          card_rootinfusionset_sub: 'Open the Lv1 to Lv7 quick reference for the six awakening sets',
+          rootinfusionset_alt: 'Origin infusion set effects guide',
           card_guanzhu_title: 'Imprint Grimoire',
           card_guanzhu_sub: 'Open the Imprint Grimoire guide image',
           guanzhu_alt: 'Imprint Grimoire guide',
-          card_boss_title: 'Expedition Boss HP',
-          card_boss_sub: 'Open the expedition boss HP guide image',
-          boss_alt: 'Expedition boss HP guide',
+          card_imprintbranch_title: 'Imprint Branch Picks',
+          card_imprintbranch_sub: 'Open the 18-line quick guide for Blade, Wall, and Spirit',
+          imprintbranch_alt: 'Imprint branch selection guide',
           card_map_title: 'Expedition Stage Map',
           card_map_sub: 'Open the expedition stage map guide image',
           map_alt: 'Expedition stage map guide',
+          card_voidinvasionboss_title: 'Void Invasion Boss Skills',
+          card_voidinvasionboss_sub: 'Open the Boss skill and counterplay guide for Images 1 to 7',
+          voidinvasionboss_alt: 'Void Invasion Boss skill guide',
+          card_sebosshp_title: 'Octopus Boss HP Score',
+          card_sebosshp_sub: 'Open the Expedition Octopus level 100 to 1 HP score guide',
+          sebosshp_alt: 'Expedition Octopus Boss HP score guide',
           card_awaken_title: 'Awakening Rate',
           card_awaken_sub: 'Open the awakening rate guide image',
           awaken_alt: 'Awakening rate guide',
@@ -400,15 +496,18 @@
           card_empower_title: 'Enabling Grimoire',
           card_empower_sub: 'Open the Enabling Grimoire guide image',
           empower_alt: 'Enabling Grimoire guide',
+          card_fundmaterial_title: 'Fund Material Value',
+          card_fundmaterial_sub: 'Open the fund material value guide image',
+          fundmaterial_alt: 'Fund material value guide',
+          card_grimoireupgrade_title: 'Grimoire Upgrade Requirements',
+          card_grimoireupgrade_sub: 'Open the Enabling and Imprint Grimoire upgrade material guide',
+          grimoireupgrade_alt: 'Grimoire upgrade requirements guide',
+          card_starsoulupgrade_title: 'Star Soul Upgrade Materials',
+          card_starsoulupgrade_sub: 'Open the Star Soul Lv24 and Destiny Trail upgrade material guide',
+          starsoulupgrade_alt: 'Star Soul upgrade material guide',
           card_icon_title: 'Battle Buff/Debuff Icons',
           card_icon_sub: 'Open the battle Buff/Debuff icon guide image',
           icon_alt: 'Battle Buff and Debuff icon guide',
-          card_treasure_title: 'Treasure Upgrade',
-          card_treasure_sub: 'Open the treasure upgrade guide image',
-          treasure_alt: 'Treasure upgrade guide',
-          card_ascendres_title: 'Destiny Upgrade Resources',
-          card_ascendres_sub: 'Open Destiny 1 / Destiny 2 guide images',
-          ascendres_alt: 'Destiny upgrade resources',
           card_attrexplain_title: 'Attribute Explanation & Formula',
           card_attrexplain_sub: 'Open the attribute explanation guide image',
           attrexplain_alt: 'Attribute explanation and formula guide'
@@ -431,15 +530,30 @@
         if (cardGenyuanTitle) cardGenyuanTitle.textContent = t('card_genyuan_title');
         if (cardGenyuanSub) cardGenyuanSub.textContent = t('card_genyuan_sub');
         if (genyuanImg) genyuanImg.setAttribute('alt', t('genyuan_alt'));
+        if (cardDestinyUpgradeTitle) cardDestinyUpgradeTitle.textContent = t('card_destinyupgrade_title');
+        if (cardDestinyUpgradeSub) cardDestinyUpgradeSub.textContent = t('card_destinyupgrade_sub');
+        if (destinyUpgradeImg) destinyUpgradeImg.setAttribute('alt', t('destinyupgrade_alt'));
+        if (cardDestinyTempleTitle) cardDestinyTempleTitle.textContent = t('card_destinytemple_title');
+        if (cardDestinyTempleSub) cardDestinyTempleSub.textContent = t('card_destinytemple_sub');
+        if (destinyTempleImg) destinyTempleImg.setAttribute('alt', t('destinytemple_alt'));
+        if (cardRootInfusionSetTitle) cardRootInfusionSetTitle.textContent = t('card_rootinfusionset_title');
+        if (cardRootInfusionSetSub) cardRootInfusionSetSub.textContent = t('card_rootinfusionset_sub');
+        if (rootInfusionSetImg) rootInfusionSetImg.setAttribute('alt', t('rootinfusionset_alt'));
         if (cardGuanzhuTitle) cardGuanzhuTitle.textContent = t('card_guanzhu_title');
         if (cardGuanzhuSub) cardGuanzhuSub.textContent = t('card_guanzhu_sub');
         if (guanzhuImg) guanzhuImg.setAttribute('alt', t('guanzhu_alt'));
-        if (cardBossTitle) cardBossTitle.textContent = t('card_boss_title');
-        if (cardBossSub) cardBossSub.textContent = t('card_boss_sub');
-        if (bossHpImg) bossHpImg.setAttribute('alt', t('boss_alt'));
+        if (cardImprintBranchTitle) cardImprintBranchTitle.textContent = t('card_imprintbranch_title');
+        if (cardImprintBranchSub) cardImprintBranchSub.textContent = t('card_imprintbranch_sub');
+        if (imprintBranchImg) imprintBranchImg.setAttribute('alt', t('imprintbranch_alt'));
         if (cardMapTitle) cardMapTitle.textContent = t('card_map_title');
         if (cardMapSub) cardMapSub.textContent = t('card_map_sub');
         if (mapImg) mapImg.setAttribute('alt', t('map_alt'));
+        if (cardVoidInvasionBossTitle) cardVoidInvasionBossTitle.textContent = t('card_voidinvasionboss_title');
+        if (cardVoidInvasionBossSub) cardVoidInvasionBossSub.textContent = t('card_voidinvasionboss_sub');
+        if (voidInvasionBossImg) voidInvasionBossImg.setAttribute('alt', t('voidinvasionboss_alt'));
+        if (cardSeBossHpTitle) cardSeBossHpTitle.textContent = t('card_sebosshp_title');
+        if (cardSeBossHpSub) cardSeBossHpSub.textContent = t('card_sebosshp_sub');
+        if (seBossHpImg) seBossHpImg.setAttribute('alt', t('sebosshp_alt'));
         if (cardAwakenTitle) cardAwakenTitle.textContent = t('card_awaken_title');
         if (cardAwakenSub) cardAwakenSub.textContent = t('card_awaken_sub');
         if (awakenImg) awakenImg.setAttribute('alt', t('awaken_alt'));
@@ -452,15 +566,18 @@
         if (cardEmpowerTitle) cardEmpowerTitle.textContent = t('card_empower_title');
         if (cardEmpowerSub) cardEmpowerSub.textContent = t('card_empower_sub');
         if (empowerImg) empowerImg.setAttribute('alt', t('empower_alt'));
+        if (cardFundMaterialTitle) cardFundMaterialTitle.textContent = t('card_fundmaterial_title');
+        if (cardFundMaterialSub) cardFundMaterialSub.textContent = t('card_fundmaterial_sub');
+        if (fundMaterialImg) fundMaterialImg.setAttribute('alt', t('fundmaterial_alt'));
+        if (cardGrimoireUpgradeTitle) cardGrimoireUpgradeTitle.textContent = t('card_grimoireupgrade_title');
+        if (cardGrimoireUpgradeSub) cardGrimoireUpgradeSub.textContent = t('card_grimoireupgrade_sub');
+        if (grimoireUpgradeImg) grimoireUpgradeImg.setAttribute('alt', t('grimoireupgrade_alt'));
+        if (cardStarsoulUpgradeTitle) cardStarsoulUpgradeTitle.textContent = t('card_starsoulupgrade_title');
+        if (cardStarsoulUpgradeSub) cardStarsoulUpgradeSub.textContent = t('card_starsoulupgrade_sub');
+        if (starsoulUpgradeImg) starsoulUpgradeImg.setAttribute('alt', t('starsoulupgrade_alt'));
         if (cardIconTitle) cardIconTitle.textContent = t('card_icon_title');
         if (cardIconSub) cardIconSub.textContent = t('card_icon_sub');
         if (iconImg) iconImg.setAttribute('alt', t('icon_alt'));
-        if (cardTreasureTitle) cardTreasureTitle.textContent = t('card_treasure_title');
-        if (cardTreasureSub) cardTreasureSub.textContent = t('card_treasure_sub');
-        if (treasureImg) treasureImg.setAttribute('alt', t('treasure_alt'));
-        if (cardAscendResTitle) cardAscendResTitle.textContent = t('card_ascendres_title');
-        if (cardAscendResSub) cardAscendResSub.textContent = t('card_ascendres_sub');
-        if (ascendResImg) ascendResImg.setAttribute('alt', t('ascendres_alt'));
         if (cardAttrExplainTitle) cardAttrExplainTitle.textContent = t('card_attrexplain_title');
         if (cardAttrExplainSub) cardAttrExplainSub.textContent = t('card_attrexplain_sub');
         if (attrExplainImg) attrExplainImg.setAttribute('alt', t('attrexplain_alt'));
@@ -479,6 +596,7 @@
       function openImageOverlay(imageUrls, title) {
         if (!imageOverlay || !overlayImages) return;
         const urls = Array.isArray(imageUrls) ? imageUrls : [imageUrls];
+        resetOverlayZoom();
         overlayImages.innerHTML = '';
         urls.forEach((u, i) => {
           const img = document.createElement('img');
@@ -494,68 +612,122 @@
         if (!imageOverlay || !overlayImages) return;
         imageOverlay.classList.remove('is-open');
         imageOverlay.setAttribute('aria-hidden', 'true');
+        resetOverlayZoom();
         overlayImages.innerHTML = '';
+      }
+
+      let overlayScale = 1;
+      let overlayX = 0;
+      let overlayY = 0;
+      let lastPanX = 0;
+      let lastPanY = 0;
+      let pinchStartDistance = 0;
+      let pinchStartScale = 1;
+      let pinchOriginX = 0;
+      let pinchOriginY = 0;
+      let pinchStartX = 0;
+      let pinchStartY = 0;
+
+      function clamp(value, min, max) {
+        return Math.min(max, Math.max(min, value));
+      }
+
+      function applyOverlayZoom() {
+        if (!overlayImages) return;
+        overlayImages.style.transform = `translate3d(${overlayX}px, ${overlayY}px, 0) scale(${overlayScale})`;
+        if (imageOverlay) imageOverlay.classList.toggle('is-zooming', overlayScale > 1.01);
+      }
+
+      function resetOverlayZoom() {
+        overlayScale = 1;
+        overlayX = 0;
+        overlayY = 0;
+        lastPanX = 0;
+        lastPanY = 0;
+        pinchStartDistance = 0;
+        if (overlayImages) overlayImages.style.transform = '';
+        if (imageOverlay) imageOverlay.classList.remove('is-zooming');
+      }
+
+      function touchDistance(touches) {
+        const dx = touches[0].clientX - touches[1].clientX;
+        const dy = touches[0].clientY - touches[1].clientY;
+        return Math.hypot(dx, dy);
+      }
+
+      function touchCenter(touches) {
+        return {
+          x: (touches[0].clientX + touches[1].clientX) / 2,
+          y: (touches[0].clientY + touches[1].clientY) / 2
+        };
+      }
+
+      function enableOverlayPinchZoom() {
+        if (!imageOverlay || !overlayImages) return;
+        ['gesturestart', 'gesturechange', 'gestureend'].forEach((eventName) => {
+          imageOverlay.addEventListener(eventName, (event) => {
+            if (!imageOverlay.classList.contains('is-open')) return;
+            event.preventDefault();
+          }, { passive: false });
+        });
+        imageOverlay.addEventListener('touchstart', (event) => {
+          if (!imageOverlay.classList.contains('is-open') || event.target === overlayClose) return;
+          if (event.touches.length === 2) {
+            const center = touchCenter(event.touches);
+            pinchStartDistance = touchDistance(event.touches);
+            pinchStartScale = overlayScale;
+            pinchOriginX = center.x;
+            pinchOriginY = center.y;
+            pinchStartX = overlayX;
+            pinchStartY = overlayY;
+            event.preventDefault();
+            return;
+          }
+          if (event.touches.length === 1 && overlayScale > 1.01) {
+            lastPanX = event.touches[0].clientX;
+            lastPanY = event.touches[0].clientY;
+            event.preventDefault();
+          }
+        }, { passive: false });
+
+        imageOverlay.addEventListener('touchmove', (event) => {
+          if (!imageOverlay.classList.contains('is-open')) return;
+          if (event.touches.length === 2 && pinchStartDistance > 0) {
+            const center = touchCenter(event.touches);
+            const nextScale = clamp(pinchStartScale * (touchDistance(event.touches) / pinchStartDistance), 1, 5);
+            const factor = nextScale / pinchStartScale;
+            overlayScale = nextScale;
+            overlayX = center.x - (pinchOriginX - pinchStartX) * factor;
+            overlayY = center.y - (pinchOriginY - pinchStartY) * factor;
+            applyOverlayZoom();
+            event.preventDefault();
+            return;
+          }
+          if (event.touches.length === 1 && overlayScale > 1.01) {
+            const touch = event.touches[0];
+            overlayX += touch.clientX - lastPanX;
+            overlayY += touch.clientY - lastPanY;
+            lastPanX = touch.clientX;
+            lastPanY = touch.clientY;
+            applyOverlayZoom();
+            event.preventDefault();
+          }
+        }, { passive: false });
+
+        imageOverlay.addEventListener('touchend', (event) => {
+          if (event.touches.length < 2) pinchStartDistance = 0;
+          if (overlayScale <= 1.01) {
+            resetOverlayZoom();
+          } else if (event.touches.length === 1) {
+            lastPanX = event.touches[0].clientX;
+            lastPanY = event.touches[0].clientY;
+          }
+        }, { passive: true });
       }
 
       function openImageWindow(imageUrls, title) {
         const urls = Array.isArray(imageUrls) ? imageUrls : [imageUrls];
-        if (isStandaloneApp()) {
-          openImageOverlay(urls, title);
-          return;
-        }
-        const resolvedList = urls.map((u) => new URL(u, window.location.href).href);
-        const width = Math.max(640, Math.floor(window.innerWidth * 0.9));
-        const height = Math.max(480, Math.floor(window.innerHeight * 0.9));
-        const win = window.open('', '_blank', `noopener,noreferrer,width=${width},height=${height}`);
-        if (!win) {
-          openImageOverlay(urls, title);
-          return;
-        }
-        const safeTitle = String(title || '');
-        const imagesHtml = resolvedList.map((u, i) => `<img src="${u}" alt="${safeTitle} ${i + 1}" />`).join('');
-        win.document.open();
-        win.document.write(`<!DOCTYPE html>
-<html lang="zh-Hans">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>${safeTitle}</title>
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      background: #0f172a;
-      color: #e2e8f0;
-      font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
-    }
-    body {
-      padding: 24px;
-    }
-    .gallery {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      align-items: center;
-    }
-    img {
-      display: block;
-      width: auto;
-      max-width: min(100%, 1100px);
-      height: auto;
-      margin: 0 auto;
-      border-radius: 12px;
-      box-shadow: 0 18px 42px rgba(15, 23, 42, 0.45);
-      background: #111827;
-    }
-  </style>
-</head>
-<body>
-  <div class="gallery">${imagesHtml}</div>
-</body>
-</html>`);
-        win.document.close();
+        openImageOverlay(urls, title);
       }
 
       function enableAppSwipeHome() {
@@ -566,9 +738,6 @@
           viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover');
         }
         document.documentElement.classList.add('app-mode');
-        document.addEventListener('gesturestart', (event) => event.preventDefault(), { passive: false });
-        document.addEventListener('gesturechange', (event) => event.preventDefault(), { passive: false });
-        document.addEventListener('gestureend', (event) => event.preventDefault(), { passive: false });
         const hasTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
         if (!hasTouch) return;
         const topbar = document.getElementById('topbar-nav');
@@ -581,29 +750,27 @@
         let dx = 0;
         let dy = 0;
         document.addEventListener('touchstart', (event) => {
+          if (imageOverlay && imageOverlay.classList.contains('is-open')) return;
           if (!event.touches || event.touches.length !== 1) return;
           startX = event.touches[0].clientX;
           startY = event.touches[0].clientY;
           dx = 0;
           dy = 0;
           horizontalIntent = false;
-          active = true;
+          active = startX <= 36;
         }, { passive: true });
         document.addEventListener('touchmove', (event) => {
           if (!active || !event.touches || !event.touches.length) return;
           dx = event.touches[0].clientX - startX;
           dy = event.touches[0].clientY - startY;
-          if (!horizontalIntent && Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy) * 1.15) {
+          if (!horizontalIntent && dx > 18 && dx > Math.abs(dy) * 1.35) {
             horizontalIntent = true;
           }
-          if (horizontalIntent) {
-            event.preventDefault();
-          }
-        }, { passive: false });
+        }, { passive: true });
         document.addEventListener('touchend', () => {
           if (!active) return;
           active = false;
-          if (horizontalIntent && Math.abs(dx) >= 70 && Math.abs(dy) <= 60) {
+          if (horizontalIntent && dx >= 72 && Math.abs(dy) <= 54) {
             requestAnimationFrame(() => {
               window.location.replace('index.html');
             });
@@ -638,6 +805,7 @@
       });
 
       setStaticText();
+      enableOverlayPinchZoom();
       enableAppSwipeHome();
     })();
   </script>

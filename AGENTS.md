@@ -80,7 +80,7 @@ When previewing locally, `index.html` shows a `Local Admin` account and Admin Po
 - X-tier soul logic is documented in `docs/soul-calculator.md`.
 - Expedition score display rules are documented in `docs/expedition-calculator.md`.
 - Registered-member pages currently include Soul Ascension and Expedition.
-- VIP-only pages currently include Awakening Rush Simulator and Play IH with AI.
+- VIP-only pages currently include Awakening Gala Simulator and Play IH with AI.
 - Each hero can choose 5 enables. Each enable slot picks 1 of 3 column options; enable 1 and enable 4 use the same three-option group. Enable tables with `lv1`/`lv2` subrows are treated as both active by default.
 - In Boss formulas, `绝地` is enable 2 column 2 and currently uses the infused value `18%`.
 - In Boss formulas, `均衡` is enable 5 column 1 and currently uses the infused value `45%`. Current balance-effect rule: if any normal-attack or active-skill damage segment from the same hero fails to crit in that hero's turn, the 45% extra damage applies to that turn's total damage, not only to the non-crit segment.
