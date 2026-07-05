@@ -270,7 +270,8 @@ def main():
     draw.text((margin, 136), "利刃 / 强壁 / 精神 · 3 大类 × 3 分支 × 2 条线", font=font(31, True), fill="#334155")
     y = header_h
     card_gap = 18
-    card_w = (w - margin * 2 - card_gap) // 2
+    section_pad = 24
+    card_w = (w - margin * 2 - section_pad * 2 - card_gap) // 2
     card_h = 190
     for section in SECTIONS:
         accent = section["accent"]
@@ -284,7 +285,7 @@ def main():
         for idx, item in enumerate(section["items"]):
             col = idx % 2
             row = idx // 2
-            x1 = margin + 24 + col * (card_w + card_gap)
+            x1 = margin + section_pad + col * (card_w + card_gap)
             y1 = grid_y + row * (card_h + 20)
             draw_line_card(draw, (x1, y1, x1 + card_w, y1 + card_h), item, accent, soft)
 
