@@ -7,6 +7,7 @@
 - 补充来源：`【精品】关于全增伤和全减伤的计算关系 by秋叶&爱哈卷 25.12.28.pdf`，用于记录全增伤、全减伤和抵消类属性关系。
 - 补充来源：`伤害类型.pdf`，用于记录传统伤害、真实伤害和惩戒伤害的属性适用范围，详见 `damage-types.md`。
 - 补充来源：`控制类型.rtfd`，用于记录控场分类，详见 `control-types.md`。
+- 攻略图输出：`flipgame/images/attribute-explanation-guide.png` 和 `flipgame/images/attribute-formula-guide.png`，由 `scripts/generate-attribute-guides.py` 生成。
 - 用户补充：2026-06-03 转述伤害算法文章，补充资质增伤、神能压制、神器减伤、列车减伤和最终类乘区位置。
 - 用户补充：正常战斗每队 6 个英雄；英雄可穿装备和戴神器；神器附加属性；出手按最终速度；出手时能量未满 100 普攻，满 100 使用大招。
 - 资料日期：待确认
