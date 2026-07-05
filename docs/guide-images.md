@@ -21,6 +21,7 @@
 - 基金材料性价比图由 `scripts/generate-fund-material-value-guide.py` 生成，数据来自用户提供截图 `Weixin Image_20260704213500_128_58.jpg` 和 `IHassistant/knowledge/mechanics/fund-material-value.md`，输出为 `flipgame/images/fund-material-value-guide.png`。
 - 魔典升级需求图由 `scripts/generate-grimoire-upgrade-guide.py` 生成，数据来自用户提供截图 `image.png` 和 `IHassistant/knowledge/mechanics/grimoire-upgrade.md`，输出为 `flipgame/images/grimoire-upgrade-guide.png`。
 - 星魂升级材料图由 `scripts/generate-starsoul-upgrade-guide.py` 生成，数据来自用户提供截图 `RDT_20240908_1722111431203826012194248.png` 和 `IHassistant/knowledge/starsoul/upgrade-requirements.md`，输出为 `flipgame/images/starsoul-upgrade-guide.png`。
+- 彩章血量积分图由 `scripts/generate-se-boss-hp-guide.py` 生成，数据来自旧图 `flipgame/images/se boss hp.png`、`flipgame/seboss_all.json` 和 `IHassistant/knowledge/bosses/SEBoss/hp-score-table.md`，输出为 `flipgame/images/se-boss-hp-guide.png`。
 
 ## 打开图片
 

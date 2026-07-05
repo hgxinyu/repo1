@@ -161,6 +161,8 @@
       width: max-content;
       max-width: 100%;
       margin: 0 auto;
+      transform-origin: 0 0;
+      will-change: transform;
     }
     .image-overlay img {
       width: auto;
@@ -180,6 +182,10 @@
       padding: 8px 12px;
       font-size: 13px;
       cursor: pointer;
+    }
+    .image-overlay.is-zooming {
+      cursor: grab;
+      overscroll-behavior: contain;
     }
     @media (max-width: 560px) {
       nav#topbar-nav { position: static; align-self: flex-end; margin: 8px 8px 0 auto; }
@@ -238,6 +244,11 @@
         <span class="thumb"><img src="images/远征推图.jpeg" alt="远征推图" id="mapImg" /></span>
         <span class="title" id="cardMapTitle">远征推图</span>
         <span class="subtitle" id="cardMapSub">查看远征推图攻略图</span>
+      </a>
+      <a class="card-link" href="images/se-boss-hp-guide.png" data-image="images/se-boss-hp-guide.png">
+        <span class="thumb"><img src="images/se-boss-hp-guide.png" alt="彩章血量积分" id="seBossHpImg" /></span>
+        <span class="title" id="cardSeBossHpTitle">彩章血量积分</span>
+        <span class="subtitle" id="cardSeBossHpSub">查看远征章鱼 100 到 1 层血量积分</span>
       </a>
       <a class="card-link" href="images/awakening-rate-guide.png" data-image="images/awakening-rate-guide.png">
         <span class="thumb"><img src="images/awakening-rate-guide.png" alt="觉醒概率" id="awakenImg" /></span>
@@ -318,6 +329,9 @@
       const cardMapTitle = document.getElementById('cardMapTitle');
       const cardMapSub = document.getElementById('cardMapSub');
       const mapImg = document.getElementById('mapImg');
+      const cardSeBossHpTitle = document.getElementById('cardSeBossHpTitle');
+      const cardSeBossHpSub = document.getElementById('cardSeBossHpSub');
+      const seBossHpImg = document.getElementById('seBossHpImg');
       const cardAwakenTitle = document.getElementById('cardAwakenTitle');
       const cardAwakenSub = document.getElementById('cardAwakenSub');
       const awakenImg = document.getElementById('awakenImg');
@@ -382,6 +396,9 @@
           card_map_title: '远征推图',
           card_map_sub: '查看远征推图攻略图',
           map_alt: '远征推图',
+          card_sebosshp_title: '彩章血量积分',
+          card_sebosshp_sub: '查看远征章鱼 100 到 1 层血量积分',
+          sebosshp_alt: '彩章血量积分',
           card_awaken_title: '觉醒概率',
           card_awaken_sub: '查看觉醒概率攻略图',
           awaken_alt: '觉醒概率',
@@ -436,6 +453,9 @@
           card_map_title: 'Expedition Stage Map',
           card_map_sub: 'Open the expedition stage map guide image',
           map_alt: 'Expedition stage map guide',
+          card_sebosshp_title: 'Octopus Boss HP Score',
+          card_sebosshp_sub: 'Open the Expedition Octopus level 100 to 1 HP score guide',
+          sebosshp_alt: 'Expedition Octopus Boss HP score guide',
           card_awaken_title: 'Awakening Rate',
           card_awaken_sub: 'Open the awakening rate guide image',
           awaken_alt: 'Awakening rate guide',
@@ -497,6 +517,9 @@
         if (cardMapTitle) cardMapTitle.textContent = t('card_map_title');
         if (cardMapSub) cardMapSub.textContent = t('card_map_sub');
         if (mapImg) mapImg.setAttribute('alt', t('map_alt'));
+        if (cardSeBossHpTitle) cardSeBossHpTitle.textContent = t('card_sebosshp_title');
+        if (cardSeBossHpSub) cardSeBossHpSub.textContent = t('card_sebosshp_sub');
+        if (seBossHpImg) seBossHpImg.setAttribute('alt', t('sebosshp_alt'));
         if (cardAwakenTitle) cardAwakenTitle.textContent = t('card_awaken_title');
         if (cardAwakenSub) cardAwakenSub.textContent = t('card_awaken_sub');
         if (awakenImg) awakenImg.setAttribute('alt', t('awaken_alt'));
@@ -539,6 +562,7 @@
       function openImageOverlay(imageUrls, title) {
         if (!imageOverlay || !overlayImages) return;
         const urls = Array.isArray(imageUrls) ? imageUrls : [imageUrls];
+        resetOverlayZoom();
         overlayImages.innerHTML = '';
         urls.forEach((u, i) => {
           const img = document.createElement('img');
@@ -554,7 +578,117 @@
         if (!imageOverlay || !overlayImages) return;
         imageOverlay.classList.remove('is-open');
         imageOverlay.setAttribute('aria-hidden', 'true');
+        resetOverlayZoom();
         overlayImages.innerHTML = '';
+      }
+
+      let overlayScale = 1;
+      let overlayX = 0;
+      let overlayY = 0;
+      let lastPanX = 0;
+      let lastPanY = 0;
+      let pinchStartDistance = 0;
+      let pinchStartScale = 1;
+      let pinchOriginX = 0;
+      let pinchOriginY = 0;
+      let pinchStartX = 0;
+      let pinchStartY = 0;
+
+      function clamp(value, min, max) {
+        return Math.min(max, Math.max(min, value));
+      }
+
+      function applyOverlayZoom() {
+        if (!overlayImages) return;
+        overlayImages.style.transform = `translate3d(${overlayX}px, ${overlayY}px, 0) scale(${overlayScale})`;
+        if (imageOverlay) imageOverlay.classList.toggle('is-zooming', overlayScale > 1.01);
+      }
+
+      function resetOverlayZoom() {
+        overlayScale = 1;
+        overlayX = 0;
+        overlayY = 0;
+        lastPanX = 0;
+        lastPanY = 0;
+        pinchStartDistance = 0;
+        if (overlayImages) overlayImages.style.transform = '';
+        if (imageOverlay) imageOverlay.classList.remove('is-zooming');
+      }
+
+      function touchDistance(touches) {
+        const dx = touches[0].clientX - touches[1].clientX;
+        const dy = touches[0].clientY - touches[1].clientY;
+        return Math.hypot(dx, dy);
+      }
+
+      function touchCenter(touches) {
+        return {
+          x: (touches[0].clientX + touches[1].clientX) / 2,
+          y: (touches[0].clientY + touches[1].clientY) / 2
+        };
+      }
+
+      function enableOverlayPinchZoom() {
+        if (!imageOverlay || !overlayImages) return;
+        ['gesturestart', 'gesturechange', 'gestureend'].forEach((eventName) => {
+          imageOverlay.addEventListener(eventName, (event) => {
+            if (!imageOverlay.classList.contains('is-open')) return;
+            event.preventDefault();
+          }, { passive: false });
+        });
+        imageOverlay.addEventListener('touchstart', (event) => {
+          if (!imageOverlay.classList.contains('is-open') || event.target === overlayClose) return;
+          if (event.touches.length === 2) {
+            const center = touchCenter(event.touches);
+            pinchStartDistance = touchDistance(event.touches);
+            pinchStartScale = overlayScale;
+            pinchOriginX = center.x;
+            pinchOriginY = center.y;
+            pinchStartX = overlayX;
+            pinchStartY = overlayY;
+            event.preventDefault();
+            return;
+          }
+          if (event.touches.length === 1 && overlayScale > 1.01) {
+            lastPanX = event.touches[0].clientX;
+            lastPanY = event.touches[0].clientY;
+            event.preventDefault();
+          }
+        }, { passive: false });
+
+        imageOverlay.addEventListener('touchmove', (event) => {
+          if (!imageOverlay.classList.contains('is-open')) return;
+          if (event.touches.length === 2 && pinchStartDistance > 0) {
+            const center = touchCenter(event.touches);
+            const nextScale = clamp(pinchStartScale * (touchDistance(event.touches) / pinchStartDistance), 1, 5);
+            const factor = nextScale / pinchStartScale;
+            overlayScale = nextScale;
+            overlayX = center.x - (pinchOriginX - pinchStartX) * factor;
+            overlayY = center.y - (pinchOriginY - pinchStartY) * factor;
+            applyOverlayZoom();
+            event.preventDefault();
+            return;
+          }
+          if (event.touches.length === 1 && overlayScale > 1.01) {
+            const touch = event.touches[0];
+            overlayX += touch.clientX - lastPanX;
+            overlayY += touch.clientY - lastPanY;
+            lastPanX = touch.clientX;
+            lastPanY = touch.clientY;
+            applyOverlayZoom();
+            event.preventDefault();
+          }
+        }, { passive: false });
+
+        imageOverlay.addEventListener('touchend', (event) => {
+          if (event.touches.length < 2) pinchStartDistance = 0;
+          if (overlayScale <= 1.01) {
+            resetOverlayZoom();
+          } else if (event.touches.length === 1) {
+            lastPanX = event.touches[0].clientX;
+            lastPanY = event.touches[0].clientY;
+          }
+        }, { passive: true });
       }
 
       function openImageWindow(imageUrls, title) {
@@ -570,9 +704,6 @@
           viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover');
         }
         document.documentElement.classList.add('app-mode');
-        document.addEventListener('gesturestart', (event) => event.preventDefault(), { passive: false });
-        document.addEventListener('gesturechange', (event) => event.preventDefault(), { passive: false });
-        document.addEventListener('gestureend', (event) => event.preventDefault(), { passive: false });
         const hasTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
         if (!hasTouch) return;
         const topbar = document.getElementById('topbar-nav');
@@ -585,6 +716,7 @@
         let dx = 0;
         let dy = 0;
         document.addEventListener('touchstart', (event) => {
+          if (imageOverlay && imageOverlay.classList.contains('is-open')) return;
           if (!event.touches || event.touches.length !== 1) return;
           startX = event.touches[0].clientX;
           startY = event.touches[0].clientY;
@@ -639,6 +771,7 @@
       });
 
       setStaticText();
+      enableOverlayPinchZoom();
       enableAppSwipeHome();
     })();
   </script>
