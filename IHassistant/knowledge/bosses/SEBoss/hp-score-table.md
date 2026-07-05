@@ -2,7 +2,6 @@
 
 来源：
 
-- 旧图：`flipgame/images/se boss hp.png`
 - 结构化数据：`flipgame/seboss_all.json`
 
 ## 口径

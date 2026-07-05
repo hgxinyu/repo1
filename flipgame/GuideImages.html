@@ -240,10 +240,20 @@
         <span class="title" id="cardGuanzhuTitle">印痕灌注</span>
         <span class="subtitle" id="cardGuanzhuSub">查看印痕灌注攻略图</span>
       </a>
+      <a class="card-link" href="images/imprint-branch-guide.png" data-image="images/imprint-branch-guide.png">
+        <span class="thumb"><img src="images/imprint-branch-guide.png" alt="印痕灌注分支选择" id="imprintBranchImg" /></span>
+        <span class="title" id="cardImprintBranchTitle">印痕灌注分支选择</span>
+        <span class="subtitle" id="cardImprintBranchSub">查看利刃、强壁、精神 18 条分支选择建议</span>
+      </a>
       <a class="card-link" href="images/%E8%BF%9C%E5%BE%81%E6%8E%A8%E5%9B%BE.jpeg" data-image="images/远征推图.jpeg">
         <span class="thumb"><img src="images/远征推图.jpeg" alt="远征推图" id="mapImg" /></span>
         <span class="title" id="cardMapTitle">远征推图</span>
         <span class="subtitle" id="cardMapSub">查看远征推图攻略图</span>
+      </a>
+      <a class="card-link" href="images/void-invasion-boss-guide.png" data-image="images/void-invasion-boss-guide.png">
+        <span class="thumb"><img src="images/void-invasion-boss-guide.png" alt="虚空入侵 Boss 技能" id="voidInvasionBossImg" /></span>
+        <span class="title" id="cardVoidInvasionBossTitle">虚空入侵 Boss 技能</span>
+        <span class="subtitle" id="cardVoidInvasionBossSub">查看图一到图七 Boss 技能与应对重点</span>
       </a>
       <a class="card-link" href="images/se-boss-hp-guide.png" data-image="images/se-boss-hp-guide.png">
         <span class="thumb"><img src="images/se-boss-hp-guide.png" alt="彩章血量积分" id="seBossHpImg" /></span>
@@ -326,9 +336,15 @@
       const cardGuanzhuTitle = document.getElementById('cardGuanzhuTitle');
       const cardGuanzhuSub = document.getElementById('cardGuanzhuSub');
       const guanzhuImg = document.getElementById('guanzhuImg');
+      const cardImprintBranchTitle = document.getElementById('cardImprintBranchTitle');
+      const cardImprintBranchSub = document.getElementById('cardImprintBranchSub');
+      const imprintBranchImg = document.getElementById('imprintBranchImg');
       const cardMapTitle = document.getElementById('cardMapTitle');
       const cardMapSub = document.getElementById('cardMapSub');
       const mapImg = document.getElementById('mapImg');
+      const cardVoidInvasionBossTitle = document.getElementById('cardVoidInvasionBossTitle');
+      const cardVoidInvasionBossSub = document.getElementById('cardVoidInvasionBossSub');
+      const voidInvasionBossImg = document.getElementById('voidInvasionBossImg');
       const cardSeBossHpTitle = document.getElementById('cardSeBossHpTitle');
       const cardSeBossHpSub = document.getElementById('cardSeBossHpSub');
       const seBossHpImg = document.getElementById('seBossHpImg');
@@ -393,9 +409,15 @@
           card_guanzhu_title: '印痕灌注',
           card_guanzhu_sub: '查看印痕灌注攻略图',
           guanzhu_alt: '印痕灌注',
+          card_imprintbranch_title: '印痕灌注分支选择',
+          card_imprintbranch_sub: '查看利刃、强壁、精神 18 条分支选择建议',
+          imprintbranch_alt: '印痕灌注分支选择',
           card_map_title: '远征推图',
           card_map_sub: '查看远征推图攻略图',
           map_alt: '远征推图',
+          card_voidinvasionboss_title: '虚空入侵 Boss 技能',
+          card_voidinvasionboss_sub: '查看图一到图七 Boss 技能与应对重点',
+          voidinvasionboss_alt: '虚空入侵 Boss 技能',
           card_sebosshp_title: '彩章血量积分',
           card_sebosshp_sub: '查看远征章鱼 100 到 1 层血量积分',
           sebosshp_alt: '彩章血量积分',
@@ -450,9 +472,15 @@
           card_guanzhu_title: 'Imprint Grimoire',
           card_guanzhu_sub: 'Open the Imprint Grimoire guide image',
           guanzhu_alt: 'Imprint Grimoire guide',
+          card_imprintbranch_title: 'Imprint Branch Picks',
+          card_imprintbranch_sub: 'Open the 18-line quick guide for Blade, Wall, and Spirit',
+          imprintbranch_alt: 'Imprint branch selection guide',
           card_map_title: 'Expedition Stage Map',
           card_map_sub: 'Open the expedition stage map guide image',
           map_alt: 'Expedition stage map guide',
+          card_voidinvasionboss_title: 'Void Invasion Boss Skills',
+          card_voidinvasionboss_sub: 'Open the Boss skill and counterplay guide for Images 1 to 7',
+          voidinvasionboss_alt: 'Void Invasion Boss skill guide',
           card_sebosshp_title: 'Octopus Boss HP Score',
           card_sebosshp_sub: 'Open the Expedition Octopus level 100 to 1 HP score guide',
           sebosshp_alt: 'Expedition Octopus Boss HP score guide',
@@ -514,9 +542,15 @@
         if (cardGuanzhuTitle) cardGuanzhuTitle.textContent = t('card_guanzhu_title');
         if (cardGuanzhuSub) cardGuanzhuSub.textContent = t('card_guanzhu_sub');
         if (guanzhuImg) guanzhuImg.setAttribute('alt', t('guanzhu_alt'));
+        if (cardImprintBranchTitle) cardImprintBranchTitle.textContent = t('card_imprintbranch_title');
+        if (cardImprintBranchSub) cardImprintBranchSub.textContent = t('card_imprintbranch_sub');
+        if (imprintBranchImg) imprintBranchImg.setAttribute('alt', t('imprintbranch_alt'));
         if (cardMapTitle) cardMapTitle.textContent = t('card_map_title');
         if (cardMapSub) cardMapSub.textContent = t('card_map_sub');
         if (mapImg) mapImg.setAttribute('alt', t('map_alt'));
+        if (cardVoidInvasionBossTitle) cardVoidInvasionBossTitle.textContent = t('card_voidinvasionboss_title');
+        if (cardVoidInvasionBossSub) cardVoidInvasionBossSub.textContent = t('card_voidinvasionboss_sub');
+        if (voidInvasionBossImg) voidInvasionBossImg.setAttribute('alt', t('voidinvasionboss_alt'));
         if (cardSeBossHpTitle) cardSeBossHpTitle.textContent = t('card_sebosshp_title');
         if (cardSeBossHpSub) cardSeBossHpSub.textContent = t('card_sebosshp_sub');
         if (seBossHpImg) seBossHpImg.setAttribute('alt', t('sebosshp_alt'));

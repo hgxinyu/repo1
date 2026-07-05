@@ -11,6 +11,7 @@
 - 部分图片已加站内二维码角标。
 - 觉醒概率新版图由 `scripts/generate-awakening-rate-guide.py` 生成，数据来自旧图 `flipgame/images/juexingailv.jpg`，输出为 `flipgame/images/awakening-rate-guide.png`。
 - 印痕灌注新版图由 `scripts/generate-imprint-infusion-guide.py` 生成，数据来自旧图 `flipgame/images/guanzhu.png`，输出为 `flipgame/images/imprint-infusion-guide.png`。
+- 印痕灌注分支选择图由 `scripts/generate-imprint-branch-guide.py` 生成，数据来自用户提供的利刃、强壁、精神三张截图和 `IHassistant/knowledge/imprint infusion/README.md`，输出为 `flipgame/images/imprint-branch-guide.png`。
 - 分解资质魂力新版图由 `scripts/generate-breakdown-soulpower-guide.py` 生成，数据来自旧图 `flipgame/images/fengjiehunli.png`，输出为 `flipgame/images/breakdown-soulpower-guide.png`。
 - 升格需求新版图由 `scripts/generate-merge-requirements-guide.py` 生成，数据来自旧图 `flipgame/images/shengexuqiu.jpg`，输出为 `flipgame/images/merge-requirements-guide.png`。
 - 根源等级新版图由 `scripts/generate-root-level-guide.py` 生成，数据来自旧图 `flipgame/images/genyuan.jpeg` 和 `IHassistant/knowledge/mechanics/hero-upgrade-progression.md`，输出为 `flipgame/images/root-level-guide.png`。
@@ -21,7 +22,8 @@
 - 基金材料性价比图由 `scripts/generate-fund-material-value-guide.py` 生成，数据来自用户提供截图 `Weixin Image_20260704213500_128_58.jpg` 和 `IHassistant/knowledge/mechanics/fund-material-value.md`，输出为 `flipgame/images/fund-material-value-guide.png`。
 - 魔典升级需求图由 `scripts/generate-grimoire-upgrade-guide.py` 生成，数据来自用户提供截图 `image.png` 和 `IHassistant/knowledge/mechanics/grimoire-upgrade.md`，输出为 `flipgame/images/grimoire-upgrade-guide.png`。
 - 星魂升级材料图由 `scripts/generate-starsoul-upgrade-guide.py` 生成，数据来自用户提供截图 `RDT_20240908_1722111431203826012194248.png` 和 `IHassistant/knowledge/starsoul/upgrade-requirements.md`，输出为 `flipgame/images/starsoul-upgrade-guide.png`。
-- 彩章血量积分图由 `scripts/generate-se-boss-hp-guide.py` 生成，数据来自旧图 `flipgame/images/se boss hp.png`、`flipgame/seboss_all.json` 和 `IHassistant/knowledge/bosses/SEBoss/hp-score-table.md`，输出为 `flipgame/images/se-boss-hp-guide.png`。
+- 彩章血量积分图由 `scripts/generate-se-boss-hp-guide.py` 生成，数据来自 `flipgame/seboss_all.json` 和 `IHassistant/knowledge/bosses/SEBoss/hp-score-table.md`，输出为 `flipgame/images/se-boss-hp-guide.png`。
+- 虚空入侵 Boss 技能图由 `scripts/generate-void-invasion-boss-guide.py` 生成，数据来自用户提供截图和 `IHassistant/knowledge/bosses/void-invasion/README.md`，输出为 `flipgame/images/void-invasion-boss-guide.png`。
 
 ## 打开图片
 
