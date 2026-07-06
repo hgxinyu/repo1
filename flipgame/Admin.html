@@ -627,12 +627,17 @@
               <button data-role="vip" type="button">VIP</button>
               <button data-role="pending" type="button" class="ghost">待审</button>
               <button data-role="blocked" type="button" class="danger">禁用</button>
+              ${canDeleteUser(user) ? '<button data-delete type="button" class="danger ghost">删除</button>' : ""}
             </div>
           </td>
         `;
         tr.querySelectorAll("button[data-role]").forEach((button) => {
           button.addEventListener("click", () => setRole(user.email, button.dataset.role));
         });
+        const deleteBtn = tr.querySelector("button[data-delete]");
+        if (deleteBtn) {
+          deleteBtn.addEventListener("click", () => deleteUser(user.email));
+        }
         rowsEl.appendChild(tr);
       }
     }
@@ -700,6 +705,10 @@
       if (user.emailVerified === true || user.emailConfirmedAt) return '<span class="badge ok">已确认</span>';
       if (user.emailVerified === false) return '<span class="badge warn">未确认</span>';
       return '<span class="badge">未知</span>';
+    }
+
+    function canDeleteUser(user) {
+      return user && user.emailVerified === false && !user.emailConfirmedAt;
     }
 
     function roleStatus(role) {
@@ -770,6 +779,24 @@
       await api("/api/admin/set-role", {
         method: "POST",
         body: JSON.stringify({ email, role })
+      });
+      await loadUsers();
+    }
+
+    async function deleteUser(email) {
+      if (!window.confirm(`确定删除未确认账号 ${email} 的申请资料？此操作不能撤销。`)) {
+        return;
+      }
+      if (LOCAL_MOCK_MODE) {
+        mockUsers = mockUsers.filter((user) => user.email !== email);
+        render(mockUsers);
+        userStatusEl.textContent = `本地 Mock：${email} 已临时删除，不会保存到线上。`;
+        return;
+      }
+      userStatusEl.textContent = `正在删除 ${email}...`;
+      await api("/api/admin/delete-user", {
+        method: "POST",
+        body: JSON.stringify({ email })
       });
       await loadUsers();
     }

@@ -65,6 +65,11 @@ export async function writeProfile(profile) {
   return data;
 }
 
+export async function deleteProfile(email) {
+  const store = getUsersStore();
+  await store.delete(getUserKey(email));
+}
+
 export async function currentUser() {
   try {
     await refreshSession().catch(() => null);

@@ -18,6 +18,7 @@
 系统写入 VIP 申请，默认 role=pending
 管理员进入 Admin.html
 管理员手动把账号设为 vip
+管理员可删除未确认邮箱的申请资料
 管理员可在 Admin.html 维护升格和觉醒使用的资质价格
 用户登录后可访问注册会员页面
 VIP 账号可额外访问觉醒冲榜模拟器和 AI玩放置
@@ -56,6 +57,7 @@ ADMIN_EMAILS=admin1@example.com,admin2@example.com
 - `POST /api/ai-chat`：VIP 调用 AI玩放置，后端代理 DeepSeek API。VIP 每小时最多提问 10 次，管理员账号不受限制。
 - `GET /api/admin/users`：管理员读取申请列表。
 - `POST /api/admin/set-role`：管理员修改用户角色。
+- `POST /api/admin/delete-user`：管理员删除未确认邮箱的申请资料。后端会重新读取 Netlify Identity 状态；已确认账号不会被删除。
 - `GET /api/admin/quality-prices`：管理员读取资质价格和存储状态。
 - `POST /api/admin/quality-prices`：管理员保存 `starDiamondBoundDiamondRatio`、各资质 `foodPrice` 和 `keptPrice`。
 
