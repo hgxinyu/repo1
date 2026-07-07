@@ -36,6 +36,8 @@
 
 分支选择攻略图由 `scripts/generate-imprint-branch-guide.py` 生成，输出为 `flipgame/images/imprint-branch-guide.png`。
 
+根源灌注唤醒套装效果见 `root-infusion-sets.md`，攻略图由 `scripts/generate-root-infusion-set-guide.py` 生成，输出为 `flipgame/images/root-infusion-set-guide.png`。
+
 | 灌注等级 | 点数 | 灌注等级 | 点数 | 灌注等级 | 点数 |
 | ---: | ---: | ---: | ---: | ---: | ---: |
 | 16 | 2 | 26 | 2 | 36 | 2 |

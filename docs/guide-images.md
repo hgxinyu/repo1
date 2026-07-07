@@ -12,6 +12,7 @@
 - 觉醒概率新版图由 `scripts/generate-awakening-rate-guide.py` 生成，数据来自旧图 `flipgame/images/juexingailv.jpg`，输出为 `flipgame/images/awakening-rate-guide.png`。
 - 印痕灌注新版图由 `scripts/generate-imprint-infusion-guide.py` 生成，数据来自旧图 `flipgame/images/guanzhu.png`，输出为 `flipgame/images/imprint-infusion-guide.png`。
 - 印痕灌注分支选择图由 `scripts/generate-imprint-branch-guide.py` 生成，数据来自用户提供的利刃、强壁、精神三张截图和 `IHassistant/knowledge/imprint infusion/README.md`，输出为 `flipgame/images/imprint-branch-guide.png`。
+- 根源灌注套装效果图由 `scripts/generate-root-infusion-set-guide.py` 生成，数据来自用户提供 Excel `根源灌注全套装属性表.xlsx` 和 `IHassistant/knowledge/imprint infusion/root-infusion-sets.md`，输出为 `flipgame/images/root-infusion-set-guide.png`。
 - 分解资质魂力新版图由 `scripts/generate-breakdown-soulpower-guide.py` 生成，数据来自旧图 `flipgame/images/fengjiehunli.png`，输出为 `flipgame/images/breakdown-soulpower-guide.png`。
 - 升格需求新版图由 `scripts/generate-merge-requirements-guide.py` 生成，数据来自旧图 `flipgame/images/shengexuqiu.jpg`，输出为 `flipgame/images/merge-requirements-guide.png`。
 - 根源等级新版图由 `scripts/generate-root-level-guide.py` 生成，数据来自旧图 `flipgame/images/genyuan.jpeg` 和 `IHassistant/knowledge/mechanics/hero-upgrade-progression.md`，输出为 `flipgame/images/root-level-guide.png`。
