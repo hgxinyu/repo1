@@ -18,408 +18,319 @@
   </script>
   <style>
     :root {
-      --bg: #eef3f2;
-      --surface: #ffffff;
-      --surface-2: #f8faf9;
-      --ink: #14201f;
-      --muted: #64706e;
-      --line: #dce5e2;
-      --line-strong: #b9c8c3;
-      --brand: #0f766e;
-      --brand-dark: #0b4f4a;
-      --accent: #b45309;
-      --danger: #be123c;
-      --ok: #047857;
-      --shadow: 0 16px 36px rgba(20, 32, 31, 0.10);
+      --canvas: #f1f0e9;
+      --paper: #fffefa;
+      --paper-2: #f8f7f1;
+      --ink: #17211f;
+      --muted: #6d7772;
+      --line: #e4e3da;
+      --line-strong: #cbcfc5;
+      --forest: #123d35;
+      --forest-deep: #0a2b26;
+      --forest-soft: #e1eee8;
+      --gold: #c99038;
+      --gold-soft: #fff4db;
+      --danger: #a83b4b;
+      --danger-soft: #fff0f1;
+      --ok: #187253;
+      --shadow: 0 18px 50px rgba(32, 47, 42, .08);
+      --radius: 18px;
     }
     * { box-sizing: border-box; }
-    html, body {
-      margin: 0;
+    [hidden] { display: none !important; }
+    html { scroll-behavior: smooth; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
       min-height: 100vh;
-      background: var(--bg);
+      background:
+        radial-gradient(circle at 82% 4%, rgba(201, 144, 56, .11), transparent 24rem),
+        linear-gradient(125deg, rgba(18, 61, 53, .025) 1px, transparent 1px),
+        var(--canvas);
+      background-size: auto, 26px 26px, auto;
       color: var(--ink);
-      font-family: ui-sans-serif, "Segoe UI", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
-      line-height: 1.6;
+      font-family: "Avenir Next", Avenir, "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.55;
     }
-    body { padding: 24px; }
-    .admin-shell {
-      width: min(1180px, 100%);
-      margin: 0 auto;
-      display: grid;
-      gap: 16px;
+    button, input, select { font: inherit; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible {
+      outline: 3px solid rgba(201, 144, 56, .3);
+      outline-offset: 2px;
     }
-    .topbar {
+    .admin-shell { min-height: 100vh; display: grid; grid-template-columns: 240px minmax(0, 1fr); }
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      z-index: 10;
       display: flex;
-      justify-content: space-between;
-      gap: 16px;
-      align-items: center;
-      flex-wrap: wrap;
-      background: #102a33;
-      color: #fff;
-      border-radius: 8px;
-      padding: 18px;
-      box-shadow: var(--shadow);
+      flex-direction: column;
+      padding: 30px 22px 22px;
+      overflow: hidden;
+      color: #f7f1df;
+      background:
+        radial-gradient(circle at 120% -5%, rgba(224, 174, 91, .28), transparent 16rem),
+        linear-gradient(160deg, var(--forest) 0%, var(--forest-deep) 76%);
     }
-    .title-block {
+    .sidebar::after {
+      content: "";
+      position: absolute;
+      right: -90px;
+      bottom: -70px;
+      width: 210px;
+      height: 210px;
+      border: 1px solid rgba(255,255,255,.09);
+      border-radius: 50%;
+      box-shadow: 0 0 0 38px rgba(255,255,255,.025), 0 0 0 76px rgba(255,255,255,.018);
+      pointer-events: none;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; position: relative; z-index: 1; }
+    .brand-mark {
+      width: 42px;
+      height: 42px;
       display: grid;
-      gap: 4px;
+      place-items: center;
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 13px;
+      background: rgba(255,255,255,.08);
+      color: #e4bd72;
+      font-family: Georgia, serif;
+      font-size: 21px;
+      font-style: italic;
+      box-shadow: inset 0 1px rgba(255,255,255,.08);
     }
-    .eyebrow {
-      margin: 0;
-      color: #b7d7d4;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0;
-      text-transform: uppercase;
-    }
-    h1 {
-      margin: 0;
-      font-size: clamp(24px, 4vw, 34px);
-      line-height: 1.1;
-      letter-spacing: 0;
-    }
-    h2 {
-      margin: 0;
-      font-size: 18px;
-      line-height: 1.25;
-      letter-spacing: 0;
-    }
-    p {
-      margin: 4px 0 0;
-      color: var(--muted);
-      font-size: 14px;
-    }
-    .topbar p { color: #d9e7e5; }
-    a, button {
-      min-height: 38px;
-      border: 1px solid var(--line-strong);
-      border-radius: 8px;
-      padding: 8px 12px;
-      background: #fff;
-      color: var(--brand-dark);
-      font-size: 14px;
+    .brand-copy { display: grid; line-height: 1.1; }
+    .brand-copy strong { color: #fffdf6; font-family: Georgia, "Songti SC", serif; font-size: 20px; letter-spacing: .02em; }
+    .brand-copy span { margin-top: 5px; color: #9fb8b0; font-size: 10px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
+    .side-label { margin: 50px 12px 12px; color: #78968d; font-size: 10px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+    .side-nav { display: grid; gap: 7px; position: relative; z-index: 1; }
+    .side-nav a {
+      min-height: 46px;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 0 13px;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      color: #b7cbc4;
       text-decoration: none;
-      cursor: pointer;
+      font-size: 14px;
+      font-weight: 650;
+      transition: .2s ease;
+    }
+    .side-nav a:hover, .side-nav a.active { border-color: rgba(255,255,255,.1); background: rgba(255,255,255,.08); color: #fff; transform: translateX(2px); }
+    .nav-icon { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 9px; background: rgba(255,255,255,.06); font-size: 14px; }
+    .side-foot { margin-top: auto; position: relative; z-index: 1; }
+    .environment-card { padding: 14px; border: 1px solid rgba(255,255,255,.1); border-radius: 14px; background: rgba(255,255,255,.055); }
+    .environment-card strong { display: block; color: #fff; font-size: 13px; }
+    .environment-card p { margin: 4px 0 0; color: #90aaa1; font-size: 11px; }
+    .workspace { min-width: 0; padding: 34px clamp(22px, 4vw, 58px) 64px; }
+    .workspace-inner { width: min(1240px, 100%); margin: 0 auto; }
+    .topbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; margin-bottom: 28px; }
+    .title-block { display: grid; gap: 5px; }
+    .eyebrow { margin: 0; color: var(--gold); font-size: 11px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+    h1 { margin: 0; font-family: Georgia, "Songti SC", serif; font-size: clamp(31px, 4vw, 46px); font-weight: 600; line-height: 1.12; letter-spacing: -.025em; }
+    h2 { margin: 0; font-family: Georgia, "Songti SC", serif; font-size: 23px; font-weight: 600; line-height: 1.25; }
+    p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+    .toolbar, .actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    a.action, button {
+      min-height: 40px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      white-space: nowrap;
-    }
-    a:hover, button:hover {
-      border-color: var(--brand);
-      color: var(--brand);
-    }
-    .topbar a, .topbar button {
-      border-color: rgba(255, 255, 255, 0.28);
-      background: rgba(255, 255, 255, 0.08);
-      color: #fff;
-    }
-    button.primary {
-      background: var(--brand);
-      color: #fff;
-      border-color: transparent;
-    }
-    button.danger {
-      color: var(--danger);
-      border-color: rgba(190, 18, 60, 0.25);
-    }
-    button.ghost {
-      background: transparent;
-    }
-    .toolbar,
-    .actions {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    .layout {
-      display: grid;
-      grid-template-columns: minmax(0, 1.55fr) minmax(340px, 0.75fr);
-      gap: 16px;
-      align-items: start;
-    }
-    .panel {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      box-shadow: var(--shadow);
-      overflow: hidden;
-    }
-    .panel-head {
-      display: flex;
-      justify-content: space-between;
-      gap: 16px;
-      align-items: flex-start;
-      padding: 18px;
-      border-bottom: 1px solid var(--line);
-      background: linear-gradient(180deg, #fff, var(--surface-2));
-      cursor: pointer;
-    }
-    .panel-title {
-      display: grid;
-      gap: 4px;
-    }
-    .panel-body { padding: 0; }
-    .panel-toggle {
-      min-width: 64px;
-    }
-    .panel.is-collapsed .collapsible {
-      display: none;
-    }
-    .panel.is-collapsed .panel-head {
-      border-bottom: 0;
-    }
-    .panel-footer {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: center;
-      flex-wrap: wrap;
-      padding: 14px 18px;
-      border-top: 1px solid var(--line);
-      background: var(--surface-2);
-    }
-    .summary-row {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 8px;
-      padding: 14px 18px;
-      border-bottom: 1px solid var(--line);
-      background: #fbfcfb;
-    }
-    .summary-item {
-      min-height: 58px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 8px 10px;
-      background: #fff;
-    }
-    .summary-label {
-      color: var(--muted);
-      font-size: 12px;
-    }
-    .summary-value {
-      margin-top: 2px;
-      font-size: 20px;
-      font-weight: 800;
-      line-height: 1.2;
-    }
-    .table-wrap {
-      overflow-x: auto;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-    }
-    th, td {
-      text-align: left;
-      border-bottom: 1px solid var(--line);
-      padding: 10px 12px;
-      vertical-align: middle;
-    }
-    th {
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0;
-      background: var(--surface-2);
-      white-space: nowrap;
-    }
-    tbody tr:hover td { background: #fbfcfb; }
-    .account-cell {
-      display: grid;
-      gap: 3px;
-      min-width: 180px;
-    }
-    .account-meta {
-      color: var(--muted);
-      font-size: 12px;
-    }
-    .mono {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 13px;
-    }
-    .status-line {
-      color: var(--muted);
-      font-size: 13px;
-    }
-    .badge {
-      display: inline-flex;
-      min-height: 24px;
-      align-items: center;
-      border-radius: 999px;
-      padding: 2px 9px;
-      font-size: 12px;
-      font-weight: 700;
-      line-height: 1.2;
-      border: 1px solid var(--line);
-      background: #fff;
-      color: var(--muted);
-    }
-    .badge.ok {
-      border-color: rgba(4, 120, 87, 0.22);
-      background: #ecfdf5;
-      color: var(--ok);
-    }
-    .badge.warn {
-      border-color: rgba(180, 83, 9, 0.24);
-      background: #fffbeb;
-      color: var(--accent);
-    }
-    .badge.danger {
-      border-color: rgba(190, 18, 60, 0.22);
-      background: #fff1f2;
-      color: var(--danger);
-    }
-    .mode-pill {
-      width: fit-content;
-      margin-top: 4px;
-      border: 1px solid rgba(255, 255, 255, 0.28);
-      border-radius: 999px;
-      padding: 2px 9px;
-      color: #fff7ed;
-      background: rgba(180, 83, 9, 0.36);
-      font-size: 12px;
-      font-weight: 700;
-    }
-    .field {
-      display: grid;
-      gap: 5px;
-      color: var(--muted);
-      font-size: 13px;
-      font-weight: 700;
-    }
-    input {
-      width: 100%;
-      min-height: 38px;
+      gap: 7px;
       border: 1px solid var(--line-strong);
-      border-radius: 8px;
-      padding: 8px 10px;
-      color: var(--ink);
-      font: inherit;
-      background: #fff;
-    }
-    input:focus {
-      outline: 2px solid rgba(15, 118, 110, 0.18);
-      border-color: rgba(15, 118, 110, 0.6);
-    }
-    .price-tools {
-      display: grid;
-      gap: 12px;
-      padding: 18px;
-      border-bottom: 1px solid var(--line);
-      background: #fbfcfb;
-    }
-    .price-table input {
-      min-width: 108px;
-      text-align: right;
-    }
-    .price-input-pair {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(112px, 1fr));
-      gap: 10px;
-      align-items: end;
-    }
-    .price-field {
-      display: grid;
-      gap: 4px;
-      min-width: 0;
-    }
-    .price-field span {
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 700;
-      line-height: 1.25;
-    }
-    .price-field input {
-      min-width: 0;
-    }
-    .meta {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      color: var(--muted);
+      border-radius: 11px;
+      padding: 8px 13px;
+      background: rgba(255,254,250,.84);
+      color: var(--forest);
       font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
     }
-    .empty-row {
-      color: var(--muted);
-      text-align: center;
-      padding: 24px;
+    a.action:hover, button:hover { border-color: #a7b8b0; background: #fff; transform: translateY(-1px); box-shadow: 0 7px 18px rgba(24,50,43,.08); }
+    button:disabled { opacity: .55; cursor: not-allowed; transform: none; box-shadow: none; }
+    button.primary { border-color: var(--forest); background: var(--forest); color: #fff; box-shadow: 0 8px 18px rgba(18,61,53,.16); }
+    button.primary:hover { background: var(--forest-deep); }
+    button.danger { border-color: rgba(168,59,75,.2); color: var(--danger); }
+    button.ghost { background: transparent; }
+    button.compact { min-height: 34px; padding: 6px 10px; border-radius: 9px; font-size: 12px; }
+    .mode-pill { width: fit-content; margin-top: 5px; border: 1px solid #efd8a7; border-radius: 999px; padding: 4px 10px; color: #875a18; background: var(--gold-soft); font-size: 11px; font-weight: 800; }
+    .layout { display: grid; gap: 24px; }
+    .panel { scroll-margin-top: 24px; overflow: hidden; border: 1px solid rgba(210,210,200,.9); border-radius: var(--radius); background: rgba(255,254,250,.95); box-shadow: var(--shadow); animation: panel-in .48s both; }
+    .panel:nth-child(2) { animation-delay: .09s; }
+    @keyframes panel-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; } }
+    .panel-head { display: flex; justify-content: space-between; gap: 24px; align-items: center; padding: 24px 26px; border-bottom: 1px solid var(--line); cursor: pointer; }
+    .panel-heading { display: flex; align-items: center; gap: 14px; }
+    .panel-icon { width: 44px; height: 44px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 13px; background: var(--forest-soft); color: var(--forest); font-size: 18px; }
+    .panel-title { display: grid; gap: 2px; }
+    .panel-kicker { color: var(--gold); font-size: 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+    .panel-toggle { min-width: 64px; }
+    .panel.is-collapsed .collapsible { display: none; }
+    .panel.is-collapsed .panel-head { border-bottom: 0; }
+    .summary-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; padding: 20px 26px; background: var(--paper-2); border-bottom: 1px solid var(--line); }
+    .summary-item { position: relative; min-height: 86px; overflow: hidden; padding: 16px 18px; border: 1px solid var(--line); border-radius: 14px; background: var(--paper); }
+    .summary-item::after { content: ""; position: absolute; top: 17px; right: 17px; width: 7px; height: 7px; border-radius: 50%; background: var(--line-strong); box-shadow: 0 0 0 5px rgba(203,207,197,.2); }
+    .summary-item:nth-child(2)::after { background: var(--gold); box-shadow: 0 0 0 5px rgba(201,144,56,.14); }
+    .summary-item:nth-child(3)::after { background: var(--ok); box-shadow: 0 0 0 5px rgba(24,114,83,.12); }
+    .summary-label { color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .04em; }
+    .summary-value { margin-top: 6px; font-family: Georgia, serif; font-size: 27px; font-weight: 600; line-height: 1; }
+    .list-tools { display: flex; justify-content: space-between; gap: 12px; padding: 16px 26px; border-bottom: 1px solid var(--line); background: var(--paper); }
+    .search-box { position: relative; flex: 1 1 340px; max-width: 460px; }
+    .search-box::before { content: "⌕"; position: absolute; left: 13px; top: 50%; z-index: 1; color: var(--muted); font-size: 20px; transform: translateY(-54%); }
+    input, select { width: 100%; min-height: 40px; border: 1px solid var(--line-strong); border-radius: 10px; padding: 8px 11px; background: #fff; color: var(--ink); }
+    .search-box input { padding-left: 38px; }
+    input:focus, select:focus { border-color: #8aa59a; outline: 3px solid rgba(18,61,53,.09); }
+    .filter-select { width: auto; min-width: 124px; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { padding: 14px 16px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
+    th { background: #fbfaf5; color: #7c847f; font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; }
+    tbody tr:last-child td { border-bottom: 0; }
+    tbody tr { transition: background .16s ease; }
+    tbody tr:hover { background: #fbfaf5; }
+    .account-cell { display: grid; gap: 3px; min-width: 190px; }
+    .account-cell .mono { color: var(--ink); font-weight: 700; }
+    .account-meta { color: var(--muted); font-size: 11px; }
+    .mono { font-family: "SFMono-Regular", Consolas, monospace; font-size: 12px; }
+    .status-line { max-width: 410px; color: var(--muted); font-size: 12px; }
+    .badge { min-height: 25px; display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 999px; padding: 3px 9px; background: #fff; color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: .03em; text-transform: uppercase; }
+    .badge.ok { border-color: rgba(24,114,83,.18); background: #edf8f2; color: var(--ok); }
+    .badge.warn { border-color: rgba(201,144,56,.25); background: var(--gold-soft); color: #93631d; }
+    .badge.danger { border-color: rgba(168,59,75,.18); background: var(--danger-soft); color: var(--danger); }
+    .price-tools { display: grid; grid-template-columns: minmax(220px, 340px) minmax(0, 1fr); gap: 22px; align-items: end; padding: 20px 26px; border-bottom: 1px solid var(--line); background: var(--paper-2); }
+    .field, .price-field { display: grid; gap: 6px; color: var(--muted); font-size: 11px; font-weight: 800; letter-spacing: .03em; }
+    .price-table th:first-child, .price-table td:first-child { padding-left: 26px; }
+    .price-table th:last-child, .price-table td:last-child { padding-right: 26px; }
+    .price-table input { min-width: 108px; text-align: right; }
+    .price-input-pair { display: grid; grid-template-columns: repeat(2, minmax(112px, 220px)); gap: 14px; align-items: end; }
+    .price-field { min-width: 0; }
+    .price-field span { color: var(--muted); font-size: 10px; line-height: 1.25; }
+    .price-field input { min-width: 0; background: #fbfbf8; font-family: "SFMono-Regular", Consolas, monospace; font-weight: 650; }
+    .price-tier-cell { width: 110px; color: var(--forest); font-family: Georgia, serif; font-size: 16px; font-weight: 700; }
+    .panel-footer { display: flex; justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap; padding: 15px 26px; border-top: 1px solid var(--line); background: var(--paper-2); }
+    .meta { display: flex; gap: 8px 18px; flex-wrap: wrap; color: var(--muted); font-size: 11px; }
+    .empty-row { padding: 42px; color: var(--muted); text-align: center; }
+    @media (max-width: 920px) {
+      .admin-shell { grid-template-columns: 1fr; }
+      .sidebar { position: relative; height: auto; min-height: 0; padding: 16px 20px; flex-direction: row; align-items: center; gap: 18px; }
+      .side-label, .environment-card { display: none; }
+      .side-nav { margin-left: auto; grid-auto-flow: column; }
+      .side-nav a { min-height: 40px; padding: 0 10px; }
+      .side-nav a span:not(.nav-icon) { display: none; }
+      .side-foot { margin: 0; }
+      .workspace { padding-top: 28px; }
     }
-    @media (max-width: 980px) {
-      body { padding: 14px; }
-      .layout { grid-template-columns: 1fr; }
+    @media (max-width: 680px) {
+      .workspace { padding: 22px 12px 40px; }
+      .topbar { align-items: stretch; flex-direction: column; margin-bottom: 20px; }
+      .toolbar { display: grid; grid-template-columns: 1fr 1fr 1fr; }
+      .toolbar > * { padding-inline: 8px; }
+      .panel { border-radius: 15px; }
+      .panel-head { align-items: flex-start; padding: 19px 16px; }
+      .panel-heading { align-items: flex-start; }
+      .panel-icon { width: 38px; height: 38px; border-radius: 11px; }
+      h2 { font-size: 20px; }
+      .panel-head > .actions { justify-content: flex-end; }
+      .panel-head .status-line { width: 100%; order: 3; text-align: right; }
+      .summary-row { grid-template-columns: repeat(3, 1fr); gap: 7px; padding: 12px; }
+      .summary-item { min-height: 72px; padding: 12px; }
+      .summary-value { font-size: 23px; }
+      .list-tools { padding: 12px; flex-wrap: wrap; }
+      .search-box { max-width: none; flex-basis: 100%; }
+      .filter-select { flex: 1; }
+      table:not(.price-table), table:not(.price-table) thead, table:not(.price-table) tbody, table:not(.price-table) tr, table:not(.price-table) th, table:not(.price-table) td { display: block; }
+      table:not(.price-table) thead { display: none; }
+      table:not(.price-table) tr { padding: 15px 16px; border-bottom: 1px solid var(--line); }
+      table:not(.price-table) td { display: grid; grid-template-columns: 82px minmax(0, 1fr); align-items: start; padding: 6px 0; border: 0; }
+      table:not(.price-table) td::before { content: attr(data-label); color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
+      table:not(.price-table) td .actions { gap: 6px; }
+      table:not(.price-table) td .actions button { min-height: 34px; flex: 1 1 auto; padding: 6px 9px; }
+      .price-tools { grid-template-columns: 1fr; gap: 12px; padding: 16px; }
+      .price-table th:first-child, .price-table td:first-child { padding-left: 16px; }
+      .price-table th:last-child, .price-table td:last-child { padding-right: 16px; }
+      .price-input-pair { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+      .price-table input { min-width: 0; }
+      .panel-footer { padding: 14px 16px; }
     }
-    @media (max-width: 720px) {
-      .topbar, .panel-head, .panel-footer { align-items: stretch; }
-      .toolbar, .actions { width: 100%; }
-      .toolbar > *, .actions > * { flex: 1 1 auto; }
-      .summary-row { grid-template-columns: 1fr; }
-      table, thead, tbody, tr, th, td { display: block; }
-      thead { display: none; }
-      tr { border-bottom: 1px solid var(--line); padding: 10px 12px; }
-      td { border: 0; padding: 5px 0; }
-      td::before {
-        content: attr(data-label) "：";
-        color: var(--muted);
-        display: inline-block;
-        min-width: 86px;
-      }
-      .price-table tr {
-        display: grid;
-        grid-template-columns: 52px minmax(0, 1fr);
-        gap: 10px;
-        align-items: end;
-      }
-      .price-table td {
-        padding: 0;
-      }
-      .price-table td::before {
-        display: none;
-      }
-      .price-tier-cell {
-        align-self: center;
-        color: var(--ink);
-        font-weight: 800;
-        font-size: 15px;
-      }
-      .price-input-pair {
-        gap: 8px;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-      .price-field input {
-        min-height: 36px;
-        padding: 7px 8px;
-        font-size: 14px;
-      }
+    @media (max-width: 430px) {
+      .brand-copy span { display: none; }
+      .sidebar { padding-inline: 14px; }
+      .side-nav { gap: 2px; }
+      .nav-icon { width: 26px; }
+      .toolbar { grid-template-columns: 1fr 1fr; }
+      .toolbar .action { grid-column: 1 / -1; }
+      .panel-head { gap: 10px; }
+      .panel-head .actions { gap: 5px; }
+      .panel-head .actions button { min-height: 34px; padding: 6px 8px; }
+      .panel-heading { gap: 9px; }
+      .panel-title p { display: none; }
     }
   </style>
 </head>
 <body>
   <div class="admin-shell">
-    <header class="topbar">
-      <div class="title-block">
-        <p class="eyebrow">ShinE Admin</p>
-        <h1>管理后台</h1>
-        <p>账号审核和资质价格维护</p>
-        <span class="mode-pill" id="modePill" hidden>本地 Mock 预览</span>
+    <aside class="sidebar" aria-label="后台导航">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">S</div>
+        <div class="brand-copy">
+          <strong>ShinE</strong>
+          <span>Admin Console</span>
+        </div>
       </div>
-      <div class="toolbar">
-        <a href="index.html">回到主页</a>
-        <button id="refreshBtn" type="button">刷新</button>
-        <button id="logoutBtn" type="button">退出登录</button>
+      <div class="side-label">Workspace</div>
+      <nav class="side-nav">
+        <a class="active" href="#users-panel" data-workspace="users" aria-controls="users-panel" aria-current="page">
+          <span class="nav-icon" aria-hidden="true">人</span>
+          <span>用户审核</span>
+        </a>
+        <a href="#prices-panel" data-workspace="prices" aria-controls="prices-panel">
+          <span class="nav-icon" aria-hidden="true">◇</span>
+          <span>资质价格</span>
+        </a>
+        <a href="index.html">
+          <span class="nav-icon" aria-hidden="true">↗</span>
+          <span>返回站点</span>
+        </a>
+      </nav>
+      <div class="side-foot">
+        <div class="environment-card">
+          <strong>Operations</strong>
+          <p>会员权限与计算器数据控制台</p>
+        </div>
       </div>
-    </header>
+    </aside>
 
-    <main class="layout">
-      <section class="panel is-collapsed" aria-labelledby="users-title" data-panel="users">
+    <div class="workspace">
+      <div class="workspace-inner">
+        <header class="topbar">
+          <div class="title-block">
+            <p class="eyebrow" id="workspaceEyebrow">Access Control</p>
+            <h1 id="workspaceTitle">用户审核</h1>
+            <p id="workspaceIntro">审核会员访问权限，处理待审核账号与角色状态。</p>
+            <span class="mode-pill" id="modePill" hidden>● 本地 Mock · 所有修改仅供预览</span>
+          </div>
+          <div class="toolbar">
+            <a class="action" href="index.html">← 回到主页</a>
+            <button id="refreshBtn" type="button">↻ 刷新数据</button>
+            <button id="logoutBtn" type="button">退出登录</button>
+          </div>
+        </header>
+
+        <main class="layout">
+      <section class="panel" id="users-panel" aria-labelledby="users-title" data-panel="users" data-workspace-panel="users">
         <div class="panel-head" data-panel-head>
-          <div class="panel-title">
-            <h2 id="users-title">VIP 用户</h2>
-            <p>审核注册账号，管理会员访问状态。</p>
+          <div class="panel-heading">
+            <div class="panel-icon" aria-hidden="true">人</div>
+            <div class="panel-title">
+              <span class="panel-kicker">Access control</span>
+              <h2 id="users-title">会员与访问权限</h2>
+              <p>审核注册账号，并分配 VIP、待审或禁用状态。</p>
+            </div>
           </div>
           <div class="actions">
             <div class="status-line" id="userStatus" role="status">正在检查管理员权限...</div>
@@ -441,6 +352,18 @@
               <div class="summary-value">0</div>
             </div>
           </div>
+          <div class="list-tools" aria-label="筛选用户">
+            <label class="search-box">
+              <span hidden>搜索账号</span>
+              <input id="userSearchInput" type="search" placeholder="搜索邮箱、游戏名或公会…" autocomplete="off" />
+            </label>
+            <select class="filter-select" id="roleFilter" aria-label="按角色筛选">
+              <option value="all">全部角色</option>
+              <option value="pending">待审核</option>
+              <option value="vip">VIP / Admin</option>
+              <option value="blocked">已禁用</option>
+            </select>
+          </div>
           <div class="table-wrap">
             <table aria-label="用户列表">
               <thead>
@@ -458,11 +381,15 @@
         </div>
       </section>
 
-      <section class="panel is-collapsed" aria-labelledby="prices-title" data-panel="prices">
+      <section class="panel" id="prices-panel" aria-labelledby="prices-title" data-panel="prices" data-workspace-panel="prices" hidden>
         <div class="panel-head" data-panel-head>
-          <div class="panel-title">
-            <h2 id="prices-title">资质价格</h2>
-            <p>升格成本使用狗粮单价，觉醒净投入使用出货价格。</p>
+          <div class="panel-heading">
+            <div class="panel-icon" aria-hidden="true">◇</div>
+            <div class="panel-title">
+              <span class="panel-kicker">Pricing source</span>
+              <h2 id="prices-title">资质价格基准</h2>
+              <p>升格成本使用狗粮单价，觉醒净投入使用出货价格。</p>
+            </div>
           </div>
           <div class="actions">
             <button class="panel-toggle" type="button" data-collapse-toggle aria-expanded="false">展开</button>
@@ -495,7 +422,9 @@
           </div>
         </div>
       </section>
-    </main>
+        </main>
+      </div>
+    </div>
   </div>
 
   <script type="module">
@@ -506,6 +435,8 @@
     const userStatusEl = document.getElementById("userStatus");
     const userSummaryEl = document.getElementById("userSummary");
     const rowsEl = document.getElementById("userRows");
+    const userSearchInput = document.getElementById("userSearchInput");
+    const roleFilter = document.getElementById("roleFilter");
     const refreshBtn = document.getElementById("refreshBtn");
     const logoutBtn = document.getElementById("logoutBtn");
     const modePill = document.getElementById("modePill");
@@ -516,8 +447,27 @@
     const starRatioInput = document.getElementById("starRatioInput");
     const reloadPricesBtn = document.getElementById("reloadPricesBtn");
     const savePricesBtn = document.getElementById("savePricesBtn");
+    const workspaceEyebrow = document.getElementById("workspaceEyebrow");
+    const workspaceTitle = document.getElementById("workspaceTitle");
+    const workspaceIntro = document.getElementById("workspaceIntro");
 
     const TIER_ORDER = ["C-", "C", "C+", "B-", "B", "B+", "A-", "A", "A+", "S", "SS", "SSS"];
+    const WORKSPACES = {
+      users: {
+        hash: "#users-panel",
+        eyebrow: "Access Control",
+        title: "用户审核",
+        intro: "审核会员访问权限，处理待审核账号与角色状态。"
+      },
+      prices: {
+        hash: "#prices-panel",
+        eyebrow: "Pricing Source",
+        title: "资质价格",
+        intro: "维护升格与觉醒计算器使用的核心价格基准。"
+      }
+    };
+    let activeWorkspace = "users";
+    let currentUsers = [];
     let mockUsers = [
       {
         email: "shine@example.com",
@@ -603,11 +553,44 @@
       }[char]));
     }
 
+    function formatDate(value) {
+      if (!value) return "—";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return String(value);
+      return new Intl.DateTimeFormat("zh-CN", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false
+      }).format(date);
+    }
+
     function render(users) {
+      currentUsers = Array.isArray(users) ? users : [];
+      renderUserSummary(currentUsers);
+      renderUserRows(getFilteredUsers());
+    }
+
+    function getFilteredUsers() {
+      const query = String(userSearchInput.value || "").trim().toLowerCase();
+      const role = roleFilter.value;
+      return currentUsers.filter((user) => {
+        const userRole = String(user.role || "free").toLowerCase();
+        const roleMatches = role === "all"
+          || (role === "pending" && (userRole === "pending" || userRole === "free"))
+          || (role === "vip" && (userRole === "vip" || userRole === "admin"))
+          || userRole === role;
+        const haystack = [user.email, user.gameName, user.guild].map((value) => String(value || "").toLowerCase()).join(" ");
+        return roleMatches && (!query || haystack.includes(query));
+      });
+    }
+
+    function renderUserRows(users) {
       rowsEl.innerHTML = "";
-      renderUserSummary(users);
       if (!users.length) {
-        rowsEl.innerHTML = '<tr><td class="empty-row" colspan="5">暂无账号申请</td></tr>';
+        rowsEl.innerHTML = `<tr><td class="empty-row" colspan="5">${currentUsers.length ? "没有符合筛选条件的账号" : "暂无账号申请"}</td></tr>`;
         return;
       }
       for (const user of users) {
@@ -621,13 +604,13 @@
           </td>
           <td data-label="邮箱确认">${emailStatus(user)}</td>
           <td data-label="角色">${roleStatus(user.role)}</td>
-          <td data-label="申请时间" class="mono">${escapeHtml(user.requestedAt || user.createdAt)}</td>
+          <td data-label="申请时间" class="mono">${escapeHtml(formatDate(user.requestedAt || user.createdAt))}</td>
           <td data-label="操作">
             <div class="actions">
-              <button data-role="vip" type="button">VIP</button>
-              <button data-role="pending" type="button" class="ghost">待审</button>
-              <button data-role="blocked" type="button" class="danger">禁用</button>
-              ${canDeleteUser(user) ? '<button data-delete type="button" class="danger ghost">删除</button>' : ""}
+              <button data-role="vip" type="button" class="compact">VIP</button>
+              <button data-role="pending" type="button" class="ghost compact">待审</button>
+              <button data-role="blocked" type="button" class="danger compact">禁用</button>
+              ${canDeleteUser(user) ? '<button data-delete type="button" class="danger ghost compact">删除</button>' : ""}
             </div>
           </td>
         `;
@@ -749,6 +732,38 @@
       });
     }
 
+    function setWorkspace(name, updateHash = true) {
+      const next = WORKSPACES[name] ? name : "users";
+      const config = WORKSPACES[next];
+      activeWorkspace = next;
+      document.querySelectorAll("[data-workspace-panel]").forEach((panel) => {
+        panel.hidden = panel.dataset.workspacePanel !== next;
+      });
+      document.querySelectorAll("[data-workspace]").forEach((link) => {
+        const isActive = link.dataset.workspace === next;
+        link.classList.toggle("active", isActive);
+        if (isActive) link.setAttribute("aria-current", "page");
+        else link.removeAttribute("aria-current");
+      });
+      workspaceEyebrow.textContent = config.eyebrow;
+      workspaceTitle.textContent = config.title;
+      workspaceIntro.textContent = config.intro;
+      if (updateHash && window.location.hash !== config.hash) {
+        window.history.replaceState(null, "", config.hash);
+      }
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function initWorkspaces() {
+      document.querySelectorAll("[data-workspace]").forEach((link) => {
+        link.addEventListener("click", (event) => {
+          event.preventDefault();
+          setWorkspace(link.dataset.workspace);
+        });
+      });
+      setWorkspace(window.location.hash === WORKSPACES.prices.hash ? "prices" : "users", false);
+    }
+
     async function loadUsers() {
       if (LOCAL_MOCK_MODE) {
         render(mockUsers);
@@ -859,15 +874,26 @@
       priceStatusEl.textContent = "价格已保存，计算器会读取最新价格。";
     }
 
-    refreshBtn.addEventListener("click", () => loadUsers().catch((error) => {
-      userStatusEl.textContent = "加载失败：" + (error.message || error);
-    }));
+    refreshBtn.addEventListener("click", async () => {
+      refreshBtn.disabled = true;
+      try {
+        if (activeWorkspace === "prices") await loadPrices();
+        else await loadUsers();
+      } catch (error) {
+        const statusEl = activeWorkspace === "prices" ? priceStatusEl : userStatusEl;
+        statusEl.textContent = "加载失败：" + (error.message || error);
+      } finally {
+        refreshBtn.disabled = false;
+      }
+    });
     reloadPricesBtn.addEventListener("click", () => loadPrices().catch((error) => {
       priceStatusEl.textContent = "价格加载失败：" + (error.message || error);
     }));
     savePricesBtn.addEventListener("click", () => savePrices().catch((error) => {
       priceStatusEl.textContent = "价格保存失败：" + (error.message || error);
     }));
+    userSearchInput.addEventListener("input", () => renderUserRows(getFilteredUsers()));
+    roleFilter.addEventListener("change", () => renderUserRows(getFilteredUsers()));
     logoutBtn.addEventListener("click", async () => {
       if (LOCAL_MOCK_MODE) {
         userStatusEl.textContent = "本地 Mock：没有真实登录会话。";
@@ -882,6 +908,7 @@
     if (LOCAL_MOCK_MODE && modePill) {
       modePill.hidden = false;
     }
+    initWorkspaces();
     initPanelToggles();
 
     Promise.all([
