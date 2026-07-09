@@ -491,8 +491,6 @@
         guild: "Test",
         gameName: "Blocked Demo",
         role: "blocked",
-        emailVerified: true,
-        emailConfirmedAt: "2026-06-27T20:00:00Z",
         requestedAt: "2026-06-27T19:20:00Z"
       }
     ];
@@ -691,7 +689,8 @@
     }
 
     function canDeleteUser(user) {
-      return user && user.emailVerified === false && !user.emailConfirmedAt;
+      if (!user || user.emailVerified === true || user.emailConfirmedAt) return false;
+      return user.emailVerified === false || String(user.role || "").trim().toLowerCase() === "blocked";
     }
 
     function roleStatus(role) {
@@ -799,7 +798,7 @@
     }
 
     async function deleteUser(email) {
-      if (!window.confirm(`确定删除未确认账号 ${email} 的申请资料？此操作不能撤销。`)) {
+      if (!window.confirm(`确定删除账号 ${email} 的申请资料？后台会先确认邮箱状态，已确认账号不会被删除。此操作不能撤销。`)) {
         return;
       }
       if (LOCAL_MOCK_MODE) {
@@ -809,11 +808,15 @@
         return;
       }
       userStatusEl.textContent = `正在删除 ${email}...`;
-      await api("/api/admin/delete-user", {
-        method: "POST",
-        body: JSON.stringify({ email })
-      });
-      await loadUsers();
+      try {
+        await api("/api/admin/delete-user", {
+          method: "POST",
+          body: JSON.stringify({ email })
+        });
+        await loadUsers();
+      } catch (error) {
+        userStatusEl.textContent = `删除失败：${error.message || error}`;
+      }
     }
 
     async function loadPrices() {

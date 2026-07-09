@@ -18,7 +18,7 @@
 系统写入 VIP 申请，默认 role=pending
 管理员进入 Admin.html
 管理员手动把账号设为 vip
-管理员可删除未确认邮箱的申请资料
+管理员可删除未确认邮箱的申请资料；已禁用且确认状态未知的账号也可发起删除
 管理员可在 Admin.html 维护升格和觉醒使用的资质价格
 用户登录后可访问注册会员页面
 VIP 账号可额外访问觉醒冲榜模拟器和 AI玩放置
@@ -57,7 +57,7 @@ ADMIN_EMAILS=admin1@example.com,admin2@example.com
 - `POST /api/ai-chat`：VIP 调用 AI玩放置，后端代理 DeepSeek API。VIP 每小时最多提问 10 次，管理员账号不受限制。
 - `GET /api/admin/users`：管理员读取申请列表。
 - `POST /api/admin/set-role`：管理员修改用户角色。
-- `POST /api/admin/delete-user`：管理员删除未确认邮箱的申请资料。后端会重新读取 Netlify Identity 状态；已确认账号不会被删除。
+- `POST /api/admin/delete-user`：管理员删除未确认邮箱的申请资料。已禁用且确认状态为“未知”的账号也会显示删除入口；后端会在执行前重新读取 Netlify Identity 状态，已确认账号不会被删除。
 - `GET /api/admin/quality-prices`：管理员读取资质价格和存储状态。
 - `POST /api/admin/quality-prices`：管理员保存 `starDiamondBoundDiamondRatio`、各资质 `foodPrice` 和 `keptPrice`。
 
@@ -65,7 +65,7 @@ ADMIN_EMAILS=admin1@example.com,admin2@example.com
 
 - `已确认`：账号已完成邮箱确认。后台会优先读取 Netlify Identity 的当前 `confirmedAt` 状态，并同步回 `vip-users`。
 - `未确认`：Netlify Identity 当前没有确认时间，或注册时返回未确认且尚未刷新到已确认。
-- `未知`：旧资料或后台临时无法读取 Identity 状态。
+- `未知`：旧资料或后台临时无法读取 Identity 状态。若账号角色为 `blocked`，管理员仍可发起删除，但后端必须先实时确认该账号没有完成邮箱确认。
 
 用户资料存储在 Netlify Blobs 的 `vip-users` store 中，key 格式：
 
@@ -97,7 +97,7 @@ Autoconfirm = Off
 
 首页在 `file://`、`localhost`、`127.0.0.1`、`0.0.0.0`、`::1`，以及私有局域网 IPv4（`10.*`、`172.16.*` 至 `172.31.*`、`192.168.*`）下会默认显示 `Local Admin` 和右上角管理后台入口，方便电脑或手机打开本地后台 UI。
 
-`Admin.html` 在同样的本地/局域网地址下会进入本地 Mock 预览模式，只渲染示例用户和本地 `quality_prices.json` 价格。Mock 模式不会读取真实 Identity，不会调用 admin API，也不会写入 Netlify Blobs。后台两个主面板默认折叠，点击标题区域或“展开”按钮后查看内容。
+`Admin.html` 在同样的本地/局域网地址下会进入本地 Mock 预览模式，只渲染示例用户和本地 `quality_prices.json` 价格。Mock 模式不会读取真实 Identity，不会调用 admin API，也不会写入 Netlify Blobs。用户审核和资质价格由侧栏切换为两个独立 workspace，当前 workspace 内的面板默认展开。
 
 为了方便本地静态预览，会员页和 VIP 页在 `file://`、`localhost`、`127.0.0.1`、`0.0.0.0`、`::1`，以及私有局域网 IPv4（`10.*`、`172.16.*` 至 `172.31.*`、`192.168.*`）下会跳过前端权限门。线上 Netlify 地址仍必须登录并通过 `/api/me` 权限检查。
 
