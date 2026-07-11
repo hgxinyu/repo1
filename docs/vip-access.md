@@ -60,6 +60,7 @@ ADMIN_EMAILS=admin1@example.com,admin2@example.com
 - `POST /api/admin/delete-user`：管理员删除未确认邮箱的申请资料。已禁用且确认状态为“未知”的账号也会显示删除入口；后端会在执行前重新读取 Netlify Identity 状态，已确认账号不会被删除。
 - `GET /api/admin/quality-prices`：管理员读取资质价格和存储状态。
 - `POST /api/admin/quality-prices`：管理员保存 `starDiamondBoundDiamondRatio`、各资质 `foodPrice` 和 `keptPrice`。
+- `GET /api/admin/traffic?days=7|30|90`：管理员读取按国家聚合的页面访问量、每日趋势和热门页面。
 
 后台用户列表会显示邮箱确认状态：
 
@@ -74,6 +75,8 @@ users/{email}.json
 ```
 
 资质价格存储在 Netlify Blobs 的 `quality-prices` store 中，key 为 `current.json`。`flipgame/quality_prices.json` 仍保留为默认值和本地静态服务器回退。
+
+访问流量由 `netlify/edge-functions/track-traffic.js` 在成功的 HTML 页面请求上采集。只记录 UTC 日期、小时、国家代码和页面路径，不保存 IP、邮箱、Cookie 或设备指纹。数据按小时写入 Netlify Blobs 的 `site-traffic` store；后台可查看最近 7、30 或 90 天。由于 Blobs 不提供原子自增，同一国家在同一小时内的并发请求可能造成少量低估，因此该页用于站点趋势观察，不作为计费级统计。
 
 ## 部署要求
 
@@ -97,7 +100,7 @@ Autoconfirm = Off
 
 首页在 `file://`、`localhost`、`127.0.0.1`、`0.0.0.0`、`::1`，以及私有局域网 IPv4（`10.*`、`172.16.*` 至 `172.31.*`、`192.168.*`）下会默认显示 `Local Admin` 和右上角管理后台入口，方便电脑或手机打开本地后台 UI。
 
-`Admin.html` 在同样的本地/局域网地址下会进入本地 Mock 预览模式，只渲染示例用户和本地 `quality_prices.json` 价格。Mock 模式不会读取真实 Identity，不会调用 admin API，也不会写入 Netlify Blobs。用户审核和资质价格由侧栏切换为两个独立 workspace，当前 workspace 内的面板默认展开。
+`Admin.html` 在同样的本地/局域网地址下会进入本地 Mock 预览模式，只渲染示例用户、本地 `quality_prices.json` 价格和示例流量。Mock 模式不会读取真实 Identity，不会调用 admin API，也不会写入 Netlify Blobs。用户审核、资质价格和流量统计由侧栏切换为三个独立 workspace，当前 workspace 内的面板默认展开。
 
 为了方便本地静态预览，会员页和 VIP 页在 `file://`、`localhost`、`127.0.0.1`、`0.0.0.0`、`::1`，以及私有局域网 IPv4（`10.*`、`172.16.*` 至 `172.31.*`、`192.168.*`）下会跳过前端权限门。线上 Netlify 地址仍必须登录并通过 `/api/me` 权限检查。
 

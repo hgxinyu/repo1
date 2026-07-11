@@ -215,6 +215,25 @@
     .panel-footer { display: flex; justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap; padding: 15px 26px; border-top: 1px solid var(--line); background: var(--paper-2); }
     .meta { display: flex; gap: 8px 18px; flex-wrap: wrap; color: var(--muted); font-size: 11px; }
     .empty-row { padding: 42px; color: var(--muted); text-align: center; }
+    .traffic-summary { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .traffic-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(280px, .75fr); gap: 0; }
+    .traffic-block { min-width: 0; padding: 22px 26px 26px; }
+    .traffic-block + .traffic-block { border-left: 1px solid var(--line); }
+    .traffic-block-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 17px; }
+    .traffic-block-head h3 { margin: 0; color: var(--forest); font: 600 17px/1.25 Georgia, "Songti SC", serif; }
+    .country-list, .page-list { display: grid; gap: 13px; }
+    .country-row { display: grid; grid-template-columns: 108px minmax(0, 1fr) 68px; gap: 11px; align-items: center; }
+    .country-code { color: var(--forest); font-family: "SFMono-Regular", Consolas, monospace; font-size: 12px; font-weight: 800; }
+    .traffic-bar { height: 8px; overflow: hidden; border-radius: 999px; background: #e9ebe5; }
+    .traffic-bar > span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--forest), #3f7768); transform-origin: left; animation: grow-bar .55s ease both; }
+    @keyframes grow-bar { from { transform: scaleX(0); } }
+    .traffic-number { color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; text-align: right; }
+    .trend-bars { height: 132px; display: flex; align-items: end; gap: 5px; padding: 14px 0 20px; border-bottom: 1px solid var(--line); }
+    .trend-bar { min-width: 3px; flex: 1 1 0; position: relative; border-radius: 4px 4px 1px 1px; background: linear-gradient(180deg, var(--gold), #dfbd7c); }
+    .trend-bar:hover::after { content: attr(data-tip); position: absolute; left: 50%; bottom: calc(100% + 7px); z-index: 2; padding: 5px 7px; border-radius: 6px; background: var(--forest-deep); color: #fff; font-size: 10px; white-space: nowrap; transform: translateX(-50%); }
+    .page-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+    .page-row:last-child { border-bottom: 0; }
+    .page-path { overflow: hidden; color: var(--ink); font-family: "SFMono-Regular", Consolas, monospace; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
     @media (max-width: 920px) {
       .admin-shell { grid-template-columns: 1fr; }
       .sidebar { position: relative; height: auto; min-height: 0; padding: 16px 20px; flex-direction: row; align-items: center; gap: 18px; }
@@ -251,6 +270,9 @@
       table:not(.price-table) td .actions { gap: 6px; }
       table:not(.price-table) td .actions button { min-height: 34px; flex: 1 1 auto; padding: 6px 9px; }
       .price-tools { grid-template-columns: 1fr; gap: 12px; padding: 16px; }
+      .traffic-grid { grid-template-columns: 1fr; }
+      .traffic-block { padding: 18px 16px; }
+      .traffic-block + .traffic-block { border-left: 0; border-top: 1px solid var(--line); }
       .price-table th:first-child, .price-table td:first-child { padding-left: 16px; }
       .price-table th:last-child, .price-table td:last-child { padding-right: 16px; }
       .price-input-pair { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
@@ -291,6 +313,10 @@
         <a href="#prices-panel" data-workspace="prices" aria-controls="prices-panel">
           <span class="nav-icon" aria-hidden="true">◇</span>
           <span>资质价格</span>
+        </a>
+        <a href="#traffic-panel" data-workspace="traffic" aria-controls="traffic-panel">
+          <span class="nav-icon" aria-hidden="true">◎</span>
+          <span>访问流量</span>
         </a>
         <a href="index.html">
           <span class="nav-icon" aria-hidden="true">↗</span>
@@ -422,6 +448,42 @@
           </div>
         </div>
       </section>
+      <section class="panel" id="traffic-panel" aria-labelledby="traffic-title" data-panel="traffic" data-workspace-panel="traffic" hidden>
+        <div class="panel-head" data-panel-head>
+          <div class="panel-heading">
+            <div class="panel-icon" aria-hidden="true">◎</div>
+            <div class="panel-title">
+              <span class="panel-kicker">Geographic overview</span>
+              <h2 id="traffic-title">访问流量</h2>
+              <p>按访问者所在国家查看页面浏览量与趋势。</p>
+            </div>
+          </div>
+          <div class="actions">
+            <select class="filter-select" id="trafficRange" aria-label="统计时间范围">
+              <option value="7">最近 7 天</option>
+              <option value="30" selected>最近 30 天</option>
+              <option value="90">最近 90 天</option>
+            </select>
+            <button class="panel-toggle" type="button" data-collapse-toggle aria-expanded="false">展开</button>
+          </div>
+        </div>
+        <div class="collapsible">
+          <div class="summary-row traffic-summary" id="trafficSummary" aria-label="流量摘要"></div>
+          <div class="traffic-grid">
+            <div class="traffic-block">
+              <div class="traffic-block-head"><h3>国家分布</h3><span class="status-line" id="trafficStatus" role="status">等待加载...</span></div>
+              <div class="country-list" id="countryRows"></div>
+            </div>
+            <div class="traffic-block">
+              <div class="traffic-block-head"><h3>每日趋势</h3><span class="badge" id="trafficPeriod">30D</span></div>
+              <div class="trend-bars" id="trafficTrend" aria-label="每日访问趋势"></div>
+              <div class="traffic-block-head" style="margin-top:20px"><h3>热门页面</h3></div>
+              <div class="page-list" id="trafficPages"></div>
+            </div>
+          </div>
+          <div class="panel-footer"><div class="meta" id="trafficMeta"></div><div class="status-line">只统计页面浏览，不采集 IP 或设备指纹</div></div>
+        </div>
+      </section>
         </main>
       </div>
     </div>
@@ -450,6 +512,14 @@
     const workspaceEyebrow = document.getElementById("workspaceEyebrow");
     const workspaceTitle = document.getElementById("workspaceTitle");
     const workspaceIntro = document.getElementById("workspaceIntro");
+    const trafficRange = document.getElementById("trafficRange");
+    const trafficSummary = document.getElementById("trafficSummary");
+    const trafficStatus = document.getElementById("trafficStatus");
+    const countryRows = document.getElementById("countryRows");
+    const trafficTrend = document.getElementById("trafficTrend");
+    const trafficPages = document.getElementById("trafficPages");
+    const trafficPeriod = document.getElementById("trafficPeriod");
+    const trafficMeta = document.getElementById("trafficMeta");
 
     const TIER_ORDER = ["C-", "C", "C+", "B-", "B", "B+", "A-", "A", "A+", "S", "SS", "SSS"];
     const WORKSPACES = {
@@ -464,6 +534,12 @@
         eyebrow: "Pricing Source",
         title: "资质价格",
         intro: "维护升格与觉醒计算器使用的核心价格基准。"
+      },
+      traffic: {
+        hash: "#traffic-panel",
+        eyebrow: "Traffic Intelligence",
+        title: "访问流量",
+        intro: "从国家、日期和热门页面观察站点访问趋势。"
       }
     };
     let activeWorkspace = "users";
@@ -494,6 +570,19 @@
         requestedAt: "2026-06-27T19:20:00Z"
       }
     ];
+    const mockTraffic = {
+      days: 30,
+      totalViews: 1284,
+      countryCount: 6,
+      countries: [
+        { country: "US", views: 618, share: .481 }, { country: "CN", views: 291, share: .227 },
+        { country: "CA", views: 146, share: .114 }, { country: "SG", views: 98, share: .076 },
+        { country: "AU", views: 76, share: .059 }, { country: "ZZ", views: 55, share: .043 }
+      ],
+      daily: Array.from({ length: 30 }, (_, index) => ({ date: `2026-06-${String(index + 1).padStart(2, "0")}`, views: 20 + ((index * 17) % 58) })),
+      pages: [{ path: "/", views: 511 }, { path: "/Calculators.html", views: 284 }, { path: "/AIAsk.html", views: 197 }],
+      generatedAt: new Date().toISOString()
+    };
 
     function isLocalAdminPreview() {
       const host = (window.location.hostname || "").toLowerCase();
@@ -682,6 +771,36 @@
       priceSummaryEl.textContent = `${TIER_ORDER.length} 个资质档`;
     }
 
+    function renderTraffic(data) {
+      const countries = Array.isArray(data.countries) ? data.countries : [];
+      const daily = Array.isArray(data.daily) ? data.daily : [];
+      const pages = Array.isArray(data.pages) ? data.pages : [];
+      const maxCountry = Math.max(1, ...countries.map((row) => Number(row.views || 0)));
+      const maxDay = Math.max(1, ...daily.map((row) => Number(row.views || 0)));
+      const countryNames = typeof Intl.DisplayNames === "function" ? new Intl.DisplayNames(["zh-CN"], { type: "region" }) : null;
+      trafficSummary.innerHTML = `
+        <div class="summary-item"><div class="summary-label">页面浏览</div><div class="summary-value">${Number(data.totalViews || 0).toLocaleString()}</div></div>
+        <div class="summary-item"><div class="summary-label">覆盖国家</div><div class="summary-value">${Number(data.countryCount || 0)}</div></div>
+        <div class="summary-item"><div class="summary-label">日均浏览</div><div class="summary-value">${Math.round(Number(data.totalViews || 0) / Math.max(1, Number(data.days || 1))).toLocaleString()}</div></div>`;
+      countryRows.innerHTML = countries.length ? countries.map((row) => `
+        <div class="country-row">
+          <span class="country-code">${escapeHtml(row.country === "ZZ" ? "未知地区" : `${countryNames ? countryNames.of(row.country) : row.country} · ${row.country}`)}</span>
+          <div class="traffic-bar" title="${(Number(row.share || 0) * 100).toFixed(1)}%"><span style="width:${Math.max(2, Number(row.views || 0) / maxCountry * 100)}%"></span></div>
+          <span class="traffic-number">${Number(row.views || 0).toLocaleString()} · ${(Number(row.share || 0) * 100).toFixed(1)}%</span>
+        </div>`).join("") : '<div class="empty-row">所选时间范围内暂无访问数据</div>';
+      trafficTrend.innerHTML = daily.map((row) => `<span class="trend-bar" style="height:${Math.max(2, Number(row.views || 0) / maxDay * 100)}%" data-tip="${escapeHtml(row.date)} · ${Number(row.views || 0)}" aria-label="${escapeHtml(row.date)}：${Number(row.views || 0)} 次"></span>`).join("");
+      trafficPages.innerHTML = pages.length ? pages.map((row) => `<div class="page-row"><span class="page-path" title="${escapeHtml(row.path)}">${escapeHtml(row.path)}</span><span class="traffic-number">${Number(row.views || 0).toLocaleString()}</span></div>`).join("") : '<div class="status-line">暂无页面数据</div>';
+      trafficPeriod.textContent = `${data.days || trafficRange.value}D`;
+      trafficMeta.textContent = data.generatedAt ? `统计生成：${formatDate(data.generatedAt)}` : "";
+    }
+
+    async function loadTraffic() {
+      trafficStatus.textContent = "正在加载流量...";
+      const data = LOCAL_MOCK_MODE ? { ...mockTraffic, days: Number(trafficRange.value) } : await api(`/api/admin/traffic?days=${trafficRange.value}`);
+      renderTraffic(data);
+      trafficStatus.textContent = LOCAL_MOCK_MODE ? "本地 Mock 示例数据" : `已按 ${data.countryCount || 0} 个国家汇总`;
+    }
+
     function emailStatus(user) {
       if (user.emailVerified === true || user.emailConfirmedAt) return '<span class="badge ok">已确认</span>';
       if (user.emailVerified === false) return '<span class="badge warn">未确认</span>';
@@ -760,7 +879,8 @@
           setWorkspace(link.dataset.workspace);
         });
       });
-      setWorkspace(window.location.hash === WORKSPACES.prices.hash ? "prices" : "users", false);
+      const initial = Object.keys(WORKSPACES).find((name) => WORKSPACES[name].hash === window.location.hash) || "users";
+      setWorkspace(initial, false);
     }
 
     async function loadUsers() {
@@ -881,9 +1001,10 @@
       refreshBtn.disabled = true;
       try {
         if (activeWorkspace === "prices") await loadPrices();
+        else if (activeWorkspace === "traffic") await loadTraffic();
         else await loadUsers();
       } catch (error) {
-        const statusEl = activeWorkspace === "prices" ? priceStatusEl : userStatusEl;
+        const statusEl = activeWorkspace === "prices" ? priceStatusEl : activeWorkspace === "traffic" ? trafficStatus : userStatusEl;
         statusEl.textContent = "加载失败：" + (error.message || error);
       } finally {
         refreshBtn.disabled = false;
@@ -897,6 +1018,9 @@
     }));
     userSearchInput.addEventListener("input", () => renderUserRows(getFilteredUsers()));
     roleFilter.addEventListener("change", () => renderUserRows(getFilteredUsers()));
+    trafficRange.addEventListener("change", () => loadTraffic().catch((error) => {
+      trafficStatus.textContent = "流量加载失败：" + (error.message || error);
+    }));
     logoutBtn.addEventListener("click", async () => {
       if (LOCAL_MOCK_MODE) {
         userStatusEl.textContent = "本地 Mock：没有真实登录会话。";
@@ -916,10 +1040,12 @@
 
     Promise.all([
       loadUsers(),
-      loadPrices()
+      loadPrices(),
+      loadTraffic()
     ]).catch((error) => {
       userStatusEl.textContent = "没有权限或加载失败：" + (error.message || error);
       priceStatusEl.textContent = "没有权限或加载失败：" + (error.message || error);
+      trafficStatus.textContent = "没有权限或加载失败：" + (error.message || error);
     });
   </script>
 </body>
