@@ -65,8 +65,7 @@
       gap: 8px;
       flex-wrap: wrap;
     }
-    .topbar a,
-    .langbar button {
+    .topbar a {
       border: 1px solid rgba(15, 118, 110, 0.24);
       background: rgba(255, 253, 247, 0.88);
       color: var(--brand);
@@ -288,8 +287,7 @@
       .topbar {
         gap: 8px;
       }
-      .topbar a,
-      .langbar button {
+      .topbar a {
         padding: 7px 11px;
         font-size: 12px;
       }
@@ -344,15 +342,16 @@
       table { min-width: 470px; }
     }
   </style>
+  <link rel="stylesheet" href="assets/home-nav.css">
+  <link rel="stylesheet" href="assets/calculator-input-highlight.css">
+  <script src="assets/home-navigation.js" defer></script>
 </head>
 <body>
   <main class="shell">
     <nav class="topbar" aria-label="页面导航">
       <span class="nav-links">
         <a href="index.html" id="navHome">回到主页</a>
-        <a href="Calculators.html" id="navCalculators">放置计算器</a>
       </span>
-      <span class="langbar"><button id="langToggle" type="button">EN</button></span>
     </nav>
     <section class="hero">
       <div>
@@ -476,9 +475,6 @@
         zh: {
           title: '殿堂 / 飞升计算器 · ShinE',
           nav_home: '回到主页',
-          nav_calculators: '放置计算器',
-          lang_toggle_en: 'EN',
-          lang_toggle_zh: '中文',
           eyebrow: 'Destiny Ledger',
           page_title: '殿堂 / 飞升计算器',
           page_desc: '选择当前殿堂等级查看升到下一殿堂的总资源，也可按初始等级计算单个英雄到指定飞升等级的剩余资源。',
@@ -539,9 +535,6 @@
         en: {
           title: 'Destiny / Temple Calculator · ShinE',
           nav_home: 'Home',
-          nav_calculators: 'Idle Calculator',
-          lang_toggle_en: 'EN',
-          lang_toggle_zh: '中文',
           eyebrow: 'Destiny Ledger',
           page_title: 'Destiny / Temple Calculator',
           page_desc: 'Select a current Temple level to calculate the next upgrade, or calculate one hero from a starting level to a target Destiny level.',
@@ -602,7 +595,6 @@
       };
       const refs = {
         nav_home: document.getElementById('navHome'),
-        nav_calculators: document.getElementById('navCalculators'),
         eyebrow: document.getElementById('eyebrow'),
         page_title: document.getElementById('pageTitle'),
         page_desc: document.getElementById('pageDesc'),
@@ -625,7 +617,6 @@
         hero_total_head: document.getElementById('heroTotalHead'),
         hero_breakdown_head: document.getElementById('heroBreakdownHead')
       };
-      const langToggle = document.getElementById('langToggle');
       const templeLevelSelect = document.getElementById('templeLevel');
       const heroStartSelect = document.getElementById('heroStart');
       const heroDestinySelect = document.getElementById('heroDestiny');
@@ -711,7 +702,6 @@
         Object.keys(refs).forEach((key) => {
           if (refs[key]) refs[key].textContent = t(key);
         });
-        if (langToggle) langToggle.textContent = currentLang === 'zh' ? t('lang_toggle_en') : t('lang_toggle_zh');
         document.getElementById('stampValue').textContent = '5,000K';
       }
       function populateSelects() {
@@ -846,13 +836,6 @@
         renderHero();
       });
       heroDestinySelect.addEventListener('change', renderHero);
-      if (langToggle) {
-        langToggle.addEventListener('click', () => {
-          currentLang = currentLang === 'zh' ? 'en' : 'zh';
-          localStorage.setItem('flipgame_lang', currentLang);
-          rerender();
-        });
-      }
       setStaticText();
       fetch('destiny_temple_levels.json')
         .then((response) => {

@@ -293,6 +293,8 @@
       .panel-title p { display: none; }
     }
   </style>
+  <link rel="stylesheet" href="assets/home-nav.css">
+  <script src="assets/home-navigation.js" defer></script>
 </head>
 <body>
   <div class="admin-shell">
@@ -341,7 +343,7 @@
             <span class="mode-pill" id="modePill" hidden>● 本地 Mock · 所有修改仅供预览</span>
           </div>
           <div class="toolbar">
-            <a class="action" href="index.html">← 回到主页</a>
+            <a class="action home-nav-button" href="index.html">回到主页</a>
             <button id="refreshBtn" type="button">↻ 刷新数据</button>
             <button id="logoutBtn" type="button">退出登录</button>
           </div>
@@ -580,7 +582,7 @@
         { country: "AU", views: 76, share: .059 }, { country: "ZZ", views: 55, share: .043 }
       ],
       daily: Array.from({ length: 30 }, (_, index) => ({ date: `2026-06-${String(index + 1).padStart(2, "0")}`, views: 20 + ((index * 17) % 58) })),
-      pages: [{ path: "/", views: 511 }, { path: "/Calculators.html", views: 284 }, { path: "/AIAsk.html", views: 197 }],
+      pages: [{ path: "/", views: 511 }, { path: "/CoreCalculator.html", views: 284 }, { path: "/AIAsk.html", views: 197 }],
       generatedAt: new Date().toISOString()
     };
 

@@ -26,6 +26,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700&display=swap" rel="stylesheet">
+  <script src="assets/home-navigation.js" defer></script>
   <style>
     :root {
       --radius: 18px;
@@ -313,7 +314,8 @@
       z-index: 20;
     }
     .recruit-panel,
-    .calculator-panel {
+    .calculator-panel,
+    .member-panel {
       position: fixed;
       right: 16px;
       bottom: 170px;
@@ -330,22 +332,26 @@
       overflow: hidden;
       z-index: 21;
     }
-    .calculator-panel {
+    .calculator-panel,
+    .member-panel {
       width: min(390px, calc(100% - 32px));
       z-index: 22;
     }
-    .calculator-panel header {
+    .calculator-panel header,
+    .member-panel header {
       text-align: left;
       display: flex;
       flex-direction: column;
       gap: 4px;
       padding-right: 22px;
     }
-    .calculator-panel header h2 {
+    .calculator-panel header h2,
+    .member-panel header h2 {
       margin: 0;
       font-size: 18px;
     }
-    .calculator-panel header p {
+    .calculator-panel header p,
+    .member-panel header p {
       margin: 0;
       font-size: 13px;
       color: var(--muted);
@@ -388,7 +394,8 @@
       font-size: 13px;
       line-height: 1.45;
     }
-    .calculator-panel .close-btn {
+    .calculator-panel .close-btn,
+    .member-panel .close-btn {
       position: absolute;
       top: 10px;
       right: 12px;
@@ -601,7 +608,8 @@
         gap: 10px;
       }
       .recruit-panel,
-      .calculator-panel {
+      .calculator-panel,
+      .member-panel {
         right: 10px;
         left: 10px;
         bottom: 72px;
@@ -610,10 +618,12 @@
         padding: 16px;
         gap: 10px;
       }
-      .calculator-panel header h2 {
+      .calculator-panel header h2,
+      .member-panel header h2 {
         font-size: 17px;
       }
-      .calculator-panel header p {
+      .calculator-panel header p,
+      .member-panel header p {
         font-size: 12.5px;
         line-height: 1.35;
       }
@@ -648,6 +658,289 @@
     html.app-mode .recruit-panel input,
     html.app-mode .recruit-panel textarea {
       font-size: 16px;
+    }
+
+    /* Homepage redesign: celestial game-tool dashboard */
+    :root {
+      --radius: 24px;
+      --border: #e5e7eb;
+      --ink: #111827;
+      --muted: #64748b;
+      --brand: #0f766e;
+      --surface: #ffffff;
+      --bg: #f7faf8;
+      --shadow: 0 14px 34px rgba(15, 23, 42, 0.11);
+    }
+    html, body {
+      background:
+        linear-gradient(135deg, rgba(15, 118, 110, 0.1), transparent 34%),
+        linear-gradient(315deg, rgba(194, 65, 12, 0.1), transparent 30%),
+        var(--bg);
+      color: var(--ink);
+      font-family: "Avenir Next", "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+    body {
+      position: relative;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.32;
+      background-image:
+        linear-gradient(rgba(15,118,110,0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15,118,110,0.035) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: linear-gradient(to bottom, black, transparent 78%);
+    }
+    .wrap {
+      width: min(1180px, 100%);
+      padding: 106px clamp(22px, 5vw, 64px) 120px;
+      gap: clamp(34px, 5vw, 58px);
+      position: relative;
+      z-index: 1;
+    }
+    .wrap > header {
+      text-align: left;
+      align-items: flex-start;
+      gap: 16px;
+      max-width: 800px;
+      position: relative;
+    }
+    .wrap > header::before {
+      content: "IDLE HEROES · TOOL ARCHIVE";
+      color: #0f766e;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.24em;
+      padding: 7px 12px;
+      border: 1px solid rgba(15, 118, 110, 0.22);
+      border-radius: 999px;
+      background: rgba(15, 118, 110, 0.07);
+    }
+    .wrap > header::after {
+      content: "";
+      position: absolute;
+      width: 260px;
+      height: 260px;
+      left: -150px;
+      top: -110px;
+      border: 1px solid rgba(15, 118, 110, 0.1);
+      border-radius: 50%;
+      box-shadow: 0 0 0 38px rgba(15, 118, 110, 0.025), 0 0 0 78px rgba(15, 118, 110, 0.018);
+      pointer-events: none;
+    }
+    .wrap > header h1 {
+      max-width: 780px;
+      font-family: "Noto Serif SC", "Songti SC", serif;
+      font-size: clamp(46px, 8vw, 84px);
+      line-height: 1.02;
+      letter-spacing: -0.035em;
+      text-wrap: balance;
+      text-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+    }
+    .wrap > header h1::after {
+      content: ".";
+      color: #c2410c;
+    }
+    .wrap > header p {
+      margin: 0;
+      max-width: 660px;
+      color: #64748b;
+      font-size: clamp(15px, 2vw, 18px);
+      line-height: 1.8;
+    }
+    .langbar {
+      top: 20px;
+      right: 24px;
+      padding: 5px;
+      gap: 3px;
+      background: rgba(255, 255, 255, 0.92);
+      border-color: var(--border);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px) saturate(130%);
+    }
+    .langbar .lang-btn {
+      border-color: transparent;
+      background: transparent;
+      color: #0f766e;
+      padding: 8px 11px;
+      transition: color .18s ease, background .18s ease;
+    }
+    .langbar .lang-btn:hover,
+    .langbar .lang-btn:focus-visible {
+      color: #0f766e;
+      background: rgba(15, 118, 110, 0.1);
+      outline: none;
+    }
+    .card-grid {
+      counter-reset: tool-card;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .card-link {
+      counter-increment: tool-card;
+      grid-column: auto;
+      min-height: 142px;
+      justify-content: flex-end;
+      gap: 6px;
+      padding: 18px;
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+      border-color: var(--border);
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow: inset 0 1px rgba(255,255,255,0.8), 0 14px 30px rgba(15,23,42,0.09);
+      transition: transform .28s cubic-bezier(.2,.8,.2,1), border-color .28s ease, box-shadow .28s ease;
+      animation: card-in .55s both;
+      animation-delay: calc(var(--card-order, 1) * 55ms);
+    }
+    .card-link:nth-child(1), .card-link:nth-child(2) { grid-column: auto; min-height: 142px; }
+    .card-link:nth-child(1) { --card-order: 1; --accent: #0f766e; --accent-rgb: 15,118,110; }
+    .card-link:nth-child(2) { --card-order: 2; --accent: #c2410c; --accent-rgb: 194,65,12; }
+    .card-link:nth-child(3) { --card-order: 3; --accent: #0f766e; --accent-rgb: 15,118,110; }
+    .card-link:nth-child(4) { --card-order: 4; --accent: #c2410c; --accent-rgb: 194,65,12; }
+    .card-link:nth-child(5) { --card-order: 5; --accent: #0f766e; --accent-rgb: 15,118,110; }
+    .card-link:nth-child(6) { --card-order: 6; --accent: #c2410c; --accent-rgb: 194,65,12; }
+    .card-link:nth-child(7) { --card-order: 7; --accent: #0f766e; --accent-rgb: 15,118,110; }
+    .card-link::before {
+      content: "0" counter(tool-card);
+      position: absolute;
+      top: 14px;
+      left: 17px;
+      color: rgba(var(--accent-rgb), .72);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .14em;
+    }
+    html[lang="en"] .card-link::before {
+      left: auto;
+      right: 17px;
+    }
+    html[lang="en"] .card-link span.title,
+    html[lang="en"] .card-link span.subtitle {
+      padding-right: 26px;
+    }
+    .card-link::after {
+      content: "";
+      position: absolute;
+      width: 126px;
+      height: 126px;
+      right: -50px;
+      top: -60px;
+      border-radius: 44% 56% 52% 48%;
+      background: radial-gradient(circle at 35% 35%, rgba(var(--accent-rgb), .24), rgba(var(--accent-rgb), .02) 66%);
+      border: 1px solid rgba(var(--accent-rgb), .12);
+      transform: rotate(18deg);
+      z-index: -1;
+      transition: transform .45s ease, scale .45s ease;
+    }
+    .card-link span.title {
+      color: #111827;
+      font-family: "Noto Serif SC", "Songti SC", serif;
+      font-size: clamp(17px, 1.8vw, 20px);
+      font-weight: 700;
+      line-height: 1.25;
+    }
+    .card-link span.subtitle {
+      max-width: 38ch;
+      color: #64748b;
+      font-size: 12.5px;
+      line-height: 1.42;
+    }
+    .card-link:hover,
+    .card-link:focus-visible {
+      transform: translateY(-6px);
+      border-color: rgba(var(--accent-rgb), .48);
+      box-shadow: inset 0 1px rgba(255,255,255,.8), 0 22px 42px rgba(var(--accent-rgb), .16), 0 0 0 1px rgba(var(--accent-rgb), .06);
+    }
+    .card-link:hover::after,
+    .card-link:focus-visible::after { transform: rotate(30deg); scale: 1.12; }
+    .card-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+    .vip-badge {
+      border-color: rgba(194, 65, 12, .28);
+      background: #fff7ed;
+      color: #c2410c;
+    }
+    .account-panel,
+    .feedback-panel,
+    .recruit-panel,
+    .calculator-panel,
+    .member-panel {
+      background: rgba(255, 255, 255, .97);
+      color: var(--ink);
+      border-color: var(--border);
+      backdrop-filter: blur(22px);
+    }
+    .calculator-option {
+      border-color: rgba(15, 118, 110, .14);
+      background: #f8fbfa;
+      color: var(--ink);
+    }
+    .calculator-option:hover,
+    .calculator-option:focus-visible { border-color: rgba(15,118,110,.4); box-shadow: 0 14px 28px rgba(15,118,110,.14); }
+    .feedback-panel input, .feedback-panel textarea, .feedback-panel select,
+    .recruit-panel input, .recruit-panel textarea {
+      background: #fff;
+      color: var(--ink);
+      border-color: var(--border);
+    }
+    .feedback-toggle {
+      z-index: 12;
+      background: linear-gradient(135deg, #0f766e, #c2410c);
+      color: #fff;
+      font-weight: 800;
+      box-shadow: 0 18px 38px rgba(0,0,0,.35);
+    }
+    .logo-bottom-right {
+      background: rgba(255, 255, 255, .92);
+      color: #111827;
+      border-color: var(--border);
+      backdrop-filter: blur(16px);
+    }
+    .logo-bottom-right .logo-dot { background: linear-gradient(135deg, #0f766e, #c2410c); box-shadow: 0 0 14px rgba(15,118,110,.28); }
+    @keyframes card-in {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .card-link { animation: none; transition-duration: .01ms; }
+    }
+    html.history-restored .card-link { animation: none !important; }
+    @media (max-width: 980px) and (min-width: 761px) {
+      .card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .card-link,
+      .card-link:nth-child(1),
+      .card-link:nth-child(2) { min-height: 130px; }
+    }
+    @media (max-width: 760px) {
+      .wrap { padding: 86px 12px 70px; gap: 22px; }
+      .wrap > header { gap: 11px; padding: 0 5px; }
+      .wrap > header::before { font-size: 9px; letter-spacing: .17em; padding: 5px 9px; }
+      .wrap > header h1 { font-size: clamp(39px, 13vw, 58px); }
+      .wrap > header p { font-size: 13.5px; line-height: 1.65; }
+      .langbar { top: 10px; right: 10px; max-width: calc(100vw - 20px); overflow-x: auto; }
+      .langbar .lang-btn { padding: 7px 9px; font-size: 12px; white-space: nowrap; }
+      .card-grid { grid-template-columns: 1fr; gap: 8px; }
+      .card-link,
+      .card-link:nth-child(1),
+      .card-link:nth-child(2) {
+        grid-column: 1;
+        min-height: 96px;
+        padding: 14px 15px;
+        border-radius: 16px;
+      }
+      .card-link::before { top: 10px; left: 14px; font-size: 9px; }
+      html[lang="en"] .card-link::before { left: auto; right: 13px; }
+      html[lang="en"] .card-link span.title,
+      html[lang="en"] .card-link span.subtitle { padding-right: 24px; }
+      .card-link::after { width: 92px; height: 92px; right: -38px; top: -44px; }
+      .card-link span.title { font-size: 17px; line-height: 1.2; }
+      .card-link span.subtitle { font-size: 11.5px; line-height: 1.35; padding-right: 18px; }
+      .logo-bottom-right { margin: 8px auto 18px; }
+      .feedback-toggle { bottom: 12px; }
     }
   </style>
 </head>
@@ -685,24 +978,24 @@
       </a>
       <button class="card-link card-button" id="calculatorCard" type="button" aria-haspopup="dialog" aria-controls="calculatorPanel">
         <span class="title" id="cardCoreTitle">放置计算器</span>
-        <span class="subtitle" id="cardCoreSub">统一进入星钻交易、核心、殿堂飞升、珍宝升级、凝魂魂力和远征积分。</span>
+        <span class="subtitle" id="cardCoreSub">统一进入星钻交易、核心、殿堂飞升和珍宝升级。</span>
       </button>
       <a class="card-link" href="GuideImages.html">
         <span class="title" id="cardHiddenTitle">攻略图片</span>
         <span class="subtitle" id="cardHiddenSub">集中查看各类攻略图，持续更新。</span>
       </a>
-      <button class="card-link card-button" id="recruitCard" type="button">
-        <span class="title" id="cardRecruitTitle">公会招募</span>
-        <span class="subtitle" id="cardRecruitSub">欢迎加入iOS 国风，点击填写信息或申请公会ID 31939。公会免费送 VIP。</span>
+      <button class="card-link card-button" id="memberCard" type="button" aria-haspopup="dialog" aria-controls="memberPanel">
+        <span class="title"><span id="cardMemberTitle">会员工具</span><span class="vip-badge member-badge" data-member-badge>会员</span></span>
+        <span class="subtitle" id="cardMemberSub">集中进入凝魂魂力、远征积分和觉醒冲榜模拟器。</span>
       </button>
-      <a class="card-link" href="AwakeningRushSimulator.html">
-        <span class="title"><span id="cardAwakeningTitle">觉醒冲榜模拟器</span><span class="vip-badge" data-vip-badge>VIP</span></span>
-        <span class="subtitle" id="cardAwakeningSub">VIP 专属，按绑钻数量随机模拟冲榜分数与 A- 以上保留数量。</span>
-      </a>
       <a class="card-link" href="AIAsk.html">
         <span class="title"><span id="cardAiTitle">AI玩放置</span><span class="vip-badge" data-vip-badge>VIP</span></span>
         <span class="subtitle" id="cardAiSub">VIP 专属，基于公开工具文档回答凝魂、远征和权限问题。</span>
       </a>
+      <button class="card-link card-button" id="recruitCard" type="button">
+        <span class="title" id="cardRecruitTitle">公会招募</span>
+        <span class="subtitle" id="cardRecruitSub">欢迎加入iOS 国风，点击填写信息或申请公会ID 31939。公会免费送 VIP。</span>
+      </button>
     </nav>
   </div>
 
@@ -760,7 +1053,7 @@
     <button class="close-btn" type="button" aria-label="关闭计算器选择" id="calculatorClose">×</button>
     <header>
       <h2 id="calculatorPanelTitle">放置计算器</h2>
-      <p id="calculatorPanelDesc">根据当前要算的问题进入对应页面，会员页面仍按原权限检查。</p>
+      <p id="calculatorPanelDesc">根据当前要算的问题进入对应的公开计算器。</p>
     </header>
     <div class="calculator-options">
       <a class="calculator-option" href="StarDiamondCalculator.html">
@@ -779,13 +1072,27 @@
         <strong id="calculatorTreasureTitle">珍宝升级计算器</strong>
         <span class="option-desc" id="calculatorTreasureDesc">按珍宝颜色和升星小等级，计算剩余碎片需求。</span>
       </a>
+    </div>
+  </section>
+
+  <section class="member-panel" id="memberPanel" aria-hidden="true" role="dialog" aria-labelledby="memberPanelTitle">
+    <button class="close-btn" type="button" aria-label="关闭会员工具选择" id="memberClose">×</button>
+    <header>
+      <h2 id="memberPanelTitle">会员工具</h2>
+      <p id="memberPanelDesc">登录注册会员账号后即可使用以下三个工具。</p>
+    </header>
+    <div class="calculator-options">
       <a class="calculator-option" href="SoulAscensionCalculator.html">
         <strong><span id="calculatorSoulTitle">凝魂魂力计算器</span><span class="vip-badge member-badge" data-member-badge>会员</span></strong>
-        <span class="option-desc" id="calculatorSoulDesc">注册会员可用，检验属性区间并估算凝魂次数与魂力值。</span>
+        <span class="option-desc" id="calculatorSoulDesc">检验属性区间并估算凝魂次数与魂力值。</span>
       </a>
       <a class="calculator-option" href="ExpeditionCalculator.html">
         <strong><span id="calculatorExpeditionTitle">远征积分计算器</span><span class="vip-badge member-badge" data-member-badge>会员</span></strong>
-        <span class="option-desc" id="calculatorExpeditionDesc">注册会员可用，按层数和剩余血量快速估算剩余积分（万亿）。</span>
+        <span class="option-desc" id="calculatorExpeditionDesc">按层数和剩余血量快速估算剩余积分（万亿）。</span>
+      </a>
+      <a class="calculator-option" href="AwakeningRushSimulator.html">
+        <strong><span id="cardAwakeningTitle">觉醒冲榜模拟器</span><span class="vip-badge member-badge" data-member-badge>会员</span></strong>
+        <span class="option-desc" id="cardAwakeningSub">按绑钻数量随机模拟冲榜分数与 A- 以上保留数量。</span>
       </a>
     </div>
   </section>
@@ -838,6 +1145,9 @@
       const cardAwakeningTitle = document.getElementById('cardAwakeningTitle');
       const cardAwakeningSub = document.getElementById('cardAwakeningSub');
       const calculatorCard = document.getElementById('calculatorCard');
+      const memberCard = document.getElementById('memberCard');
+      const cardMemberTitle = document.getElementById('cardMemberTitle');
+      const cardMemberSub = document.getElementById('cardMemberSub');
       const recruitCard = document.getElementById('recruitCard');
       const cardRecruitTitle = document.getElementById('cardRecruitTitle');
       const cardRecruitSub = document.getElementById('cardRecruitSub');
@@ -883,6 +1193,10 @@
       const calculatorSoulDesc = document.getElementById('calculatorSoulDesc');
       const calculatorExpeditionTitle = document.getElementById('calculatorExpeditionTitle');
       const calculatorExpeditionDesc = document.getElementById('calculatorExpeditionDesc');
+      const memberPanel = document.getElementById('memberPanel');
+      const memberClose = document.getElementById('memberClose');
+      const memberPanelTitle = document.getElementById('memberPanelTitle');
+      const memberPanelDesc = document.getElementById('memberPanelDesc');
 
       const I18N = {
         zh: {
@@ -902,7 +1216,7 @@
           card_flip_title: '九宫格翻牌',
           card_flip_sub: '模拟翻牌流程，记录并计算最佳组合。',
           card_core_title: '放置计算器',
-          card_core_sub: '统一进入星钻交易、核心、殿堂飞升、珍宝升级、凝魂魂力和远征积分。',
+          card_core_sub: '统一进入星钻交易、核心、殿堂飞升和珍宝升级。',
           card_star_title: '星钻交易计算器',
           card_star_sub: '按比例换算金额与赠送额度。',
           card_hidden_title: '攻略图片',
@@ -916,11 +1230,16 @@
           card_expedition_title: '远征积分计算器',
           card_expedition_sub: '注册会员可用，按层数和剩余血量快速估算剩余积分（万亿）。',
           card_awakening_title: '觉醒冲榜模拟器',
-          card_awakening_sub: 'VIP 专属，按绑钻数量随机模拟冲榜分数与 A- 以上保留数量。',
+          card_awakening_sub: '按绑钻数量随机模拟冲榜分数与 A- 以上保留数量。',
+          card_member_title: '会员工具',
+          card_member_sub: '集中进入凝魂魂力、远征积分和觉醒冲榜模拟器。',
           card_recruit_title: '公会招募',
           card_recruit_sub: '欢迎加入iOS 国风，点击填写信息或申请公会ID 31939。公会免费送 VIP。',
           calculator_panel_title: '放置计算器',
-          calculator_panel_desc: '根据当前要算的问题进入对应页面，会员页面仍按原权限检查。',
+          calculator_panel_desc: '根据当前要算的问题进入对应的公开计算器。',
+          member_panel_title: '会员工具',
+          member_panel_desc: '登录注册会员账号后即可使用以下三个工具。',
+          member_close_label: '关闭会员工具选择',
           calculator_star_title: '星钻交易计算器',
           calculator_star_desc: '按星钻数量和交易比例，换算金额与赠送额度。',
           calculator_core_title: '核心计算器',
@@ -930,9 +1249,9 @@
           calculator_treasure_title: '珍宝升级计算器',
           calculator_treasure_desc: '按珍宝颜色和升星小等级，计算剩余碎片需求。',
           calculator_soul_title: '凝魂魂力计算器',
-          calculator_soul_desc: '注册会员可用，检验属性区间并估算凝魂次数与魂力值。',
+          calculator_soul_desc: '检验属性区间并估算凝魂次数与魂力值。',
           calculator_expedition_title: '远征积分计算器',
-          calculator_expedition_desc: '注册会员可用，按层数和剩余血量快速估算剩余积分（万亿）。',
+          calculator_expedition_desc: '按层数和剩余血量快速估算剩余积分（万亿）。',
           calculator_close_label: '关闭计算器选择',
           feedback_toggle: '反馈建议',
           feedback_title: '反馈中心',
@@ -983,7 +1302,7 @@
           card_flip_title: '3x3 Flip Cards',
           card_flip_sub: 'Simulate flips, track cards, and compute the best line.',
           card_core_title: 'Idle Calculator',
-          card_core_sub: 'Open star diamond trading, core, Temple and Destiny, treasure upgrades, soul power, and expedition score tools.',
+          card_core_sub: 'Open star diamond trading, core, Temple and Destiny, and treasure upgrade tools.',
           card_star_title: 'Star Diamond Trade Calculator',
           card_star_sub: 'Convert amounts and bonus ratios.',
           card_hidden_title: 'Guide Images',
@@ -997,11 +1316,16 @@
           card_expedition_title: 'Star Expedition Score Calculator',
           card_expedition_sub: 'Registered members can estimate remaining score by floor and remaining HP (trillion).',
           card_awakening_title: 'Awakening Gala Simulator',
-          card_awakening_sub: 'VIP only. Simulate score and kept A-+ copies from bound diamonds.',
+          card_awakening_sub: 'Simulate score and kept A-+ copies from bound diamonds.',
+          card_member_title: 'Member Tools',
+          card_member_sub: 'Open Soul Power, Star Expedition Score, and Awakening Gala tools.',
           card_recruit_title: 'Guild Recruitment',
           card_recruit_sub: 'Join iOS Aurora. Submit your info or apply to Guild ID 31939. Guild members get VIP for free.',
           calculator_panel_title: 'Idle Calculator',
-          calculator_panel_desc: 'Open the page that matches the resource question. Member pages keep their original access checks.',
+          calculator_panel_desc: 'Open the public calculator that matches your resource question.',
+          member_panel_title: 'Member Tools',
+          member_panel_desc: 'Sign in with a registered member account to use these three tools.',
+          member_close_label: 'Close member tools chooser',
           calculator_star_title: 'Star Diamond Trade Calculator',
           calculator_star_desc: 'Convert star diamonds, trading ratio, amount, and bonus value.',
           calculator_core_title: 'Core Calculator',
@@ -1011,9 +1335,9 @@
           calculator_treasure_title: 'Treasure Upgrade Calculator',
           calculator_treasure_desc: 'Calculate remaining shards by treasure color and upgrade level.',
           calculator_soul_title: 'Soul Power Calculator',
-          calculator_soul_desc: 'Registered members can check stat ranges and estimate soul perfection count and soul power.',
+          calculator_soul_desc: 'Check stat ranges and estimate soul perfection count and soul power.',
           calculator_expedition_title: 'Star Expedition Score Calculator',
-          calculator_expedition_desc: 'Registered members can estimate remaining score by floor and remaining HP (trillion).',
+          calculator_expedition_desc: 'Estimate remaining score by floor and remaining HP (trillion).',
           calculator_close_label: 'Close calculator chooser',
           feedback_toggle: 'Feedback',
           feedback_title: 'Feedback Center',
@@ -1095,6 +1419,8 @@
         if (cardExpeditionSub) cardExpeditionSub.textContent = t('card_expedition_sub');
         if (cardAwakeningTitle) cardAwakeningTitle.textContent = t('card_awakening_title');
         if (cardAwakeningSub) cardAwakeningSub.textContent = t('card_awakening_sub');
+        if (cardMemberTitle) cardMemberTitle.textContent = t('card_member_title');
+        if (cardMemberSub) cardMemberSub.textContent = t('card_member_sub');
         if (cardRecruitTitle) cardRecruitTitle.textContent = t('card_recruit_title');
         if (cardRecruitSub) cardRecruitSub.textContent = t('card_recruit_sub');
         if (calculatorPanelTitle) calculatorPanelTitle.textContent = t('calculator_panel_title');
@@ -1112,6 +1438,9 @@
         if (calculatorExpeditionTitle) calculatorExpeditionTitle.textContent = t('calculator_expedition_title');
         if (calculatorExpeditionDesc) calculatorExpeditionDesc.textContent = t('calculator_expedition_desc');
         if (calculatorClose) calculatorClose.setAttribute('aria-label', t('calculator_close_label'));
+        if (memberPanelTitle) memberPanelTitle.textContent = t('member_panel_title');
+        if (memberPanelDesc) memberPanelDesc.textContent = t('member_panel_desc');
+        if (memberClose) memberClose.setAttribute('aria-label', t('member_close_label'));
         if (feedbackToggleText) feedbackToggleText.textContent = t('feedback_toggle');
         if (feedbackTitle) feedbackTitle.textContent = t('feedback_title');
         if (feedbackDesc) feedbackDesc.textContent = t('feedback_desc');
@@ -1166,6 +1495,14 @@
           if (firstOption) firstOption.focus();
         }
       }
+      function setMemberPanel(open) {
+        memberPanel.style.display = open ? 'flex' : 'none';
+        memberPanel.setAttribute('aria-hidden', open ? 'false' : 'true');
+        if (open) {
+          const firstOption = memberPanel.querySelector('.calculator-option');
+          if (firstOption) firstOption.focus();
+        }
+      }
 
       toggle.addEventListener('click', () => {
         const isHidden = panel.getAttribute('aria-hidden') !== 'false';
@@ -1176,16 +1513,41 @@
       calculatorCard.addEventListener('click', () => {
         setPanel(false);
         setRecruitPanel(false);
+        setMemberPanel(false);
         setCalculatorPanel(true);
       });
       calculatorClose.addEventListener('click', () => setCalculatorPanel(false));
       calculatorPanel.querySelectorAll('.calculator-option').forEach((option) => {
         option.addEventListener('click', () => setCalculatorPanel(false));
       });
-      window.addEventListener('pageshow', () => setCalculatorPanel(false));
+      memberCard.addEventListener('click', () => {
+        setPanel(false);
+        setRecruitPanel(false);
+        setCalculatorPanel(false);
+        setMemberPanel(true);
+      });
+      memberClose.addEventListener('click', () => setMemberPanel(false));
+      memberPanel.querySelectorAll('.calculator-option').forEach((option) => {
+        option.addEventListener('click', () => setMemberPanel(false));
+      });
+      window.addEventListener('pageshow', () => {
+        setCalculatorPanel(false);
+        setMemberPanel(false);
+      });
+      document.addEventListener('pointerdown', (event) => {
+        const calculatorOpen = calculatorPanel.getAttribute('aria-hidden') === 'false';
+        const memberOpen = memberPanel.getAttribute('aria-hidden') === 'false';
+        if (calculatorOpen && !calculatorPanel.contains(event.target) && !calculatorCard.contains(event.target)) {
+          setCalculatorPanel(false);
+        }
+        if (memberOpen && !memberPanel.contains(event.target) && !memberCard.contains(event.target)) {
+          setMemberPanel(false);
+        }
+      });
       recruitCard.addEventListener('click', () => {
         setPanel(false);
         setCalculatorPanel(false);
+        setMemberPanel(false);
         setRecruitPanel(true);
       });
       recruitClose.addEventListener('click', () => setRecruitPanel(false));
@@ -1214,6 +1576,7 @@
           const feedbackOpen = panel.getAttribute('aria-hidden') === 'false';
           const recruitOpen = recruitPanel.getAttribute('aria-hidden') === 'false';
           const calculatorOpen = calculatorPanel.getAttribute('aria-hidden') === 'false';
+          const memberOpen = memberPanel.getAttribute('aria-hidden') === 'false';
           if (feedbackOpen && !panel.contains(target) && !toggle.contains(target)) {
             setPanel(false);
           }
@@ -1223,6 +1586,9 @@
           if (calculatorOpen && !calculatorPanel.contains(target) && !calculatorCard.contains(target)) {
             setCalculatorPanel(false);
           }
+          if (memberOpen && !memberPanel.contains(target) && !memberCard.contains(target)) {
+            setMemberPanel(false);
+          }
         });
       }
 
@@ -1231,6 +1597,7 @@
           setPanel(false);
           setRecruitPanel(false);
           setCalculatorPanel(false);
+          setMemberPanel(false);
         }
       });
 

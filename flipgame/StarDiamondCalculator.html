@@ -362,6 +362,9 @@
       }
     }
   </style>
+  <link rel="stylesheet" href="assets/home-nav.css">
+  <link rel="stylesheet" href="assets/calculator-input-highlight.css">
+  <script src="assets/home-navigation.js" defer></script>
 </head>
 <body>
   <nav id="topbar-nav" aria-label="页面导航">
@@ -609,7 +612,7 @@
           active = false;
           if (horizontalIntent && dx >= 72 && Math.abs(dy) <= 54) {
             requestAnimationFrame(() => {
-              window.location.replace('index.html');
+              window.flipgameReturnHome({ replaceFallback: true });
             });
           }
           horizontalIntent = false;

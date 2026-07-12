@@ -7,7 +7,7 @@
 - 管理后台：`flipgame/Admin.html`
 - 注册会员页面：`flipgame/SoulAscensionCalculator.html`
 - 注册会员页面：`flipgame/ExpeditionCalculator.html`
-- VIP 页面：`flipgame/AwakeningRushSimulator.html`
+- 注册会员页面：`flipgame/AwakeningRushSimulator.html`
 - VIP 页面：`flipgame/AIAsk.html`（AI玩放置 / Play IH with AI）
 
 ## 权限流程
@@ -20,8 +20,8 @@
 管理员手动把账号设为 vip
 管理员可删除未确认邮箱的申请资料；已禁用且确认状态未知的账号也可发起删除
 管理员可在 Admin.html 维护升格和觉醒使用的资质价格
-用户登录后可访问注册会员页面
-VIP 账号可额外访问觉醒冲榜模拟器和 AI玩放置
+用户登录后可访问凝魂魂力计算器、远征积分计算器和觉醒冲榜模拟器
+VIP 账号可额外访问 AI玩放置
 ```
 
 ## 登录与密码重置

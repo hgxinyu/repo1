@@ -730,6 +730,9 @@
       }
     }
   </style>
+  <link rel="stylesheet" href="assets/home-nav.css">
+  <script src="assets/home-navigation.js" defer></script>
+  <link rel="stylesheet" href="assets/calculator-input-highlight.css">
 </head>
 <body class="auth-checking">
   <nav id="topbar-nav" aria-label="页面导航">
@@ -741,7 +744,7 @@
   </div>
 
   <section class="auth-card" id="authCard" aria-live="polite">
-    <h2 id="authTitle">正在检查 VIP 权限</h2>
+    <h2 id="authTitle">正在检查会员权限</h2>
     <p id="authMessage">请稍候...</p>
     <div class="auth-actions" id="authActions" style="display:none;">
       <a class="primary" id="loginLink" href="Login.html?next=AwakeningRushSimulator.html">登录</a>
@@ -753,7 +756,7 @@
   <div class="wrap">
     <header class="site-header">
       <div class="title">
-        <h1 id="pageTitle">觉醒冲榜模拟器<span class="vip-page-badge">VIP</span></h1>
+        <h1 id="pageTitle">觉醒冲榜模拟器<span class="vip-page-badge">会员</span></h1>
         <p id="pageDesc">每次觉醒先计分，B+ 及以下分解返钻，A- 及以上保留。</p>
       </div>
       <div class="tools">
@@ -961,6 +964,7 @@
           nav_label: '页面导航',
           nav_home: '回到主页',
           page_title: '觉醒冲榜模拟器',
+          member_badge: '会员',
           page_desc: '每次觉醒先计分，B+ 及以下分解返钻，A- 及以上保留。',
           calc_title: '输入绑钻数量后模拟一次冲榜结果',
           kept_title: '资质分布',
@@ -1007,6 +1011,7 @@
           nav_label: 'Page Navigation',
           nav_home: 'Home',
           page_title: 'Awakening Gala Simulator',
+          member_badge: 'Member',
           page_desc: 'Each awakening scores first. B+ and below are recycled. A- and above are kept.',
           calc_title: 'Enter bound diamonds and simulate one run',
           kept_title: 'Tier Distribution',
@@ -1107,7 +1112,7 @@
           pageTitle.textContent = t('page_title');
           const badge = document.createElement('span');
           badge.className = 'vip-page-badge';
-          badge.textContent = 'VIP';
+          badge.textContent = t('member_badge');
           pageTitle.appendChild(badge);
         }
         if (pageDesc) pageDesc.textContent = t('page_desc');
@@ -1411,7 +1416,7 @@
       }
       document.body.classList.add("auth-checking");
       document.body.classList.remove("auth-blocked");
-      authTitle.textContent = "正在检查 VIP 权限";
+      authTitle.textContent = "正在检查会员权限";
       authMessage.textContent = "正在恢复登录状态，请稍候...";
       authActions.style.display = "none";
 
@@ -1420,7 +1425,7 @@
         document.body.classList.remove("auth-checking");
         document.body.classList.add("auth-blocked");
         authTitle.textContent = "需要登录";
-        authMessage.textContent = "觉醒冲榜模拟器是 VIP 专属页面，请先登录或注册账号提交审核。";
+        authMessage.textContent = "觉醒冲榜模拟器需要注册会员登录后使用，请先登录或注册账号。";
         authActions.style.display = "flex";
         return;
       }
@@ -1435,15 +1440,16 @@
         authActions.style.display = "flex";
         return;
       }
-      if (response.ok && data.canAccessPremium) {
+      const role = data && data.profile && data.profile.role ? data.profile.role : "";
+      if (response.ok && role !== "blocked") {
         document.body.classList.remove("auth-checking", "auth-blocked");
         return;
       }
 
       document.body.classList.remove("auth-checking");
       document.body.classList.add("auth-blocked");
-      authTitle.textContent = "VIP 权限未开启";
-      authMessage.textContent = "你的账号已登录，但还没有 VIP 权限。请等待管理员审核，或联系管理员开通。";
+      authTitle.textContent = "账号不可用";
+      authMessage.textContent = "你的账号当前不能访问会员页面，请联系管理员。";
       authActions.style.display = "flex";
     }
 

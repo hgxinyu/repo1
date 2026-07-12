@@ -77,6 +77,8 @@
     .logo-bottom-left .logo-dot{width:8px;height:8px;border-radius:999px;background:linear-gradient(135deg,#6366f1,#22c55e)}
     .muted{color:var(--muted);font-size:13px}
   </style>
+  <link rel="stylesheet" href="assets/home-nav.css">
+  <script src="assets/home-navigation.js" defer></script>
 </head>
 <body>
   <div id="topbar-nav">
@@ -237,7 +239,7 @@
           active = false;
           if (horizontalIntent && dx >= 72 && Math.abs(dy) <= 54) {
             requestAnimationFrame(() => {
-              window.location.replace('index.html');
+              window.flipgameReturnHome({ replaceFallback: true });
             });
           }
           horizontalIntent = false;

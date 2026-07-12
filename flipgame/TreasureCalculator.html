@@ -69,7 +69,6 @@
       flex-wrap: wrap;
     }
     .topbar a,
-    .langbar button,
     .ghost-btn {
       border: 1px solid rgba(124, 45, 18, 0.22);
       background: rgba(255, 250, 242, 0.88);
@@ -360,20 +359,20 @@
         height: 11px;
       }
       .topbar a,
-      .langbar button,
       .ghost-btn {
         padding: 7px 11px;
         font-size: 12px;
       }
     }
   </style>
+  <link rel="stylesheet" href="assets/home-nav.css">
+  <link rel="stylesheet" href="assets/calculator-input-highlight.css">
+  <script src="assets/home-navigation.js" defer></script>
 </head>
 <body>
   <main class="shell">
     <nav class="topbar" aria-label="页面导航">
       <a href="index.html" id="navHome">回到主页</a>
-      <a href="Calculators.html" id="navCalculators">放置计算器</a>
-      <span class="langbar"><button id="langToggle" type="button">EN</button></span>
     </nav>
 
     <section class="hero">
@@ -432,9 +431,6 @@
         zh: {
           title: '珍宝升级计算器 · ShinE',
           nav_home: '回到主页',
-          nav_calculators: '放置计算器',
-          lang_toggle_en: 'EN',
-          lang_toggle_zh: '中文',
           eyebrow: 'Treasure Upgrade',
           page_title: '珍宝升级计算器',
           calc_title: '当前进度',
@@ -457,9 +453,6 @@
         en: {
           title: 'Treasure Upgrade Calculator · ShinE',
           nav_home: 'Home',
-          nav_calculators: 'Idle Calculator',
-          lang_toggle_en: 'EN',
-          lang_toggle_zh: '中文',
           eyebrow: 'Treasure Upgrade',
           page_title: 'Treasure Upgrade Calculator',
           calc_title: 'Current Progress',
@@ -482,7 +475,6 @@
       };
       const refs = {
         nav_home: document.getElementById('navHome'),
-        nav_calculators: document.getElementById('navCalculators'),
         eyebrow: document.getElementById('eyebrow'),
         page_title: document.getElementById('pageTitle'),
         calc_title: document.getElementById('calcTitle'),
@@ -495,7 +487,6 @@
         progress_label: document.getElementById('progressLabel')
       };
       const els = {
-        langToggle: document.getElementById('langToggle'),
         colorButtons: document.getElementById('colorButtons'),
         startPhase: document.getElementById('startPhase'),
         startLevel: document.getElementById('startLevel'),
@@ -567,7 +558,6 @@
         Object.keys(refs).forEach((key) => {
           if (refs[key]) refs[key].textContent = typeof t(key) === 'function' ? '' : t(key);
         });
-        if (els.langToggle) els.langToggle.textContent = currentLang === 'zh' ? t('lang_toggle_en') : t('lang_toggle_zh');
       }
       function fillPhaseSelect(select, value) {
         select.innerHTML = data.phases.map((phase) => {
@@ -692,13 +682,6 @@
         fillLevelSelect(els.startLevel, 1, 0);
         calculate();
       });
-      if (els.langToggle) {
-        els.langToggle.addEventListener('click', () => {
-          currentLang = currentLang === 'zh' ? 'en' : 'zh';
-          localStorage.setItem('flipgame_lang', currentLang);
-          rerenderForLanguage();
-        });
-      }
       setStaticText();
       fetch(DATA_URL)
         .then((response) => {

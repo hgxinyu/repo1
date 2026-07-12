@@ -361,7 +361,276 @@
         margin: 8px auto 18px;
       }
     }
+
+    /* Clean knowledge-assistant workspace */
+    :root {
+      --bg: #f7faf8;
+      --surface: #ffffff;
+      --panel: #f1f7f5;
+      --ink: #17211f;
+      --muted: #66746f;
+      --border: #dfe8e4;
+      --brand: #0f766e;
+      --brand-strong: #0b5f59;
+      --ember: #c2410c;
+      --radius: 20px;
+      --shadow: 0 16px 42px rgba(22, 55, 50, 0.09);
+    }
+    html, body {
+      background:
+        radial-gradient(circle at 8% 6%, rgba(15, 118, 110, 0.1), transparent 28rem),
+        radial-gradient(circle at 94% 88%, rgba(194, 65, 12, 0.07), transparent 26rem),
+        var(--bg);
+      background-size: auto;
+      font-family: "Avenir Next", "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+    nav#topbar-nav {
+      background: transparent;
+      border: 0;
+      box-shadow: none;
+      backdrop-filter: none;
+      padding: 0;
+    }
+    .wrap {
+      width: min(1240px, 100%);
+      padding: 74px clamp(18px, 4vw, 42px) 34px;
+      gap: 24px;
+    }
+    .site-header {
+      align-items: center;
+      border: 0;
+      padding: 8px 0 6px;
+    }
+    .title::before {
+      content: "IH KNOWLEDGE ASSISTANT";
+      display: inline-block;
+      margin-bottom: 9px;
+      color: var(--brand);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .2em;
+    }
+    .title h1 {
+      font-size: clamp(32px, 5vw, 54px);
+      line-height: 1.05;
+      letter-spacing: -.025em;
+    }
+    .title p {
+      margin-top: 10px;
+      max-width: 760px;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+    .service-mark {
+      width: 70px;
+      height: 70px;
+      border: 1px solid rgba(15, 118, 110, .2);
+      border-radius: 22px;
+      background: linear-gradient(145deg, #e8f5f1, #fff7ed);
+      color: var(--brand);
+      font-size: 17px;
+      box-shadow: 7px 7px 0 rgba(15, 118, 110, .09);
+      transform: rotate(3deg);
+    }
+    .workspace {
+      grid-template-columns: 270px minmax(0, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+    .chat-surface {
+      grid-column: 2;
+      min-height: 620px;
+      height: calc(100vh - 210px);
+      max-height: 760px;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+    }
+    .messages {
+      min-height: 0;
+      padding: clamp(18px, 3vw, 30px);
+      gap: 16px;
+      background: #fbfdfc;
+    }
+    .message {
+      width: min(720px, 88%);
+      border: 0;
+      border-radius: 18px;
+      padding: 14px 17px;
+      box-shadow: 0 5px 16px rgba(15, 23, 42, .055);
+      line-height: 1.65;
+    }
+    .message.user {
+      border-bottom-right-radius: 5px;
+      background: #dff2ed;
+      color: #164e49;
+    }
+    .message.assistant {
+      border: 1px solid #f1dfcd;
+      border-bottom-left-radius: 5px;
+      background: #fffaf3;
+    }
+    .message.system {
+      width: min(580px, 92%);
+      border: 1px dashed #cbdad5;
+      background: transparent;
+      box-shadow: none;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .message-meta {
+      border-color: rgba(15, 118, 110, .12);
+      font-size: 11px;
+    }
+    .composer {
+      border-top: 1px solid var(--border);
+      padding: 13px;
+      gap: 9px;
+      background: #fff;
+    }
+    .composer textarea {
+      min-height: 76px;
+      border-color: #d8e4df;
+      border-radius: 15px;
+      padding: 12px 14px;
+      background: #f8fbfa;
+      box-shadow: none;
+    }
+    .composer textarea:focus-visible {
+      border-color: rgba(15, 118, 110, .45);
+      background: #fff;
+      outline: 3px solid rgba(15, 118, 110, .1);
+    }
+    .composer-actions { min-height: 38px; }
+    .status {
+      min-height: 0;
+      max-width: 70%;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+    .send-btn,
+    .clear-btn,
+    .prompt-btn {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 9px 14px;
+      box-shadow: none;
+    }
+    .send-btn {
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--brand), var(--brand-strong));
+      box-shadow: 0 8px 18px rgba(15, 118, 110, .18);
+    }
+    .clear-btn {
+      color: var(--muted);
+      background: #f8faf9;
+    }
+    .send-btn:hover:not(:disabled),
+    .clear-btn:hover,
+    .prompt-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 9px 20px rgba(15, 118, 110, .12);
+    }
+    .side {
+      grid-column: 1;
+      grid-row: 1;
+      gap: 12px;
+    }
+    .source-panel,
+    .prompt-panel {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: 0 10px 28px rgba(22, 55, 50, .06);
+    }
+    .prompt-panel { order: -1; }
+    .source-panel h2,
+    .prompt-panel h2 {
+      margin-bottom: 12px;
+      color: #34423e;
+      font-size: 13px;
+      letter-spacing: .04em;
+    }
+    .source-list { gap: 6px; }
+    .source-chip {
+      border-color: rgba(15, 118, 110, .13);
+      padding: 5px 8px;
+      background: #eef7f4;
+      color: #35635d;
+      font-size: 10.5px;
+    }
+    .prompt-list { gap: 7px; }
+    .prompt-btn {
+      position: relative;
+      padding: 10px 30px 10px 11px;
+      border-color: #e3ebe8;
+      background: #fbfdfc;
+      color: #34423e;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .prompt-btn::after {
+      content: "↗";
+      position: absolute;
+      top: 10px;
+      right: 11px;
+      color: var(--brand);
+      font-weight: 800;
+    }
+    .logo-bottom-right {
+      font-size: 15px;
+      padding: 6px 10px;
+      box-shadow: 0 8px 20px rgba(21, 23, 27, .08);
+    }
+    @media (max-width: 840px) {
+      nav#topbar-nav {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+        margin: 0;
+      }
+      .wrap { padding: 70px 12px 24px; gap: 18px; }
+      .site-header { padding: 0 4px; }
+      .title::before { margin-bottom: 6px; font-size: 8px; }
+      .title h1 { font-size: 32px; }
+      .title p { margin-top: 7px; font-size: 12.5px; line-height: 1.55; }
+      .workspace { display: flex; flex-direction: column; gap: 10px; }
+      .side { order: 0; gap: 8px; }
+      .prompt-panel { order: -1; padding: 12px; }
+      .source-panel { padding: 11px 12px; }
+      .source-panel h2, .prompt-panel h2 { margin-bottom: 8px; font-size: 12px; }
+      .prompt-list {
+        display: flex;
+        gap: 7px;
+        overflow-x: auto;
+        padding-bottom: 3px;
+        scroll-snap-type: x proximity;
+      }
+      .prompt-btn {
+        flex: 0 0 min(260px, 76vw);
+        scroll-snap-align: start;
+        padding: 9px 28px 9px 10px;
+      }
+      .source-list { flex-wrap: nowrap; overflow-x: auto; }
+      .source-chip { flex: 0 0 auto; }
+      .chat-surface {
+        width: 100%;
+        min-height: 520px;
+        height: calc(100vh - 245px);
+        max-height: 680px;
+        border-radius: 18px;
+      }
+      .messages { padding: 14px; gap: 11px; }
+      .message { width: 92%; padding: 11px 13px; font-size: 13.5px; }
+      .message.system { width: 96%; font-size: 12px; }
+      .composer { padding: 10px; }
+      .composer textarea { min-height: 64px; font-size: 16px; }
+      .status { max-width: 58%; font-size: 10.5px; }
+      .logo-bottom-right { margin: 8px auto 10px; }
+    }
   </style>
+  <link rel="stylesheet" href="assets/home-nav.css">
+  <script src="assets/home-navigation.js" defer></script>
 </head>
 <body>
   <nav id="topbar-nav" aria-label="页面导航">

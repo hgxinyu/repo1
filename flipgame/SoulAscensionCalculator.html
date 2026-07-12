@@ -13,7 +13,7 @@
       var ico = isLocal ? 'assets/local-favicon.ico' : (isStage ? 'assets/stage-favicon.ico' : 'assets/favicon.ico');
       var apple = isLocal ? 'assets/local-logo-180.png' : (isStage ? 'assets/stage-logo-180.png' : 'assets/shine-logo-180.png');
       var manifest = isLocal ? 'site.local.webmanifest' : (isStage ? 'site.stage.webmanifest' : 'site.webmanifest');
-      var theme = isLocal ? '#fb7185' : (isStage ? '#0891b2' : '#6366f1');
+      var theme = isLocal ? '#fb7185' : (isStage ? '#0891b2' : '#0f766e');
       document.write('<link rel="icon" type="image/svg+xml" href="' + svg + '">');
       document.write('<link rel="icon" type="image/png" sizes="32x32" href="' + png32 + '">');
       document.write('<link rel="shortcut icon" href="' + ico + '">');
@@ -436,6 +436,10 @@
       }
     }
   </style>
+  <link rel="stylesheet" href="assets/home-nav.css">
+  <link rel="stylesheet" href="assets/member-calculator-theme.css">
+  <link rel="stylesheet" href="assets/calculator-input-highlight.css">
+  <script src="assets/home-navigation.js" defer></script>
 </head>
 <body class="auth-checking">
   <nav id="topbar-nav" aria-label="页面导航">
@@ -1359,7 +1363,7 @@
           active = false;
           if (horizontalIntent && dx >= 72 && Math.abs(dy) <= 54) {
             requestAnimationFrame(() => {
-              window.location.replace('index.html');
+              window.flipgameReturnHome({ replaceFallback: true });
             });
           }
           horizontalIntent = false;

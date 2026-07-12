@@ -1,0 +1,53 @@
+:root {
+  --calculator-input-border: rgba(15, 118, 110, 0.34);
+  --calculator-input-bg: rgba(238, 247, 244, 0.9);
+  --calculator-input-shadow: 0 6px 16px rgba(15, 118, 110, 0.11);
+  --calculator-input-focus: #0f766e;
+  --calculator-input-ring: rgba(15, 118, 110, 0.15);
+}
+input[type="number"],
+select {
+  border-color: var(--calculator-input-border) !important;
+  background-color: var(--calculator-input-bg) !important;
+  color: var(--ink, #111827) !important;
+  box-shadow: var(--calculator-input-shadow) !important;
+  transition: border-color 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease !important;
+}
+
+input[type="number"]:hover,
+select:hover {
+  border-color: rgba(15, 118, 110, 0.52) !important;
+  background-color: #f4faf8 !important;
+}
+
+input[type="number"]:focus,
+input[type="number"]:focus-visible,
+select:focus,
+select:focus-visible {
+  border-color: var(--calculator-input-focus) !important;
+  background-color: #ffffff !important;
+  outline: 3px solid var(--calculator-input-ring) !important;
+  outline-offset: 1px !important;
+  box-shadow: 0 9px 22px rgba(15, 118, 110, 0.16) !important;
+}
+
+input[type="number"]::placeholder {
+  color: #8a9a95;
+  opacity: 1;
+}
+
+input[type="number"]:disabled,
+select:disabled {
+  border-color: #d9e2df !important;
+  background-color: #f1f5f4 !important;
+  color: #94a3b8 !important;
+  box-shadow: none !important;
+  cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  input[type="number"],
+  select {
+    transition: none !important;
+  }
+}

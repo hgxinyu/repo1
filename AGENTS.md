@@ -46,11 +46,20 @@ When previewing locally, `index.html` shows a `Local Admin` account and Admin Po
 - Do not carry push, commit, production deploy, or Netlify deploy permission across turns. Even if the user asked to push earlier, require an explicit current-turn request before committing, pushing, or deploying again.
 - If the user explicitly asks to push, push only the intended staged changes and leave unrelated dirty worktree changes alone.
 
+## Session Handoff
+
+- If `HANDOFF.md` exists, read it before making changes.
+- Use `HANDOFF.md` only for unfinished work that needs to continue in another session; do not create one for every completed session.
+- Keep only one current handoff file. Update it before ending an incomplete task instead of accumulating dated handoff files.
+- Record the objective, completed work, remaining work, changed files, verification results, dirty-worktree boundaries, exact next steps, and actions that must not be taken.
+- Delete `HANDOFF.md` after the work is completed and the durable decisions are documented in the appropriate `README.md`, `AGENTS.md`, or `docs/` file.
+- Never store passwords, API keys, tokens, production data, or other secrets in `HANDOFF.md`.
+
 ## Data Rules
 
 - Stage and production data are not separated yet. Treat data writes made while testing `stage` as writes to shared/live data unless the user confirms a separate data environment exists.
 - Soul calculator data source: `flipgame/soul_tiers.csv`.
-- Core / Temple / Destiny calculator documentation: `docs/core-calculator.md`. The calculator entry page is `flipgame/Calculators.html`; page implementations live in `flipgame/CoreCalculator.html` and `flipgame/DestinyCalculator.html`. Destiny Temple / Divine Power terminology lives in `IHassistant/knowledge/mechanics/destiny-temple.md`; the transcribed 1-30 level table lives in `flipgame/destiny_temple_levels.json`.
+- Core / Temple / Destiny calculator documentation: `docs/core-calculator.md`. Calculator entry choices live in the homepage panels in `flipgame/index.html`; page implementations live in `flipgame/CoreCalculator.html` and `flipgame/DestinyCalculator.html`. Destiny Temple / Divine Power terminology lives in `IHassistant/knowledge/mechanics/destiny-temple.md`; the transcribed 1-30 level table lives in `flipgame/destiny_temple_levels.json`.
 - Expedition calculator data source: `flipgame/seboss_all.json`.
 - Guide images live under `flipgame/images/`.
 - Generated guide images should use the right-side ShineGame logo/QR treatment in the headnote. The brand footnote text is `ShineGame · Idle Heroes Guide`; if the image already has a bottom note/rule/explanation card, merge the brand footnote into that existing card instead of adding a separate bottom bar. Use the standalone rounded bottom footnote style from the void invasion guide only when there is no existing footer card.
@@ -80,8 +89,8 @@ When previewing locally, `index.html` shows a `Local Admin` account and Admin Po
 - Speed may have hidden decimals in game UI, so calculators may evaluate both `z` and `z+1`.
 - X-tier soul logic is documented in `docs/soul-calculator.md`.
 - Expedition score display rules are documented in `docs/expedition-calculator.md`.
-- Registered-member pages currently include Soul Ascension and Expedition.
-- VIP-only pages currently include Awakening Gala Simulator and Play IH with AI.
+- Registered-member pages currently include Soul Ascension, Expedition, and Awakening Gala Simulator.
+- The VIP-only page is currently Play IH with AI.
 - Each hero can choose 5 enables. Each enable slot picks 1 of 3 column options; enable 1 and enable 4 use the same three-option group. Enable tables with `lv1`/`lv2` subrows are treated as both active by default.
 - In Boss formulas, `绝地` is enable 2 column 2 and currently uses the infused value `18%`.
 - In Boss formulas, `均衡` is enable 5 column 1 and currently uses the infused value `45%`. Current balance-effect rule: if any normal-attack or active-skill damage segment from the same hero fails to crit in that hero's turn, the 45% extra damage applies to that turn's total damage, not only to the non-crit segment.
