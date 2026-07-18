@@ -22,10 +22,11 @@
       document.write('<meta name="theme-color" content="' + theme + '">');
     })();
   </script>
-  
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700&family=Pacifico&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+
   <script src="assets/home-navigation.js" defer></script>
   <style>
     :root {
@@ -941,6 +942,164 @@
       .card-link span.subtitle { font-size: 11.5px; line-height: 1.35; padding-right: 18px; }
       .logo-bottom-right { margin: 8px auto 18px; }
       .feedback-toggle { bottom: 12px; }
+      .card-link { animation: none; }
+      .langbar,
+      .logo-bottom-right {
+        background: #fff;
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+      }
+    }
+
+    /* Calm, lightweight homepage treatment. */
+    :root {
+      --radius: 16px;
+      --border: #dfe8e5;
+      --bg: #f4f7f6;
+      --shadow: 0 6px 18px rgba(15, 23, 42, 0.07);
+    }
+    html,
+    body {
+      background: var(--bg);
+    }
+    body::before,
+    .wrap > header::before,
+    .wrap > header::after,
+    .wrap > header h1::after,
+    .card-link::before,
+    .card-link::after {
+      content: none;
+      display: none;
+    }
+    .wrap {
+      width: min(980px, 100%);
+      padding: 88px clamp(18px, 4vw, 40px) 96px;
+      gap: 28px;
+    }
+    .wrap > header {
+      max-width: 680px;
+      gap: 8px;
+    }
+    .wrap > header h1 {
+      max-width: none;
+      font-family: "Avenir Next", "PingFang SC", "Microsoft YaHei", sans-serif;
+      font-size: clamp(34px, 6vw, 48px);
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      text-shadow: none;
+    }
+    .wrap > header p {
+      max-width: 620px;
+      font-size: 15px;
+      line-height: 1.65;
+    }
+    .langbar {
+      top: 14px;
+      right: 16px;
+      background: #fff;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+    .card-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .card-link,
+    .card-link:nth-child(1),
+    .card-link:nth-child(2) {
+      min-height: 118px;
+      justify-content: center;
+      gap: 5px;
+      padding: 18px;
+      overflow: visible;
+      border-color: var(--border);
+      border-radius: var(--radius);
+      background: #fff;
+      box-shadow: var(--shadow);
+      animation: none;
+      transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+    }
+    .card-link span.title {
+      padding-right: 0 !important;
+      color: #17312e;
+      font-family: "Avenir Next", "PingFang SC", "Microsoft YaHei", sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .card-link span.subtitle {
+      padding-right: 0 !important;
+      color: #64748b;
+      font-size: 12.5px;
+      line-height: 1.45;
+    }
+    .card-link:hover,
+    .card-link:focus-visible {
+      transform: translateY(-2px);
+      border-color: rgba(var(--accent-rgb), .34);
+      box-shadow: 0 9px 22px rgba(15, 23, 42, 0.09);
+    }
+    .account-panel,
+    .feedback-panel,
+    .recruit-panel,
+    .calculator-panel,
+    .member-panel,
+    .logo-bottom-right {
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+    .feedback-toggle {
+      background: #0f766e;
+      box-shadow: 0 8px 20px rgba(15, 118, 110, 0.22);
+    }
+    .logo-bottom-right {
+      background: #fff;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+    }
+    .logo-bottom-right .logo-by,
+    .logo-bottom-right .logo-en {
+      font-family: "Pacifico", cursive;
+    }
+    .logo-bottom-right .logo-cn {
+      font-family: "Noto Serif SC", "Songti SC", "STSong", serif;
+    }
+    .logo-bottom-right .logo-dot {
+      background: linear-gradient(135deg, #6366f1, #22c55e);
+      box-shadow: none;
+    }
+    @media (max-width: 760px) {
+      .wrap {
+        padding: 76px 12px 68px;
+        gap: 18px;
+      }
+      .wrap > header {
+        gap: 6px;
+        padding: 0 3px;
+      }
+      .wrap > header h1 {
+        font-size: 32px;
+      }
+      .wrap > header p {
+        font-size: 13px;
+        line-height: 1.55;
+      }
+      .card-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+      .card-link,
+      .card-link:nth-child(1),
+      .card-link:nth-child(2) {
+        min-height: 0;
+        padding: 14px 15px;
+        border-radius: 14px;
+      }
+      .card-link span.title {
+        font-size: 16.5px;
+      }
+      .card-link span.subtitle {
+        font-size: 11.5px;
+      }
     }
   </style>
 </head>
@@ -1766,6 +1925,17 @@
         || (parts[0] === 192 && parts[1] === 168);
     }
 
+    function hasPersistedIdentityState() {
+      try {
+        if (window.localStorage.getItem("gotrue.user")) return true;
+      } catch {
+      }
+      return document.cookie.split(";").some((part) => {
+        const name = part.trim().split("=")[0];
+        return name === "nf_jwt" || name === "nf_refresh";
+      });
+    }
+
     async function loadIdentity() {
       if (!identity) {
         identity = await import("https://esm.sh/@netlify/identity?bundle");
@@ -1807,6 +1977,7 @@
         showLocalAdminPreview();
         return;
       }
+      if (!hasPersistedIdentityState()) return;
       const user = await restoreIdentitySession();
       if (!user) return;
 

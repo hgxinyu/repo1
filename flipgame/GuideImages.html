@@ -211,6 +211,8 @@
       color: var(--ink);
       box-shadow: var(--shadow);
       transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+      content-visibility: auto;
+      contain-intrinsic-size: 280px;
     }
     .card-link img {
       width: 100%;
@@ -319,97 +321,97 @@
 
     <div class="cards" id="guideCards" aria-label="攻略图片列表">
       <a class="card-link" href="images/qihuan.jpg" data-image="images/qihuan.jpg">
-        <span class="thumb"><img src="images/qihuan.jpg" alt="奇幻梦工厂隐藏关" id="qihuanImg" /></span>
+        <span class="thumb"><img src="images/qihuan.jpg" alt="奇幻梦工厂隐藏关" id="qihuanImg" loading="lazy" decoding="async" /></span>
         <span class="title" id="cardQihuanTitle">奇幻梦工厂隐藏关</span>
         <span class="subtitle" id="cardQihuanSub">查看隐藏关参考图与说明</span>
       </a>
       <a class="card-link" href="images/root-level-guide.png" data-image="images/root-level-guide.png">
-        <span class="thumb"><img src="images/root-level-guide.png" alt="根源等级" id="genyuanImg" /></span>
+        <span class="thumb"><img src="images/root-level-guide.png" alt="根源等级" id="genyuanImg" loading="lazy" decoding="async" /></span>
         <span class="title" id="cardGenyuanTitle">根源等级</span>
         <span class="subtitle" id="cardGenyuanSub">查看根源等级攻略图</span>
       </a>
       <a class="card-link" href="images/destiny-upgrade-guide.png" data-image="images/destiny-upgrade-guide.png">
-        <span class="thumb"><img src="images/destiny-upgrade-guide.png" alt="飞升升级资源" id="destinyUpgradeImg" /></span>
+        <span class="thumb"><img src="images/destiny-upgrade-guide.png" alt="飞升升级资源" id="destinyUpgradeImg" loading="lazy" decoding="async" /></span>
         <span class="title" id="cardDestinyUpgradeTitle">飞升升级资源</span>
         <span class="subtitle" id="cardDestinyUpgradeSub">查看飞升 1 到 6 资源攻略图</span>
       </a>
       <a class="card-link" href="images/destiny-temple-guide.png" data-image="images/destiny-temple-guide.png">
-        <span class="thumb"><img src="images/destiny-temple-guide.png" alt="飞升殿堂升级资料" id="destinyTempleImg" /></span>
+        <span class="thumb"><img src="images/destiny-temple-guide.png" alt="飞升殿堂升级资料" id="destinyTempleImg" loading="lazy" decoding="async" /></span>
         <span class="title" id="cardDestinyTempleTitle">飞升殿堂升级资料</span>
         <span class="subtitle" id="cardDestinyTempleSub">查看殿堂 1 到 30 升级资料图</span>
       </a>
       <a class="card-link" href="images/root-infusion-set-guide.png" data-image="images/root-infusion-set-guide.png">
-        <span class="thumb"><img src="images/root-infusion-set-guide.png" alt="根源灌注套装效果" id="rootInfusionSetImg" /></span>
+        <span class="thumb"><img src="images/root-infusion-set-guide.png" alt="根源灌注套装效果" id="rootInfusionSetImg" loading="lazy" decoding="async" /></span>
         <span class="title" id="cardRootInfusionSetTitle">根源灌注套装效果</span>
         <span class="subtitle" id="cardRootInfusionSetSub">查看六种唤醒套装 Lv1→Lv7 效果速览</span>
       </a>
       <a class="card-link" href="images/imprint-infusion-guide.png" data-image="images/imprint-infusion-guide.png">
-        <span class="thumb"><img src="images/imprint-infusion-guide.png" alt="印痕灌注" id="guanzhuImg" /></span>
+        <span class="thumb"><img src="images/imprint-infusion-guide.png" alt="印痕灌注" id="guanzhuImg" loading="lazy" decoding="async" /></span>
         <span class="title" id="cardGuanzhuTitle">印痕灌注</span>
         <span class="subtitle" id="cardGuanzhuSub">查看印痕灌注攻略图</span>
       </a>
       <a class="card-link" href="images/imprint-branch-guide.png" data-image="images/imprint-branch-guide.png">
-        <span class="thumb"><img src="images/imprint-branch-guide.png" alt="印痕灌注分支选择" id="imprintBranchImg" /></span>
+        <span class="thumb"><img src="images/imprint-branch-guide.png" alt="印痕灌注分支选择" id="imprintBranchImg" loading="lazy" decoding="async" /></span>
         <span class="title" id="cardImprintBranchTitle">印痕灌注分支选择</span>
         <span class="subtitle" id="cardImprintBranchSub">查看利刃、强壁、精神 18 条分支选择建议</span>
       </a>
       <a class="card-link" href="images/%E8%BF%9C%E5%BE%81%E6%8E%A8%E5%9B%BE.jpeg" data-image="images/远征推图.jpeg">
-        <span class="thumb"><img src="images/远征推图.jpeg" alt="远征推图" id="mapImg" /></span>
+        <span class="thumb"><img src="images/远征推图.jpeg" alt="远征推图" id="mapImg" loading="lazy" decoding="async" /></span>
         <span class="title" id="cardMapTitle">远征推图</span>
         <span class="subtitle" id="cardMapSub">查看远征推图攻略图</span>
       </a>
       <a class="card-link" href="images/void-invasion-boss-guide.png" data-image="images/void-invasion-boss-guide.png">
-        <span class="thumb"><img src="images/void-invasion-boss-guide.png" alt="虚空入侵 Boss 技能" id="voidInvasionBossImg" /></span>
+        <span class="thumb"><img src="images/void-invasion-boss-guide.png" alt="虚空入侵 Boss 技能" id="voidInvasionBossImg" loading="lazy" decoding="async" /></span>
         <span class="title" id="cardVoidInvasionBossTitle">虚空入侵 Boss 技能</span>
         <span class="subtitle" id="cardVoidInvasionBossSub">查看图一到图七 Boss 技能与应对重点</span>
       </a>
       <a class="card-link" href="images/se-boss-hp-guide.png" data-image="images/se-boss-hp-guide.png">
-        <span class="thumb"><img src="images/se-boss-hp-guide.png" alt="彩章血量积分" id="seBossHpImg" /></span>
+        <span class="thumb"><img src="images/se-boss-hp-guide.png" alt="彩章血量积分" id="seBossHpImg" loading="lazy" decoding="async" /></span>
         <span class="title" id="cardSeBossHpTitle">彩章血量积分</span>
         <span class="subtitle" id="cardSeBossHpSub">查看远征章鱼 100 到 1 层血量积分</span>
       </a>
       <a class="card-link" href="images/awakening-rate-guide.png" data-image="images/awakening-rate-guide.png">
-        <span class="thumb"><img src="images/awakening-rate-guide.png" alt="觉醒概率" id="awakenImg" /></span>
+        <span class="thumb"><img src="images/awakening-rate-guide.png" alt="觉醒概率" id="awakenImg" loading="lazy" decoding="async" /></span>
         <span class="title" id="cardAwakenTitle">觉醒概率</span>
         <span class="subtitle" id="cardAwakenSub">查看觉醒概率攻略图</span>
       </a>
       <a class="card-link" href="images/merge-requirements-guide.png" data-image="images/merge-requirements-guide.png">
-        <span class="thumb"><img src="images/merge-requirements-guide.png" alt="升格需求" id="mergeNeedImg" /></span>
+        <span class="thumb"><img src="images/merge-requirements-guide.png" alt="升格需求" id="mergeNeedImg" loading="lazy" decoding="async" /></span>
         <span class="title" id="cardMergeNeedTitle">升格需求</span>
         <span class="subtitle" id="cardMergeNeedSub">查看升格需求攻略图</span>
       </a>
       <a class="card-link" href="images/breakdown-soulpower-guide.png" data-image="images/breakdown-soulpower-guide.png">
-        <span class="thumb"><img src="images/breakdown-soulpower-guide.png" alt="分解资质所得魂力性价比" id="breakdownImg" /></span>
+        <span class="thumb"><img src="images/breakdown-soulpower-guide.png" alt="分解资质所得魂力性价比" id="breakdownImg" loading="lazy" decoding="async" /></span>
         <span class="title" id="cardBreakdownTitle">分解资质所得魂力性价比</span>
         <span class="subtitle" id="cardBreakdownSub">查看分解资质魂力性价比攻略图</span>
       </a>
       <a class="card-link" href="images/empower-infusion-guide.png" data-image="images/empower-infusion-guide.png">
-        <span class="thumb"><img src="images/empower-infusion-guide.png" alt="赋能灌注" id="empowerImg" /></span>
+        <span class="thumb"><img src="images/empower-infusion-guide.png" alt="赋能灌注" id="empowerImg" loading="lazy" decoding="async" /></span>
         <span class="title" id="cardEmpowerTitle">赋能灌注</span>
         <span class="subtitle" id="cardEmpowerSub">查看赋能灌注攻略图</span>
       </a>
       <a class="card-link" href="images/fund-material-value-guide.png" data-image="images/fund-material-value-guide.png">
-        <span class="thumb"><img src="images/fund-material-value-guide.png" alt="基金材料性价比" id="fundMaterialImg" /></span>
+        <span class="thumb"><img src="images/fund-material-value-guide.png" alt="基金材料性价比" id="fundMaterialImg" loading="lazy" decoding="async" /></span>
         <span class="title" id="cardFundMaterialTitle">基金材料性价比</span>
         <span class="subtitle" id="cardFundMaterialSub">查看基金材料兑换性价比攻略图</span>
       </a>
       <a class="card-link" href="images/grimoire-upgrade-guide.png" data-image="images/grimoire-upgrade-guide.png">
-        <span class="thumb"><img src="images/grimoire-upgrade-guide.png" alt="魔典升级需求" id="grimoireUpgradeImg" /></span>
+        <span class="thumb"><img src="images/grimoire-upgrade-guide.png" alt="魔典升级需求" id="grimoireUpgradeImg" loading="lazy" decoding="async" /></span>
         <span class="title" id="cardGrimoireUpgradeTitle">魔典升级需求</span>
         <span class="subtitle" id="cardGrimoireUpgradeSub">查看赋能魔典和印痕魔典升级材料</span>
       </a>
       <a class="card-link" href="images/starsoul-upgrade-guide.png" data-image="images/starsoul-upgrade-guide.png">
-        <span class="thumb"><img src="images/starsoul-upgrade-guide.png" alt="星魂升级材料" id="starsoulUpgradeImg" /></span>
+        <span class="thumb"><img src="images/starsoul-upgrade-guide.png" alt="星魂升级材料" id="starsoulUpgradeImg" loading="lazy" decoding="async" /></span>
         <span class="title" id="cardStarsoulUpgradeTitle">星魂升级材料</span>
         <span class="subtitle" id="cardStarsoulUpgradeSub">查看星魂到 24 级和命轨升级材料需求</span>
       </a>
       <a class="card-link" href="images/battle-buff-debuff-icons-guide.png" data-image="images/battle-buff-debuff-icons-guide.png">
-        <span class="thumb"><img src="images/battle-buff-debuff-icons-guide.png" alt="战斗Buff/Debuff图标" id="iconImg" /></span>
+        <span class="thumb"><img src="images/battle-buff-debuff-icons-guide.png" alt="战斗Buff/Debuff图标" id="iconImg" loading="lazy" decoding="async" /></span>
         <span class="title" id="cardIconTitle">战斗Buff/Debuff图标</span>
         <span class="subtitle" id="cardIconSub">查看战斗Buff/Debuff图标攻略图</span>
       </a>
       <a class="card-link" href="images/attribute-explanation-guide.png" data-images="images/attribute-explanation-guide.png|images/attribute-formula-guide.png">
-        <span class="thumb"><img src="images/attribute-explanation-guide.png" alt="属性具体解释和算法" id="attrExplainImg" /></span>
+        <span class="thumb"><img src="images/attribute-explanation-guide.png" alt="属性具体解释和算法" id="attrExplainImg" loading="lazy" decoding="async" /></span>
         <span class="title" id="cardAttrExplainTitle">属性具体解释和算法</span>
         <span class="subtitle" id="cardAttrExplainSub">查看属性解释攻略图</span>
       </a>
