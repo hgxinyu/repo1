@@ -7,6 +7,8 @@
 
 - 攻略图统一放在 `flipgame/images/`。
 - 页面内卡片手动维护标题、图片路径和描述。
+- 有文字的站内生成攻略图同时维护英文 `*-en.png` 版本。`GuideImages.html` 读取首页保存的 `localStorage.flipgame_lang`：中文显示原图，英文显示 `data-image-en` / `data-images-en` 指向的英文图。
+- 奇幻梦工厂隐藏关图片本身没有文字，中英文共用原图；远征推图使用单独的 `expedition-stage-map-en.png` 英文编号版。
 - 图片页面文案包含：`部分图片收集于网络，公众号。特此感谢作者！`
 - 部分图片已加站内二维码角标。
 - 觉醒概率新版图由 `scripts/generate-awakening-rate-guide.py` 生成，数据来自旧图 `flipgame/images/juexingailv.jpg`，输出为 `flipgame/images/awakening-rate-guide.png`。
@@ -27,6 +29,13 @@
 - 彩章血量积分图由 `scripts/generate-se-boss-hp-guide.py` 生成，数据来自 `flipgame/seboss_all.json` 和 `IHassistant/knowledge/bosses/SEBoss/hp-score-table.md`，输出为 `flipgame/images/se-boss-hp-guide.png`。
 - 虚空入侵 Boss 技能图由 `scripts/generate-void-invasion-boss-guide.py` 生成，数据来自用户提供截图和 `IHassistant/knowledge/bosses/void-invasion/README.md`，输出为 `flipgame/images/void-invasion-boss-guide.png`。
 
+## 英文版生成
+
+- 运行 `python3 scripts/generate-english-guide-images.py`，从现有中文生成器确定性生成全部 `*-en.png` 英文图和远征地图英文编号版。
+- 英文构建器以中文生成器为数值和版式真相源，不覆盖中文图片。
+- 翻译固化在 `scripts/guide-image-en-translations.json`；日常重建完全离线。
+- 中文生成器新增或修改文案后，运行 `python3 scripts/generate-english-guide-images.py --refresh-translations` 更新翻译缓存，再人工复核游戏术语、数字与排版。
+
 ## 打开图片
 
 - Web 模式：点击攻略图在站内弹层查看图片。
@@ -38,8 +47,9 @@
 1. 把图片放入 `flipgame/images/`。
 2. 在 `GuideImages.html` 中新增卡片数据。
 3. 标题使用中文主标题，并维护英文翻译。
-4. 如需统一风格，给新增图片加站内二维码角标。
-5. 本地 server 打开攻略页面验证图片路径大小写。
+4. 图片内含文字时，生成英文 `*-en.png` 并在卡片补上 `data-image-en`；多图卡片使用 `data-images-en`。
+5. 如需统一风格，给新增图片加站内二维码角标。
+6. 本地 server 分别把 `localStorage.flipgame_lang` 设为 `zh` 和 `en`，验证缩略图与弹层图片路径大小写。
 
 ## 命名建议
 
