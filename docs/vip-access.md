@@ -83,6 +83,27 @@ During the migration window, a first successful Google or email-code login perfo
 
 VIP 申请和管理员授权变更只通过数据库的 `SECURITY DEFINER` 边界执行。迁移会撤销 `PUBLIC` 的执行权限；部署时必须只向受信任的非 owner BFF 数据库角色显式授予 `request_account_vip` 与 `set_account_authorization`，不能向 `PUBLIC` 授权。
 
+生产数据库的 BFF 角色由 `202608280001_auth_bff_runtime_role.sql` 固定为
+`shinegame_auth_bff`。该 migration 不创建角色、不接触密码；数据库 owner
+必须先在数据库外 provision 一个专用、非 owner、`NOINHERIT` 角色（local
+smoke 使用 `NOLOGIN`；生产连接若需要 `LOGIN`，其认证凭据也必须在该
+migration 外管理），并确保它没有 superuser、role/database creation、replication、bypass-RLS、
+角色继承或 public application object ownership 能力。migration 只授予：
+public schema/type usage；运行时 auth 表所需的 SELECT；账号/邮箱/identity/
+OAuth transaction/session/AI 限流的精确列级 INSERT/UPDATE；以及
+`request_account_vip`、`set_account_authorization` 两个已验证
+`SECURITY DEFINER` 函数的 EXECUTE。`auth_migration_batches` 与
+`migration_records` 仅可读，审计/context/merge 表、授权直接变更和 migration
+写入保持 owner-only。BFF 运行时必须通过受控的该角色上下文执行数据库请求，
+不得使用 Neon owner 作为应用运行角色；部署前应重跑 PostgreSQL role smoke。
+
+其中，BFF 没有 `accounts` 表的直接 `INSERT` 权限。新账号只能调用
+`public.create_free_account(text, text)`；这是 `SECURITY DEFINER` 函数，只接收
+公会和游戏名，并在函数体内固定写入 `role=free`、`status=active`。该函数的
+`EXECUTE` 权限先从 `PUBLIC` 撤销，再只授予 `shinegame_auth_bff`；管理员、VIP、
+blocked 或其他授权状态不能通过新账号创建路径伪造。账号、主 email 与 Logto
+identity 仍在同一个 BFF 数据库事务中写入。
+
 账号资料和主 email 映射存储在第一方数据库 `accounts` / `account_emails` 表中；主 email 在服务端加密保存，只在 `/api/me` 以掩码形式返回。Task 9 迁移的受保护 API 不读取或写入旧 `vip-users` email Blob，也不把 email 当作授权主键。
 
 资质价格存储在 Netlify Blobs 的 `quality-prices` store 中，key 为 `current.json`。`flipgame/quality_prices.json` 仍保留为默认值和本地静态服务器回退。
@@ -98,6 +119,7 @@ VIP 申请和管理员授权变更只通过数据库的 `SECURITY DEFINER` 边�
 - Task 9 已将 `/api/me`、VIP 申请、管理员账号/角色/删除、价格、流量和 AI 限流接入 `resolveAuthContext` / `requireCapability`；旧 email/`ADMIN_EMAILS`/Identity/用户 Blob 不再作为这些 API 的授权来源。
 - AI 限流表按 `(account_id, hour_start)` 原子 upsert；管理员不消耗额度。旧 `ai-question-limits` email bucket 不读不写。
 - Task 10 已完成登录/注册页面、共享浏览器 session/CSRF 客户端、能力驱动 guards 与受保护 POST 接线；Task 4/5 已在 Neon `local-test` 通过真实 Google legacy verified-email claim、VIP/profile 保留、重复登录和 unmatched readiness matrix。邮箱 OTP 的真实 delivery/callback 与 genuinely fresh-profile HTTPS stage callback 仍是发布前 gate。
+- Production Google OAuth 的公开资料固定使用 `https://shinegame.pro/`、`https://shinegame.pro/Privacy.html` 和 `https://shinegame.pro/Terms.html`；两份政策页均提供中英文版本，并从登录与注册页可达。Google consent screen 只请求 `openid profile email`，不得为通过发布检查临时增加未使用的敏感 scope。
 - Production import and finalization share one `(source, environment, site)` advisory-lock namespace. Import locks and reads the exact batch before any row write and refuses any reconciled/completed scope. Finalization holds that same lock while it locks and compares the full source/snapshot migration population, validates ordered migration completion evidence and the committed `accounts`、verified primary `account_emails` 和 active legacy `auth_identities`, constructs and deep-freezes the complete reconciliation report and completion time internally, then persists the batch. Read-only diagnostics, caller objects, serialized reports, and imported JSON cannot authorize finalization. Snapshot/review files are exclusive-create mode `0600`; CLI stdout contains only redacted counts, hash, and status.
 
 ## 部署要求

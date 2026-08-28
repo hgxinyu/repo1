@@ -61,6 +61,31 @@ test("Login and Register expose only Google/email BFF entrypoints", () => {
   }
 });
 
+test("public auth policy pages are bilingual and linked from login and registration", () => {
+  const privacy = read("Privacy.html");
+  const terms = read("Terms.html");
+  for (const source of [privacy, terms]) {
+    assert.match(source, /lang="zh-Hans"/);
+    assert.match(source, /flipgame_lang/);
+    assert.match(source, /\bzh\s*:/);
+    assert.match(source, /\ben\s*:/);
+    assert.match(source, /huangxinyu@gmail\.com/);
+    assert.match(source, /index\.html/);
+  }
+  assert.match(privacy, /Logto/);
+  assert.match(privacy, /Google/);
+  assert.match(privacy, /session/i);
+  assert.match(privacy, /account deletion|删除账号/i);
+  assert.match(terms, /acceptable use|可接受使用/i);
+  assert.match(terms, /account/i);
+
+  for (const page of ["Login.html", "Register.html"]) {
+    const source = read(page);
+    assert.match(source, /Privacy\.html/);
+    assert.match(source, /Terms\.html/);
+  }
+});
+
 test("shared browser auth client adds CSRF without persisting credentials", async () => {
   const fixture = browserFixture();
   await withBrowser(fixture, async () => {

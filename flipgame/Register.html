@@ -35,6 +35,7 @@
     .status { min-height: 22px; color: var(--muted); font-size: 14px; margin-top: 16px; }
     .toplink { display: inline-block; margin-bottom: 18px; color: var(--brand); text-decoration: none; font-size: 14px; }
     .footnote { margin-top: 20px; color: var(--muted); font-size: 12px; }
+    .footnote a { color: var(--brand); }
     [hidden] { display: none !important; }
   </style>
   <link rel="stylesheet" href="assets/home-nav.css">
@@ -58,6 +59,7 @@
       <button class="primary" id="submitBtn" type="submit">保存资料并提交审核</button>
     </form>
     <p class="footnote" id="pageNote">完成认证后会返回这里。当前不支持 Apple、QQ 或微信登录。</p>
+    <p class="footnote"><a id="privacyLink" href="Privacy.html">隐私政策</a> · <a id="termsLink" href="Terms.html">服务条款</a></p>
     <div class="status" id="status" role="status" aria-live="polite"></div>
   </main>
 
@@ -81,7 +83,7 @@
         google: "使用 Google 注册 / 登录", email: "使用邮箱验证码注册 / 登录",
         intro: "认证完成后，可以补充资料并提交 VIP 审核。",
         guild: "公会名字", gameName: "游戏 ID / 名字", submit: "保存资料并提交审核",
-        note: "完成认证后会返回这里。当前不支持 Apple、QQ 或微信登录。",
+        note: "完成认证后会返回这里。当前不支持 Apple、QQ 或微信登录。", privacy: "隐私政策", terms: "服务条款",
         static: "当前是静态预览，请在 Netlify local runtime 或已部署站点打开注册。",
         checking: "正在检查登录状态...", ready: "资料已保存，VIP 审核申请已提交。",
         failed: "提交失败：", notReady: "请先完成 Google 或邮箱认证。"
@@ -92,7 +94,7 @@
         google: "Continue with Google", email: "Continue with email code",
         intro: "After authentication, add profile details and request VIP access.",
         guild: "Guild name", gameName: "Game ID / name", submit: "Save details and request review",
-        note: "You will return here after authentication. Apple, QQ, and WeChat are not available yet.",
+        note: "You will return here after authentication. Apple, QQ, and WeChat are not available yet.", privacy: "Privacy Policy", terms: "Terms of Service",
         static: "This is a static preview. Open registration in the Netlify local runtime or a deployed site.",
         checking: "Checking your login status...", ready: "Details saved and VIP review requested.",
         failed: "Submit failed: ", notReady: "Complete Google or email authentication first."
@@ -128,6 +130,8 @@
       document.getElementById("gameNameLabel").firstChild.textContent = t("gameName");
       document.getElementById("submitBtn").textContent = t("submit");
       document.getElementById("pageNote").textContent = t("note");
+      document.getElementById("privacyLink").textContent = t("privacy");
+      document.getElementById("termsLink").textContent = t("terms");
     }
     function showProfile(account) {
       authChoices.hidden = true;

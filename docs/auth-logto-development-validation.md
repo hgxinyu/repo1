@@ -52,6 +52,7 @@ The replacement Google secret is not stored in this repository, documentation, t
 - Recreated development child branch: `local-test` (`br-wandering-firefly-af96po7a`)
 - Database engine observed during validation: PostgreSQL 18
 - Migrations: `202608250001_auth_accounts.sql`, `202608260001_auth_hardening.sql`, `202608270001_fix_request_account_vip_role_variable.sql`, then `202608270002_auth_migration_batches.sql`
+- Production runtime-role migration: `202608280001_auth_bff_runtime_role.sql` (implemented after this historical Neon validation; not applied to the production branch or to the recorded `local-test` evidence)
 
 On 2026-08-27, read-only Neon metadata first proved that the target named
 exactly `local-test` was a non-default, non-root child of `production`, and
@@ -68,6 +69,21 @@ request function present, `PUBLIC` execute revoked, and zero rows in accounts,
 emails, identities, sessions, OAuth transactions, migration records, and
 migration batches before fixture creation.
 
+The fifth migration is a production deployment gate rather than part of that
+historical local-test result. Before applying it, the database owner must
+provision the fixed `shinegame_auth_bff` role out of band as a dedicated
+non-owner `NOINHERIT` role (the local smoke uses `NOLOGIN`; any production
+login credential, if the deployment connection requires one, is managed
+outside this migration) with no superuser, role-creation,
+database-creation, replication, bypass-RLS, role-membership, or public-object
+ownership capability. The migration never creates a role and never stores or
+rotates a password. It converges schema/type usage, runtime table privileges,
+read-only migration evidence access, and the two validated `SECURITY DEFINER`
+function grants; direct authorization, audit/context, merge, and migration
+writes remain owner-only. The fresh PostgreSQL smoke for this fifth migration
+is a release verification gate and is not represented as passed by the Neon
+local-test evidence above.
+
 The guarded local fixture seeded exactly one synthetic active VIP, one primary
 email, one legacy identity, one migration record, and one reconciled migration
 batch. The batch scope was exactly `neon-local-test` /
@@ -78,8 +94,8 @@ storage, documentation, or terminal output. The same crypto pair was used by
 the fixture and the restarted BFF. Anonymous `/api/auth/session` returned 200
 with `authenticated=false` before browser login.
 
-All four migrations were applied only to the `local-test` child branch: base,
-hardening, role-function fix, then migration-batch readiness. A read-only
+All four historical migrations were applied only to the `local-test` child
+branch: base, hardening, role-function fix, then migration-batch readiness. A read-only
 preflight and post-migration check confirmed all 11 expected auth
 tables, the encrypted nonce column, scoped legacy-session uniqueness, the VIP
 request function, authorization-version mutation behavior, and revoked

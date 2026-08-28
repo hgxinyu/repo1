@@ -32,6 +32,7 @@
     .status { min-height: 22px; color: var(--muted); font-size: 14px; margin-top: 16px; }
     .toplink { display: inline-block; margin-bottom: 18px; color: var(--brand); text-decoration: none; font-size: 14px; }
     .footnote { margin-top: 20px; color: var(--muted); font-size: 12px; }
+    .footnote a { color: var(--brand); }
   </style>
   <link rel="stylesheet" href="assets/home-nav.css">
   <script src="assets/home-navigation.js" defer></script>
@@ -46,6 +47,7 @@
       <a class="button" id="emailLogin" data-auth-entry="/api/auth/sign-in?connector=email" href="/api/auth/sign-in?connector=email">使用邮箱验证码登录</a>
     </div>
     <p class="footnote" id="pageNote">登录后会返回你刚才要访问的页面。当前不支持 Apple、QQ 或微信登录。</p>
+    <p class="footnote"><a id="privacyLink" href="Privacy.html">隐私政策</a> · <a id="termsLink" href="Terms.html">服务条款</a></p>
     <div class="status" id="status" role="status" aria-live="polite"></div>
   </main>
 
@@ -64,14 +66,14 @@
         title: "登录 · ShinE", home: "回到主页", pageTitle: "登录",
         pageDesc: "使用 Google 或邮箱验证码登录。首次使用时，Logto 会在同一流程中完成账号创建。",
         google: "使用 Google 登录", email: "使用邮箱验证码登录",
-        note: "登录后会返回你刚才要访问的页面。当前不支持 Apple、QQ 或微信登录。",
+        note: "登录后会返回你刚才要访问的页面。当前不支持 Apple、QQ 或微信登录。", privacy: "隐私政策", terms: "服务条款",
         static: "当前是静态预览，请在 Netlify local runtime 或已部署站点打开登录。"
       },
       en: {
         title: "Login · ShinE", home: "Home", pageTitle: "Login",
         pageDesc: "Use Google or an email verification code. Logto completes account creation in the same hosted flow for first-time users.",
         google: "Continue with Google", email: "Continue with email code",
-        note: "You will return to the page you were visiting. Apple, QQ, and WeChat are not available yet.",
+        note: "You will return to the page you were visiting. Apple, QQ, and WeChat are not available yet.", privacy: "Privacy Policy", terms: "Terms of Service",
         static: "This is a static preview. Open login in the Netlify local runtime or a deployed site."
       }
     };
@@ -95,6 +97,8 @@
       document.getElementById("googleLogin").textContent = t("google");
       document.getElementById("emailLogin").textContent = t("email");
       document.getElementById("pageNote").textContent = t("note");
+      document.getElementById("privacyLink").textContent = t("privacy");
+      document.getElementById("termsLink").textContent = t("terms");
     }
     setStaticText();
     for (const [id, entry] of [["googleLogin", GOOGLE_ENTRY], ["emailLogin", EMAIL_ENTRY]]) {

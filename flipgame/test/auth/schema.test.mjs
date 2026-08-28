@@ -22,6 +22,10 @@ const migrationBatchesMigrationPath = join(
   testDirectory,
   "../../netlify/database/migrations/202608270002_auth_migration_batches.sql"
 );
+const runtimeRoleMigrationPath = join(
+  testDirectory,
+  "../../netlify/database/migrations/202608280001_auth_bff_runtime_role.sql"
+);
 
 function migrationSql() {
   return readFileSync(migrationPath, "utf8").toLowerCase();
@@ -38,6 +42,12 @@ function vipRoleVariableFixMigrationSql() {
 function migrationBatchesMigrationSql() {
   return existsSync(migrationBatchesMigrationPath)
     ? readFileSync(migrationBatchesMigrationPath, "utf8").toLowerCase()
+    : "";
+}
+
+function runtimeRoleMigrationSql() {
+  return existsSync(runtimeRoleMigrationPath)
+    ? readFileSync(runtimeRoleMigrationPath, "utf8").toLowerCase()
     : "";
 }
 
@@ -73,6 +83,7 @@ test("migration is transactional and declares all auth and AI limit tables", () 
     "auth_identities",
     "auth_sessions",
     "oauth_transactions",
+    "ai_hourly_limits",
     "migration_records",
     "auth_migration_batches",
     "account_merge_operations",
@@ -114,6 +125,98 @@ test("migration batch readiness is durable and least-privilege in both migration
     migrationBatchBody(formattingOnlyBaseSql),
     "formatting-only whitespace must normalize before comparing migration bodies"
   );
+});
+
+test("production BFF role migration is a password-free, exact non-owner privilege boundary", () => {
+  const sqlText = runtimeRoleMigrationSql();
+  const normalizedSql = sqlText
+    .replace(/\s+/gu, " ")
+    .replace(/\( /gu, "(")
+    .replace(/ \)/gu, ")")
+    .trim();
+  assert.ok(sqlText, "missing production BFF runtime-role migration");
+  assert.match(sqlText, /^\s*begin;[\s\S]*commit;\s*$/u);
+  assert.match(sqlText, /shinegame_auth_bff/u);
+  assert.doesNotMatch(sqlText, /create\s+role|alter\s+role[\s\S]*password|identified\s+by|password\s*=/u);
+  assert.match(sqlText, /pg_catalog\.pg_roles/u);
+  assert.match(sqlText, /rolsuper[\s\S]*rolcreaterole[\s\S]*rolcreatedb/u);
+  assert.match(sqlText, /rolreplication[\s\S]*rolbypassrls/u);
+
+  assert.match(sqlText, /grant usage on schema public to shinegame_auth_bff/u);
+  for (const typeName of [
+    "auth_account_role",
+    "auth_account_status",
+    "auth_identity_status",
+    "auth_session_source",
+    "auth_transaction_kind",
+    "auth_migration_status",
+    "auth_merge_status"
+  ]) {
+    assert.match(sqlText, new RegExp(`grant usage on type public\\.${typeName} to shinegame_auth_bff`, "u"));
+  }
+
+  for (const tableName of [
+    "accounts",
+    "account_emails",
+    "auth_identities",
+    "auth_sessions",
+    "oauth_transactions",
+    "migration_records",
+    "auth_migration_batches"
+  ]) {
+    assert.match(
+      sqlText,
+      new RegExp(`grant select on table public\\.${tableName} to shinegame_auth_bff`, "u"),
+      `runtime role must read ${tableName}`
+    );
+  }
+
+  for (const grant of [
+    "grant update (guild, game_name, updated_at) on table public.accounts to shinegame_auth_bff",
+    "grant insert (account_id, email_lookup_hash, encrypted_email, encryption_key_version, is_primary, verified_at) on table public.account_emails to shinegame_auth_bff",
+    "grant insert (account_id, issuer_or_tenant, connector_scope, provider_subject, subject_type, logto_user_id) on table public.auth_identities to shinegame_auth_bff",
+    "grant insert (transaction_kind, state_hash, nonce_hash, nonce_encrypted, pkce_verifier_encrypted, csrf_token_hash, environment_id, site_id, next_path, account_id, legacy_session_id_hash, migration_id, created_at, expires_at) on table public.oauth_transactions to shinegame_auth_bff",
+    "grant update (consumed_at) on table public.oauth_transactions to shinegame_auth_bff",
+    "grant insert (auth_source, environment_id, site_id, session_id_hash, session_family_id, account_id, logto_subject, legacy_netlify_user_id, migration_id, encrypted_refresh_token, refresh_token_key_version, issued_at, last_seen_at, idle_expires_at, absolute_expires_at, authz_version, rotation_version, created_at) on table public.auth_sessions to shinegame_auth_bff",
+    "grant update (revoked_at, encrypted_refresh_token, refresh_token_key_version, rotation_version, last_seen_at, idle_expires_at) on table public.auth_sessions to shinegame_auth_bff",
+    "grant insert (account_id, hour_start, count) on table public.ai_hourly_limits to shinegame_auth_bff",
+    "grant update (count, updated_at) on table public.ai_hourly_limits to shinegame_auth_bff"
+  ]) {
+    assert.ok(normalizedSql.includes(grant), grant);
+  }
+
+  assert.match(
+    sqlText,
+    /create function public\.create_free_account\(\s*p_guild\s+text\s*,\s*p_game_name\s+text\s*\)/u
+  );
+  assert.match(sqlText, /returns table\s*\([\s\S]*account_id\s+uuid[\s\S]*role\s+public\.auth_account_role[\s\S]*status\s+public\.auth_account_status/u);
+  assert.match(sqlText, /security definer\s+set search_path\s*=\s*pg_catalog\s*,\s*public/u);
+  assert.match(
+    sqlText,
+    /values\s*\(\s*'free'::public\.auth_account_role\s*,\s*'active'::public\.auth_account_status/u
+  );
+  assert.doesNotMatch(sqlText, /grant insert\s*\([^)]*\)\s*on table public\.accounts\s+to shinegame_auth_bff/u);
+  assert.match(sqlText, /revoke execute on function public\.create_free_account\(text, text\) from public/u);
+  assert.match(sqlText, /grant execute on function public\.create_free_account\(text, text\) to shinegame_auth_bff/u);
+
+  for (const tableName of [
+    "account_authorization_audit",
+    "auth_authorization_mutation_context",
+    "account_merge_operations"
+  ]) {
+    assert.match(
+      sqlText,
+      new RegExp(`revoke all on table public\\.${tableName} from shinegame_auth_bff`, "u"),
+      `runtime role must not access ${tableName}`
+    );
+  }
+  assert.match(sqlText, /revoke execute on function public\.set_account_authorization\(/u);
+  assert.match(sqlText, /revoke execute on function public\.request_account_vip\(/u);
+  assert.match(sqlText, /grant execute on function public\.set_account_authorization\([\s\S]*to shinegame_auth_bff/u);
+  assert.match(sqlText, /grant execute on function public\.request_account_vip\([\s\S]*to shinegame_auth_bff/u);
+  assert.doesNotMatch(sqlText, /grant execute on function public\.(?:apply_account_authorization_mutation|set_system_account_authorization|auth_current_actor)\([\s\S]*to shinegame_auth_bff/u);
+  assert.match(sqlText, /revoke execute on function public\.set_account_authorization\([\s\S]*from public/u);
+  assert.match(sqlText, /revoke execute on function public\.request_account_vip\([\s\S]*from public/u);
 });
 
 test("migration enforces the required active email and scoped identity uniqueness", () => {

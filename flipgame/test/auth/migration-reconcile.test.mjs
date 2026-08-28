@@ -893,7 +893,11 @@ test("Identity pagination stops on an empty terminal page and propagates interme
       return page === 1 ? [{ id: "one" }] : [];
     } }
   });
-  assert.deepEqual(await emptyReaders.listIdentityUsers(), [{ id: "one" }]);
+  assert.deepEqual(await emptyReaders.listIdentityUsers(), [{
+    id: "one",
+    email_verified: false,
+    confirmed_at: null
+  }]);
   assert.deepEqual(requested, [{ page: 1, perPage: 1 }, { page: 2, perPage: 1 }]);
 
   const failingReaders = createNetlifyReadOnlyReaders({

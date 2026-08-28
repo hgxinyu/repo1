@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>服务条款 · ShineGame</title>
+  <link rel="icon" type="image/svg+xml" href="assets/shine-logo.svg" />
+  <style>
+    :root { --ink:#17202a; --muted:#607080; --brand:#0f766e; --line:#dde7e3; --bg:#f5f9f7; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.7 "Segoe UI","Microsoft YaHei",system-ui,sans-serif; }
+    main { width:min(820px,calc(100% - 32px)); margin:32px auto; padding:clamp(24px,5vw,48px); background:#fff; border:1px solid var(--line); border-radius:18px; }
+    nav { display:flex; justify-content:space-between; gap:16px; align-items:center; margin-bottom:28px; }
+    a,button { color:var(--brand); }
+    button { border:1px solid var(--line); border-radius:999px; background:#fff; padding:7px 12px; cursor:pointer; }
+    h1 { margin:0 0 4px; font-size:clamp(28px,5vw,40px); line-height:1.2; }
+    h2 { margin:30px 0 8px; font-size:20px; }
+    p,li { color:var(--muted); }
+    ul { padding-left:22px; }
+    .updated { margin:0 0 28px; font-size:14px; }
+    footer { margin-top:36px; padding-top:20px; border-top:1px solid var(--line); font-size:14px; }
+  </style>
+</head>
+<body>
+  <main>
+    <nav><a id="home" href="index.html">返回 ShineGame</a><button id="language" type="button">English</button></nav>
+    <h1 id="title">服务条款</h1>
+    <p class="updated" id="updated">更新日期：2026 年 8 月 27 日</p>
+    <section id="content"></section>
+    <footer><a href="Privacy.html" id="privacy">隐私政策</a> · <a href="mailto:huangxinyu@gmail.com">huangxinyu@gmail.com</a></footer>
+  </main>
+  <script>
+    const I18N = {
+      zh: {
+        title:"服务条款", updated:"更新日期：2026 年 8 月 27 日", home:"返回 ShineGame", language:"English", privacy:"隐私政策",
+        html:`
+          <h2>接受条款</h2><p>使用 ShineGame 即表示你同意本条款和我们的隐私政策。如果你不同意，请不要登录或使用会员功能。</p>
+          <h2>账号</h2><p>你应使用自己有权控制的 Google 或邮箱账号登录，并对账号活动负责。请勿共享会话、冒充他人或绕过会员与 VIP 权限。旧账号只有在已验证邮箱匹配或通过受控迁移流程时才会关联。</p>
+          <h2>可接受使用</h2><ul><li>不得攻击、探测、干扰网站或尝试未授权访问。</li><li>不得自动化滥用 AI、计算器、管理或认证接口。</li><li>不得上传或提交违法、恶意或侵犯他人权利的内容。</li></ul>
+          <h2>游戏资料与可用性</h2><p>ShineGame 提供社区工具、计算器和游戏资料，仅供参考，不隶属于游戏发行商。我们会尽力保持内容和服务可用，但不保证资料始终完整、无误或不中断。</p>
+          <h2>第三方服务</h2><p>登录和托管依赖 Google、Logto、Netlify 与 Neon 等第三方服务；其自身条款也可能适用。第三方中断可能暂时影响登录或网站功能。</p>
+          <h2>暂停与终止</h2><p>对滥用、安全风险或违反本条款的账号，我们可以限制或终止访问。你也可通过邮件请求删除账号。</p>
+          <h2>变更与联系</h2><p>我们可能随服务演进更新条款，并在本页标明日期。如有问题，请联系 <a href="mailto:huangxinyu@gmail.com">huangxinyu@gmail.com</a>。</p>`
+      },
+      en: {
+        title:"Terms of Service", updated:"Last updated: August 27, 2026", home:"Back to ShineGame", language:"中文", privacy:"Privacy Policy",
+        html:`
+          <h2>Acceptance</h2><p>By using ShineGame, you agree to these terms and our Privacy Policy. If you do not agree, do not sign in or use member features.</p>
+          <h2>Accounts</h2><p>Use only a Google or email account you are authorized to control, and take responsibility for activity under your account. Do not share sessions, impersonate others, or bypass registered-member or VIP access. A legacy account is linked only through a matching verified email or a controlled migration process.</p>
+          <h2>Acceptable use</h2><ul><li>Do not attack, probe, disrupt, or attempt unauthorized access to the site.</li><li>Do not automate abusive use of AI, calculator, administration, or authentication endpoints.</li><li>Do not submit unlawful, malicious, or rights-infringing content.</li></ul>
+          <h2>Game information and availability</h2><p>ShineGame provides community tools, calculators, and game information for reference and is not affiliated with the game publisher. We work to keep the content and service available, but do not promise that information is always complete or error-free, or that the service will be uninterrupted.</p>
+          <h2>Third-party services</h2><p>Authentication and hosting rely on providers including Google, Logto, Netlify, and Neon. Their own terms may also apply, and an external outage may temporarily affect login or site features.</p>
+          <h2>Suspension and termination</h2><p>We may restrict or terminate access for abuse, security risk, or violation of these terms. You may also request account deletion by email.</p>
+          <h2>Changes and contact</h2><p>We may update these terms as the service evolves and will show the date on this page. Questions may be sent to <a href="mailto:huangxinyu@gmail.com">huangxinyu@gmail.com</a>.</p>`
+      }
+    };
+    let lang = localStorage.getItem("flipgame_lang") === "en" ? "en" : (localStorage.getItem("flipgame_lang") === "zh" ? "zh" : ((navigator.language || "").toLowerCase().startsWith("zh") ? "zh" : "en"));
+    function render() { const t=I18N[lang]; document.documentElement.lang=lang==="zh"?"zh-Hans":"en"; document.title=`${t.title} · ShineGame`; document.getElementById("title").textContent=t.title; document.getElementById("updated").textContent=t.updated; document.getElementById("home").textContent=t.home; document.getElementById("language").textContent=t.language; document.getElementById("privacy").textContent=t.privacy; document.getElementById("content").innerHTML=t.html; }
+    document.getElementById("language").addEventListener("click",()=>{ lang=lang==="zh"?"en":"zh"; localStorage.setItem("flipgame_lang",lang); render(); });
+    render();
+  </script>
+</body>
+</html>

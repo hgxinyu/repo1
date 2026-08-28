@@ -2,6 +2,9 @@ import { readFile, writeFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 import { hashSnapshot, stableStringify } from "./transform.mjs";
 
+const LEGACY_SOURCE = "netlify_identity";
+const PRODUCTION_ENVIRONMENT = "production";
+
 function text(value) {
   const result = String(value ?? "").trim();
   return result || null;
@@ -35,6 +38,84 @@ function normalizedAdminEmails(values) {
   return [...new Set((Array.isArray(values) ? values : [])
     .map((value) => text(value)?.toLowerCase())
     .filter(Boolean))].sort(compareStrings);
+}
+
+function snapshotError(code, message = code) {
+  const error = new Error(message);
+  error.code = code;
+  return error;
+}
+
+function requiredProductionFreezeAt(value) {
+  const candidate = text(value);
+  if (!candidate) throw snapshotError("MIGRATION_FREEZE_AT_REQUIRED");
+  const timestamp = Date.parse(candidate);
+  if (!Number.isFinite(timestamp) || timestamp < Date.UTC(2000, 0, 1) || timestamp > Date.now() + 5 * 60 * 1000) {
+    throw snapshotError("MIGRATION_FREEZE_AT_INVALID");
+  }
+  return new Date(timestamp).toISOString();
+}
+
+/**
+ * Validate the explicit production/source boundary before any Netlify module
+ * is loaded or any source adapter is called. This does not freeze Netlify
+ * itself; the operator must stop legacy writes before invoking the capture.
+ */
+export function assertProductionSnapshotBoundary({
+  env = process.env,
+  confirmProductionRead = false,
+  sourceFrozen = false,
+  runtimeSiteId
+} = {}) {
+  if (confirmProductionRead !== true) {
+    throw snapshotError("AUTH_MIGRATION_PRODUCTION_READ_CONFIRMATION_REQUIRED");
+  }
+  if (sourceFrozen !== true) throw snapshotError("AUTH_MIGRATION_SOURCE_FREEZE_REQUIRED");
+
+  const environmentId = text(env?.AUTH_ENV_ID);
+  if (environmentId !== PRODUCTION_ENVIRONMENT) {
+    throw snapshotError("AUTH_MIGRATION_PRODUCTION_REQUIRED");
+  }
+
+  const siteId = text(env?.NETLIFY_SITE_ID);
+  const expectedSiteId = text(env?.AUTH_EXPECTED_SITE_ID);
+  if (!siteId || !expectedSiteId || siteId !== expectedSiteId) {
+    throw snapshotError("AUTH_MIGRATION_SITE_MISMATCH");
+  }
+
+  for (const candidate of [runtimeSiteId, env?.SITE_ID]) {
+    const observedSiteId = text(candidate);
+    if (observedSiteId && observedSiteId !== siteId) {
+      throw snapshotError("AUTH_MIGRATION_SITE_MISMATCH");
+    }
+  }
+
+  for (const candidate of [env?.CONTEXT, env?.NETLIFY_CONTEXT]) {
+    const context = text(candidate);
+    if (context && context !== PRODUCTION_ENVIRONMENT) {
+      throw snapshotError("AUTH_MIGRATION_PRODUCTION_CONTEXT_REQUIRED");
+    }
+  }
+
+  for (const candidate of [env?.URL, env?.DEPLOY_PRIME_URL]) {
+    const siteUrl = text(candidate);
+    if (!siteUrl) continue;
+    let parsed;
+    try {
+      parsed = new URL(siteUrl);
+    } catch {
+      throw snapshotError("AUTH_MIGRATION_PRODUCTION_CONTEXT_REQUIRED");
+    }
+    if (parsed.protocol !== "https:" || ["localhost", "127.0.0.1", "::1"].includes(parsed.hostname)) {
+      throw snapshotError("AUTH_MIGRATION_PRODUCTION_CONTEXT_REQUIRED");
+    }
+  }
+
+  return Object.freeze({
+    environmentId,
+    siteId,
+    source: LEGACY_SOURCE
+  });
 }
 
 /** Create a local immutable snapshot object. This function has no network/Blob dependencies. */
@@ -102,10 +183,52 @@ export async function captureLegacySnapshot({
   });
 }
 
+function normalizeNetlifyIdentityUser(user) {
+  if (!user || typeof user !== "object" || Array.isArray(user)) {
+    throw snapshotError("MIGRATION_IDENTITY_USER_INVALID");
+  }
+  const id = text(user.id ?? user.user_id ?? user.userId ?? user.netlify_user_id ?? user.netlifyUserId ?? user._id);
+  const email = text(user.email ?? user.email_address ?? user.emailAddress) ||
+    text(user.user_metadata?.email ?? user.userMetadata?.email);
+  const confirmedAt = text(user.confirmed_at ?? user.confirmedAt);
+  const explicitVerified = user.email_verified ?? user.emailVerified;
+  if (explicitVerified !== undefined && typeof explicitVerified !== "boolean") {
+    throw snapshotError("MIGRATION_IDENTITY_VERIFICATION_INVALID");
+  }
+  const emailVerified = typeof explicitVerified === "boolean"
+    ? explicitVerified
+    : Boolean(confirmedAt);
+  const normalized = {
+    email_verified: emailVerified,
+    confirmed_at: confirmedAt
+  };
+  if (id) normalized.id = id;
+  if (email) normalized.email = email;
+  return normalized;
+}
+
+function normalizeNetlifyProfile(profile, key) {
+  if (!profile || typeof profile !== "object" || Array.isArray(profile)) {
+    throw snapshotError("MIGRATION_PROFILE_RECORD_INVALID");
+  }
+  const normalized = {
+    key,
+    email: text(profile.email ?? profile.email_address ?? profile.emailAddress),
+    id: text(profile.id ?? profile.user_id ?? profile.userId ?? profile.netlify_user_id ?? profile.netlifyUserId ??
+      profile.identityUserId ?? profile.identity_user_id),
+    role: text(profile.role),
+    status: text(profile.status),
+    guild: text(profile.guild ?? profile.Guild),
+    gameName: text(profile.gameName ?? profile.game_name ?? profile.game_name_text ?? profile.GameName)
+  };
+  return Object.fromEntries(Object.entries(normalized).filter(([, value]) => value !== null));
+}
+
 /**
  * Build explicitly injected read-only Netlify readers for an operator-owned
- * composition root. No Netlify package is imported here and neither reader
- * exposes a write method; the default CLI still accepts fixture files only.
+ * composition root. Neither reader exposes a write method; the default CLI
+ * still accepts fixture files only. The runtime composition below also
+ * requires caller-owned adapters and never imports a credential-bearing SDK.
  */
 export function createNetlifyReadOnlyReaders({
   getStore,
@@ -124,11 +247,24 @@ export function createNetlifyReadOnlyReaders({
   return {
     async listProfiles() {
       const store = getStore({ name: storeName, consistency: "strong" });
+      if (!store || typeof store.list !== "function" || typeof store.get !== "function") {
+        throw snapshotError("MIGRATION_PROFILE_STORE_INVALID");
+      }
       const listing = await store.list({ prefix: "users/" });
+      if (!listing || typeof listing !== "object" || !Array.isArray(listing.blobs)) {
+        throw snapshotError("MIGRATION_PROFILES_INVALID");
+      }
       const profiles = [];
-      for (const entry of listing?.blobs || []) {
+      const keys = new Set();
+      for (const entry of listing.blobs) {
+        if (!entry || typeof entry !== "object" || typeof entry.key !== "string" || !entry.key.startsWith("users/")) {
+          throw snapshotError("MIGRATION_PROFILE_ENTRY_INVALID");
+        }
+        if (keys.has(entry.key)) throw snapshotError("MIGRATION_PROFILE_DUPLICATE_KEY");
+        keys.add(entry.key);
         const profile = await store.get(entry.key, { type: "json" });
-        if (profile) profiles.push({ ...profile, key: entry.key });
+        if (profile === null || profile === undefined) throw snapshotError("MIGRATION_PROFILE_RECORD_MISSING");
+        profiles.push(normalizeNetlifyProfile(profile, entry.key));
       }
       return profiles;
     },
@@ -137,12 +273,105 @@ export function createNetlifyReadOnlyReaders({
       for (let page = 1; page <= identityMaxPages; page += 1) {
         const pageRows = await identityAdmin.listUsers({ page, perPage: identityPageSize });
         if (!Array.isArray(pageRows)) throw new Error("MIGRATION_IDENTITY_PAGE_INVALID");
-        users.push(...pageRows);
+        users.push(...pageRows.map(normalizeNetlifyIdentityUser));
         if (pageRows.length < identityPageSize) return users;
       }
       throw new Error("MIGRATION_IDENTITY_PAGINATION_LIMIT");
     }
   };
+}
+
+/**
+ * Compose the production source capture with explicitly supplied, read-only
+ * Netlify adapters. The normal fixture CLI never calls this composition root.
+ */
+export function createNetlifyProductionSnapshotComposition({
+  env = process.env,
+  confirmProductionRead = false,
+  sourceFrozen = false,
+  runtimeSiteId,
+  getStore,
+  identityAdmin,
+  storeName = "vip-users",
+  identityPageSize = 100,
+  identityMaxPages = 10_000
+} = {}) {
+  const boundary = assertProductionSnapshotBoundary({
+    env,
+    confirmProductionRead,
+    sourceFrozen,
+    runtimeSiteId
+  });
+  const readers = createNetlifyReadOnlyReaders({
+    getStore,
+    identityAdmin,
+    storeName,
+    identityPageSize,
+    identityMaxPages
+  });
+  const frozenReaders = Object.freeze(readers);
+
+  return Object.freeze({
+    boundary,
+    readers: frozenReaders,
+    async capture({
+      migrationId,
+      snapshotId,
+      freezeAt,
+      adminEmails = [],
+      metadata = {}
+    } = {}) {
+      const captureFreezeAt = requiredProductionFreezeAt(freezeAt);
+      const metadataObject = metadata && typeof metadata === "object" && !Array.isArray(metadata)
+        ? metadata
+        : {};
+      return captureLegacySnapshot({
+        migrationId,
+        snapshotId,
+        freezeAt: captureFreezeAt,
+        adminEmails,
+        metadata: {
+          ...metadataObject,
+          productionBoundary: boundary
+        },
+        ...frozenReaders
+      });
+    }
+  });
+}
+
+/**
+ * Compose the same capture from explicitly constructed runtime adapters. The
+ * caller owns the controlled HTTPS Admin API/Blob clients (for example in an
+ * operator-only Netlify runtime); this module never imports a deprecated
+ * Identity SDK or creates a credential-bearing client by itself.
+ */
+export function createNetlifyRuntimeSnapshotComposition(options = {}) {
+  const {
+    netlifyModules,
+    ...compositionOptions
+  } = options || {};
+  assertProductionSnapshotBoundary(compositionOptions);
+
+  const getStore = netlifyModules?.getStore;
+  const identityAdmin = netlifyModules?.admin ?? netlifyModules?.identityAdmin;
+  if (typeof getStore !== "function" || !identityAdmin || typeof identityAdmin.listUsers !== "function") {
+    throw snapshotError("MIGRATION_RUNTIME_ADAPTER_REQUIRED");
+  }
+  return createNetlifyProductionSnapshotComposition({
+    ...compositionOptions,
+    getStore,
+    identityAdmin
+  });
+}
+
+export async function writeSnapshotFile(snapshot, outputFile) {
+  if (!outputFile) throw snapshotError("MIGRATION_SNAPSHOT_OUTPUT_REQUIRED");
+  await writeFile(outputFile, `${stableStringify(snapshot)}\n`, {
+    encoding: "utf8",
+    flag: "wx",
+    mode: 0o600
+  });
 }
 
 export async function readJsonFixture(file) {
@@ -183,10 +412,8 @@ async function main(argv = process.argv.slice(2)) {
     profiles: await readFixtureRows(profilesFile, ["profiles", "rows", "blobs", "users"]),
     identityUsers: await readFixtureRows(identityFile, ["identityUsers", "identity_users", "users", "rows"])
   });
-  const output = `${stableStringify(snapshot)}\n`;
   const outputFile = argumentValue(argv, ["--output", "--output-file"]);
-  if (!outputFile) throw new Error("MIGRATION_SNAPSHOT_OUTPUT_REQUIRED");
-  await writeFile(outputFile, output, { encoding: "utf8", flag: "wx", mode: 0o600 });
+  await writeSnapshotFile(snapshot, outputFile);
   process.stdout.write(`${JSON.stringify({
     status: "snapshot_created",
     snapshotId: snapshot.snapshotId,

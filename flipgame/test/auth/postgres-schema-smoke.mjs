@@ -608,7 +608,7 @@ function main() {
   const batchSource = "netlify_identity";
   const batchEnvironmentId = "stage";
   const batchSiteId = "site-stage";
-  const bffRole = "auth_bff_test";
+  const bffRole = "shinegame_auth_bff";
   const publicProbeRole = "auth_public_probe";
   const createdAt = "2026-01-01 00:00:00+00";
   let derivedBasePath = "";
@@ -647,6 +647,23 @@ function main() {
       "server version does not match the trusted PostgreSQL client family"
     );
     console.log(`PostgreSQL server: ${serverVersion}`);
+    runPsql(["-c", `
+      DO $$
+      BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM pg_catalog.pg_roles
+           WHERE rolname = '${bffRole}'
+        ) THEN
+          CREATE ROLE ${bffRole}
+            NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE
+            NOINHERIT NOREPLICATION NOBYPASSRLS;
+        END IF;
+      END
+      $$;
+      GRANT ${bffRole} TO CURRENT_USER;
+    `], "runtime role setup");
+    console.log("runtime role setup: PASS (pre-provisioned without a password)");
+
     for (const [index, migrationPath] of target.migrationPaths.entries()) {
       runPsql(["-f", migrationPath], `migration apply ${index + 1}`);
       console.log(`migration apply ${index + 1}: PASS`);
@@ -664,17 +681,11 @@ function main() {
     runPsql(["-c", `
       DO $$
       BEGIN
-        IF NOT EXISTS (SELECT 1 FROM pg_catalog.pg_roles WHERE rolname = '${bffRole}') THEN
-          CREATE ROLE ${bffRole} NOLOGIN;
-        END IF;
         IF NOT EXISTS (SELECT 1 FROM pg_catalog.pg_roles WHERE rolname = '${publicProbeRole}') THEN
           CREATE ROLE ${publicProbeRole} NOLOGIN;
         END IF;
       END
       $$;
-      GRANT ${bffRole} TO CURRENT_USER;
-      GRANT USAGE ON SCHEMA public TO ${bffRole};
-      GRANT SELECT ON TABLE public.auth_migration_batches TO ${bffRole};
     `], "batch runtime role setup");
 
     runPsql(["-c", `
@@ -746,6 +757,193 @@ function main() {
       ROLLBACK;
     `], "migration batch exact scoped read");
     console.log("migration batch exact scoped read: PASS");
+
+    runPsql(["-c", `
+      BEGIN;
+      SET LOCAL ROLE ${bffRole};
+      SELECT current_user;
+      ROLLBACK;
+    `], "anonymous runtime path");
+    console.log("anonymous runtime path: PASS (role can establish a read-only request transaction)");
+
+    runPsql(["-c", `
+      BEGIN;
+      SET LOCAL ROLE ${bffRole};
+      INSERT INTO public.oauth_transactions (
+        transaction_kind, state_hash, nonce_hash, nonce_encrypted,
+        pkce_verifier_encrypted, environment_id, site_id, next_path,
+        created_at, expires_at
+      ) VALUES (
+        'oauth', decode(repeat('01', 32), 'hex'), decode(repeat('02', 32), 'hex'),
+        decode(repeat('03', 16), 'hex'), decode(repeat('04', 16), 'hex'),
+        '${batchEnvironmentId}', '${batchSiteId}', '/runtime-oauth',
+        '${createdAt}', '2026-01-01 00:10:00+00'
+      )
+      RETURNING transaction_id;
+      UPDATE public.oauth_transactions
+         SET consumed_at = '${createdAt}'
+       WHERE state_hash = decode(repeat('01', 32), 'hex')
+         AND environment_id = '${batchEnvironmentId}'
+         AND site_id = '${batchSiteId}'
+         AND consumed_at IS NULL
+      RETURNING consumed_at;
+      ROLLBACK;
+    `], "OAuth transaction runtime path");
+    console.log("OAuth transaction runtime path: PASS (insert/select/consume)");
+
+    runPsql(["-c", `
+      BEGIN;
+      SET LOCAL ROLE ${bffRole};
+      DO $$
+      DECLARE
+        runtime_account_id UUID;
+        runtime_role public.auth_account_role;
+        runtime_status public.auth_account_status;
+      BEGIN
+        SELECT account_id, role, status
+          INTO runtime_account_id, runtime_role, runtime_status
+          FROM public.create_free_account('runtime-guild', 'runtime-game');
+        IF runtime_role <> 'free'::public.auth_account_role OR
+           runtime_status <> 'active'::public.auth_account_status THEN
+          RAISE EXCEPTION 'fixed account creation function returned an unsafe state';
+        END IF;
+        INSERT INTO public.account_emails (
+          account_id, email_lookup_hash, encrypted_email,
+          encryption_key_version, is_primary, verified_at
+        ) VALUES (
+          runtime_account_id, decode(repeat('05', 16), 'hex'),
+          decode(repeat('06', 16), 'hex'), 1, TRUE, '${createdAt}'
+        );
+        INSERT INTO public.auth_identities (
+          account_id, issuer_or_tenant, connector_scope, provider_subject,
+          subject_type, logto_user_id
+        ) VALUES (
+          runtime_account_id, 'runtime-issuer', 'logto', 'runtime-subject',
+          'sub', 'runtime-subject'
+        );
+      END
+      $$;
+      ROLLBACK;
+    `], "account creation runtime path");
+    console.log("account creation runtime path: PASS (fixed free/active function + account/email/identity inserts)");
+
+    expectPsqlError(
+      runPsql,
+      "account creation direct INSERT",
+      `BEGIN; SET LOCAL ROLE ${bffRole}; INSERT INTO public.accounts (role, status) VALUES ('admin', 'active'); ROLLBACK;`,
+      /permission denied for (?:table|column) accounts?/u
+    );
+
+    runPsql(["-c", `
+      BEGIN;
+      SET LOCAL ROLE ${bffRole};
+      INSERT INTO public.auth_sessions (
+        auth_source, environment_id, site_id, session_id_hash,
+        account_id, logto_subject, encrypted_refresh_token,
+        refresh_token_key_version, issued_at, last_seen_at,
+        idle_expires_at, absolute_expires_at, authz_version, rotation_version,
+        created_at
+      ) VALUES (
+        'logto', '${batchEnvironmentId}', '${batchSiteId}', decode(repeat('07', 32), 'hex'),
+        '${targetAccountId}', 'runtime-session-subject', decode(repeat('08', 16), 'hex'),
+        1, '${createdAt}', '${createdAt}',
+        '2026-01-01 01:00:00+00', '2026-01-01 02:00:00+00', 1, 1,
+        '${createdAt}'
+      )
+      RETURNING session_id, session_family_id;
+      UPDATE public.auth_sessions
+         SET encrypted_refresh_token = decode(repeat('09', 16), 'hex'),
+             refresh_token_key_version = 1,
+             rotation_version = rotation_version + 1,
+             last_seen_at = '${createdAt}',
+             idle_expires_at = '2026-01-01 01:00:00+00',
+             revoked_at = NULL
+       WHERE session_id_hash = decode(repeat('07', 32), 'hex')
+         AND environment_id = '${batchEnvironmentId}'
+         AND site_id = '${batchSiteId}'
+      RETURNING session_id, rotation_version;
+      ROLLBACK;
+    `], "session runtime path");
+    console.log("session runtime path: PASS (OAuth session insert/read/rotation/revoke columns)");
+
+    runPsql(["-c", `
+      BEGIN;
+      SET LOCAL ROLE ${bffRole};
+      INSERT INTO public.ai_hourly_limits (account_id, hour_start, count)
+      VALUES ('${targetAccountId}', '2026-01-01 00:00:00+00', 1)
+      ON CONFLICT (account_id, hour_start)
+      DO UPDATE SET count = public.ai_hourly_limits.count + 1,
+                    updated_at = now()
+      RETURNING count, hour_start;
+      ROLLBACK;
+    `], "AI rate-limit runtime path");
+    console.log("AI rate-limit runtime path: PASS (atomic quota upsert)");
+
+    runPsql(["-c", `
+      BEGIN;
+      SET LOCAL ROLE ${bffRole};
+      SELECT public.set_account_authorization(
+        '${adminAccountId}', '${targetAccountId}',
+        'vip'::public.auth_account_role, 'active'::public.auth_account_status,
+        '{"reason":"schema-smoke-admin"}'::jsonb
+      );
+      DO $$
+      DECLARE
+        actual_role public.auth_account_role;
+      BEGIN
+        SELECT role INTO actual_role
+          FROM public.accounts
+         WHERE account_id = '${targetAccountId}';
+        IF actual_role <> 'vip'::public.auth_account_role THEN
+          RAISE EXCEPTION 'admin authorization function did not update the target';
+        END IF;
+      END
+      $$;
+      ROLLBACK;
+    `], "admin authorization runtime function");
+    console.log("admin authorization runtime function: PASS (SECURITY DEFINER only)");
+
+    runPsql(["-c", `
+      BEGIN;
+      SET LOCAL ROLE ${bffRole};
+      SELECT public.request_account_vip(
+        '${nonAdminAccountId}', '{"reason":"schema-smoke-vip"}'::jsonb
+      );
+      DO $$
+      DECLARE
+        actual_role public.auth_account_role;
+      BEGIN
+        SELECT role INTO actual_role
+          FROM public.accounts
+         WHERE account_id = '${nonAdminAccountId}';
+        IF actual_role <> 'pending'::public.auth_account_role THEN
+          RAISE EXCEPTION 'VIP request function did not update the target';
+        END IF;
+      END
+      $$;
+      ROLLBACK;
+    `], "VIP request runtime function");
+    console.log("VIP request runtime function: PASS (SECURITY DEFINER only)");
+
+    expectPsqlError(
+      runPsql,
+      "authorization direct mutation",
+      `BEGIN; SET LOCAL ROLE ${bffRole}; UPDATE public.accounts SET role = 'vip' WHERE account_id = '${targetAccountId}';`,
+      /permission denied for (?:table|column) accounts?/u
+    );
+    expectPsqlError(
+      runPsql,
+      "authorization mutation context direct INSERT",
+      `BEGIN; SET LOCAL ROLE ${bffRole}; INSERT INTO public.auth_authorization_mutation_context (backend_pid, transaction_id, mutation_token, actor_source, target_account_id) VALUES (pg_backend_pid(), txid_current(), gen_random_uuid(), 'system', '${targetAccountId}');`,
+      /permission denied for table auth_authorization_mutation_context/u
+    );
+    expectPsqlError(
+      runPsql,
+      "migration record direct UPDATE",
+      `BEGIN; SET LOCAL ROLE ${bffRole}; UPDATE public.migration_records SET status = 'failed' WHERE legacy_netlify_user_id = 'runtime-migration-probe';`,
+      /permission denied for table migration_records/u
+    );
+    console.log("owner-only authorization and migration writes: PASS");
 
     expectPsqlConstraintError(
       runPsql,

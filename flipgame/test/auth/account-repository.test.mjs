@@ -78,14 +78,15 @@ function repositoryFor(sql, overrides = {}) {
   });
 }
 
-test("createAccount maps the returned account row at the repository boundary", async () => {
+test("createAccount calls the fixed free-account function and maps its returned row", async () => {
   const sql = fakeTaggedSql((call) => {
-    assert.match(call.text, /insert into accounts/i);
-    return [accountRow()];
+    assert.match(call.text, /select \* from public\.create_free_account/i);
+    assert.deepEqual(call.values, ["Shine", "Player One"]);
+    return [accountRow({ role: "free", status: "active" })];
   });
 
   const account = await repositoryFor(sql).createAccount({
-    role: "vip",
+    role: "free",
     status: "active",
     guild: "Shine",
     gameName: "Player One"
@@ -93,7 +94,7 @@ test("createAccount maps the returned account row at the repository boundary", a
 
   assert.deepEqual(account, {
     accountId: legacyVipAccountId,
-    role: "vip",
+    role: "free",
     status: "active",
     guild: "Shine",
     gameName: "Player One",
@@ -123,11 +124,32 @@ test("direct createAccount accepts injected SQL and transaction dependencies", a
   assert.equal(account.role, "free");
 });
 
+test("createAccount rejects privileged or blocked state before calling the fixed function", async () => {
+  const sql = fakeTaggedSql(() => {
+    throw new Error("invalid account state must not reach SQL");
+  });
+  const repository = repositoryFor(sql);
+  for (const input of [
+    { role: "admin", status: "active" },
+    { role: "free", status: "blocked" },
+    { role: "vip", status: "active" }
+  ]) {
+    await assert.rejects(
+      () => repository.createAccount(input),
+      (error) => error.code === "AUTH_INPUT_INVALID"
+    );
+  }
+  assert.equal(sql.calls.length, 0);
+});
+
 test("createAccountWithLogtoIdentity creates a free account, email lookup, and scoped identity in one transaction", async () => {
   const calls = [];
   const sql = fakeTaggedSql((call) => {
     calls.push(call);
-    if (/insert into accounts/i.test(call.text)) return [accountRow({ role: "free", authz_version: 1 })];
+    if (/create_free_account/i.test(call.text)) {
+      assert.deepEqual(call.values, [null, null]);
+      return [accountRow({ role: "free", authz_version: 1 })];
+    }
     if (/insert into account_emails/i.test(call.text)) {
       assert.deepEqual(call.values.slice(0, 5), [
         legacyVipAccountId,
@@ -181,7 +203,7 @@ test("createAccountWithLogtoIdentity creates a free account, email lookup, and s
   assert.equal(result.accountId, legacyVipAccountId);
   assert.equal(result.role, "free");
   assert.deepEqual(calls.map(({ text }) => {
-    if (/insert into accounts/i.test(text)) return "account";
+    if (/create_free_account/i.test(text)) return "account";
     if (/insert into account_emails/i.test(text)) return "email";
     if (/insert into auth_identities/i.test(text)) return "identity";
     return "other";

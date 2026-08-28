@@ -254,29 +254,32 @@ function assertTransaction(transaction) {
   return transaction;
 }
 
-async function insertAccount(transaction, input = {}) {
+async function createFreeAccountInTransaction(transaction, { guild = null, gameName = null } = {}) {
   assertTransaction(transaction);
-  if (!input || typeof input !== "object") throw new AuthError("AUTH_INPUT_INVALID", 400);
-  const role = String(input.role ?? "pending").trim().toLowerCase() || "pending";
-  const status = String(input.status ?? "active").trim().toLowerCase() || "active";
-  const guild = input.guild ?? null;
-  const gameName = input.gameName ?? input.game_name ?? null;
   const rows = await rowsFrom(query(
     transaction,
     [
-      `INSERT INTO accounts (role, status, guild, game_name)
-       VALUES (`,
+      `SELECT * FROM public.create_free_account(`,
       ", ",
-      ", ",
-      ", ",
-      `)
-       RETURNING ${ACCOUNT_RETURNING_COLUMNS}`
+      `)`
     ],
-    [role, status, guild, gameName]
+    [guild, gameName]
   ));
   const account = oneAccount(rows);
   if (!account) throw new AuthError("ACCOUNT_CREATE_FAILED", 500);
   return account;
+}
+
+async function insertAccount(transaction, input = {}) {
+  assertTransaction(transaction);
+  if (!input || typeof input !== "object") throw new AuthError("AUTH_INPUT_INVALID", 400);
+  const role = String(input.role ?? "free").trim().toLowerCase() || "free";
+  const status = String(input.status ?? "active").trim().toLowerCase() || "active";
+  if (role !== "free" || status !== "active") throw new AuthError("AUTH_INPUT_INVALID", 400);
+  return createFreeAccountInTransaction(transaction, {
+    guild: input.guild ?? null,
+    gameName: input.gameName ?? input.game_name ?? null
+  });
 }
 
 async function findLogto(sql, subjectInput, deps) {
@@ -885,17 +888,7 @@ async function createAccountWithLogtoIdentityInTransaction(transaction, rawInput
   if (typeof deps.emailLookupHash !== "function" || typeof deps.encryptSecret !== "function") {
     throw new AuthError("AUTH_DEPENDENCY_MISSING", 500);
   }
-  const accountRows = await rowsFrom(query(
-    transaction,
-    [
-      `INSERT INTO accounts (role, status)
-       VALUES (`, ", ", `)
-       RETURNING ${ACCOUNT_RETURNING_COLUMNS}`
-    ],
-    [input.role, input.status]
-  ));
-  const account = oneAccount(accountRows);
-  if (!account) throw new AuthError("ACCOUNT_CREATE_FAILED", 500);
+  const account = await createFreeAccountInTransaction(transaction);
 
   const lookupHash = await deps.emailLookupHash(input.normalizedEmail, cryptoOptions(deps));
   const encryptedEmail = await deps.encryptSecret(input.normalizedEmail, cryptoOptions(deps));

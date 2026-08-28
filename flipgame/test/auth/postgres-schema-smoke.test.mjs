@@ -159,7 +159,8 @@ test("schema smoke exposes an explicit pre-task base migration chain", () => {
   const incrementalMigrations = [
     join(testDirectory, "../../netlify/database/migrations/202608260001_auth_hardening.sql"),
     join(testDirectory, "../../netlify/database/migrations/202608270001_fix_request_account_vip_role_variable.sql"),
-    join(testDirectory, "../../netlify/database/migrations/202608270002_auth_migration_batches.sql")
+    join(testDirectory, "../../netlify/database/migrations/202608270002_auth_migration_batches.sql"),
+    join(testDirectory, "../../netlify/database/migrations/202608280001_auth_bff_runtime_role.sql")
   ];
   const fixtureRoot = mkdtempSync("/private/tmp/shinegame-auth-migration.");
   const derivedBaseMigration = join(fixtureRoot, "pre-batch-base.sql");
@@ -177,6 +178,17 @@ test("schema smoke exposes an explicit pre-task base migration chain", () => {
   } finally {
     rmSync(fixtureRoot, { recursive: true, force: true });
   }
+});
+
+test("schema smoke provisions the password-free runtime role before applying its grants", () => {
+  assert.match(smokeSource, /shinegame_auth_bff/u);
+  assert.match(smokeSource, /create role \$\{bffRole\}[\s\S]*no\s*login/iu);
+  assert.match(smokeSource, /grant \$\{bffRole\} to current_user/iu);
+  assert.match(smokeSource, /runtime role setup/u);
+  assert.match(smokeSource, /SET LOCAL ROLE \$\{bffRole\}/iu);
+  assert.match(smokeSource, /authorization direct mutation/u);
+  assert.match(smokeSource, /create_free_account/u);
+  assert.match(smokeSource, /account creation direct INSERT/u);
 });
 
 test("pre-batch derivation removes exactly the batch statements and preserves the schema transaction", () => {
