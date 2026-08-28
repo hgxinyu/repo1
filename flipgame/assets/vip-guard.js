@@ -1,4 +1,8 @@
-import { getAuthMe } from "./auth-session.js";
+import {
+  getAuthMe,
+  profileOnboardingPath,
+  safeAuthRedirectPath
+} from "./auth-session.js";
 
 function isPrivateIpv4Host(value) {
   const parts = value.split(".").map((part) => Number(part));
@@ -18,20 +22,31 @@ export function isStaticMockPreview() {
 }
 
 function safeNext(value) {
-  const allowed = new Set([
-    "/index.html", "/AIAsk.html", "/SoulAscensionCalculator.html", "/ExpeditionCalculator.html",
-    "/AwakeningRushSimulator.html", "/CoreCalculator.html", "/DestinyCalculator.html"
-  ]);
-  const raw = typeof value === "string" ? value.trim() : "";
-  const candidate = raw.startsWith("/") ? raw : `/${raw}`;
-  const path = candidate.split(/[?#]/u, 1)[0];
-  const safePath = allowed.has(path) ? path : "/index.html";
-  return encodeURIComponent(safePath);
+  return encodeURIComponent(safeAuthRedirectPath(value));
+}
+
+/** Decide whether an authenticated non-admin account must finish onboarding. */
+export function shouldRedirectToProfileOnboarding(auth, currentPath = "") {
+  if (!auth || auth.authenticated !== true || auth.profileComplete !== false) return false;
+  const capabilities = auth.capabilities;
+  if (!capabilities || capabilities.blocked === true || capabilities.isAdmin === true) return false;
+  const path = safeAuthRedirectPath(
+    currentPath || (typeof window !== "undefined" && window.location ? window.location.pathname : "/index.html")
+  );
+  return path !== "/Register.html";
+}
+
+function navigateToProfileOnboarding(next) {
+  const target = profileOnboardingPath(next);
+  if (typeof window.location.assign === "function") window.location.assign(target);
+  else window.location.href = target;
+  return target;
 }
 
 export async function guardVipPage(options = {}) {
   const pageName = options.pageName || "该页面";
-  const next = options.next || window.location.pathname.split("/").pop() || "index.html";
+  const currentPath = options.currentPath || window.location.pathname || "/index.html";
+  const next = options.next || currentPath.split("/").pop() || "index.html";
   const access = options.access === "registered" ? "registered" : "vip";
   const badgeText = access === "registered" ? "会员" : "VIP";
   const isLocalMock = isStaticMockPreview();
@@ -90,6 +105,10 @@ export async function guardVipPage(options = {}) {
     actions.style.display = "none";
 
     const auth = await getAuthMe();
+    if (shouldRedirectToProfileOnboarding(auth, currentPath)) {
+      navigateToProfileOnboarding(next);
+      return false;
+    }
     const capabilities = auth && auth.authenticated ? auth.capabilities : null;
     const canAccess = access === "registered"
       ? Boolean(capabilities && capabilities.canAccessRegistered && !capabilities.blocked)

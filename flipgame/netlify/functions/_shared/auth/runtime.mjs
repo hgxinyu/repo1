@@ -3,6 +3,7 @@ import { AuthError, createAuthContextResolver, requireCapability } from "./auth-
 import { createSessionRepository } from "./session-repository.mjs";
 import { canonicalIssuer } from "./config.mjs";
 import { assertCsrf, assertTrustedOrigin } from "./http.mjs";
+import { profileCompleteForAccount } from "./account-profile.mjs";
 
 const PUBLIC_ERROR_STATUSES = new Set([400, 401, 403, 404, 409, 429, 500, 502, 503]);
 
@@ -79,19 +80,23 @@ export function authErrorResponse(error, json, fallbackStatus = 500) {
   const code = error instanceof AuthError || typeof error?.code === "string"
     ? String(error.code)
     : "AUTH_UNAVAILABLE";
-  const safeCode = /^AUTH_|^CAPABILITY_|^SESSION_|^ACCOUNT_|^TRANSACTION_|^MIGRATION_NOT_READY$/u.test(code)
+  const safeCode = /^AUTH_|^CAPABILITY_|^SESSION_|^ACCOUNT_|^TRANSACTION_|^MIGRATION_NOT_READY$|^PROFILE_INCOMPLETE$/u.test(code)
     ? code
     : "AUTH_UNAVAILABLE";
   return json({ error: safeCode }, { status });
 }
 
-export async function requireRequestCapability(runtime, request, capability) {
+export async function requireRequestCapability(runtime, request, capability, options = {}) {
   const context = await runtime.resolveAuthContext(request);
   if (!context) throw new AuthError("AUTH_REQUIRED", 401);
   const guard = typeof runtime.requireCapability === "function"
     ? runtime.requireCapability
     : requireCapability;
-  return { context, authorized: guard(context, capability) };
+  const authorized = guard(context, capability);
+  if (options?.allowIncompleteProfile !== true && !profileCompleteForAccount(context.account)) {
+    throw new AuthError("PROFILE_INCOMPLETE", 403);
+  }
+  return { context, authorized };
 }
 
 export async function requireRequestAuthentication(runtime, request) {

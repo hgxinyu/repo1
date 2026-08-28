@@ -1371,7 +1371,8 @@
     })();
   </script>
   <script type="module">
-    import { getAuthMe, isStaticMockPreview } from "./assets/auth-session.js";
+    import { getAuthMe, isStaticMockPreview, profileOnboardingPath } from "./assets/auth-session.js";
+    import { shouldRedirectToProfileOnboarding } from "./assets/vip-guard.js";
 
     const authTitle = document.getElementById("authTitle");
     const authMessage = document.getElementById("authMessage");
@@ -1391,6 +1392,12 @@
       authActions.style.display = "none";
 
       const auth = await getAuthMe();
+      const currentPath = window.location.pathname || "/AwakeningRushSimulator.html";
+      if (shouldRedirectToProfileOnboarding(auth, currentPath)) {
+        window.location.assign(profileOnboardingPath(currentPath));
+        return;
+      }
+
       if (!auth.authenticated || !auth.capabilities || auth.capabilities.blocked) {
         document.body.classList.remove("auth-checking");
         document.body.classList.add("auth-blocked");

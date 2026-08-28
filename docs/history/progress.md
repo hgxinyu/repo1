@@ -87,3 +87,10 @@ TODO / notes:
 - Removed standalone `flipgame/SoulPowerCalculator.html`; soul power is now covered by `SoulAscensionCalculator.html`.
 - Moved root `progress.md` into `docs/history/progress.md`.
 - Netlify config is compatible with a Netlify site whose Base directory is `flipgame`: root `netlify.toml` uses `publish = "."`, while deploy dependencies and functions live under `flipgame/`.
+
+## Required game-profile onboarding (2026-08-28)
+
+- Documented the required profile contract: fresh accounts remain `free / active`, verified-email legacy claims retain the permanent account and prior role/profile, non-admin active accounts must complete guild and game-name data, and active admins are exempt.
+- Added the durable API boundary notes for profile-only `POST /api/account/profile` and the separate explicit `POST /api/vip-request` `free -> pending` action; onboarding never requests VIP.
+- Task 6 local verification passed the full auth/function checks, a disposable five-migration PostgreSQL schema smoke, the repository concurrency smoke, and least-privilege BFF profile/VIP invariants. Interactive Google/email browser acceptance and real email OTP/fresh HTTPS-stage flows remain manual/release gates.
+- Fixed the `requestVip` post-transition `postgres.js` tagged-template read contract and added a regression test; the change leaves authorization and audit semantics unchanged.

@@ -15,6 +15,7 @@ import {
 import {
   createLogtoClient
 } from "./_shared/auth/logto-client.mjs";
+import { profileCompleteForAccount } from "./_shared/auth/account-profile.mjs";
 import {
   authJson,
   authRedirect,
@@ -27,6 +28,48 @@ import {
 
 const MAX_EMAIL_LENGTH = 320;
 const SESSION_MAX_AGE_SECONDS = 14 * 24 * 60 * 60;
+
+export function onboardingPath(nextPath, options = {}) {
+  let safePath;
+  try {
+    safePath = safeNextPath(nextPath, options);
+  } catch {
+    safePath = "/index.html";
+  }
+  const rawPath = safePath.split(/[?#]/u, 1)[0];
+  if (rawPath === "/Register.html" && safePath.includes("#")) {
+    return "/Register.html";
+  }
+  const parsed = new URL(safePath, "https://auth.invalid");
+  const path = parsed.pathname;
+  if (path === "/" || path === "/index.html") {
+    return "/Register.html";
+  }
+  if (path === "/Register.html") {
+    if (!parsed.search && !parsed.hash) return "/Register.html";
+    const searchEntries = [...parsed.searchParams.entries()];
+    if (parsed.hash || searchEntries.length !== 1 ||
+        searchEntries[0]?.[0] !== "return_to" ||
+        parsed.search !== `?${parsed.searchParams.toString()}`) {
+      return "/Register.html";
+    }
+    const returnTo = searchEntries[0][1];
+    if (!returnTo || /[/\\?#]/u.test(returnTo)) return "/Register.html";
+    let safeReturnTo;
+    try {
+      safeReturnTo = safeNextPath(`/${returnTo}`, options);
+    } catch {
+      return "/Register.html";
+    }
+    if (safeReturnTo !== `/${returnTo}`) return "/Register.html";
+    if (safeReturnTo === "/" || safeReturnTo === "/index.html" || safeReturnTo === "/Register.html") {
+      return "/Register.html";
+    }
+    return `/Register.html?return_to=${encodeURIComponent(safeReturnTo.slice(1))}`;
+  }
+  const basename = path.slice(path.lastIndexOf("/") + 1);
+  return basename ? `/Register.html?return_to=${encodeURIComponent(basename)}` : "/Register.html";
+}
 
 function errorWith(code, status = 401) {
   const error = new Error(code);
@@ -122,7 +165,7 @@ function validateClaims(rawClaims, transaction, overrides, logtoClient) {
 function accountBlocked(account) {
   const role = String(account?.role ?? "").trim().toLowerCase();
   const status = String(account?.status ?? "").trim().toLowerCase();
-  return role === "blocked" || status === "blocked";
+  return [role, status].some((value) => ["blocked", "disabled", "merged"].includes(value));
 }
 
 function accountVersion(account) {
@@ -301,9 +344,14 @@ export function createAuthCallbackHandler(overrides = {}) {
       if (!createdSession || typeof createdSession.sessionToken !== "string" || createdSession.sessionToken.length === 0) {
         throw errorWith("SESSION_CREATE_FAILED", 500);
       }
-      const validatedNext = nextPath(consumed?.nextPath || transaction.nextPath || "/", {
-        allowedPaths: overrides.allowedPaths
-      });
+      let validatedNext;
+      try {
+        validatedNext = nextPath(consumed?.nextPath || transaction.nextPath || "/", {
+          allowedPaths: overrides.allowedPaths
+        });
+      } catch {
+        validatedNext = "/index.html";
+      }
       const now = typeof overrides.now === "function" ? overrides.now() : new Date();
       let maxAge = SESSION_MAX_AGE_SECONDS;
       if (createdSession.idleExpiresAt) {
@@ -315,13 +363,15 @@ export function createAuthCallbackHandler(overrides = {}) {
       }
       const csrfGenerator = overrides.csrfTokenGenerator || randomToken;
       const csrfToken = await csrfGenerator();
-      return authRedirect(validatedNext, 302, {
-        "Set-Cookie": [
-          sessionCookie(createdSession.sessionToken, maxAge),
-          csrfCookie(csrfToken, maxAge),
-          clearPreauthCookie()
-        ]
-      });
+      const cookies = [
+        sessionCookie(createdSession.sessionToken, maxAge),
+        csrfCookie(csrfToken, maxAge),
+        clearPreauthCookie()
+      ];
+      const destination = profileCompleteForAccount(account)
+        ? validatedNext
+        : onboardingPath(validatedNext, { allowedPaths: overrides.allowedPaths });
+      return authRedirect(destination, 302, { "Set-Cookie": cookies });
     } catch (error) {
       return callbackError(error, 401);
     }

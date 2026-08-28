@@ -1,5 +1,6 @@
 import { authJson } from "./_shared/auth/http.mjs";
 import { authErrorResponse, createAuthRuntime } from "./_shared/auth/runtime.mjs";
+import { profileCompleteForAccount } from "./_shared/auth/account-profile.mjs";
 
 const ANONYMOUS = Object.freeze({
   authenticated: false,
@@ -8,6 +9,7 @@ const ANONYMOUS = Object.freeze({
   canAccessRegistered: false,
   canAccessPremium: false,
   isAdmin: false,
+  profileComplete: false,
   profile: null
 });
 
@@ -43,6 +45,7 @@ export function createMeHandler(overrides = {}) {
         canAccessRegistered: capabilities.canAccessRegistered,
         canAccessPremium: capabilities.canAccessPremium,
         isAdmin: capabilities.isAdmin,
+        profileComplete: profileCompleteForAccount(context.account),
         profile: canonicalProfile(context.account, primaryEmailMasked)
       });
     } catch (error) {

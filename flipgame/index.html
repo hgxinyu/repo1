@@ -1111,7 +1111,7 @@
     <div class="account-menu" id="accountMenu">
       <button class="lang-btn account-button" id="accountBtn" type="button" aria-expanded="false" aria-haspopup="menu">
         <span class="account-name" id="accountName" data-placeholder="true">已登录</span>
-        <span class="vip-account-badge" id="accountVipBadge" hidden>VIP</span>
+        <span class="vip-account-badge" id="accountVipBadge" data-account-role="" hidden>VIP</span>
       </button>
       <div class="account-panel" id="accountPanel" role="menu">
         <button class="lang-btn" id="logoutBtn" type="button" role="menuitem">注销</button>
@@ -1144,11 +1144,11 @@
         <span class="subtitle" id="cardHiddenSub">集中查看各类攻略图，持续更新。</span>
       </a>
       <button class="card-link card-button" id="memberCard" type="button" aria-haspopup="dialog" aria-controls="memberPanel">
-        <span class="title"><span id="cardMemberTitle">会员工具</span><span class="vip-badge member-badge" data-member-badge>会员</span></span>
+        <span class="title"><span id="cardMemberTitle">会员工具</span><span class="vip-badge member-badge" data-member-badge data-feature-access-label="member" aria-label="功能访问：会员工具" title="功能访问：会员工具">会员</span></span>
         <span class="subtitle" id="cardMemberSub">集中进入凝魂魂力、远征积分和觉醒冲榜模拟器。</span>
       </button>
       <a class="card-link" href="AIAsk.html">
-        <span class="title"><span id="cardAiTitle">AI玩放置</span><span class="vip-badge" data-vip-badge>VIP</span></span>
+        <span class="title"><span id="cardAiTitle">AI玩放置</span><span class="vip-badge" data-vip-badge data-feature-access-label="vip" aria-label="功能访问：VIP 专属" title="功能访问：VIP 专属">VIP</span></span>
         <span class="subtitle" id="cardAiSub">VIP 专属，基于公开工具文档回答凝魂、远征和权限问题。</span>
       </a>
       <button class="card-link card-button" id="recruitCard" type="button">
@@ -1242,15 +1242,15 @@
     </header>
     <div class="calculator-options">
       <a class="calculator-option" href="SoulAscensionCalculator.html">
-        <strong><span id="calculatorSoulTitle">凝魂魂力计算器</span><span class="vip-badge member-badge" data-member-badge>会员</span></strong>
+        <strong><span id="calculatorSoulTitle">凝魂魂力计算器</span><span class="vip-badge member-badge" data-member-badge data-feature-access-label="member" aria-label="功能访问：会员工具" title="功能访问：会员工具">会员</span></strong>
         <span class="option-desc" id="calculatorSoulDesc">检验属性区间并估算凝魂次数与魂力值。</span>
       </a>
       <a class="calculator-option" href="ExpeditionCalculator.html">
-        <strong><span id="calculatorExpeditionTitle">远征积分计算器</span><span class="vip-badge member-badge" data-member-badge>会员</span></strong>
+        <strong><span id="calculatorExpeditionTitle">远征积分计算器</span><span class="vip-badge member-badge" data-member-badge data-feature-access-label="member" aria-label="功能访问：会员工具" title="功能访问：会员工具">会员</span></strong>
         <span class="option-desc" id="calculatorExpeditionDesc">按层数和剩余血量快速估算剩余积分（万亿）。</span>
       </a>
       <a class="calculator-option" href="AwakeningRushSimulator.html">
-        <strong><span id="cardAwakeningTitle">觉醒冲榜模拟器</span><span class="vip-badge member-badge" data-member-badge>会员</span></strong>
+        <strong><span id="cardAwakeningTitle">觉醒冲榜模拟器</span><span class="vip-badge member-badge" data-member-badge data-feature-access-label="member" aria-label="功能访问：会员工具" title="功能访问：会员工具">会员</span></strong>
         <span class="option-desc" id="cardAwakeningSub">按绑钻数量随机模拟冲榜分数与 A- 以上保留数量。</span>
       </a>
     </div>
@@ -1368,9 +1368,13 @@
           logout_link: '注销',
           account_signed_in: '已登录',
           account_vip_label: 'VIP 账号',
+          account_admin_badge: '管理员',
+          account_admin_label: '管理员账号',
           admin_link: '管理后台',
           member_badge: '会员',
           vip_badge: 'VIP',
+          feature_access_member: '功能访问：会员工具',
+          feature_access_vip: '功能访问：VIP 专属',
           nav_label: '工具导航',
           card_flip_title: '九宫格翻牌',
           card_flip_sub: '模拟翻牌流程，记录并计算最佳组合。',
@@ -1454,9 +1458,13 @@
           logout_link: 'Log out',
           account_signed_in: 'Signed in',
           account_vip_label: 'VIP account',
+          account_admin_badge: 'Admin',
+          account_admin_label: 'Admin account',
           admin_link: 'Admin',
           member_badge: 'Member',
           vip_badge: 'VIP',
+          feature_access_member: 'Feature access: member tools',
+          feature_access_vip: 'Feature access: VIP-only',
           nav_label: 'Tool Navigation',
           card_flip_title: '3x3 Flip Cards',
           card_flip_sub: 'Simulate flips, track cards, and compute the best line.',
@@ -1542,6 +1550,20 @@
         return (I18N[currentLang] && I18N[currentLang][key]) || I18N.zh[key] || '';
       }
 
+      function setAccountBadgeText() {
+        if (!accountVipBadge) return;
+        const accountBadgeKey = accountVipBadge.dataset.accountRole === 'admin' ? 'account_admin_badge' : 'vip_badge';
+        const accountLabelKey = accountVipBadge.dataset.accountRole === 'admin' ? 'account_admin_label' : 'account_vip_label';
+        accountVipBadge.textContent = accountVipBadge.dataset.badgeOverride || t(accountBadgeKey);
+        accountVipBadge.setAttribute('title', t(accountLabelKey));
+        accountVipBadge.setAttribute('aria-label', t(accountLabelKey));
+        if (accountBtn && accountName && !accountVipBadge.hidden) {
+          accountBtn.setAttribute('aria-label', `${accountName.textContent} ${t(accountLabelKey)}`);
+        }
+      }
+
+      window.refreshAccountRoleBadge = setAccountBadgeText;
+
       function setStaticText() {
         document.title = t('title');
         document.documentElement.lang = currentLang === 'zh' ? 'zh-Hans' : 'en';
@@ -1552,13 +1574,18 @@
         if (registerLink) registerLink.textContent = t('register_link');
         if (logoutBtn) logoutBtn.textContent = t('logout_link');
         if (accountName && accountName.dataset.placeholder === 'true') accountName.textContent = t('account_signed_in');
-        if (accountVipBadge) accountVipBadge.textContent = accountVipBadge.dataset.badgeOverride || t('vip_badge');
-        if (accountBtn && accountName && accountVipBadge && !accountVipBadge.hidden) {
-          accountBtn.setAttribute('aria-label', `${accountName.textContent} ${t('vip_badge')}`);
-        }
+        setAccountBadgeText();
         if (adminLink) adminLink.textContent = t('admin_link');
-        document.querySelectorAll('[data-member-badge]').forEach((badge) => { badge.textContent = t('member_badge'); });
-        document.querySelectorAll('[data-vip-badge]').forEach((badge) => { badge.textContent = t('vip_badge'); });
+        document.querySelectorAll('[data-member-badge]').forEach((badge) => {
+          badge.textContent = t('member_badge');
+          badge.setAttribute('aria-label', t('feature_access_member'));
+          badge.setAttribute('title', t('feature_access_member'));
+        });
+        document.querySelectorAll('[data-vip-badge]').forEach((badge) => {
+          badge.textContent = t('vip_badge');
+          badge.setAttribute('aria-label', t('feature_access_vip'));
+          badge.setAttribute('title', t('feature_access_vip'));
+        });
         if (navGrid) navGrid.setAttribute('aria-label', t('nav_label'));
         if (cardFlipTitle) cardFlipTitle.textContent = t('card_flip_title');
         if (cardFlipSub) cardFlipSub.textContent = t('card_flip_sub');
@@ -1892,7 +1919,7 @@
     })();
   </script>
   <script type="module">
-    import { getAuthMe, isStaticMockPreview, logout } from "./assets/auth-session.js";
+    import { getAuthMe, isStaticMockPreview, logout, profileOnboardingPath } from "./assets/auth-session.js";
 
     const LOCAL_MOCK_MODE = isLocalHomepagePreview();
     const adminLink = document.getElementById("adminLink");
@@ -1919,10 +1946,14 @@
       if (accountVipBadge) {
         accountVipBadge.hidden = false;
         accountVipBadge.textContent = "ADMIN";
+        accountVipBadge.dataset.accountRole = "admin";
         accountVipBadge.dataset.badgeOverride = "ADMIN";
       }
       if (accountBtn) {
         accountBtn.setAttribute("aria-label", "Local Admin");
+      }
+      if (typeof window.refreshAccountRoleBadge === "function") {
+        window.refreshAccountRoleBadge();
       }
       if (adminLink) adminLink.style.display = "inline-flex";
     }
@@ -1934,6 +1965,11 @@
       }
       const auth = await getAuthMe();
       if (!auth.authenticated || !auth.capabilities || auth.capabilities.blocked) return;
+      if (auth.profileComplete === false && !auth.capabilities.isAdmin) {
+        const currentPath = window.location.pathname || "/index.html";
+        window.location.assign(profileOnboardingPath(currentPath));
+        return;
+      }
       if (loginLink) loginLink.style.display = "none";
       if (registerLink) registerLink.style.display = "none";
       if (accountMenu) accountMenu.style.display = "inline-flex";
@@ -1946,9 +1982,15 @@
       }
       if (accountVipBadge) {
         accountVipBadge.hidden = !hasVipAccess;
+        if (hasVipAccess) {
+          accountVipBadge.dataset.accountRole = auth.capabilities.isAdmin ? "admin" : "vip";
+        }
       }
       if (accountBtn) {
-        accountBtn.setAttribute("aria-label", hasVipAccess ? `${displayName} VIP` : displayName);
+        accountBtn.setAttribute("aria-label", displayName);
+      }
+      if (hasVipAccess && typeof window.refreshAccountRoleBadge === "function") {
+        window.refreshAccountRoleBadge();
       }
       if (auth.capabilities.isAdmin && adminLink) {
         adminLink.style.display = "inline-flex";

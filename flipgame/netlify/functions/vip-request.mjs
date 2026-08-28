@@ -28,20 +28,13 @@ export function createVipRequestHandler(overrides = {}) {
       return authErrorResponse(error, json, 401);
     }
 
-    if (!body || typeof body !== "object" || Array.isArray(body)) {
+    if (!body || typeof body !== "object" || Array.isArray(body) || Object.keys(body).length !== 0) {
       return json({ error: "Invalid JSON" }, { status: 400 });
-    }
-    const guild = String(body.guild || "").trim();
-    const gameName = String(body.gameName || "").trim();
-    if (!guild || !gameName) {
-      return json({ error: "Guild and game name are required" }, { status: 400 });
     }
 
     try {
       const profile = await runtime.accountRepository.requestVip({
-        accountId: context.accountId,
-        guild,
-        gameName
+        accountId: context.accountId
       });
       return json({ ok: true, profile });
     } catch (error) {

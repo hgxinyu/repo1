@@ -88,7 +88,7 @@ test("/api/me uses the first-party account context while legacy writeback is fro
   });
 });
 
-test("/api/vip-request uses accountId and ignores the legacy migration freeze hook", async () => {
+test("/api/vip-request uses the session accountId with an empty body while legacy migration writes stay frozen", async () => {
   await withFrozenMode(async () => {
     let received;
     const handler = createVipRequestHandler({
@@ -98,13 +98,9 @@ test("/api/vip-request uses accountId and ignores the legacy migration freeze ho
         async requestVip(input) { received = input; return account({ ...input, role: "vip" }); }
       }
     });
-    const response = await handler(postRequest("/api/vip-request", {
-      email: "legacy@example.com",
-      guild: "New Guild",
-      gameName: "New Player"
-    }));
+    const response = await handler(postRequest("/api/vip-request", {}));
     assert.equal(response.status, 200);
-    assert.deepEqual(received, { accountId: TARGET_ID, guild: "New Guild", gameName: "New Player" });
+    assert.deepEqual(received, { accountId: TARGET_ID });
   });
 });
 

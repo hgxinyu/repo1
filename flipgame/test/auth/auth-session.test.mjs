@@ -28,7 +28,7 @@ function cookieJar(initial = {}) {
   };
 }
 
-function browserFixture(status) {
+function browserFixture(status, body = null) {
   const storage = new Map([
     ["gotrue.user", JSON.stringify({ id: "legacy-user", email: "user@example.com" })]
   ]);
@@ -55,7 +55,12 @@ function browserFixture(status) {
     },
     async fetch(url, options) {
       requests.push({ url, options });
-      return new Response(null, { status });
+      return body === null
+        ? new Response(null, { status })
+        : new Response(JSON.stringify(body), {
+          status,
+          headers: { "content-type": "application/json" }
+        });
     }
   };
   return { window, document, storage, requests };
@@ -177,5 +182,59 @@ test("auth-session bridge bootstraps the __Host CSRF cookie with Secure on local
     assert.equal(await bridgeLegacySession("/AIAsk.html"), true);
     const csrfWrite = fixture.document.writes.find((raw) => raw.startsWith("__Host-shinegame_csrf="));
     assert.match(csrfWrite ?? "", /;\s*path=\/;\s*secure;\s*samesite=lax/iu);
+  });
+});
+
+test("getAuthMe rejects an authenticated response that omits profileComplete", async () => {
+  const accountId = "11111111-1111-4111-8111-111111111111";
+  const fixture = browserFixture(200, {
+    authenticated: true,
+    accountId,
+    role: "free",
+    canAccessRegistered: true,
+    canAccessPremium: false,
+    isAdmin: false,
+    profile: { status: "active", guild: "iOS Aurora", gameName: "Tester" }
+  });
+  await withBrowser(fixture, async () => {
+    const { getAuthMe } = await import(`../../assets/auth-session.js?profile-missing=${Date.now()}`);
+    const state = await getAuthMe();
+    assert.equal(state.authenticated, false);
+    assert.equal(state.accountId, null);
+  });
+});
+
+test("getAuthMe preserves a boolean profileComplete in normalized state", async () => {
+  const accountId = "11111111-1111-4111-8111-111111111111";
+  const fixture = browserFixture(200, {
+    authenticated: true,
+    accountId,
+    role: "free",
+    canAccessRegistered: true,
+    canAccessPremium: false,
+    isAdmin: false,
+    profileComplete: true,
+    profile: { status: "active", guild: "iOS Aurora", gameName: "Tester" }
+  });
+  await withBrowser(fixture, async () => {
+    const { getAuthMe } = await import(`../../assets/auth-session.js?profile-valid=${Date.now()}`);
+    const state = await getAuthMe();
+    assert.equal(state.authenticated, true);
+    assert.equal(state.profileComplete, true);
+    assert.equal(typeof state.profileComplete, "boolean");
+  });
+});
+
+test("profile onboarding paths only carry an allowlisted destination", async () => {
+  const fixture = browserFixture(204);
+  await withBrowser(fixture, async () => {
+    const { profileOnboardingPath } = await import(`../../assets/auth-session.js?profile-path=${Date.now()}`);
+    assert.equal(profileOnboardingPath(), "/Register.html");
+    assert.equal(profileOnboardingPath("/"), "/Register.html");
+    assert.equal(profileOnboardingPath("/index.html"), "/Register.html");
+    assert.equal(profileOnboardingPath("AIAsk.html"), "/Register.html?return_to=AIAsk.html");
+    assert.equal(profileOnboardingPath("/AIAsk.html?prompt=ignore"), "/Register.html?return_to=AIAsk.html");
+    assert.equal(profileOnboardingPath("https://evil.example/"), "/Register.html");
+    assert.equal(profileOnboardingPath("/Register.html?return_to=AIAsk.html"), "/Register.html");
   });
 });

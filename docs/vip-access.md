@@ -14,8 +14,9 @@
 
 ```text
 用户通过第一方登录链路建立 accounts 账号
-用户填写公会名字 / ID 名字
-系统按当前 session accountId 写入 VIP 申请；active/free 账号通过数据库受控边界转为 pending，重复申请对 pending/vip/admin 幂等
+新账号保持 active/free，不因注册自动获得或申请 VIP
+非 admin 登录用户先完成公会名字 / 游戏 ID 资料
+用户明确发起 VIP 申请；active/free 账号通过数据库受控边界转为 pending，重复申请对 pending/vip/admin 幂等
 管理员进入 Admin.html
 管理员按 accountId 手动把账号设为 vip
 管理员可将目标账号审计化禁用（保留账号、迁移和审计历史）
@@ -25,13 +26,52 @@
 VIP 账号可额外访问 AI玩放置
 ```
 
+## 必填游戏资料 onboarding / Required game-profile onboarding
+
+- 新注册账号在第一次成功的 Google 或邮箱验证码认证后仍是 `active/free`，不会因为填写资料而自动获得或提交 VIP。资料不完整的非管理员会先跳转到 `Register.html`；资料保存成功后再回到经过有限 allowlist 验证的原始页面。
+- 迁移账号用 provider 已验证的邮箱认领时，继续复用原有永久 `account_id`，保留原来的 `role`、`status`、guild、game name、迁移和审计记录。资料完整的 migrated VIP 直接进入目标页；资料不完整的 migrated 非管理员进入 onboarding，不会新建第二个账号，也不会改变 VIP/free 角色。
+- 资料完成定义由服务端统一维护：`active/admin` 免填写；其他 `active` 账号必须同时有 trim 后非空的 `guild` 与 `gameName`。`blocked`、`disabled`、`merged` 等非 active 状态仍然被拒绝。没有公会的用户必须明确填 `无公会` / `No guild`，空值不算完成。
+- 完成资料是所有非管理员认证账号访问注册会员与 VIP 功能的前置条件；共享前端 guard 和受保护 BFF API 都会 fail closed，并使用稳定的 `PROFILE_INCOMPLETE`（403）要求回到 onboarding。`Admin.html` 与管理员 API 对 active admin 保留豁免，`Register.html` 自身不会形成重定向循环。
+
+The same contract applies in English: fresh Google and email-code accounts remain
+`active/free`, and a profile save never grants or requests VIP. A verified-email
+legacy claim keeps the original permanent `account_id`, role, status, profile,
+migration link, and audit history. Every non-admin active account needs both
+trimmed fields; an active admin is exempt, while blocked/disabled/merged accounts
+remain denied. Users without a guild must enter `No guild` explicitly.
+
+### 资料保存 API / Profile-save API
+
+`POST /api/account/profile` 是 same-origin、double-submit CSRF 保护的登录后接口。请求只接受：
+
+```json
+{"guild":"Guild name","gameName":"Game account or name"}
+```
+
+服务端只使用当前第一方 session 的 `accountId`，不接受客户端传来的 account ID、email、role 或 status。两个字段会 trim，必须各有 1–100 个 Unicode 字符，并拒绝控制字符、数组、嵌套对象、未知字段和 malformed JSON。成功响应只返回脱敏后的 canonical profile 与 `profileComplete: true`；数据库更新严格限于 `guild`、`game_name`、`updated_at`，不会改变 `role`、`status`、`authz_version`、身份绑定、迁移归属或 session。匿名、Origin/CSRF 错误、blocked 账号和无效资料分别按现有脱敏 401/403/400 边界处理；数据库不可用时返回脱敏 503，不做部分授权变更。
+
+`POST /api/account/profile` is the authenticated profile-only boundary. It uses
+the session account ID, validates only `guild` and `gameName`, and updates only
+the two profile columns plus `updated_at`. It cannot change authorization,
+identity, migration ownership, or sessions.
+
+### 明确的 VIP 申请 / Explicit VIP request
+
+`POST /api/vip-request` 是独立的用户动作，不由 onboarding 自动调用。请求只接受空 JSON 对象 `{}`；服务端重新读取已保存的 canonical profile，资料不完整时返回 `PROFILE_INCOMPLETE`（403）。只有符合条件的 `active/free` 账号才通过数据库 `SECURITY DEFINER` 受控函数转为 `pending` 并写一条审计记录；`pending`、`vip`、`admin` 保持幂等。该接口不接受、不保存 `guild`、`gameName`、`role`、`status` 或客户端 `accountId`。
+
+`POST /api/vip-request` is a separate explicit action. It accepts only `{}`,
+rechecks the saved profile, and performs the eligible `free -> pending`
+authorization transition through the controlled database function and audit
+boundary. It never persists profile fields and is never triggered by profile
+onboarding.
+
 ## 浏览器登录与 session
 
 - 登录和注册页只提供 Google 与邮箱验证码两个 Logto Hosted UI 入口；Hosted UI 负责登录/注册区分及验证码输入，不在页面收集密码，也不宣称 Apple、QQ 或微信已可用。
 - 新链路由第一方 BFF session 绑定稳定 `accountId`；账号、角色和状态从数据库映射读取，不从客户端 email、role 或 emailVerified 推断权限。浏览器通过 `GET /api/auth/session` / `GET /api/me` 获取能力快照，异常或不完整响应一律按未认证处理。
 - 首页、会员页、VIP 页和管理后台加载时会先读取第一方 session；迁移窗口内的旧 Netlify Identity session 只能通过 `/api/auth/legacy-bridge` 服务端验证并兑换，再读取 `/api/me` 权限。
 - bridge 成功前不会把旧 Identity token 复制到 JavaScript 可读 cookie；只有服务端确认兑换成功后，才清理 `gotrue.user`、`nf_jwt` 和 `nf_refresh`。bridge session 的 idle TTL 为 14 天，absolute expiry 不得超过迁移窗口。
-- VIP 或管理员账号登录首页后，右上角账号按钮会显示醒目的 `VIP` 标记；普通注册会员和待审核账号不显示该标记。
+- VIP 账号登录首页后，右上角账号按钮显示 `VIP`；真实管理员账号显示独立、随中英文切换同步更新的 `管理员` / `Admin` 账号标记。账号标记使用自身的角色属性，不复用会员工具或 VIP 功能卡的访问标记；普通注册会员和待审核账号不显示账号角色标记。静态 `file://` / `:8000` 预览仍保留既有 `Local Admin` / `ADMIN` Mock。
 - 会员页和 VIP 页在 session 恢复与权限检查完成前只显示检查状态；确认未登录后才显示登录/注册入口。静态 `file://` / `:8000` 预览才使用本地 Mock；`localhost:8888` 的 Netlify local BFF 仍执行真实认证检查。
 - 注销会先撤销当前第一方 session family、尽力撤销 Logto refresh grant、清理浏览器旧状态，再把顶层窗口导航到由 BFF 基于已验证 Logto issuer 生成的 RP-Initiated end-session URL；该 URL 只带固定 `client_id` 和固定 `LOGTO_POST_LOGOUT_REDIRECT_URI`，不接受请求中的 `next`、`Referer` 或其他跳转值。若 provider discovery 或 URL 构建不可用，本地 session 仍保持已撤销，浏览器只回退到固定 `/Login.html?auth=logged-out`。
 - Logout first revokes the first-party session family, best-effort revokes the Logto refresh grant, and clears browser legacy state, then top-level navigates to an RP-Initiated end-session URL built from the verified Logto issuer. The URL carries only the fixed `client_id` and fixed `LOGTO_POST_LOGOUT_REDIRECT_URI`; request `next`, `Referer`, and other redirect values are never accepted. If provider discovery or URL construction is unavailable, local revocation still stands and the browser falls back only to `/Login.html?auth=logged-out`.
@@ -64,11 +104,12 @@ During the migration window, a first successful Google or email-code login perfo
 - `admin`：管理员角色，可访问注册会员页面、VIP 页面和管理能力。
 - `blocked`：禁用，不可访问注册会员页面、VIP 页面或管理能力；阻断状态优先于其他角色能力。
 
-权限能力由统一角色矩阵计算：`pending`、`free`、`vip`、`admin` 的注册会员能力分别为可、可、可、可；仅 `vip` 和 `admin` 可访问 VIP 页面；仅 `admin` 具备管理能力。账号角色为 `blocked`，或账号状态不是 `active`（包括 `blocked`、`disabled`、`merged`）时，所有受保护能力均关闭。管理员身份来自 `accounts.role`，不再由 `ADMIN_EMAILS` 或客户端邮箱决定。
+权限能力由统一角色矩阵计算：`pending`、`free`、`vip`、`admin` 的注册会员能力分别为可、可、可、可；仅 `vip` 和 `admin` 可访问 VIP 页面；仅 `admin` 具备管理能力。这个角色能力矩阵还要经过资料完成前置条件：除 active admin 外，非管理员账号的 `profileComplete` 必须为 true 才能进入受保护会员/VIP 页面和 BFF。账号角色为 `blocked`，或账号状态不是 `active`（包括 `blocked`、`disabled`、`merged`）时，所有受保护能力均关闭。管理员身份来自 `accounts.role`，不再由 `ADMIN_EMAILS` 或客户端邮箱决定。
 
 ## API
 
 - `GET /api/auth/session`：读取当前第一方 session 的 `accountId` 与能力快照；匿名、失效或响应格式异常时，浏览器端按未认证处理。
+- `POST /api/account/profile`：当前登录账号保存 `guild` 与 `gameName`；只更新资料列和 `updated_at`，不改变授权、身份、迁移归属或 session。
 - `POST /api/vip-request`：提交 VIP 申请。
 - `POST /api/auth/legacy-bridge`：在迁移窗口内，用服务端验证的 immutable Netlify user ID 将旧 session 一次性兑换为第一方 `legacy_bridge` session；要求可信 Origin 和 CSRF，拒绝 email-only fallback。
 - `GET /api/me`：读取当前登录用户、注册会员状态和 VIP 权限。响应使用稳定 `accountId`，只返回 `primaryEmailMasked`，不返回完整 email。
@@ -81,7 +122,7 @@ During the migration window, a first successful Google or email-code login perfo
 - `POST /api/admin/quality-prices`：管理员保存 `starDiamondBoundDiamondRatio`、各资质 `foodPrice` 和 `keptPrice`。
 - `GET /api/admin/traffic?days=7|30|90`：管理员读取按国家聚合的页面访问量、每日趋势和热门页面。
 
-所有 cookie-backed POST（VIP 申请、AI 问答和管理员写操作）都要求浏览器自动提供可信 `Origin`，并由共享浏览器客户端把可读 CSRF cookie 复制到 `X-CSRF-Token`；缺少或不匹配时 fail closed。前端客户端不会手动设置 `Origin`，也不会持久化 session/provider token。
+所有 cookie-backed POST（资料保存、VIP 申请、AI 问答和管理员写操作）都要求浏览器自动提供可信 `Origin`，并由共享浏览器客户端把可读 CSRF cookie 复制到 `X-CSRF-Token`；缺少或不匹配时 fail closed。前端客户端不会手动设置 `Origin`，也不会持久化 session/provider token。
 
 VIP 申请和管理员授权变更只通过数据库的 `SECURITY DEFINER` 边界执行。迁移会撤销 `PUBLIC` 的执行权限；部署时必须只向受信任的非 owner BFF 数据库角色显式授予 `request_account_vip` 与 `set_account_authorization`，不能向 `PUBLIC` 授权。
 
@@ -132,7 +173,7 @@ identity 仍在同一个 BFF 数据库事务中写入。
 - 旧 Netlify Identity session 在迁移窗口内通过受限 bridge 兑换为第一方 session；账号关联以稳定 `account_id` 为准，不以可变邮箱作为长期主键。
 - Task 9 已将 `/api/me`、VIP 申请、管理员账号/角色/删除、价格、流量和 AI 限流接入 `resolveAuthContext` / `requireCapability`；旧 email/`ADMIN_EMAILS`/Identity/用户 Blob 不再作为这些 API 的授权来源。
 - AI 限流表按 `(account_id, hour_start)` 原子 upsert；管理员不消耗额度。旧 `ai-question-limits` email bucket 不读不写。
-- Task 10 已完成登录/注册页面、共享浏览器 session/CSRF 客户端、能力驱动 guards 与受保护 POST 接线；Task 4/5 已在 Neon `local-test` 通过真实 Google legacy verified-email claim、VIP/profile 保留、重复登录和 unmatched readiness matrix。邮箱 OTP 的真实 delivery/callback 与 genuinely fresh-profile HTTPS stage callback 仍是发布前 gate。
+- Task 10 已完成登录/注册页面、共享浏览器 session/CSRF 客户端、能力驱动 guards 与受保护 POST 接线；Task 4/5 已在 Neon `local-test` 通过真实 Google legacy verified-email claim、VIP/profile 保留、重复登录和 unmatched readiness matrix；Task 6 又在 disposable PostgreSQL 上通过五迁移 schema 与 least-privilege BFF profile/VIP smoke。邮箱 OTP 的真实 delivery/callback、七条交互式 onboarding 浏览器验收与 genuinely fresh-profile HTTPS stage callback 仍是手工/发布前 gate。
 - Production Google OAuth 的公开资料固定使用 `https://shinegame.pro/`、`https://shinegame.pro/Privacy.html` 和 `https://shinegame.pro/Terms.html`；两份政策页均提供中英文版本，并从登录与注册页可达。Google consent screen 只请求 `openid profile email`，不得为通过发布检查临时增加未使用的敏感 scope。
 - 生产 Logto 应用必须登记精确的 Post Sign-out Redirect URI：`https://shinegame.pro/Login.html?auth=logged-out`；该值通过 `LOGTO_POST_LOGOUT_REDIRECT_URI` 固定配置。
 - Production import and finalization share one `(source, environment, site)` advisory-lock namespace. Import locks and reads the exact batch before any row write and refuses any reconciled/completed scope. Finalization holds that same lock while it locks and compares the full source/snapshot migration population, validates ordered migration completion evidence and the committed `accounts`、verified primary `account_emails` 和 active legacy `auth_identities`, constructs and deep-freezes the complete reconciliation report and completion time internally, then persists the batch. Read-only diagnostics, caller objects, serialized reports, and imported JSON cannot authorize finalization. Snapshot/review files are exclusive-create mode `0600`; CLI stdout contains only redacted counts, hash, and status.

@@ -5,6 +5,10 @@ import {
   decryptSecret as defaultDecryptSecret
 } from "./crypto.mjs";
 import { canonicalIssuer } from "./config.mjs";
+import {
+  normalizeAccountProfile,
+  profileCompleteForAccount
+} from "./account-profile.mjs";
 
 const ACCOUNT_COLUMNS = `
   a.account_id,
@@ -343,22 +347,22 @@ async function requestVipInTransaction(transaction, rawInput, deps) {
   assertTransaction(transaction);
   if (!rawInput || typeof rawInput !== "object") throw new AuthError("AUTH_INPUT_INVALID", 400);
   const accountId = accountIdValue(rawInput.accountId, "AUTH_ACCOUNT_INVALID", 400);
-  const guild = text(rawInput.guild, "AUTH_INPUT_INVALID", 400);
-  const gameName = text(rawInput.gameName, "AUTH_INPUT_INVALID", 400);
-  const profileRows = await rowsFrom(query(
+
+  const currentRows = await rowsFrom(query(
     transaction,
     [
-      `UPDATE accounts
-          SET guild = `,
-      `, game_name = `,
-      `, updated_at = now()
-        WHERE account_id = `,
-      ` AND status = 'active'
-        RETURNING account_id`
+      `SELECT ${ACCOUNT_RETURNING_COLUMNS}
+       FROM accounts
+       WHERE account_id = `,
+      ` FOR UPDATE`
     ],
-    [guild, gameName, accountId]
+    [accountId]
   ));
-  if (profileRows.length !== 1) throw new AuthError("ACCOUNT_NOT_FOUND", 404);
+  const current = exactlyOneAccount(currentRows);
+  if (!current) throw new AuthError("ACCOUNT_NOT_FOUND", 404);
+  if (!profileCompleteForAccount(current)) {
+    throw new AuthError("PROFILE_INCOMPLETE", 403);
+  }
 
   const transitionRows = await rowsFrom(query(
     transaction,
@@ -379,11 +383,39 @@ async function requestVipInTransaction(transaction, rawInput, deps) {
     transaction,
     [`SELECT ${ACCOUNT_RETURNING_COLUMNS}
        FROM accounts
-       WHERE account_id = `],
+       WHERE account_id = `, ""],
     [accountId]
   ));
   const account = exactlyOneAccount(rows);
   if (!account) throw new AuthError("ACCOUNT_UPDATE_FAILED", 500);
+  return account;
+}
+
+async function updateProfileInTransaction(transaction, rawInput) {
+  assertTransaction(transaction);
+  if (!rawInput || typeof rawInput !== "object" || Array.isArray(rawInput)) {
+    throw new AuthError("AUTH_INPUT_INVALID", 400);
+  }
+  const accountId = accountIdValue(rawInput.accountId, "AUTH_ACCOUNT_INVALID", 400);
+  const { guild, gameName } = normalizeAccountProfile({
+    guild: rawInput.guild,
+    gameName: rawInput.gameName
+  });
+  const rows = await rowsFrom(query(
+    transaction,
+    [
+      `UPDATE accounts
+          SET guild = `,
+      `, game_name = `,
+      `, updated_at = now()
+        WHERE account_id = `,
+      ` AND status = 'active'
+        RETURNING ${ACCOUNT_RETURNING_COLUMNS}`
+    ],
+    [guild, gameName, accountId]
+  ));
+  const account = exactlyOneAccount(rows);
+  if (!account) throw new AuthError("ACCOUNT_NOT_FOUND", 404);
   return account;
 }
 
@@ -1023,6 +1055,11 @@ export function createAccountRepository(overrides = {}) {
     requestVip(input) {
       return deps.withTransaction((transaction) =>
         requestVipInTransaction(transaction, input, deps)
+      );
+    },
+    updateProfile(input) {
+      return deps.withTransaction((transaction) =>
+        updateProfileInTransaction(transaction, input)
       );
     },
     setAuthorization(input) {

@@ -4,9 +4,12 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 import { createAuthSignInHandler } from "../../netlify/functions/auth-sign-in.mjs";
-import { createAuthCallbackHandler } from "../../netlify/functions/auth-callback.mjs";
+import { createAuthCallbackHandler, onboardingPath } from "../../netlify/functions/auth-callback.mjs";
 import { createAuthSessionHandler } from "../../netlify/functions/auth-session.mjs";
 import { createAuthLogoutHandler } from "../../netlify/functions/auth-logout.mjs";
+import { createVipRequestHandler } from "../../netlify/functions/vip-request.mjs";
+import { createAccountProfileHandler } from "../../netlify/functions/account-profile.mjs";
+import { AuthError } from "../../netlify/functions/_shared/auth/auth-context.mjs";
 import { createLogtoClient } from "../../netlify/functions/_shared/auth/logto-client.mjs";
 import { tokenHash } from "../../netlify/functions/_shared/auth/crypto.mjs";
 
@@ -104,6 +107,73 @@ function responseHeaders(response) {
   assert.equal(response.headers.get("cache-control"), "no-store");
   assert.equal(response.headers.get("referrer-policy"), "no-referrer");
   return response.headers;
+}
+
+function profileRequest(body, { origin = ORIGIN, csrf = true, rawBody } = {}) {
+  const headers = { "content-type": "application/json" };
+  if (origin !== null) headers.origin = origin;
+  if (csrf) {
+    headers.cookie = `__Host-shinegame_csrf=${CSRF_TOKEN}`;
+    headers["x-csrf-token"] = CSRF_TOKEN;
+  }
+  return new Request(`${ORIGIN}/api/account/profile`, {
+    method: "POST",
+    headers,
+    body: rawBody === undefined ? JSON.stringify(body) : rawBody
+  });
+}
+
+function vipRequest(body, { origin = ORIGIN, csrf = true, rawBody } = {}) {
+  const headers = { "content-type": "application/json" };
+  if (origin !== null) headers.origin = origin;
+  if (csrf) {
+    headers.cookie = `__Host-shinegame_csrf=${CSRF_TOKEN}`;
+    headers["x-csrf-token"] = CSRF_TOKEN;
+  }
+  return new Request(`${ORIGIN}/api/vip-request`, {
+    method: "POST",
+    headers,
+    body: rawBody === undefined ? JSON.stringify(body) : rawBody
+  });
+}
+
+function profileContext(overrides = {}) {
+  const value = {
+    accountId: ACCOUNT_ID,
+    role: "free",
+    status: "active",
+    guild: "",
+    gameName: "",
+    authzVersion: 7,
+    migrationId: null,
+    ...overrides
+  };
+  return {
+    accountId: value.accountId,
+    account: value,
+    capabilities: {
+      authenticated: true,
+      role: value.role,
+      blocked: value.role === "blocked" || value.status === "blocked",
+      canAccessRegistered: value.role !== "blocked" && value.status !== "blocked",
+      canAccessPremium: false,
+      isAdmin: false
+    }
+  };
+}
+
+function profileHandler(overrides = {}) {
+  return createAccountProfileHandler({
+    trustedOrigins: ORIGIN,
+    resolveAuthContext: async () => profileContext(),
+    requireCapability: () => true,
+    accountRepository: {
+      async updateProfile(input) {
+        return profileContext({ guild: input.guild, gameName: input.gameName }).account;
+      }
+    },
+    ...overrides
+  });
 }
 
 test("sign-in only accepts GET and redirects with state, nonce, and PKCE", async () => {
@@ -688,6 +758,235 @@ test("callback creates a free account only after an exact reconciled migration b
   ]);
 });
 
+test("callback sends incomplete members to onboarding while complete accounts keep their destination", async () => {
+  const cases = [
+    {
+      name: "fresh free account",
+      account: { ...account, role: "free", guild: "", gameName: "" },
+      nextPath: "/AIAsk.html",
+      location: "/Register.html?return_to=AIAsk.html"
+    },
+    {
+      name: "complete free account",
+      account: { ...account, role: "free", guild: "Guild", gameName: "Hero" },
+      nextPath: "/AIAsk.html",
+      location: "/AIAsk.html"
+    },
+    {
+      name: "incomplete active admin",
+      account: { ...account, role: "admin", guild: "", gameName: "" },
+      nextPath: "/Admin.html",
+      location: "/Admin.html"
+    },
+    {
+      name: "migrated complete vip",
+      account: { ...account, role: "vip", guild: "Guild", gameName: "Hero", migrationId: "migration-1" },
+      nextPath: "/AIAsk.html",
+      location: "/AIAsk.html"
+    }
+  ];
+
+  for (const scenario of cases) {
+    const handler = createAuthCallbackHandler({
+      issuerOrTenant: "https://tenant.logto.app/",
+      sessionRepository: {
+        async consumeOAuthTransaction() { return consumedTransaction({ nextPath: scenario.nextPath }); },
+        async createAppSession(input) { return session({ accountId: input.accountId, sessionToken: SESSION_TOKEN }); }
+      },
+      logtoClient: {
+        async exchangeAuthorizationCode() { return { claims: claims(), refreshToken: REFRESH_TOKEN }; }
+      },
+      accountRepository: {
+        async findAccountByLogtoSubject() { return scenario.account; }
+      },
+      trustedOrigin: ORIGIN
+    });
+
+    const response = await handler(request(`/api/auth/callback?code=provider-code&state=${STATE}`, {
+      cookie: preauthCookie()
+    }));
+    assert.equal(response.status, 302, scenario.name);
+    assert.equal(response.headers.get("location"), scenario.location, scenario.name);
+  }
+});
+
+test("onboarding path carries only a finite allowlisted basename", () => {
+  assert.equal(onboardingPath("/index.html"), "/Register.html");
+  assert.equal(onboardingPath("/AIAsk.html?source=login#top"), "/Register.html?return_to=AIAsk.html");
+  assert.equal(onboardingPath("/Register.html?return_to=AIAsk.html#"), "/Register.html");
+  assert.equal(onboardingPath("https://evil.example/steal"), "/Register.html");
+});
+
+test("callback preserves one safe Register return_to and rejects unsafe or extra query values", async () => {
+  const cases = [
+    {
+      nextPath: "/Register.html?return_to=AIAsk.html",
+      location: "/Register.html?return_to=AIAsk.html"
+    },
+    {
+      nextPath: "/Register.html?return_to=https%3A%2F%2Fevil.example%2Fsteal",
+      location: "/Register.html"
+    },
+    {
+      nextPath: "/Register.html?return_to=AIAsk.html&extra=unexpected",
+      location: "/Register.html"
+    }
+  ];
+
+  for (const scenario of cases) {
+    const handler = createAuthCallbackHandler({
+      issuerOrTenant: "https://tenant.logto.app/",
+      sessionRepository: {
+        async consumeOAuthTransaction() { return consumedTransaction({ nextPath: scenario.nextPath }); },
+        async createAppSession(input) { return session({ accountId: input.accountId, sessionToken: SESSION_TOKEN }); }
+      },
+      logtoClient: {
+        async exchangeAuthorizationCode() { return { claims: claims(), refreshToken: REFRESH_TOKEN }; }
+      },
+      accountRepository: {
+        async findAccountByLogtoSubject() {
+          return { ...account, role: "free", guild: "", gameName: "" };
+        }
+      },
+      trustedOrigin: ORIGIN
+    });
+
+    const response = await handler(request(`/api/auth/callback?code=provider-code&state=${STATE}`, {
+      cookie: preauthCookie()
+    }));
+    assert.equal(response.status, 302);
+    assert.equal(response.headers.get("location"), scenario.location);
+  }
+});
+
+test("fresh free callback creates one account and onboards it without changing its role", async () => {
+  let createInput;
+  let sessionInput;
+  let identityCreates = 0;
+  const freshAccount = { ...account, role: "free", guild: "", gameName: "", authzVersion: 1 };
+  const handler = createAuthCallbackHandler({
+    issuerOrTenant: "https://tenant.logto.app/",
+    sessionRepository: {
+      async consumeOAuthTransaction() { return consumedTransaction({ nextPath: "/AIAsk.html" }); },
+      async createAppSession(input) { sessionInput = input; return session({ accountId: input.accountId, authzVersion: 1, sessionToken: SESSION_TOKEN }); }
+    },
+    logtoClient: {
+      async exchangeAuthorizationCode() { return { claims: claims({ email: "fresh@example.com" }), refreshToken: REFRESH_TOKEN }; }
+    },
+    accountRepository: {
+      async findAccountByLogtoSubject() { return null; },
+      async claimLegacyAccountByVerifiedEmail() { return { kind: "new_account" }; },
+      async findReconciledMigrationBatch() {
+        return {
+          batchId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+          source: "netlify_identity",
+          snapshotId: "snapshot-2026-08-27",
+          sourceCount: 1,
+          importedCount: 1,
+          conflictCount: 0,
+          freezeAt: "2026-08-27T00:00:00.000Z",
+          completedAt: "2026-08-27T00:05:00.000Z"
+        };
+      },
+      async createAccountWithLogtoIdentity(input) {
+        createInput = input;
+        identityCreates += 1;
+        return freshAccount;
+      }
+    },
+    trustedOrigin: ORIGIN
+  });
+
+  const response = await handler(request(`/api/auth/callback?code=provider-code&state=${STATE}`, {
+    cookie: preauthCookie()
+  }));
+  assert.equal(response.status, 302);
+  assert.equal(response.headers.get("location"), "/Register.html?return_to=AIAsk.html");
+  assert.equal(identityCreates, 1);
+  assert.equal(createInput.role, "free");
+  assert.equal(createInput.status, "active");
+  assert.equal(sessionInput.accountId, ACCOUNT_ID);
+  assert.equal(sessionInput.authzVersion, 1);
+});
+
+test("incomplete migrated non-admin callback preserves the claimed account and role", async () => {
+  const migratedAccount = {
+    ...account,
+    role: "vip",
+    guild: "",
+    gameName: "",
+    migrationId: "migration-1"
+  };
+  let subjectLookups = 0;
+  let claimCalls = 0;
+  let accountCreates = 0;
+  let sessionInput;
+  const handler = createAuthCallbackHandler({
+    issuerOrTenant: "https://tenant.logto.app/",
+    sessionRepository: {
+      async consumeOAuthTransaction() { return consumedTransaction({ nextPath: "/AIAsk.html" }); },
+      async createAppSession(input) { sessionInput = input; return session({ accountId: input.accountId, sessionToken: SESSION_TOKEN }); }
+    },
+    logtoClient: {
+      async exchangeAuthorizationCode() { return { claims: claims({ connectorScope: "google" }), refreshToken: REFRESH_TOKEN }; }
+    },
+    accountRepository: {
+      async findAccountByLogtoSubject() {
+        subjectLookups += 1;
+        return null;
+      },
+      async claimLegacyAccountByVerifiedEmail() {
+        claimCalls += 1;
+        return { kind: "claimed", account: migratedAccount };
+      },
+      async createAccountWithLogtoIdentity() {
+        accountCreates += 1;
+        throw new Error("must not create a second account");
+      }
+    },
+    trustedOrigin: ORIGIN
+  });
+
+  const response = await handler(request(`/api/auth/callback?code=provider-code&state=${STATE}`, {
+    cookie: preauthCookie()
+  }));
+  assert.equal(response.status, 302);
+  assert.equal(response.headers.get("location"), "/Register.html?return_to=AIAsk.html");
+  assert.equal(subjectLookups, 1);
+  assert.equal(claimCalls, 1);
+  assert.equal(accountCreates, 0);
+  assert.equal(sessionInput.accountId, ACCOUNT_ID);
+  assert.equal(migratedAccount.accountId, ACCOUNT_ID);
+  assert.equal(migratedAccount.role, "vip");
+  assert.equal(migratedAccount.migrationId, "migration-1");
+});
+
+test("callback falls back to the index before building an onboarding return path for an unsafe next", async () => {
+  const handler = createAuthCallbackHandler({
+    issuerOrTenant: "https://tenant.logto.app/",
+    sessionRepository: {
+      async consumeOAuthTransaction() {
+        return consumedTransaction({ nextPath: "https://evil.example/steal" });
+      },
+      async createAppSession(input) { return session({ accountId: input.accountId, sessionToken: SESSION_TOKEN }); }
+    },
+    logtoClient: {
+      async exchangeAuthorizationCode() { return { claims: claims(), refreshToken: REFRESH_TOKEN }; }
+    },
+    accountRepository: {
+      async findAccountByLogtoSubject() { return { ...account, role: "free", guild: "", gameName: "" }; }
+    },
+    trustedOrigin: ORIGIN
+  });
+
+  const response = await handler(request(`/api/auth/callback?code=provider-code&state=${STATE}`, {
+    cookie: preauthCookie()
+  }));
+  assert.equal(response.status, 302);
+  assert.equal(response.headers.get("location"), "/Register.html");
+  assert.doesNotMatch(response.headers.get("location"), /evil|return_to=/i);
+});
+
 test("callback stops before account or session creation when readiness lookup conflicts", async () => {
   const calls = [];
   const conflict = Object.assign(new Error("database scope detail"), {
@@ -720,31 +1019,37 @@ test("callback stops before account or session creation when readiness lookup co
   assert.doesNotMatch(await response.text(), /database scope detail|provider-code|refresh-token|new@example\.com/i);
 });
 
-test("callback denies blocked account before issuing a first-party session", async () => {
-  let sessions = 0;
-  const handler = createAuthCallbackHandler({
-    issuerOrTenant: "https://tenant.logto.app/",
-    sessionRepository: {
-      async consumeOAuthTransaction() { return consumedTransaction({ nextPath: "/" }); },
-      async createAppSession() { sessions += 1; return session(); }
-    },
-    logtoClient: {
-      async exchangeAuthorizationCode() { return { claims: claims(), refreshToken: REFRESH_TOKEN }; }
-    },
-    accountRepository: {
-      async findAccountByLogtoSubject() { return { ...account, role: "blocked", status: "blocked" }; }
-    },
-    trustedOrigin: ORIGIN
-  });
+test("callback denies blocked, disabled, and merged accounts before issuing a first-party session", async () => {
+  for (const scenario of [
+    { name: "blocked role and status", account: { ...account, role: "blocked", status: "blocked" } },
+    { name: "disabled status", account: { ...account, role: "vip", status: "disabled" } },
+    { name: "merged status", account: { ...account, role: "vip", status: "merged" } }
+  ]) {
+    let sessions = 0;
+    const handler = createAuthCallbackHandler({
+      issuerOrTenant: "https://tenant.logto.app/",
+      sessionRepository: {
+        async consumeOAuthTransaction() { return consumedTransaction({ nextPath: "/" }); },
+        async createAppSession() { sessions += 1; return session({ sessionToken: SESSION_TOKEN }); }
+      },
+      logtoClient: {
+        async exchangeAuthorizationCode() { return { claims: claims(), refreshToken: REFRESH_TOKEN }; }
+      },
+      accountRepository: {
+        async findAccountByLogtoSubject() { return scenario.account; }
+      },
+      trustedOrigin: ORIGIN
+    });
 
-  const response = await handler(request(`/api/auth/callback?code=provider-code&state=${STATE}`, {
-    cookie: preauthCookie()
-  }));
-  assert.equal(response.status, 403);
-  assert.equal(sessions, 0);
-  const body = await response.text();
-  assert.match(body, /unable|认证|登录/i);
-  assert.doesNotMatch(body, /provider-code|refresh-token|vip@example.com/i);
+    const response = await handler(request(`/api/auth/callback?code=provider-code&state=${STATE}`, {
+      cookie: preauthCookie()
+    }));
+    assert.equal(response.status, 403, scenario.name);
+    assert.equal(sessions, 0, scenario.name);
+    const body = await response.text();
+    assert.match(body, /unable|认证|登录/i, scenario.name);
+    assert.doesNotMatch(body, /provider-code|refresh-token|vip@example.com/i, scenario.name);
+  }
 });
 
 test("callback cancellation consumes the transaction and returns its safe page", async () => {
@@ -875,6 +1180,162 @@ test("session failures clear both the app session and CSRF cookies", async () =>
     "__Host-shinegame_csrf=; Path=/; Max-Age=0; Secure; SameSite=Lax"
   ]);
   assert.doesNotMatch(await response.text(), /database secret detail/i);
+});
+
+test("profile POST saves the session account profile and returns only canonical fields", async () => {
+  let updateInput;
+  const handler = createAccountProfileHandler({
+    trustedOrigins: ORIGIN,
+    resolveAuthContext: async () => profileContext(),
+    requireCapability: () => true,
+    accountRepository: {
+      async updateProfile(input) {
+        updateInput = input;
+        return profileContext({ guild: input.guild, gameName: input.gameName }).account;
+      }
+    }
+  });
+
+  const response = await handler(profileRequest({ guild: "Guild", gameName: "Hero" }));
+  assert.equal(response.status, 200);
+  responseHeaders(response);
+  assert.deepEqual(await response.json(), {
+    ok: true,
+    profile: { guild: "Guild", gameName: "Hero", status: "active", primaryEmailMasked: "" },
+    profileComplete: true
+  });
+  assert.deepEqual(updateInput, { accountId: ACCOUNT_ID, guild: "Guild", gameName: "Hero" });
+});
+
+test("profile POST rejects anonymous and browser-write boundary failures before mutation", async () => {
+  let updates = 0;
+  let resolutions = 0;
+  const handler = createAccountProfileHandler({
+    trustedOrigins: ORIGIN,
+    resolveAuthContext: async () => {
+      resolutions += 1;
+      return profileContext();
+    },
+    requireCapability: () => true,
+    accountRepository: {
+      async updateProfile() {
+        updates += 1;
+        return profileContext({ guild: "Guild", gameName: "Hero" }).account;
+      }
+    }
+  });
+
+  const anonymous = await createAccountProfileHandler({
+    trustedOrigins: ORIGIN,
+    resolveAuthContext: async () => null,
+    requireCapability: () => true,
+    accountRepository: { async updateProfile() { updates += 1; } }
+  })(profileRequest({ guild: "Guild", gameName: "Hero" }));
+  assert.equal(anonymous.status, 401);
+
+  for (const options of [
+    { origin: "https://evil.example" },
+    { origin: null },
+    { csrf: false }
+  ]) {
+    const response = await handler(profileRequest({ guild: "Guild", gameName: "Hero" }, options));
+    assert.equal(response.status, 403);
+  }
+  assert.equal(resolutions, 0);
+  assert.equal(updates, 0);
+});
+
+test("profile POST rejects malformed profile input with a stable 400", async () => {
+  let updates = 0;
+  const handler = profileHandler({
+    accountRepository: {
+      async updateProfile() {
+        updates += 1;
+        throw new Error("must not update invalid profile");
+      }
+    }
+  });
+  const cases = [
+    ["invalid JSON", profileRequest(undefined, { rawBody: "{" })],
+    ["unknown field", profileRequest({ guild: "Guild", gameName: "Hero", extra: "reject" })],
+    ["blank guild", profileRequest({ guild: "   ", gameName: "Hero" })],
+    ["oversized name", profileRequest({ guild: "Guild", gameName: "x".repeat(101) })],
+    ["control character", profileRequest({ guild: "Guild", gameName: "He\u0085ro" })]
+  ];
+  for (const [name, request] of cases) {
+    const response = await handler(request);
+    assert.equal(response.status, 400, name);
+    assert.deepEqual(await response.json(), { error: name === "invalid JSON" ? "Invalid JSON" : "ACCOUNT_PROFILE_INVALID" }, name);
+  }
+  assert.equal(updates, 0);
+});
+
+test("profile POST denies blocked accounts and sanitizes repository failures", async () => {
+  const blocked = createAccountProfileHandler({
+    trustedOrigins: ORIGIN,
+    resolveAuthContext: async () => profileContext({ role: "blocked", status: "blocked" }),
+    requireCapability: () => {
+      throw new AuthError("CAPABILITY_DENIED", 403);
+    },
+    accountRepository: { async updateProfile() { throw new Error("must not update blocked account"); } }
+  });
+  const blockedResponse = await blocked(profileRequest({ guild: "Guild", gameName: "Hero" }));
+  assert.equal(blockedResponse.status, 403);
+  assert.deepEqual(await blockedResponse.json(), { error: "CAPABILITY_DENIED" });
+
+  const failed = profileHandler({
+    accountRepository: {
+      async updateProfile() {
+        throw new Error("private database failure");
+      }
+    }
+  });
+  const failedResponse = await failed(profileRequest({ guild: "Guild", gameName: "Hero" }));
+  assert.equal(failedResponse.status, 503);
+  const failedBody = await failedResponse.json();
+  assert.deepEqual(failedBody, { error: "AUTH_UNAVAILABLE" });
+  assert.doesNotMatch(JSON.stringify(failedBody), /private database failure/i);
+});
+
+test("VIP POST accepts an empty object and rejects client profile or authorization fields", async () => {
+  const inputs = [];
+  const handler = createVipRequestHandler({
+    trustedOrigins: ORIGIN,
+    resolveAuthContext: async () => profileContext({ guild: "Guild", gameName: "Hero" }),
+    requireCapability: () => true,
+    accountRepository: {
+      async requestVip(input) {
+        inputs.push(input);
+        return profileContext({ role: "pending", guild: "Guild", gameName: "Hero" }).account;
+      }
+    }
+  });
+
+  const success = await handler(vipRequest({}));
+  assert.equal(success.status, 200);
+  assert.deepEqual(inputs, [{ accountId: ACCOUNT_ID }]);
+  assert.deepEqual((await success.json()).profile, {
+    accountId: ACCOUNT_ID,
+    role: "pending",
+    status: "active",
+    guild: "Guild",
+    gameName: "Hero",
+    authzVersion: 7,
+    migrationId: null
+  });
+
+  for (const [field, value] of [
+    ["guild", "Attacker Guild"],
+    ["gameName", "Attacker Name"],
+    ["role", "admin"],
+    ["status", "active"],
+    ["accountId", "99999999-9999-4999-8999-999999999999"]
+  ]) {
+    const response = await handler(vipRequest({ [field]: value }));
+    assert.equal(response.status, 400, field);
+    assert.deepEqual(await response.json(), { error: "Invalid JSON" }, field);
+  }
+  assert.deepEqual(inputs, [{ accountId: ACCOUNT_ID }]);
 });
 
 test("logout requires trusted Origin, revokes local family and Logto grant, and clears cookie", async () => {

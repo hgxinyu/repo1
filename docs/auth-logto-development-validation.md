@@ -1,6 +1,6 @@
 # Logto Development Validation
 
-Status: **TASK 5 LOCAL-TEST IMPLEMENTED/VALIDATED — Google legacy claim, repeat login, readiness matrix, and migration smoke passed; real email OTP delivery/callback and genuinely fresh-profile HTTPS stage acceptance remain production release gates**
+Status: **TASK 6 DOCUMENTATION/LOCAL DATABASE VERIFICATION COMPLETE — Google legacy claim, repeat login, readiness matrix, disposable five-migration/BFF-role smoke, and auth regression checks passed; interactive local browser acceptance, real email OTP delivery/callback, and genuinely fresh-profile HTTPS stage acceptance remain manual or production release gates**
 
 Final whole-branch hardening is implemented locally but does not change those release gates. Production import and finalization share one source/environment/site advisory lock: import rejects a reconciled/completed scope before any row write, while finalization locks and exactly compares the full source/snapshot migration population and validates ordered completion evidence plus the account/email/identity graph before persisting the batch in that same owner transaction. The module constructs and deep-freezes its report and completion time internally. Caller-supplied, serialized, read-only-diagnostic, or imported-file evidence is rejected. Legacy emails without explicit verified evidence are conflicts, and sensitive snapshot/review files use exclusive `0600` creation with redacted stdout.
 
@@ -123,6 +123,40 @@ ShineGame BFF requires a Logto refresh token for its server-side session. Logto'
 `Always issue refresh token` compatibility switch remains disabled; the BFF uses
 the OpenID Connect flow (`offline_access` plus `prompt=consent`) instead.
 
+## Task 6 disposable PostgreSQL and BFF-role verification (2026-08-28)
+
+This is a separate local disposable-database result and does not amend the
+historical Neon `local-test` evidence above. The worker injected the connection
+in memory, applied the five repository migrations in filename order, and
+discarded the exact disposable cluster after verification. No Neon or
+production database was selected or written.
+
+- Full auth test suite: **PASS — 377/377**; `check:functions` and both browser
+  module `node --check` commands: **PASS**.
+- PostgreSQL server version: `17.11`; schema smoke: **PASS**. The runtime-role,
+  five-migration, function, grant, constraint, storage-bound, authorization,
+  audit, and direct-write-denial checks all passed.
+- BFF database role: `shinegame_auth_bff`, `NOLOGIN`, non-owner; direct account
+  insert, direct authorization change, and migration writes were denied while
+  the approved BFF paths remained available.
+- Existing repository PostgreSQL smoke: **PASS** — one winner/one conflict for
+  concurrent same-scope identity ownership, retry idempotence, cross-connector
+  subject conflict, and two scoped identities on one account.
+- Least-privilege profile/VIP transaction smoke: **PASS**. Redacted booleans
+  were `profileFieldsExact=true`, `profileRoleUnchanged=true`,
+  `profileStatusUnchanged=true`, `profileAuthzUnchanged=true`,
+  `profileMigrationUnchanged=true`, `profileUpdatedAtPresent=true`,
+  `vipRolePending=true`, `vipStatusUnchanged=true`,
+  `vipProfileUnchanged=true`, `vipAuthzIncrement=true`, and
+  `auditOnlyTransition=true`.
+- A real `postgres.js` tagged-template regression for the post-VIP account read
+  was added after the smoke exposed the missing trailing SQL segment. The
+  focused account-repository suite passed **48/48** after the fix.
+
+The disposable cluster was stopped and removed by exact path after the checks;
+no connection string, password, email, subject, token, ciphertext, or secret is
+retained in this evidence.
+
 ## Final user-visible claim process
 
 After the normal OIDC issuer, audience, nonce, transaction, and provider-verified-email checks, the callback has one fixed order:
@@ -134,6 +168,39 @@ After the normal OIDC issuer, audience, nonce, transaction, and provider-verifie
 5. An ambiguous email, blocked/inactive account, or conflicting subject fails closed with a sanitized `409` recovery response and no account, identity, or session write.
 
 The local BFF starts anonymous when a development database is configured and the browser has no valid first-party session cookie. It never seeds or silently signs in a default `Local Admin`; only the explicit runtime-only synthetic fixture harness writes the exact disposable local-test boundary. Static `file://` / `:8000` pages use Mock data, while `localhost:8888` performs real authentication checks.
+
+After callback/session restoration, an active non-admin account with incomplete
+profile is sent to `Register.html` with a finite allowlisted `return_to`; the
+onboarding form never calls the VIP request endpoint. A successful
+`POST /api/account/profile` updates only `guild`, `game_name`, and `updated_at`.
+VIP remains a separate explicit `POST /api/vip-request` action that rereads the
+stored profile and performs only the controlled `free -> pending` transition
+plus its audit row. Active admins are exempt from the profile prerequisite.
+
+## Task 6 local browser acceptance status
+
+The seven interactive acceptance flows (fresh Google, fresh email-code,
+closed-onboarding revisit, valid profile return, complete migrated VIP,
+incomplete non-admin versus active admin, and logout/Admin listing) were not
+run by this worker. They require interactive provider credentials/account
+selection and are being handled as a manual operator check; no OTP or provider
+identifier was entered or recorded here. A read-only worker probe observed an
+existing TCP listener on port `8888`, but both `localhost:8888` and
+`127.0.0.1:8888` returned connection refused. The listener belongs to another
+task and was not stopped or altered. These flows therefore remain
+**MANUAL/PENDING**, not automated PASS evidence.
+
+A later controller check found that this was not a Logto Free-plan limit. The
+stale local process still used the superseded generic database variable and a
+connection for the pre-recreation Neon child. The controller rotated only the
+`local-test` owner credential after an accidental local diagnostic disclosure,
+refreshed the current child connection in process memory, and restarted the
+exact worktree runtime with the required `AUTH_DATABASE_URL`, trusted origin,
+and exact local post-logout URI. The final redacted smoke returned `302` from
+the Google sign-in entry and `200` anonymous session state. No credential was
+written to the repository or an environment file, and the seven interactive
+provider/browser flows remain **MANUAL/PENDING** until the operator completes
+them.
 
 ## Callback claim contract
 
@@ -202,6 +269,13 @@ or identities.
 | Duplicate active email rows | **PASS** — controlled corruption inside a rolled-back transaction returned 409, created no rows, and restored the unique index |
 | Conflicting `sub` | **PASS** — unique collision created no account/email/identity/session rows; transaction rolled back |
 | Callback replay | **PASS** — 401 and no account/email/identity/session writes |
+| Fresh Google registration remains `free / active` and redirects to onboarding | **MANUAL/PENDING** — interactive browser acceptance not run by this worker |
+| Fresh email-code registration remains `free / active` and redirects to onboarding | **MANUAL/PENDING** — real OTP delivery/callback remains unrun |
+| Closing onboarding and revisiting a member page redirects back | **MANUAL/PENDING** — interactive browser acceptance not run by this worker |
+| Valid profile save returns to the original allowlisted page | **MANUAL/PENDING** — interactive browser acceptance not run by this worker; API/database contract is covered by automated and disposable BFF smoke |
+| Complete migrated VIP retains VIP without a second account | **MANUAL/PENDING** — interactive Task 6 flow not rerun; prior controlled legacy-claim evidence remains separately recorded above |
+| Incomplete non-admin prompts while active admin is exempt | **MANUAL/PENDING** — interactive browser acceptance not run by this worker; server/guard contract is covered by tests |
+| Logout and Admin account listing remain functional | **MANUAL/PENDING** — interactive browser acceptance not run by this worker |
 | Email OTP claims one synthetic legacy account by verified email | **PENDING** — configuration is verified, but real OTP delivery and callback have not been run |
 | QQ creates a scoped identity without relying on email | DEFERRED; excluded from first rollout |
 | QQ already bound to an empty duplicate is safely reauthorized or classified `needs_manual_repair` | DEFERRED; automatic transfer must not be assumed in any future rollout |

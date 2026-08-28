@@ -280,30 +280,160 @@ test("repository factory rejects a lone SQL adapter instead of mixing the defaul
   assert.equal(sql.calls.length, 0);
 });
 
-test("VIP request updates only active accounts and never uses a client email", async () => {
+test("VIP request locks a complete profile and delegates only the controlled authorization transition", async () => {
   const sql = fakeTaggedSql((call) => {
+    if (/from accounts/i.test(call.text) && /for update/i.test(call.text)) {
+      assert.deepEqual(call.values, [legacyVipAccountId]);
+      return [accountRow({ role: "free", status: "active" })];
+    }
     if (/request_account_vip/i.test(call.text)) {
-      assert.doesNotMatch(call.text, /email/i);
+      assert.deepEqual(call.values, [legacyVipAccountId, { operation: "vip-request" }]);
+      assert.doesNotMatch(call.text, /set\s+guild|set\s+game_name/i);
       return [{ account_id: legacyVipAccountId }];
     }
-    if (/update accounts/i.test(call.text)) {
-      assert.match(call.text, /status\s*=\s*['"]?active/i);
-      assert.doesNotMatch(call.text, /role\s*=/i);
-      assert.doesNotMatch(call.text, /email/i);
-      return [{ account_id: legacyVipAccountId }];
+    if (/from accounts/i.test(call.text)) {
+      assert.deepEqual(call.values, [legacyVipAccountId]);
+      return [accountRow({ role: "pending", status: "active" })];
     }
-    if (/from accounts/i.test(call.text)) return [accountRow({ role: "pending" })];
     throw new Error(`unexpected SQL: ${call.text}`);
   });
   const repository = repositoryFor(sql, { environmentId: "stage", siteId: "site-dev" });
   const result = await repository.requestVip({
     accountId: legacyVipAccountId,
-    guild: "Shine",
-    gameName: "Player"
+    guild: "attacker-supplied-guild",
+    gameName: "attacker-supplied-name"
   });
   assert.equal(result.accountId, legacyVipAccountId);
   assert.equal(result.role, "pending");
+  assert.equal(result.guild, "Shine");
+  assert.equal(result.gameName, "Player One");
   assert.equal(sql.calls.length, 3);
+  const sqlTrace = sql.calls.map((call) => call.text).join("\n");
+  assert.match(sqlTrace, /request_account_vip/i);
+  assert.doesNotMatch(sqlTrace, /SET\s+guild\s*=|SET\s+game_name\s*=/i);
+});
+
+test("VIP request keeps the post-transition account read compatible with postgres.js tagged templates", async () => {
+  const sql = postgresContractTaggedSql((call) => {
+    if (/from accounts/i.test(call.text) && /for update/i.test(call.text)) {
+      return [accountRow({ role: "free", status: "active" })];
+    }
+    if (/request_account_vip/i.test(call.text)) {
+      return [{ account_id: legacyVipAccountId }];
+    }
+    if (/from accounts/i.test(call.text)) {
+      return [accountRow({ role: "pending", status: "active" })];
+    }
+    throw new Error(`unexpected SQL: ${call.text}`);
+  });
+
+  const result = await repositoryFor(sql).requestVip({ accountId: legacyVipAccountId });
+  assert.equal(result.role, "pending");
+  assert.equal(sql.calls.length, 3);
+});
+
+test("VIP request rejects an incomplete canonical profile before the authorization transition", async () => {
+  let transitionCalls = 0;
+  const sql = fakeTaggedSql((call) => {
+    if (/request_account_vip/i.test(call.text)) {
+      transitionCalls += 1;
+      return [{ account_id: legacyVipAccountId }];
+    }
+    if (/from accounts/i.test(call.text) && /for update/i.test(call.text)) {
+      return [accountRow({ role: "free", status: "active", guild: "", game_name: "Player One" })];
+    }
+    throw new Error(`unexpected SQL before incomplete-profile rejection: ${call.text}`);
+  });
+  const repository = repositoryFor(sql);
+
+  await assert.rejects(
+    () => repository.requestVip({ accountId: legacyVipAccountId }),
+    (error) => error.code === "PROFILE_INCOMPLETE" && error.status === 403
+  );
+  assert.equal(transitionCalls, 0);
+  assert.equal(sql.calls.length, 1);
+  assert.match(sql.calls[0].text, /FOR UPDATE/i);
+});
+
+test("VIP request keeps pending, VIP, and admin transitions idempotent through the controlled function", async () => {
+  for (const role of ["pending", "vip", "admin"]) {
+    let transitionCalls = 0;
+    const sql = fakeTaggedSql((call) => {
+      if (/from accounts/i.test(call.text) && /for update/i.test(call.text)) {
+        return [accountRow({ role, status: "active" })];
+      }
+      if (/request_account_vip/i.test(call.text)) {
+        transitionCalls += 1;
+        return [{ account_id: legacyVipAccountId }];
+      }
+      if (/from accounts/i.test(call.text)) return [accountRow({ role, status: "active" })];
+      throw new Error(`unexpected SQL for ${role}: ${call.text}`);
+    });
+
+    const result = await repositoryFor(sql).requestVip({ accountId: legacyVipAccountId });
+    assert.equal(result.role, role);
+    assert.equal(transitionCalls, 1, role);
+  }
+});
+
+test("profile update trims values and mutates only the active account profile columns", async () => {
+  let seenSql = "";
+  const sql = fakeTaggedSql((call) => {
+    seenSql += call.text;
+    assert.deepEqual(call.values, ["Guild", "Hero", legacyVipAccountId]);
+    return [accountRow({ guild: "Guild", game_name: "Hero", role: "free", status: "active" })];
+  });
+
+  const updated = await repositoryFor(sql).updateProfile({
+    accountId: legacyVipAccountId,
+    guild: " Guild ",
+    gameName: " Hero "
+  });
+
+  assert.equal(updated.guild, "Guild");
+  assert.equal(updated.gameName, "Hero");
+  assert.equal(updated.role, "free");
+  assert.equal(updated.status, "active");
+  assert.equal(updated.authzVersion, 7);
+  assert.match(seenSql, /SET guild = .*game_name = .*updated_at = now\(\)/s);
+  assert.doesNotMatch(seenSql, /SET role|SET status|authz_version\s*=/s);
+  assert.match(seenSql, /WHERE account_id = .*AND status = 'active'/s);
+});
+
+test("profile update treats an inactive account as a zero-row update", async () => {
+  const sql = fakeTaggedSql((call) => {
+    assert.deepEqual(call.values, ["Guild", "Hero", legacyVipAccountId]);
+    assert.match(call.text, /WHERE account_id = .*AND status = 'active'/s);
+    return [];
+  });
+
+  await assert.rejects(
+    () => repositoryFor(sql).updateProfile({
+      accountId: legacyVipAccountId,
+      guild: "Guild",
+      gameName: "Hero"
+    }),
+    (error) => error.code === "ACCOUNT_NOT_FOUND" && error.status === 404
+  );
+  assert.equal(sql.calls.length, 1);
+});
+
+test("repeating the same profile update is idempotent and leaves authorization unchanged", async () => {
+  const sql = fakeTaggedSql((call) => {
+    assert.deepEqual(call.values, ["Guild", "Hero", legacyVipAccountId]);
+    assert.doesNotMatch(call.text, /SET\s+(?:role|status)|authz_version\s*=/i);
+    return [accountRow({ guild: "Guild", game_name: "Hero", role: "free", status: "active", authz_version: 7 })];
+  });
+  const repository = repositoryFor(sql);
+
+  const first = await repository.updateProfile({ accountId: legacyVipAccountId, guild: " Guild ", gameName: " Hero " });
+  const second = await repository.updateProfile({ accountId: legacyVipAccountId, guild: "Guild", gameName: "Hero" });
+
+  assert.deepEqual(second, first);
+  assert.equal(sql.calls.length, 2);
+  assert.equal(second.role, "free");
+  assert.equal(second.status, "active");
+  assert.equal(second.authzVersion, 7);
 });
 
 test("authorization session revocation fails closed when environment/site scope is missing", async () => {

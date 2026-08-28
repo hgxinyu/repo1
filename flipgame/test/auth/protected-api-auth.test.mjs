@@ -7,7 +7,10 @@ import { createAdminUsersHandler } from "../../netlify/functions/admin-users.mjs
 import { createAdminSetRoleHandler } from "../../netlify/functions/admin-set-role.mjs";
 import { createAdminDeleteUserHandler } from "../../netlify/functions/admin-delete-user.mjs";
 import { AuthError, resolveAuthContext } from "../../netlify/functions/_shared/auth/auth-context.mjs";
-import { createAuthRuntime } from "../../netlify/functions/_shared/auth/runtime.mjs";
+import {
+  createAuthRuntime,
+  requireRequestCapability
+} from "../../netlify/functions/_shared/auth/runtime.mjs";
 
 const ADMIN_ID = "11111111-1111-4111-8111-111111111111";
 const TARGET_ID = "22222222-2222-4222-8222-222222222222";
@@ -90,6 +93,13 @@ test("missing account mapping cannot fall back to an email-based admin/free iden
   assert.equal((await responseBody(response)).authenticated, undefined);
 });
 
+test("anonymous /api/me reports an incomplete profile state", async () => {
+  const handler = createMeHandler({ resolveAuthContext: async () => null });
+  const response = await handler(new Request("https://stage.example.test/api/me"));
+  assert.equal(response.status, 401);
+  assert.equal((await responseBody(response)).profileComplete, false);
+});
+
 test("default auth runtime composes the session and account repositories at one issuer boundary", async () => {
   const accountValue = account({ accountId: TARGET_ID });
   const runtime = createAuthRuntime({
@@ -151,7 +161,7 @@ test("a blocked admin context is denied by protected admin mutation", async () =
   assert.equal(writes, 0);
 });
 
-test("VIP request ignores client email, role, and emailVerified and writes by session accountId", async () => {
+test("VIP request accepts an empty body and writes only by session accountId", async () => {
   let received;
   const handler = createVipRequestHandler({
     resolveAuthContext: contextResolver(account({ role: "free" })),
@@ -159,30 +169,48 @@ test("VIP request ignores client email, role, and emailVerified and writes by se
     accountRepository: {
       async requestVip(input) {
         received = input;
-        return account({ role: "pending", status: "active", guild: input.guild, gameName: input.gameName });
+        return account({ role: "pending", status: "active" });
       }
     },
     readProfile: async () => ({ email: "attacker@example.com", role: "admin", status: "approved" }),
     writeProfile: async (value) => value
   });
 
-  const response = await handler(request("/api/vip-request", {
-    accountId: ADMIN_ID,
-    email: "attacker@example.com",
-    role: "admin",
-    emailVerified: true,
-    guild: "New Guild",
-    gameName: "New Name"
-  }));
+  const response = await handler(request("/api/vip-request", {}));
   assert.equal(response.status, 200);
-  assert.deepEqual(received, {
-    accountId: TARGET_ID,
-    guild: "New Guild",
-    gameName: "New Name"
-  });
+  assert.deepEqual(received, { accountId: TARGET_ID });
   const body = await responseBody(response);
   assert.equal(body.profile.accountId, TARGET_ID);
   assert.equal(body.profile.email, undefined);
+  assert.equal(body.profile.guild, "Shine");
+  assert.equal(body.profile.gameName, "Player One");
+});
+
+test("VIP request rejects client profile, authorization, and account fields without repository writes", async () => {
+  let writes = 0;
+  const handler = createVipRequestHandler({
+    resolveAuthContext: contextResolver(account({ role: "free" })),
+    trustedOrigins: TRUSTED_ORIGIN,
+    accountRepository: {
+      async requestVip() {
+        writes += 1;
+        throw new Error("must not receive client-controlled VIP fields");
+      }
+    }
+  });
+
+  for (const [field, value] of [
+    ["guild", "Attacker Guild"],
+    ["gameName", "Attacker Name"],
+    ["role", "admin"],
+    ["status", "active"],
+    ["accountId", ADMIN_ID]
+  ]) {
+    const response = await handler(request("/api/vip-request", { [field]: value }));
+    assert.equal(response.status, 400, field);
+    assert.deepEqual(await responseBody(response), { error: "Invalid JSON" }, field);
+  }
+  assert.equal(writes, 0);
 });
 
 test("admin role mutation targets accountId, returns the affected account, and advances authzVersion", async () => {
@@ -311,6 +339,7 @@ test("canonical /api/me exposes only a masked primary email and account capabili
     canAccessRegistered: true,
     canAccessPremium: true,
     isAdmin: true,
+    profileComplete: true,
     profile: {
       primaryEmailMasked: "p***@example.com",
       guild: "Shine",
@@ -318,6 +347,66 @@ test("canonical /api/me exposes only a masked primary email and account capabili
       status: "active"
     }
   });
+});
+
+test("canonical /api/me marks an active member with missing profile fields incomplete", async () => {
+  const handler = createMeHandler({
+    resolveAuthContext: contextResolver(account({ guild: "", gameName: "" }))
+  });
+  const response = await handler(new Request("https://stage.example.test/api/me"));
+  assert.equal(response.status, 200);
+  const body = await responseBody(response);
+  assert.equal(body.profileComplete, false);
+  assert.deepEqual(body.profile, {
+    primaryEmailMasked: "",
+    guild: "",
+    gameName: "",
+    status: "active"
+  });
+});
+
+test("incomplete member profiles fail closed on protected APIs while explicit profile recovery is allowed", async () => {
+  const incomplete = account({ guild: "", gameName: "" });
+  const runtime = createAuthRuntime({ resolveAuthContext: contextResolver(incomplete) });
+  const authRequest = new Request("https://stage.example.test/api/protected");
+
+  await assert.rejects(
+    () => requireRequestCapability(runtime, authRequest, "canAccessRegistered"),
+    (error) => error instanceof AuthError && error.code === "PROFILE_INCOMPLETE" && error.status === 403
+  );
+  const recovery = await requireRequestCapability(runtime, authRequest, "canAccessRegistered", {
+    allowIncompleteProfile: true
+  });
+  assert.equal(recovery.context.accountId, TARGET_ID);
+});
+
+test("active admins remain authorized even when their profile fields are empty", async () => {
+  const admin = account({ accountId: ADMIN_ID, role: "admin", guild: "", gameName: "" });
+  const runtime = createAuthRuntime({ resolveAuthContext: contextResolver(admin) });
+  const result = await requireRequestCapability(
+    runtime,
+    new Request("https://stage.example.test/api/protected"),
+    "canAccessRegistered"
+  );
+  assert.equal(result.context.accountId, ADMIN_ID);
+});
+
+test("default protected VIP handlers deny incomplete profiles before repository writes", async () => {
+  let writes = 0;
+  const handler = createVipRequestHandler({
+    resolveAuthContext: contextResolver(account({ guild: "", gameName: "" })),
+    trustedOrigins: TRUSTED_ORIGIN,
+    accountRepository: {
+      async requestVip() {
+        writes += 1;
+        throw new Error("must not write incomplete profile");
+      }
+    }
+  });
+  const response = await handler(request("/api/vip-request", {}));
+  assert.equal(response.status, 403);
+  assert.deepEqual(await responseBody(response), { error: "PROFILE_INCOMPLETE" });
+  assert.equal(writes, 0);
 });
 
 test("admin quality-price writes persist updatedBy as the admin accountId", async () => {

@@ -195,8 +195,12 @@ function normalizedCapabilities(data) {
 }
 
 /** Normalize BFF responses so malformed, anonymous, and error states fail closed. */
-export function normalizeAuthState(data, responseOk = true) {
+export function normalizeAuthState(data, responseOk = true, options = { requireProfileComplete: true }) {
   if (!responseOk || !data || typeof data !== "object" || Array.isArray(data) || data.authenticated !== true) {
+    return { ...ANONYMOUS_AUTH_STATE };
+  }
+  const requireProfileComplete = options?.requireProfileComplete !== false;
+  if (requireProfileComplete && typeof data.profileComplete !== "boolean") {
     return { ...ANONYMOUS_AUTH_STATE };
   }
   const accountId = typeof data.accountId === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu.test(data.accountId.trim())
@@ -211,6 +215,7 @@ export function normalizeAuthState(data, responseOk = true) {
     accountId,
     capabilities
   };
+  if (typeof data.profileComplete === "boolean") result.profileComplete = data.profileComplete;
   if (typeof data.role === "string") result.role = data.role.trim().toLowerCase();
   if (typeof data.status === "string") result.status = data.status.trim().toLowerCase();
   if (typeof data.authSource === "string") result.authSource = data.authSource.trim();
@@ -225,23 +230,27 @@ export function normalizeAuthState(data, responseOk = true) {
   return result;
 }
 
-async function fetchNormalizedAuth(path) {
+async function fetchNormalizedAuth(path, options = {}) {
   if (!browserAvailable() || isStaticMockPreview()) return { ...ANONYMOUS_AUTH_STATE };
   if (hasLegacyIdentityState()) await bridgeLegacySession();
   try {
     const response = await authFetch(path, { method: "GET", headers: { Accept: "application/json" } });
-    return normalizeAuthState(await responseJson(response), Boolean(response && response.ok));
+    return normalizeAuthState(
+      await responseJson(response),
+      Boolean(response && response.ok),
+      options
+    );
   } catch {
     return { ...ANONYMOUS_AUTH_STATE };
   }
 }
 
 export function getAuthSession() {
-  return fetchNormalizedAuth("/api/auth/session");
+  return fetchNormalizedAuth("/api/auth/session", { requireProfileComplete: false });
 }
 
 export function getAuthMe() {
-  return fetchNormalizedAuth("/api/me");
+  return fetchNormalizedAuth("/api/me", { requireProfileComplete: true });
 }
 
 function safeLogoutEndSessionUrl(value) {
@@ -311,6 +320,14 @@ export function safeAuthRedirectPath(value, fallback = "/index.html") {
   const candidate = raw.startsWith("/") ? raw : `/${raw}`;
   const path = candidate.split(/[?#]/u, 1)[0];
   return SAFE_REDIRECT_PATHS.has(path) ? path : fallback;
+}
+
+/** Route incomplete authenticated accounts through the profile form safely. */
+export function profileOnboardingPath(next = "/index.html") {
+  const safe = safeAuthRedirectPath(next);
+  return safe === "/" || safe === "/Register.html" || safe === "/index.html"
+    ? "/Register.html"
+    : `/Register.html?return_to=${encodeURIComponent(safe.slice(1))}`;
 }
 
 function currentNextPath() {
