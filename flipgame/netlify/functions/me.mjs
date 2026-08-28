@@ -1,4 +1,4 @@
-import { canAccessPremium, currentUser, getEmailConfirmedAt, getEmailVerified, isAdminEmail, json, normalizeEmail, publicProfile, readProfile, writeProfile } from "./_shared/access.mjs";
+import { canAccessPremium, currentUser, getEmailConfirmedAt, getEmailVerified, isAdminEmail, json, legacyProfileWriteErrorResponse, normalizeEmail, publicProfile, readProfile, writeProfile } from "./_shared/access.mjs";
 
 export default async () => {
   const user = await currentUser();
@@ -12,11 +12,17 @@ export default async () => {
   const identityConfirmedAt = getEmailConfirmedAt(user);
   const emailConfirmedAt = identityConfirmedAt || (emailVerified ? new Date().toISOString() : "");
   if (profile && typeof emailVerified === "boolean" && (profile.emailVerified !== emailVerified || (emailConfirmedAt && !profile.emailConfirmedAt))) {
-    profile = await writeProfile({
-      ...profile,
-      emailVerified,
-      emailConfirmedAt: emailVerified ? (profile.emailConfirmedAt || emailConfirmedAt) : profile.emailConfirmedAt || ""
-    });
+    try {
+      profile = await writeProfile({
+        ...profile,
+        emailVerified,
+        emailConfirmedAt: emailVerified ? (profile.emailConfirmedAt || emailConfirmedAt) : profile.emailConfirmedAt || ""
+      });
+    } catch (error) {
+      const response = legacyProfileWriteErrorResponse(error);
+      if (response) return response;
+      throw error;
+    }
   }
   const isAdmin = isAdminEmail(email);
   return json({

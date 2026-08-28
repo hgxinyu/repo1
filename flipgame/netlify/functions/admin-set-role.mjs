@@ -1,4 +1,4 @@
-import { json, normalizeEmail, normalizeRole, readProfile, requireAdmin, statusForRole, writeProfile } from "./_shared/access.mjs";
+import { json, legacyProfileWriteErrorResponse, normalizeEmail, normalizeRole, readProfile, requireAdmin, statusForRole, writeProfile } from "./_shared/access.mjs";
 
 export default async (req) => {
   if (req.method !== "POST") {
@@ -28,13 +28,20 @@ export default async (req) => {
 
   const status = statusForRole(role);
   const now = new Date().toISOString();
-  const profile = await writeProfile({
-    ...existing,
-    role,
-    status,
-    approvedAt: status === "approved" ? now : existing.approvedAt || "",
-    approvedBy: admin.user.email || ""
-  });
+  let profile;
+  try {
+    profile = await writeProfile({
+      ...existing,
+      role,
+      status,
+      approvedAt: status === "approved" ? now : existing.approvedAt || "",
+      approvedBy: admin.user.email || ""
+    });
+  } catch (error) {
+    const response = legacyProfileWriteErrorResponse(error);
+    if (response) return response;
+    throw error;
+  }
 
   return json({ ok: true, profile });
 };

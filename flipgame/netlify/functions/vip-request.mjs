@@ -1,4 +1,4 @@
-import { json, normalizeEmail, readProfile, statusForRole, writeProfile } from "./_shared/access.mjs";
+import { json, legacyProfileWriteErrorResponse, normalizeEmail, readProfile, statusForRole, writeProfile } from "./_shared/access.mjs";
 
 export default async (req) => {
   if (req.method !== "POST") {
@@ -26,18 +26,25 @@ export default async (req) => {
 
   const existing = await readProfile(email);
   const now = new Date().toISOString();
-  const profile = await writeProfile({
-    ...(existing || {}),
-    email,
-    guild,
-    gameName,
-    emailVerified: emailVerified === null && existing ? existing.emailVerified : emailVerified,
-    emailConfirmedAt: emailVerified === true ? (existing && existing.emailConfirmedAt ? existing.emailConfirmedAt : now) : (existing && existing.emailConfirmedAt ? existing.emailConfirmedAt : ""),
-    role: existing && existing.role ? existing.role : "pending",
-    status: existing && existing.status ? existing.status : statusForRole("pending"),
-    createdAt: existing && existing.createdAt ? existing.createdAt : now,
-    requestedAt: now
-  });
+  let profile;
+  try {
+    profile = await writeProfile({
+      ...(existing || {}),
+      email,
+      guild,
+      gameName,
+      emailVerified: emailVerified === null && existing ? existing.emailVerified : emailVerified,
+      emailConfirmedAt: emailVerified === true ? (existing && existing.emailConfirmedAt ? existing.emailConfirmedAt : now) : (existing && existing.emailConfirmedAt ? existing.emailConfirmedAt : ""),
+      role: existing && existing.role ? existing.role : "pending",
+      status: existing && existing.status ? existing.status : statusForRole("pending"),
+      createdAt: existing && existing.createdAt ? existing.createdAt : now,
+      requestedAt: now
+    });
+  } catch (error) {
+    const response = legacyProfileWriteErrorResponse(error);
+    if (response) return response;
+    throw error;
+  }
 
   return json({ ok: true, profile });
 };

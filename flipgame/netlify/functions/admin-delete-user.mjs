@@ -1,5 +1,5 @@
 import { admin as identityAdmin } from "@netlify/identity";
-import { deleteProfile, getEmailConfirmedAt, getEmailVerified, json, normalizeEmail, readProfile, requireAdmin } from "./_shared/access.mjs";
+import { deleteProfile, getEmailConfirmedAt, getEmailVerified, json, legacyProfileWriteErrorResponse, normalizeEmail, readProfile, requireAdmin } from "./_shared/access.mjs";
 
 async function readIdentityUser(email) {
   try {
@@ -56,7 +56,13 @@ export default async (req) => {
     return json({ error: "Confirmed accounts cannot be deleted here" }, { status: 409 });
   }
 
-  await deleteProfile(email);
+  try {
+    await deleteProfile(email);
+  } catch (error) {
+    const response = legacyProfileWriteErrorResponse(error);
+    if (response) return response;
+    throw error;
+  }
   return json({ ok: true });
 };
 

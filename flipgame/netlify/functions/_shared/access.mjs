@@ -3,6 +3,30 @@ import { getUser, refreshSession } from "@netlify/identity";
 
 const USER_PREFIX = "users/";
 const ROLES = new Set(["pending", "free", "vip", "admin", "blocked"]);
+const LEGACY_WRITE_FROZEN_CODE = "LEGACY_WRITE_FROZEN";
+
+function migrationWriteMode() {
+  const value = typeof Netlify !== "undefined" && Netlify.env
+    ? Netlify.env.get("MIGRATION_WRITE_MODE")
+    : "";
+  return String(value || "").trim().toLowerCase();
+}
+
+export function legacyProfileWritesFrozen() {
+  return migrationWriteMode() === "frozen";
+}
+
+function assertLegacyProfileWritesAllowed() {
+  if (!legacyProfileWritesFrozen()) return;
+  const error = new Error("Legacy profile writes are temporarily frozen");
+  error.code = LEGACY_WRITE_FROZEN_CODE;
+  throw error;
+}
+
+export function legacyProfileWriteErrorResponse(error) {
+  if (!error || error.code !== LEGACY_WRITE_FROZEN_CODE) return null;
+  return json({ error: "Account changes are temporarily unavailable" }, { status: 503 });
+}
 
 export function json(data, init = {}) {
   return new Response(JSON.stringify(data), {
@@ -53,6 +77,7 @@ export async function readProfile(email) {
 }
 
 export async function writeProfile(profile) {
+  assertLegacyProfileWritesAllowed();
   const store = getUsersStore();
   const email = normalizeEmail(profile.email);
   const data = {
@@ -66,6 +91,7 @@ export async function writeProfile(profile) {
 }
 
 export async function deleteProfile(email) {
+  assertLegacyProfileWritesAllowed();
   const store = getUsersStore();
   await store.delete(getUserKey(email));
 }

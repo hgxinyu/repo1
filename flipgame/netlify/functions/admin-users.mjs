@@ -1,5 +1,5 @@
 import { admin as identityAdmin } from "@netlify/identity";
-import { getEmailConfirmedAt, getEmailVerified, getUsersStore, json, normalizeEmail, publicProfile, requireAdmin, writeProfile } from "./_shared/access.mjs";
+import { getEmailConfirmedAt, getEmailVerified, getUsersStore, json, legacyProfileWriteErrorResponse, normalizeEmail, publicProfile, requireAdmin, writeProfile } from "./_shared/access.mjs";
 
 async function listIdentityUsersByEmail() {
   try {
@@ -32,11 +32,17 @@ export default async () => {
     const emailVerified = getEmailVerified(identityUser);
     const emailConfirmedAt = getEmailConfirmedAt(identityUser);
     if (typeof emailVerified === "boolean" && (profile.emailVerified !== emailVerified || (emailConfirmedAt && !profile.emailConfirmedAt))) {
-      profile = await writeProfile({
-        ...profile,
-        emailVerified,
-        emailConfirmedAt: emailVerified ? (profile.emailConfirmedAt || emailConfirmedAt || new Date().toISOString()) : profile.emailConfirmedAt || ""
-      });
+      try {
+        profile = await writeProfile({
+          ...profile,
+          emailVerified,
+          emailConfirmedAt: emailVerified ? (profile.emailConfirmedAt || emailConfirmedAt || new Date().toISOString()) : profile.emailConfirmedAt || ""
+        });
+      } catch (error) {
+        const response = legacyProfileWriteErrorResponse(error);
+        if (response) return response;
+        throw error;
+      }
     }
 
     rows.push(publicProfile(profile));
