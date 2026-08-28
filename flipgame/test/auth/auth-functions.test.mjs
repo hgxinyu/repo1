@@ -22,6 +22,7 @@ const CSRF_TOKEN = "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE";
 const TOKEN_FOR_OTHER_BROWSER = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
 const REFRESH_TOKEN = "refresh-token-from-logto";
 const ORIGIN = "https://stage.example.com";
+const POST_LOGOUT_REDIRECT = `${ORIGIN}/Login.html?auth=logged-out`;
 
 const account = {
   accountId: ACCOUNT_ID,
@@ -195,6 +196,7 @@ test("logto authorization URL maps only phase-one connector hints", async () => 
     clientId: "logto-app",
     clientSecret: "test-secret",
     redirectUri: `${ORIGIN}/api/auth/callback`,
+    postLogoutRedirectUri: POST_LOGOUT_REDIRECT,
     discover: async () => ({
       serverMetadata: () => ({
         issuer: "https://tenant.logto.app/",
@@ -237,6 +239,7 @@ test("logto authorization URL maps only phase-one connector hints", async () => 
     clientId: "logto-app",
     clientSecret: "test-secret",
     redirectUri: `${ORIGIN}/api/auth/callback`,
+    postLogoutRedirectUri: POST_LOGOUT_REDIRECT,
     discover: async () => ({
       serverMetadata: () => ({ issuer: "https://tenant.logto.app/" })
     }),
@@ -250,12 +253,121 @@ test("logto authorization URL maps only phase-one connector hints", async () => 
   );
 });
 
+test("Logto end-session URL uses only the fixed client and post-logout redirect parameters", async () => {
+  let received;
+  const discovered = {
+    serverMetadata: () => ({
+      issuer: "https://tenant.logto.app/",
+      end_session_endpoint: "https://tenant.logto.app/oidc/session/end"
+    })
+  };
+  const client = createLogtoClient({
+    issuer: "https://tenant.logto.app/",
+    clientId: "logto-app",
+    clientSecret: "test-secret",
+    redirectUri: `${ORIGIN}/api/auth/callback`,
+    postLogoutRedirectUri: POST_LOGOUT_REDIRECT,
+    discover: async () => discovered,
+    buildEndSessionUrl(configuration, parameters) {
+      assert.equal(configuration, discovered);
+      received = parameters;
+      return new URL(`https://tenant.logto.app/oidc/session/end?${new URLSearchParams(parameters)}`);
+    }
+  });
+
+  const result = await client.buildEndSessionUrl();
+
+  assert.equal(result.href, "https://tenant.logto.app/oidc/session/end?client_id=logto-app&post_logout_redirect_uri=https%3A%2F%2Fstage.example.com%2FLogin.html%3Fauth%3Dlogged-out");
+  assert.deepEqual(received, {
+    client_id: "logto-app",
+    post_logout_redirect_uri: POST_LOGOUT_REDIRECT
+  });
+});
+
+test("Logto end-session URL rejects a generated path different from discovery metadata", async () => {
+  const client = createLogtoClient({
+    issuer: "https://tenant.logto.app/",
+    clientId: "logto-app",
+    clientSecret: "test-secret",
+    redirectUri: `${ORIGIN}/api/auth/callback`,
+    postLogoutRedirectUri: POST_LOGOUT_REDIRECT,
+    discover: async () => ({ serverMetadata: () => ({
+      issuer: "https://tenant.logto.app/",
+      end_session_endpoint: "https://tenant.logto.app/oidc/session/end"
+    }) }),
+    buildEndSessionUrl: () => new URL("https://tenant.logto.app/oidc/other?client_id=logto-app&post_logout_redirect_uri=https%3A%2F%2Fstage.example.com%2FLogin.html%3Fauth%3Dlogged-out")
+  });
+
+  await assert.rejects(
+    () => client.buildEndSessionUrl(),
+    (error) => error.code === "LOGTO_END_SESSION_URL_INVALID"
+  );
+});
+
+test("Logto end-session URL rejects a discovery endpoint outside the configured issuer origin", async () => {
+  const client = createLogtoClient({
+    issuer: "https://tenant.logto.app/",
+    clientId: "logto-app",
+    clientSecret: "test-secret",
+    redirectUri: `${ORIGIN}/api/auth/callback`,
+    postLogoutRedirectUri: POST_LOGOUT_REDIRECT,
+    discover: async () => ({ serverMetadata: () => ({
+      issuer: "https://tenant.logto.app/",
+      end_session_endpoint: "https://evil.example/oidc/session/end"
+    }) }),
+    buildEndSessionUrl: () => new URL("https://tenant.logto.app/oidc/session/end?client_id=logto-app&post_logout_redirect_uri=https%3A%2F%2Fstage.example.com%2FLogin.html%3Fauth%3Dlogged-out")
+  });
+
+  await assert.rejects(
+    () => client.buildEndSessionUrl(),
+    (error) => error.code === "LOGTO_END_SESSION_URL_INVALID"
+  );
+});
+
+test("Logto end-session configuration rejects a post-logout origin different from the callback origin", async () => {
+  const client = createLogtoClient({
+      issuer: "https://tenant.logto.app/",
+      clientId: "logto-app",
+      clientSecret: "test-secret",
+      redirectUri: `${ORIGIN}/api/auth/callback`,
+      postLogoutRedirectUri: "https://shinegame.pro/Login.html?auth=logged-out",
+      discover: async () => ({ serverMetadata: () => ({ issuer: "https://tenant.logto.app/" }) })
+    });
+  assert.throws(
+    () => client.issuerOrTenant,
+    (error) => error.code === "AUTH_CONFIG_INVALID:LOGTO_POST_LOGOUT_REDIRECT_URI"
+  );
+});
+
+test("missing post-logout configuration does not block login but blocks provider sign-out URL construction", async () => {
+  const client = createLogtoClient({
+    issuer: "https://tenant.logto.app/",
+    clientId: "logto-app",
+    clientSecret: "test-secret",
+    redirectUri: "https://shinegame.pro/api/auth/callback",
+    discover: async () => ({ serverMetadata: () => ({
+      issuer: "https://tenant.logto.app/",
+      authorization_endpoint: "https://tenant.logto.app/oidc/auth",
+      end_session_endpoint: "https://tenant.logto.app/oidc/session/end"
+    }) }),
+    calculatePKCECodeChallenge: async () => "challenge",
+    buildAuthorizationUrl: () => new URL("https://tenant.logto.app/oidc/auth")
+  });
+
+  await assert.doesNotReject(() => client.buildAuthorizationUrl({ transaction: oauthTransaction() }));
+  await assert.rejects(
+    () => client.buildEndSessionUrl(),
+    (error) => error.code === "AUTH_CONFIG_MISSING:LOGTO_POST_LOGOUT_REDIRECT_URI"
+  );
+});
+
 test("Logto claims never select an identity connector from untrusted connector claims", async () => {
   const client = createLogtoClient({
     issuer: "https://tenant.logto.app",
     clientId: "logto-app",
     clientSecret: "test-secret",
     redirectUri: `${ORIGIN}/api/auth/callback`,
+    postLogoutRedirectUri: POST_LOGOUT_REDIRECT,
     discover: async (issuer) => {
       assert.equal(issuer.href, "https://tenant.logto.app/");
       return {
@@ -288,6 +400,7 @@ test("Logto callback configuration accepts the supported redirect aliases and ca
         LOGTO_ENDPOINT: "https://tenant.logto.app",
         LOGTO_APP_ID: "logto-app",
         LOGTO_APP_SECRET: "test-secret",
+        LOGTO_POST_LOGOUT_REDIRECT_URI: POST_LOGOUT_REDIRECT,
         [alias]: `${ORIGIN}/api/auth/callback`
       },
       discover: async (issuer) => {
@@ -310,6 +423,7 @@ test("Logto callback configuration accepts the supported redirect aliases and ca
       LOGTO_ENDPOINT: "https://tenant.logto.app",
       LOGTO_APP_ID: "logto-app",
       LOGTO_APP_SECRET: "test-secret",
+      LOGTO_POST_LOGOUT_REDIRECT_URI: "http://localhost:8888/Login.html?auth=logged-out",
       AUTH_CALLBACK_URL: "http://localhost:8888/api/auth/callback"
     },
     discover: async () => ({ serverMetadata: () => ({ issuer: "https://tenant.logto.app/" }) }),
@@ -824,6 +938,65 @@ test("logout remains successful when Logto revocation is unavailable after local
   assert.equal(response.status, 200);
   assert.equal(revoked, 1);
   assert.doesNotMatch(await response.text(), /provider secret detail|refresh-token/i);
+});
+
+test("logout returns a safe Logto end-session URL after local revocation", async () => {
+  const calls = [];
+  const endSessionUrl = "https://tenant.logto.app/oidc/session/end?client_id=logto-app&post_logout_redirect_uri=https%3A%2F%2Fstage.example.com%2FLogin.html%3Fauth%3Dlogged-out";
+  const handler = createAuthLogoutHandler({
+    sessionRepository: {
+      async revokeSessionFromCookie() {
+        calls.push("local");
+        return { authSource: "logto", refreshToken: REFRESH_TOKEN };
+      }
+    },
+    logtoClient: {
+      issuerOrTenant: "https://tenant.logto.app/",
+      async revokeLogtoGrant() { calls.push("grant"); },
+      async buildEndSessionUrl() {
+        calls.push("end-session");
+        return new URL(endSessionUrl);
+      }
+    },
+    trustedOrigin: ORIGIN
+  });
+
+  const response = await handler(request("/api/auth/logout", {
+    method: "POST",
+    cookie: `__Host-shinegame_session=${SESSION_TOKEN}; __Host-shinegame_csrf=${CSRF_TOKEN}`,
+    headers: { "x-csrf-token": CSRF_TOKEN }
+  }));
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), { ok: true, endSessionUrl });
+  assert.deepEqual(calls, ["local", "grant", "end-session"]);
+});
+
+test("logout keeps local success when Logto end-session URL cannot be built", async () => {
+  let localRevoked = 0;
+  const handler = createAuthLogoutHandler({
+    sessionRepository: {
+      async revokeSessionFromCookie() {
+        localRevoked += 1;
+        return { authSource: "logto", refreshToken: REFRESH_TOKEN };
+      }
+    },
+    logtoClient: {
+      async revokeLogtoGrant() {},
+      async buildEndSessionUrl() { throw new Error("discovery unavailable"); }
+    },
+    trustedOrigin: ORIGIN
+  });
+
+  const response = await handler(request("/api/auth/logout", {
+    method: "POST",
+    cookie: `__Host-shinegame_session=${SESSION_TOKEN}; __Host-shinegame_csrf=${CSRF_TOKEN}`,
+    headers: { "x-csrf-token": CSRF_TOKEN }
+  }));
+
+  assert.equal(response.status, 200);
+  assert.equal(localRevoked, 1);
+  assert.deepEqual(await response.json(), { ok: true, endSessionUrl: null });
 });
 
 test("all four auth routes are explicitly mapped in Netlify redirects", () => {

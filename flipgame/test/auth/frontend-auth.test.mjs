@@ -12,6 +12,7 @@ function read(relativePath) {
 function browserFixture({ cookie = "__Host-shinegame_csrf=csrf-token", response = new Response("{}", { status: 200 }) } = {}) {
   const calls = [];
   const storageWrites = [];
+  const navigations = [];
   const storage = {
     getItem() { return null; },
     setItem(...args) { storageWrites.push(["set", ...args]); },
@@ -24,7 +25,8 @@ function browserFixture({ cookie = "__Host-shinegame_csrf=csrf-token", response 
       origin: "https://stage.example.com",
       pathname: "/AIAsk.html",
       search: "",
-      hash: ""
+      hash: "",
+      assign(value) { navigations.push(value); }
     },
     localStorage: storage,
     sessionStorage: storage,
@@ -33,7 +35,7 @@ function browserFixture({ cookie = "__Host-shinegame_csrf=csrf-token", response 
       return response;
     }
   };
-  return { calls, storageWrites, document, window };
+  return { calls, storageWrites, navigations, document, window };
 }
 
 async function withBrowser(fixture, callback) {
@@ -101,6 +103,55 @@ test("shared browser auth client adds CSRF without persisting credentials", asyn
     // set the forbidden Origin header itself.
     assert.equal("Origin" in request.options.headers, false);
     assert.deepEqual(fixture.storageWrites, []);
+  });
+});
+
+test("logout clears legacy browser state and uses the returned Logto URL for top-level navigation", async () => {
+  const endSessionUrl = "https://tenant.logto.app/oidc/session/end?client_id=logto-app&post_logout_redirect_uri=https%3A%2F%2Fstage.example.com%2FLogin.html%3Fauth%3Dlogged-out";
+  const fixture = browserFixture({
+    response: new Response(JSON.stringify({ ok: true, endSessionUrl }), {
+      status: 200,
+      headers: { "content-type": "application/json" }
+    })
+  });
+  await withBrowser(fixture, async () => {
+    const auth = await import(`../../assets/auth-session.js?frontend-logout-provider=${Date.now()}`);
+    const target = await auth.logout();
+    assert.equal(target, endSessionUrl);
+    assert.deepEqual(fixture.navigations, [endSessionUrl]);
+    assert.deepEqual(fixture.storageWrites, [["remove", "gotrue.user"]]);
+  });
+});
+
+test("logout rejects an untrusted provider URL and falls back to the fixed local login path", async () => {
+  const fixture = browserFixture({
+    response: new Response(JSON.stringify({ ok: true, endSessionUrl: "https://evil.example/logout" }), {
+      status: 200,
+      headers: { "content-type": "application/json" }
+    })
+  });
+  await withBrowser(fixture, async () => {
+    const auth = await import(`../../assets/auth-session.js?frontend-logout-fallback=${Date.now()}`);
+    const target = await auth.logout();
+    assert.equal(target, "/Login.html?auth=logged-out");
+    assert.deepEqual(fixture.navigations, ["/Login.html?auth=logged-out"]);
+  });
+});
+
+test("logout rejects a provider URL whose fixed post-logout origin differs from the current app", async () => {
+  const fixture = browserFixture({
+    response: new Response(JSON.stringify({
+      ok: true,
+      endSessionUrl: "https://tenant.logto.app/oidc/session/end?client_id=logto-app&post_logout_redirect_uri=https%3A%2F%2Fevil.example%2FLogin.html%3Fauth%3Dlogged-out"
+    }), {
+      status: 200,
+      headers: { "content-type": "application/json" }
+    })
+  });
+  await withBrowser(fixture, async () => {
+    const auth = await import(`../../assets/auth-session.js?frontend-logout-origin=${Date.now()}`);
+    assert.equal(await auth.logout(), "/Login.html?auth=logged-out");
+    assert.deepEqual(fixture.navigations, ["/Login.html?auth=logged-out"]);
   });
 });
 

@@ -331,7 +331,7 @@ async function listAllAccounts(sql, rawLimit) {
     [`SELECT ${ACCOUNT_COLUMNS}
        FROM accounts AS a
        ORDER BY a.created_at DESC, a.account_id
-       LIMIT `],
+       LIMIT `, ""],
     [limit]
   ));
   const accounts = rows.map(mapAccountRow);

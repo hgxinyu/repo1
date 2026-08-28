@@ -1,6 +1,7 @@
 import {
   authorizationCodeGrant as defaultAuthorizationCodeGrant,
   buildAuthorizationUrl as defaultBuildAuthorizationUrl,
+  buildEndSessionUrl as defaultBuildEndSessionUrl,
   calculatePKCECodeChallenge as defaultCalculatePKCECodeChallenge,
   discovery as defaultDiscovery,
   tokenRevocation as defaultTokenRevocation
@@ -74,7 +75,33 @@ function redirectUrl(value) {
   return parsed.href;
 }
 
-function configFrom(overrides) {
+function localHost(value) {
+  return value === "localhost" || value === "127.0.0.1";
+}
+
+function postLogoutRedirectUrl(value, redirectUri) {
+  const raw = requiredText(
+    value,
+    "AUTH_CONFIG_MISSING:LOGTO_POST_LOGOUT_REDIRECT_URI",
+    500,
+    2048
+  );
+  let parsed;
+  try {
+    parsed = new URL(raw);
+  } catch (error) {
+    throw fail("AUTH_CONFIG_INVALID:LOGTO_POST_LOGOUT_REDIRECT_URI", 500, error);
+  }
+  const local = localHost(parsed.hostname);
+  if ((local ? !["http:", "https:"].includes(parsed.protocol) : parsed.protocol !== "https:") ||
+      parsed.pathname !== "/Login.html" || parsed.search !== "?auth=logged-out" ||
+      parsed.hash || parsed.username || parsed.password || parsed.origin !== new URL(redirectUri).origin) {
+    throw fail("AUTH_CONFIG_INVALID:LOGTO_POST_LOGOUT_REDIRECT_URI", 500);
+  }
+  return parsed.href;
+}
+
+function configFrom(overrides, { requirePostLogout = false } = {}) {
   const environment = overrides.environment || process.env;
   const issuer = issuerUrl(overrides.issuer ?? environment.LOGTO_ENDPOINT);
   const clientId = requiredText(
@@ -88,7 +115,18 @@ function configFrom(overrides) {
   const configuredRedirect = overrides.redirectUri ??
     environment.LOGTO_REDIRECT_URI ?? environment.AUTH_STAGE_CALLBACK_URL ?? environment.AUTH_CALLBACK_URL;
   const redirectUri = redirectUrl(configuredRedirect);
-  return Object.freeze({ issuer, clientId, clientSecret, redirectUri });
+  const configuredPostLogoutRedirect = overrides.postLogoutRedirectUri ??
+    environment.LOGTO_POST_LOGOUT_REDIRECT_URI;
+  const callback = new URL(redirectUri);
+  const localOrTest = localHost(callback.hostname) ||
+    String(environment.NODE_ENV || "").toLowerCase() === "test" ||
+    String(environment.NETLIFY_DEV || "").toLowerCase() === "true";
+  const postLogoutCandidate = configuredPostLogoutRedirect ??
+    (localOrTest ? `${callback.origin}/Login.html?auth=logged-out` : undefined);
+  const postLogoutRedirectUri = postLogoutCandidate === undefined && !requirePostLogout
+    ? null
+    : postLogoutRedirectUrl(postLogoutCandidate, redirectUri);
+  return Object.freeze({ issuer, clientId, clientSecret, redirectUri, postLogoutRedirectUri });
 }
 
 function safeConnectorHint(value) {
@@ -184,13 +222,14 @@ export function createLogtoClient(overrides = {}) {
     ...overrides,
     discover: overrides.discover || defaultDiscovery,
     buildAuthorizationUrl: overrides.buildAuthorizationUrl || defaultBuildAuthorizationUrl,
+    buildEndSessionUrl: overrides.buildEndSessionUrl || defaultBuildEndSessionUrl,
     authorizationCodeGrant: overrides.authorizationCodeGrant || defaultAuthorizationCodeGrant,
     calculatePKCECodeChallenge: overrides.calculatePKCECodeChallenge || defaultCalculatePKCECodeChallenge,
     tokenRevocation: overrides.tokenRevocation || defaultTokenRevocation
   };
 
-  async function configuration() {
-    const config = configFrom(deps);
+  async function configuration(options = {}) {
+    const config = configFrom(deps, options);
     let result;
     try {
       result = await deps.discover(
@@ -202,8 +241,8 @@ export function createLogtoClient(overrides = {}) {
       if (error instanceof LogtoClientError) throw error;
       throw fail("LOGTO_DISCOVERY_FAILED", 502, error);
     }
-    ensureIssuer(result, config);
-    return { config, client: result };
+    const metadata = ensureIssuer(result, config);
+    return { config, client: result, metadata };
   }
 
   return Object.freeze({
@@ -220,7 +259,7 @@ export function createLogtoClient(overrides = {}) {
       const pkceVerifier = transactionValue(transaction, "pkceVerifier");
       const locale = safeLocale(input.locale);
       const connectorHint = safeConnectorHint(input.connectorHint);
-      const { config, client } = await configuration();
+      const { config, client, metadata } = await configuration();
       let codeChallenge;
       try {
         codeChallenge = await deps.calculatePKCECodeChallenge(pkceVerifier);
@@ -252,6 +291,42 @@ export function createLogtoClient(overrides = {}) {
       if (!(result instanceof URL) || result.protocol !== "https:" ||
           result.origin !== config.issuer.origin) {
         throw fail("LOGTO_AUTHORIZATION_URL_INVALID", 502);
+      }
+      return result;
+    },
+    async buildEndSessionUrl() {
+      const { config, client, metadata } = await configuration({ requirePostLogout: true });
+      const parameters = {
+        client_id: config.clientId,
+        post_logout_redirect_uri: config.postLogoutRedirectUri
+      };
+      let result;
+      try {
+        result = deps.buildEndSessionUrl(client, parameters);
+      } catch (error) {
+        throw fail("LOGTO_END_SESSION_URL_FAILED", 502, error);
+      }
+      if (!(result instanceof URL) || result.protocol !== "https:" ||
+          result.origin !== config.issuer.origin) {
+        throw fail("LOGTO_END_SESSION_URL_INVALID", 502);
+      }
+      let endpoint;
+      try {
+        endpoint = new URL(metadata.end_session_endpoint);
+      } catch {
+        throw fail("LOGTO_END_SESSION_URL_INVALID", 502);
+      }
+      if (endpoint.protocol !== "https:" || endpoint.username || endpoint.password || endpoint.hash ||
+          endpoint.origin !== config.issuer.origin || endpoint.pathname !== result.pathname) {
+        throw fail("LOGTO_END_SESSION_URL_INVALID", 502);
+      }
+      const keys = [...result.searchParams.keys()];
+      const keySet = new Set(keys);
+      if (keys.length !== 2 || !keySet.has("client_id") || !keySet.has("post_logout_redirect_uri") ||
+          result.searchParams.get("client_id") !== config.clientId ||
+          result.searchParams.get("post_logout_redirect_uri") !== config.postLogoutRedirectUri ||
+          result.searchParams.has("id_token_hint")) {
+        throw fail("LOGTO_END_SESSION_URL_INVALID", 502);
       }
       return result;
     },
@@ -296,6 +371,10 @@ export async function buildAuthorizationUrl(input) {
 
 export async function exchangeAuthorizationCode(input) {
   return createLogtoClient().exchangeAuthorizationCode(input);
+}
+
+export async function buildEndSessionUrl() {
+  return createLogtoClient().buildEndSessionUrl();
 }
 
 export async function revokeLogtoGrant(input) {

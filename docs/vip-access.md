@@ -33,6 +33,8 @@ VIP 账号可额外访问 AI玩放置
 - bridge 成功前不会把旧 Identity token 复制到 JavaScript 可读 cookie；只有服务端确认兑换成功后，才清理 `gotrue.user`、`nf_jwt` 和 `nf_refresh`。bridge session 的 idle TTL 为 14 天，absolute expiry 不得超过迁移窗口。
 - VIP 或管理员账号登录首页后，右上角账号按钮会显示醒目的 `VIP` 标记；普通注册会员和待审核账号不显示该标记。
 - 会员页和 VIP 页在 session 恢复与权限检查完成前只显示检查状态；确认未登录后才显示登录/注册入口。静态 `file://` / `:8000` 预览才使用本地 Mock；`localhost:8888` 的 Netlify local BFF 仍执行真实认证检查。
+- 注销会先撤销当前第一方 session family、尽力撤销 Logto refresh grant、清理浏览器旧状态，再把顶层窗口导航到由 BFF 基于已验证 Logto issuer 生成的 RP-Initiated end-session URL；该 URL 只带固定 `client_id` 和固定 `LOGTO_POST_LOGOUT_REDIRECT_URI`，不接受请求中的 `next`、`Referer` 或其他跳转值。若 provider discovery 或 URL 构建不可用，本地 session 仍保持已撤销，浏览器只回退到固定 `/Login.html?auth=logged-out`。
+- Logout first revokes the first-party session family, best-effort revokes the Logto refresh grant, and clears browser legacy state, then top-level navigates to an RP-Initiated end-session URL built from the verified Logto issuer. The URL carries only the fixed `client_id` and fixed `LOGTO_POST_LOGOUT_REDIRECT_URI`; request `next`, `Referer`, and other redirect values are never accepted. If provider discovery or URL construction is unavailable, local revocation still stands and the browser falls back only to `/Login.html?auth=logged-out`.
 
 ## 旧账号认领与首次登录 / Legacy verified-email claim
 
@@ -132,6 +134,7 @@ identity 仍在同一个 BFF 数据库事务中写入。
 - AI 限流表按 `(account_id, hour_start)` 原子 upsert；管理员不消耗额度。旧 `ai-question-limits` email bucket 不读不写。
 - Task 10 已完成登录/注册页面、共享浏览器 session/CSRF 客户端、能力驱动 guards 与受保护 POST 接线；Task 4/5 已在 Neon `local-test` 通过真实 Google legacy verified-email claim、VIP/profile 保留、重复登录和 unmatched readiness matrix。邮箱 OTP 的真实 delivery/callback 与 genuinely fresh-profile HTTPS stage callback 仍是发布前 gate。
 - Production Google OAuth 的公开资料固定使用 `https://shinegame.pro/`、`https://shinegame.pro/Privacy.html` 和 `https://shinegame.pro/Terms.html`；两份政策页均提供中英文版本，并从登录与注册页可达。Google consent screen 只请求 `openid profile email`，不得为通过发布检查临时增加未使用的敏感 scope。
+- 生产 Logto 应用必须登记精确的 Post Sign-out Redirect URI：`https://shinegame.pro/Login.html?auth=logged-out`；该值通过 `LOGTO_POST_LOGOUT_REDIRECT_URI` 固定配置。
 - Production import and finalization share one `(source, environment, site)` advisory-lock namespace. Import locks and reads the exact batch before any row write and refuses any reconciled/completed scope. Finalization holds that same lock while it locks and compares the full source/snapshot migration population, validates ordered migration completion evidence and the committed `accounts`、verified primary `account_emails` 和 active legacy `auth_identities`, constructs and deep-freezes the complete reconciliation report and completion time internally, then persists the batch. Read-only diagnostics, caller objects, serialized reports, and imported JSON cannot authorize finalization. Snapshot/review files are exclusive-create mode `0600`; CLI stdout contains only redacted counts, hash, and status.
 
 ## 部署要求
@@ -146,6 +149,7 @@ AUTH_DATABASE_URL=第一方 Neon BFF 限权数据库连接（不要与 Netlify D
 LOGTO_ENDPOINT=规范化 Logto OIDC issuer
 LOGTO_APP_ID=Logto 应用 ID
 LOGTO_APP_SECRET=Logto 应用 secret
+LOGTO_POST_LOGOUT_REDIRECT_URI=https://shinegame.pro/Login.html?auth=logged-out
 AUTH_HMAC_KEY=32 字节认证 HMAC key
 AUTH_ENCRYPTION_KEY=32 字节认证加密 key
 AUTH_ENCRYPTION_KEY_VERSION=1

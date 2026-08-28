@@ -30,6 +30,29 @@ function fakeTaggedSql(handler) {
   return sql;
 }
 
+function postgresContractTaggedSql(handler) {
+  const calls = [];
+  const sql = (strings, ...values) => {
+    assert.equal(Array.isArray(strings.raw), true);
+    assert.equal(
+      strings.length,
+      values.length + 1,
+      "postgres.js tagged templates require one more string than values"
+    );
+    assert.equal(strings.raw.length, strings.length);
+    const parts = Array.from(strings.raw);
+    const text = parts.reduce(
+      (result, part, index) => `${result}${part}${index < values.length ? "<param>" : ""}`,
+      ""
+    );
+    const call = { text, values };
+    calls.push(call);
+    return Promise.resolve(handler(call, calls.length - 1));
+  };
+  sql.calls = calls;
+  return sql;
+}
+
 function accountRow(overrides = {}) {
   return {
     account_id: legacyVipAccountId,
@@ -429,6 +452,19 @@ test("findAccountByLegacyUserId resolves through a permanent migration mapping",
     createdAt: "2026-08-25T00:00:00.000Z",
     updatedAt: "2026-08-25T00:00:00.000Z"
   });
+});
+
+test("listAccounts passes LIMIT through a valid postgres.js tagged-template shape", async () => {
+  const sql = postgresContractTaggedSql((call) => {
+    assert.match(call.text, /limit <param>\s*$/i);
+    assert.deepEqual(call.values, [25]);
+    return [accountRow()];
+  });
+
+  const accounts = await repositoryFor(sql).listAccounts({ limit: 25 });
+
+  assert.equal(accounts.length, 1);
+  assert.equal(accounts[0].accountId, legacyVipAccountId);
 });
 
 test("findMigrationRecordByLegacyUserId returns only a completed netlify mapping bound to its account and DB boundary", async () => {

@@ -20,6 +20,18 @@ function trustedOrigins(overrides) {
     process.env.SITE_ORIGIN ?? process.env.URL ?? "";
 }
 
+function safeEndSessionUrl(value, logtoClient) {
+  if (!(value instanceof URL) || value.protocol !== "https:" || value.username ||
+      value.password || value.hash || value.searchParams.has("id_token_hint")) return null;
+  try {
+    const issuer = new URL(logtoClient.issuerOrTenant);
+    if (value.origin !== issuer.origin) return null;
+  } catch {
+    return null;
+  }
+  return value.href;
+}
+
 export function createAuthLogoutHandler(overrides = {}) {
   const sessionRepository = overrides.sessionRepository ||
     createSessionRepository(overrides.sessionRepositoryOptions || {});
@@ -67,7 +79,17 @@ export function createAuthLogoutHandler(overrides = {}) {
         // into a retry loop in the browser.
       }
     }
-    return authJson({ ok: true }, {
+    let endSessionUrl = null;
+    if (typeof logtoClient.buildEndSessionUrl === "function") {
+      try {
+        endSessionUrl = safeEndSessionUrl(await logtoClient.buildEndSessionUrl(), logtoClient);
+      } catch {
+        // Local revocation is the logout guarantee. If discovery or provider
+        // sign-out URL construction is unavailable, the browser falls back to
+        // the fixed first-party login path.
+      }
+    }
+    return authJson({ ok: true, endSessionUrl }, {
       status: 200,
       headers: {
         "Set-Cookie": [clearSessionCookie(), clearCsrfCookie()]

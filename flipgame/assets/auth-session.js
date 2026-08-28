@@ -3,6 +3,7 @@ const LEGACY_COOKIE_NAMES = Object.freeze(["nf_jwt", "nf_refresh"]);
 const LEGACY_SESSION_COOKIE = "nf_jwt";
 const CSRF_COOKIE = "__Host-shinegame_csrf";
 const BRIDGE_ENDPOINT = "/api/auth/legacy-bridge";
+const LOGOUT_FALLBACK_PATH = "/Login.html?auth=logged-out";
 
 let bridgeInFlight = null;
 let bridgeAttempted = false;
@@ -243,6 +244,36 @@ export function getAuthMe() {
   return fetchNormalizedAuth("/api/me");
 }
 
+function safeLogoutEndSessionUrl(value) {
+  if (typeof value !== "string" || value.trim() === "") return null;
+  let parsed;
+  try {
+    parsed = new URL(value);
+  } catch {
+    return null;
+  }
+  if (parsed.protocol !== "https:" || !parsed.hostname.toLowerCase().endsWith(".logto.app") ||
+      parsed.username || parsed.password || parsed.hash || parsed.pathname !== "/oidc/session/end") {
+    return null;
+  }
+  const keys = [...parsed.searchParams.keys()];
+  if (keys.length !== 2 || !keys.includes("client_id") || !keys.includes("post_logout_redirect_uri") ||
+      parsed.searchParams.has("id_token_hint")) return null;
+  let postLogoutRedirect;
+  try {
+    postLogoutRedirect = new URL(parsed.searchParams.get("post_logout_redirect_uri"));
+  } catch {
+    return null;
+  }
+  const local = postLogoutRedirect.hostname === "localhost" || postLogoutRedirect.hostname === "127.0.0.1";
+  if ((local ? !["http:", "https:"].includes(postLogoutRedirect.protocol) :
+    postLogoutRedirect.protocol !== "https:") || postLogoutRedirect.pathname !== "/Login.html" ||
+      postLogoutRedirect.search !== "?auth=logged-out" || postLogoutRedirect.hash ||
+      postLogoutRedirect.username || postLogoutRedirect.password ||
+      postLogoutRedirect.origin !== browserOrigin()) return null;
+  return parsed.href;
+}
+
 export async function logout() {
   if (!browserAvailable() || isStaticMockPreview()) return false;
   const response = await authFetch("/api/auth/logout", {
@@ -252,8 +283,12 @@ export async function logout() {
   if (!response || !response.ok) {
     throw authError("AUTH_LOGOUT_FAILED", `Logout failed (${response ? response.status : "network"})`);
   }
+  const payload = await responseJson(response);
+  const endSessionUrl = safeLogoutEndSessionUrl(payload?.endSessionUrl);
   clearLegacyBrowserState();
-  return true;
+  const target = endSessionUrl || LOGOUT_FALLBACK_PATH;
+  window.location.assign(target);
+  return target;
 }
 
 const SAFE_REDIRECT_PATHS = new Set([

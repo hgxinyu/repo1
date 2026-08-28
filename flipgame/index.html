@@ -1974,7 +1974,6 @@
         if (LOCAL_MOCK_MODE) return;
         try {
           await logout();
-          window.location.href = "index.html";
         } catch {
           if (accountName) accountName.textContent = "注销失败，请重试";
         }
