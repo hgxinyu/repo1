@@ -38,6 +38,7 @@ const ACCOUNT_RETURNING_COLUMNS = `
 // processes. Hash collisions only serialize unrelated subjects; correctness
 // still comes from the identity rows and the database unique index.
 const SUBJECT_SERIALIZATION_SEED = 20260825;
+const EMAIL_SERIALIZATION_SEED = 20260826;
 const NEW_ACCOUNT_CONNECTOR_SCOPES = new Set(["logto"]);
 // PostgreSQL UUID accepts both cases and does not require a particular UUID
 // version/variant. Keep the boundary strict about shape, then canonicalize
@@ -727,15 +728,30 @@ async function claimWithTransaction(transaction, rawInput, deps) {
   const lookupHash = await deps.emailLookupHash(input.normalizedEmail);
   if (lookupHash === undefined || lookupHash === null) throw new AuthError("AUTH_INPUT_INVALID", 400);
 
-  // Fixed order: active email row, then permanent account row, then identities.
+  // The runtime role intentionally has no UPDATE privilege on email or
+  // identity rows, so PostgreSQL row-locking SELECTs are not available here.
+  // Serialize claims by the non-reversible email lookup key instead.
+  await rowsFrom(query(
+    transaction,
+    [
+      `SELECT pg_advisory_xact_lock(
+         hashtextextended(encode(CAST(`,
+      ` AS bytea), 'hex'), `,
+      `)
+       )`
+    ],
+    [lookupHash, EMAIL_SERIALIZATION_SEED]
+  ));
+
+  // Fixed order: email advisory lock, active email row, permanent account,
+  // subject advisory lock, then identities.
   const emailRows = await rowsFrom(query(
     transaction,
     [
       `SELECT email_id, account_id, email_lookup_hash, verified_at, removed_at
        FROM account_emails
        WHERE email_lookup_hash = `,
-      ` AND removed_at IS NULL
-       FOR UPDATE`
+      ` AND removed_at IS NULL`
     ],
     [lookupHash]
   ));
@@ -750,8 +766,7 @@ async function claimWithTransaction(transaction, rawInput, deps) {
     transaction,
     [`SELECT ${ACCOUNT_RETURNING_COLUMNS}
       FROM accounts
-      WHERE account_id = `, ` AND status = 'active'
-      FOR UPDATE`],
+      WHERE account_id = `, ` AND status = 'active'`],
     [accountId]
   ));
   if (accountRows.length !== 1) throw conflict();
@@ -784,8 +799,7 @@ async function claimWithTransaction(transaction, rawInput, deps) {
       ` AND provider_subject = `,
         ` AND subject_type = 'sub'
          AND status = 'active'
-         AND revoked_at IS NULL
-       FOR UPDATE`
+         AND revoked_at IS NULL`
     ],
     [input.issuerOrTenant, input.logtoSubject]
   ));
@@ -836,8 +850,7 @@ async function claimWithTransaction(transaction, rawInput, deps) {
       ` AND provider_subject = `,
       ` AND subject_type = 'sub'
          AND status = 'active'
-         AND revoked_at IS NULL
-       FOR UPDATE`
+         AND revoked_at IS NULL`
     ],
     [accountId, input.issuerOrTenant, input.connectorScope, input.logtoSubject]
   ));

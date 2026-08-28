@@ -97,6 +97,18 @@ OAuth transaction/session/AI 限流的精确列级 INSERT/UPDATE；以及
 写入保持 owner-only。BFF 运行时必须通过受控的该角色上下文执行数据库请求，
 不得使用 Neon owner 作为应用运行角色；部署前应重跑 PostgreSQL role smoke。
 
+旧账号按已验证邮箱认领时，事务先以不可逆的 `email_lookup_hash` 获取 advisory
+lock，再以规范化 issuer + Logto `sub` 获取第二把 advisory lock；邮箱、账号和
+identity 的解析都使用普通 `SELECT`。不要为了使用 `SELECT ... FOR UPDATE` 而给
+BFF 增加 `account_emails` 或 `auth_identities` 的直接 UPDATE 权限。数据库唯一索引
+仍是最终归属约束，advisory lock 只负责把并发认领按固定顺序串行化。
+
+Legacy verified-email claims acquire transaction-scoped advisory locks for the
+non-reversible email lookup key and then the canonical issuer plus Logto `sub`.
+Email, account, and identity resolution uses ordinary `SELECT` statements so the
+least-privilege BFF role does not need direct UPDATE access to email or identity
+rows; database uniqueness remains the final ownership constraint.
+
 其中，BFF 没有 `accounts` 表的直接 `INSERT` 权限。新账号只能调用
 `public.create_free_account(text, text)`；这是 `SECURITY DEFINER` 函数，只接收
 公会和游戏名，并在函数体内固定写入 `role=free`、`status=active`。该函数的

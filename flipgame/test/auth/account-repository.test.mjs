@@ -12,6 +12,7 @@ const legacyVipAccountId = "11111111-1111-4111-8111-111111111111";
 const secondAccountId = "22222222-2222-4222-8222-222222222222";
 const thirdAccountId = "33333333-3333-4333-8333-333333333333";
 const subjectLockSeed = 20260825;
+const emailLockSeed = 20260826;
 
 function fakeTaggedSql(handler) {
   const calls = [];
@@ -580,7 +581,7 @@ test("findReconciledMigrationBatch ignores caller environment and site overrides
   });
 });
 
-test("verified email claim binds one Logto subject to one legacy account", async () => {
+test("verified email claim uses advisory locks without UPDATE-only row locks", async () => {
   const sql = fakeTaggedSql((call) => {
     if (/from account_emails/i.test(call.text)) {
       return [{ account_id: legacyVipAccountId, verified_at: "2026-08-25T00:00:00.000Z" }];
@@ -600,16 +601,21 @@ test("verified email claim binds one Logto subject to one legacy account", async
   });
 
   assert.deepEqual(result, { kind: "claimed", accountId: legacyVipAccountId });
+  assert.match(sql.calls[0].text, /pg_advisory_xact_lock/i);
+  assert.match(sql.calls[0].text, /encode/i);
   assert.equal(sql.calls[0].values[0].toString(), "hash-for-vip-email");
-  assert.match(sql.calls[0].text, /for update/i);
-  assert.match(sql.calls[1].text, /from accounts/i);
-  assert.match(sql.calls[1].text, /for update/i);
-  assert.match(sql.calls[2].text, /pg_advisory_xact_lock/i);
-  assert.deepEqual(sql.calls[2].values, ["tenant-dev", "logto-user-1", subjectLockSeed]);
-  assert.match(sql.calls[3].text, /from auth_identities/i);
-  assert.match(sql.calls[3].text, /for update/i);
-  assert.deepEqual(sql.calls[1].values, [legacyVipAccountId]);
-  assert.deepEqual(sql.calls[3].values, ["tenant-dev", "logto-user-1"]);
+  assert.equal(sql.calls[0].values[1], emailLockSeed);
+  assert.match(sql.calls[1].text, /from account_emails/i);
+  assert.equal(sql.calls[1].values[0].toString(), "hash-for-vip-email");
+  assert.doesNotMatch(sql.calls[1].text, /for update/i);
+  assert.match(sql.calls[2].text, /from accounts/i);
+  assert.doesNotMatch(sql.calls[2].text, /for update/i);
+  assert.match(sql.calls[3].text, /pg_advisory_xact_lock/i);
+  assert.deepEqual(sql.calls[3].values, ["tenant-dev", "logto-user-1", subjectLockSeed]);
+  assert.match(sql.calls[4].text, /from auth_identities/i);
+  assert.doesNotMatch(sql.calls[4].text, /for update/i);
+  assert.deepEqual(sql.calls[2].values, [legacyVipAccountId]);
+  assert.deepEqual(sql.calls[4].values, ["tenant-dev", "logto-user-1"]);
   const insert = sql.calls.find(({ text }) => /insert into auth_identities/i.test(text));
   assert.deepEqual(insert.values, [
     legacyVipAccountId,
@@ -630,6 +636,10 @@ test("claim serializes an issuer subject before reading or inserting identities"
     if (/from account_emails/i.test(call.text)) return [{ account_id: legacyVipAccountId, verified_at: "now" }];
     if (/from accounts/i.test(call.text)) return [accountRow()];
     if (/pg_advisory_xact_lock/i.test(call.text)) {
+      if (call.values.length === 2) {
+        assert.deepEqual(call.values, [Buffer.from("hash-for-vip-email"), emailLockSeed]);
+        return [];
+      }
       lockIndex = index;
       assert.match(call.text, /hashtextextended/i);
       assert.match(call.text, /chr\(31\)/i);
@@ -642,7 +652,7 @@ test("claim serializes an issuer subject before reading or inserting identities"
       assert.match(call.text, /provider_subject/i);
       assert.match(call.text, /subject_type\s*=\s*'sub'/i);
       assert.match(call.text, /status\s*=\s*'active'/i);
-      assert.match(call.text, /for update/i);
+      assert.doesNotMatch(call.text, /for update/i);
       assert.deepEqual(call.values, ["tenant-dev", "logto-user-1"]);
       return [];
     }
@@ -664,6 +674,7 @@ test("claim serializes an issuer subject before reading or inserting identities"
 
 test("missing verified email returns new_account without creating an identity", async () => {
   const sql = fakeTaggedSql((call) => {
+    if (/pg_advisory_xact_lock/i.test(call.text)) return [];
     assert.match(call.text, /from account_emails/i);
     return [];
   });
@@ -676,11 +687,12 @@ test("missing verified email returns new_account without creating an identity", 
   });
 
   assert.deepEqual(result, { kind: "new_account" });
-  assert.equal(sql.calls.length, 1);
+  assert.equal(sql.calls.length, 2);
 });
 
 test("a matching active email row without verified_at conflicts instead of creating a new account", async () => {
   const sql = fakeTaggedSql((call) => {
+    if (/pg_advisory_xact_lock/i.test(call.text)) return [];
     if (/from account_emails/i.test(call.text)) {
       return [{ account_id: legacyVipAccountId, verified_at: null }];
     }
@@ -696,7 +708,7 @@ test("a matching active email row without verified_at conflicts instead of creat
     }),
     (error) => error.code === "ACCOUNT_CLAIM_CONFLICT" && error.status === 409
   );
-  assert.equal(sql.calls.length, 1);
+  assert.equal(sql.calls.length, 2);
 });
 
 test("a different-account identity on another connector still fails closed", async () => {
@@ -809,6 +821,10 @@ test("the same Logto subject on another connector still claims the requested sco
 
 test("direct claim operation accepts an explicitly injected email lookup hash", async () => {
   const sql = fakeTaggedSql((call) => {
+    if (/pg_advisory_xact_lock/i.test(call.text)) {
+      assert.deepEqual(call.values, ["injected-hash", emailLockSeed]);
+      return [];
+    }
     assert.match(call.text, /from account_emails/i);
     assert.equal(call.values[0], "injected-hash");
     return [];
@@ -890,7 +906,7 @@ test("an empty scoped identity insert reads its owner before returning idempoten
   assert.deepEqual(result, { kind: "claimed", accountId: legacyVipAccountId });
   const ownerQuery = sql.calls.filter(({ text }) => /from auth_identities/i.test(text)).at(-1);
   assert.match(ownerQuery.text, /account_id =/i);
-  assert.match(ownerQuery.text, /for update/i);
+  assert.doesNotMatch(ownerQuery.text, /for update/i);
   assert.deepEqual(ownerQuery.values, [
     legacyVipAccountId,
     "tenant-dev",
