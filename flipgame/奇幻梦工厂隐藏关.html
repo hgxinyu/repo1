@@ -22,8 +22,6 @@
       document.write('<meta name="theme-color" content="' + theme + '">');
     })();
   </script>
-  <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700&display=swap" rel="stylesheet">
   <style>
     :root{
       --gap:12px; --radius:16px; --shadow:0 6px 16px rgba(0,0,0,.06);
@@ -77,6 +75,8 @@
     .logo-bottom-left .logo-dot{width:8px;height:8px;border-radius:999px;background:linear-gradient(135deg,#6366f1,#22c55e)}
     .muted{color:var(--muted);font-size:13px}
   </style>
+  <link rel="stylesheet" href="assets/home-nav.css">
+  <script src="assets/home-navigation.js" defer></script>
 </head>
 <body>
   <div id="topbar-nav">
@@ -102,13 +102,6 @@
         </div>
       </div>
     </main>
-  </div>
-
-  <div class="logo-bottom-left">
-    <span class="logo-dot"></span>
-    <span class="logo-by">By</span>
-    <span class="logo-cn">国风*</span>
-    <span class="logo-en">ShinE</span>
   </div>
 
   <script>
@@ -237,7 +230,7 @@
           active = false;
           if (horizontalIntent && dx >= 72 && Math.abs(dy) <= 54) {
             requestAnimationFrame(() => {
-              window.location.replace('index.html');
+              window.flipgameReturnHome({ replaceFallback: true });
             });
           }
           horizontalIntent = false;

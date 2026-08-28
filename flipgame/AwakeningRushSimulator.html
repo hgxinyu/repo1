@@ -22,9 +22,6 @@
       document.write('<meta name="theme-color" content="' + theme + '">');
     })();
   </script>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700&display=swap" rel="stylesheet">
   <style>
     :root {
       --gap: 12px;
@@ -730,6 +727,9 @@
       }
     }
   </style>
+  <link rel="stylesheet" href="assets/home-nav.css">
+  <script src="assets/home-navigation.js" defer></script>
+  <link rel="stylesheet" href="assets/calculator-input-highlight.css">
 </head>
 <body class="auth-checking">
   <nav id="topbar-nav" aria-label="页面导航">
@@ -862,13 +862,6 @@
     </main>
   </div>
 
-  <div class="logo-bottom-left">
-    <span class="logo-dot"></span>
-    <span class="logo-by">By</span>
-    <span class="logo-cn">国风*</span>
-    <span class="logo-en">ShinE</span>
-  </div>
-
   <script>
     (function () {
       const MAX_DIAMONDS = 2000000;
@@ -961,6 +954,7 @@
           nav_label: '页面导航',
           nav_home: '回到主页',
           page_title: '觉醒冲榜模拟器',
+          member_badge: '会员',
           page_desc: '每次觉醒先计分，B+ 及以下分解返钻，A- 及以上保留。',
           calc_title: '输入绑钻数量后模拟一次冲榜结果',
           kept_title: '资质分布',
@@ -1007,6 +1001,7 @@
           nav_label: 'Page Navigation',
           nav_home: 'Home',
           page_title: 'Awakening Gala Simulator',
+          member_badge: 'Member',
           page_desc: 'Each awakening scores first. B+ and below are recycled. A- and above are kept.',
           calc_title: 'Enter bound diamonds and simulate one run',
           kept_title: 'Tier Distribution',
@@ -1107,7 +1102,7 @@
           pageTitle.textContent = t('page_title');
           const badge = document.createElement('span');
           badge.className = 'vip-page-badge';
-          badge.textContent = '会员';
+          badge.textContent = t('member_badge');
           pageTitle.appendChild(badge);
         }
         if (pageDesc) pageDesc.textContent = t('page_desc');

@@ -46,6 +46,17 @@
       line-height: 1.6;
     }
     body { display: flex; flex-direction: column; align-items: center; }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
     nav#topbar-nav {
       position: fixed;
       right: 12px;
@@ -101,6 +112,88 @@
       color: var(--muted);
       font-size: 15px;
     }
+    .search-panel {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+    }
+    .search-field {
+      position: relative;
+      min-width: 0;
+    }
+    .search-field::before {
+      content: "⌕";
+      position: absolute;
+      left: 13px;
+      top: 50%;
+      transform: translateY(-52%);
+      color: #0f766e;
+      font-size: 22px;
+      line-height: 1;
+      pointer-events: none;
+    }
+    .search-input {
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 42px 10px 42px;
+      border: 1px solid rgba(15, 118, 110, 0.28);
+      border-radius: 12px;
+      background: #eef7f4;
+      color: var(--ink);
+      font: inherit;
+      box-shadow: inset 0 1px rgba(255, 255, 255, 0.7);
+      transition: border-color .18s ease, background .18s ease, box-shadow .18s ease;
+    }
+    .search-input:focus-visible {
+      border-color: #0f766e;
+      background: #fff;
+      outline: 3px solid rgba(15, 118, 110, 0.13);
+      outline-offset: 1px;
+      box-shadow: 0 8px 20px rgba(15, 118, 110, 0.12);
+    }
+    .search-clear {
+      position: absolute;
+      right: 7px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 30px;
+      height: 30px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      border: 0;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 18px;
+      cursor: pointer;
+    }
+    .search-clear.is-visible { display: inline-flex; }
+    .search-clear:hover { background: rgba(15, 118, 110, 0.09); color: #0f766e; }
+    .search-status {
+      min-width: 74px;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: right;
+      white-space: nowrap;
+    }
+    .no-results {
+      display: none;
+      padding: 34px 18px;
+      border: 1px dashed rgba(15, 118, 110, 0.3);
+      border-radius: var(--radius);
+      background: rgba(238, 247, 244, 0.7);
+      color: #35635d;
+      text-align: center;
+    }
+    .no-results.is-visible { display: block; }
+    .card-link[hidden] { display: none; }
     .cards {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -118,6 +211,8 @@
       color: var(--ink);
       box-shadow: var(--shadow);
       transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+      content-visibility: auto;
+      contain-intrinsic-size: 280px;
     }
     .card-link img {
       width: 100%;
@@ -192,12 +287,17 @@
       nav#topbar-nav { position: static; align-self: flex-end; margin: 8px 8px 0 auto; }
       nav#topbar-nav a { padding: 8px 12px; font-size: 13px; }
       .wrap { padding-top: 16px; }
+      .search-panel { grid-template-columns: 1fr; gap: 5px; padding: 8px; }
+      .search-input { min-height: 42px; font-size: 16px; }
+      .search-status { min-width: 0; padding: 0 4px 2px; text-align: left; }
       .image-overlay { padding: 16px; }
       .image-overlay img {
         max-width: calc(100vw - 32px);
       }
     }
   </style>
+  <link rel="stylesheet" href="assets/home-nav.css">
+  <script src="assets/home-navigation.js" defer></script>
 </head>
 <body>
   <nav id="topbar-nav" aria-label="页面导航">
@@ -210,103 +310,113 @@
       <p class="credit" id="creditText">部分图片收集于网络、公众号，特此感谢作者！</p>
     </section>
 
-    <div class="cards" aria-label="攻略图片列表">
+    <div class="search-panel" role="search">
+      <div class="search-field">
+        <label class="sr-only" for="guideSearch" id="searchLabel">搜索攻略图片</label>
+        <input class="search-input" id="guideSearch" type="search" autocomplete="off" placeholder="搜索标题或说明…" />
+        <button class="search-clear" id="searchClear" type="button" aria-label="清空搜索">×</button>
+      </div>
+      <div class="search-status" id="searchStatus" aria-live="polite"></div>
+    </div>
+
+    <div class="cards" id="guideCards" aria-label="攻略图片列表">
       <a class="card-link" href="images/qihuan.jpg" data-image="images/qihuan.jpg" data-image-en="images/qihuan.jpg">
-        <span class="thumb"><img src="images/qihuan.jpg" alt="奇幻梦工厂隐藏关" id="qihuanImg" /></span>
+        <span class="thumb"><img src="images/qihuan.jpg" alt="奇幻梦工厂隐藏关" id="qihuanImg" loading="lazy" decoding="async" /></span>
         <span class="title" id="cardQihuanTitle">奇幻梦工厂隐藏关</span>
         <span class="subtitle" id="cardQihuanSub">查看隐藏关参考图与说明</span>
       </a>
       <a class="card-link" href="images/root-level-guide.png" data-image="images/root-level-guide.png" data-image-en="images/root-level-guide-en.png">
-        <span class="thumb"><img src="images/root-level-guide.png" alt="根源等级" id="genyuanImg" /></span>
+        <span class="thumb"><img src="images/root-level-guide.png" alt="根源等级" id="genyuanImg" loading="lazy" decoding="async" /></span>
         <span class="title" id="cardGenyuanTitle">根源等级</span>
         <span class="subtitle" id="cardGenyuanSub">查看根源等级攻略图</span>
       </a>
       <a class="card-link" href="images/destiny-upgrade-guide.png" data-image="images/destiny-upgrade-guide.png" data-image-en="images/destiny-upgrade-guide-en.png">
-        <span class="thumb"><img src="images/destiny-upgrade-guide.png" alt="飞升升级资源" id="destinyUpgradeImg" /></span>
+        <span class="thumb"><img src="images/destiny-upgrade-guide.png" alt="飞升升级资源" id="destinyUpgradeImg" loading="lazy" decoding="async" /></span>
         <span class="title" id="cardDestinyUpgradeTitle">飞升升级资源</span>
         <span class="subtitle" id="cardDestinyUpgradeSub">查看飞升 1 到 6 资源攻略图</span>
       </a>
       <a class="card-link" href="images/destiny-temple-guide.png" data-image="images/destiny-temple-guide.png" data-image-en="images/destiny-temple-guide-en.png">
-        <span class="thumb"><img src="images/destiny-temple-guide.png" alt="飞升殿堂升级资料" id="destinyTempleImg" /></span>
+        <span class="thumb"><img src="images/destiny-temple-guide.png" alt="飞升殿堂升级资料" id="destinyTempleImg" loading="lazy" decoding="async" /></span>
         <span class="title" id="cardDestinyTempleTitle">飞升殿堂升级资料</span>
         <span class="subtitle" id="cardDestinyTempleSub">查看殿堂 1 到 30 升级资料图</span>
       </a>
       <a class="card-link" href="images/root-infusion-set-guide.png" data-image="images/root-infusion-set-guide.png" data-image-en="images/root-infusion-set-guide-en.png">
-        <span class="thumb"><img src="images/root-infusion-set-guide.png" alt="根源灌注套装效果" id="rootInfusionSetImg" /></span>
+        <span class="thumb"><img src="images/root-infusion-set-guide.png" alt="根源灌注套装效果" id="rootInfusionSetImg" loading="lazy" decoding="async" /></span>
         <span class="title" id="cardRootInfusionSetTitle">根源灌注套装效果</span>
         <span class="subtitle" id="cardRootInfusionSetSub">查看六种唤醒套装 Lv1→Lv7 效果速览</span>
       </a>
       <a class="card-link" href="images/imprint-infusion-guide.png" data-image="images/imprint-infusion-guide.png" data-image-en="images/imprint-infusion-guide-en.png">
-        <span class="thumb"><img src="images/imprint-infusion-guide.png" alt="印痕灌注" id="guanzhuImg" /></span>
+        <span class="thumb"><img src="images/imprint-infusion-guide.png" alt="印痕灌注" id="guanzhuImg" loading="lazy" decoding="async" /></span>
         <span class="title" id="cardGuanzhuTitle">印痕灌注</span>
         <span class="subtitle" id="cardGuanzhuSub">查看印痕灌注攻略图</span>
       </a>
       <a class="card-link" href="images/imprint-branch-guide.png" data-image="images/imprint-branch-guide.png" data-image-en="images/imprint-branch-guide-en.png">
-        <span class="thumb"><img src="images/imprint-branch-guide.png" alt="印痕灌注分支选择" id="imprintBranchImg" /></span>
+        <span class="thumb"><img src="images/imprint-branch-guide.png" alt="印痕灌注分支选择" id="imprintBranchImg" loading="lazy" decoding="async" /></span>
         <span class="title" id="cardImprintBranchTitle">印痕灌注分支选择</span>
         <span class="subtitle" id="cardImprintBranchSub">查看利刃、强壁、精神 18 条分支选择建议</span>
       </a>
       <a class="card-link" href="images/%E8%BF%9C%E5%BE%81%E6%8E%A8%E5%9B%BE.jpeg" data-image="images/远征推图.jpeg" data-image-en="images/expedition-stage-map-en.png">
-        <span class="thumb"><img src="images/远征推图.jpeg" alt="远征推图" id="mapImg" /></span>
+        <span class="thumb"><img src="images/远征推图.jpeg" alt="远征推图" id="mapImg" loading="lazy" decoding="async" /></span>
         <span class="title" id="cardMapTitle">远征推图</span>
         <span class="subtitle" id="cardMapSub">查看远征推图攻略图</span>
       </a>
       <a class="card-link" href="images/void-invasion-boss-guide.png" data-image="images/void-invasion-boss-guide.png" data-image-en="images/void-invasion-boss-guide-en.png">
-        <span class="thumb"><img src="images/void-invasion-boss-guide.png" alt="虚空入侵 Boss 技能" id="voidInvasionBossImg" /></span>
+        <span class="thumb"><img src="images/void-invasion-boss-guide.png" alt="虚空入侵 Boss 技能" id="voidInvasionBossImg" loading="lazy" decoding="async" /></span>
         <span class="title" id="cardVoidInvasionBossTitle">虚空入侵 Boss 技能</span>
         <span class="subtitle" id="cardVoidInvasionBossSub">查看图一到图七 Boss 技能与应对重点</span>
       </a>
       <a class="card-link" href="images/se-boss-hp-guide.png" data-image="images/se-boss-hp-guide.png" data-image-en="images/se-boss-hp-guide-en.png">
-        <span class="thumb"><img src="images/se-boss-hp-guide.png" alt="彩章血量积分" id="seBossHpImg" /></span>
+        <span class="thumb"><img src="images/se-boss-hp-guide.png" alt="彩章血量积分" id="seBossHpImg" loading="lazy" decoding="async" /></span>
         <span class="title" id="cardSeBossHpTitle">彩章血量积分</span>
         <span class="subtitle" id="cardSeBossHpSub">查看远征章鱼 100 到 1 层血量积分</span>
       </a>
       <a class="card-link" href="images/awakening-rate-guide.png" data-image="images/awakening-rate-guide.png" data-image-en="images/awakening-rate-guide-en.png">
-        <span class="thumb"><img src="images/awakening-rate-guide.png" alt="觉醒概率" id="awakenImg" /></span>
+        <span class="thumb"><img src="images/awakening-rate-guide.png" alt="觉醒概率" id="awakenImg" loading="lazy" decoding="async" /></span>
         <span class="title" id="cardAwakenTitle">觉醒概率</span>
         <span class="subtitle" id="cardAwakenSub">查看觉醒概率攻略图</span>
       </a>
       <a class="card-link" href="images/merge-requirements-guide.png" data-image="images/merge-requirements-guide.png" data-image-en="images/merge-requirements-guide-en.png">
-        <span class="thumb"><img src="images/merge-requirements-guide.png" alt="升格需求" id="mergeNeedImg" /></span>
+        <span class="thumb"><img src="images/merge-requirements-guide.png" alt="升格需求" id="mergeNeedImg" loading="lazy" decoding="async" /></span>
         <span class="title" id="cardMergeNeedTitle">升格需求</span>
         <span class="subtitle" id="cardMergeNeedSub">查看升格需求攻略图</span>
       </a>
       <a class="card-link" href="images/breakdown-soulpower-guide.png" data-image="images/breakdown-soulpower-guide.png" data-image-en="images/breakdown-soulpower-guide-en.png">
-        <span class="thumb"><img src="images/breakdown-soulpower-guide.png" alt="分解资质所得魂力性价比" id="breakdownImg" /></span>
+        <span class="thumb"><img src="images/breakdown-soulpower-guide.png" alt="分解资质所得魂力性价比" id="breakdownImg" loading="lazy" decoding="async" /></span>
         <span class="title" id="cardBreakdownTitle">分解资质所得魂力性价比</span>
         <span class="subtitle" id="cardBreakdownSub">查看分解资质魂力性价比攻略图</span>
       </a>
       <a class="card-link" href="images/empower-infusion-guide.png" data-image="images/empower-infusion-guide.png" data-image-en="images/empower-infusion-guide-en.png">
-        <span class="thumb"><img src="images/empower-infusion-guide.png" alt="赋能灌注" id="empowerImg" /></span>
+        <span class="thumb"><img src="images/empower-infusion-guide.png" alt="赋能灌注" id="empowerImg" loading="lazy" decoding="async" /></span>
         <span class="title" id="cardEmpowerTitle">赋能灌注</span>
         <span class="subtitle" id="cardEmpowerSub">查看赋能灌注攻略图</span>
       </a>
       <a class="card-link" href="images/fund-material-value-guide.png" data-image="images/fund-material-value-guide.png" data-image-en="images/fund-material-value-guide-en.png">
-        <span class="thumb"><img src="images/fund-material-value-guide.png" alt="基金材料性价比" id="fundMaterialImg" /></span>
+        <span class="thumb"><img src="images/fund-material-value-guide.png" alt="基金材料性价比" id="fundMaterialImg" loading="lazy" decoding="async" /></span>
         <span class="title" id="cardFundMaterialTitle">基金材料性价比</span>
         <span class="subtitle" id="cardFundMaterialSub">查看基金材料兑换性价比攻略图</span>
       </a>
       <a class="card-link" href="images/grimoire-upgrade-guide.png" data-image="images/grimoire-upgrade-guide.png" data-image-en="images/grimoire-upgrade-guide-en.png">
-        <span class="thumb"><img src="images/grimoire-upgrade-guide.png" alt="魔典升级需求" id="grimoireUpgradeImg" /></span>
+        <span class="thumb"><img src="images/grimoire-upgrade-guide.png" alt="魔典升级需求" id="grimoireUpgradeImg" loading="lazy" decoding="async" /></span>
         <span class="title" id="cardGrimoireUpgradeTitle">魔典升级需求</span>
         <span class="subtitle" id="cardGrimoireUpgradeSub">查看赋能魔典和印痕魔典升级材料</span>
       </a>
       <a class="card-link" href="images/starsoul-upgrade-guide.png" data-image="images/starsoul-upgrade-guide.png" data-image-en="images/starsoul-upgrade-guide-en.png">
-        <span class="thumb"><img src="images/starsoul-upgrade-guide.png" alt="星魂升级材料" id="starsoulUpgradeImg" /></span>
+        <span class="thumb"><img src="images/starsoul-upgrade-guide.png" alt="星魂升级材料" id="starsoulUpgradeImg" loading="lazy" decoding="async" /></span>
         <span class="title" id="cardStarsoulUpgradeTitle">星魂升级材料</span>
         <span class="subtitle" id="cardStarsoulUpgradeSub">查看星魂到 24 级和命轨升级材料需求</span>
       </a>
       <a class="card-link" href="images/battle-buff-debuff-icons-guide.png" data-image="images/battle-buff-debuff-icons-guide.png" data-image-en="images/battle-buff-debuff-icons-guide-en.png">
-        <span class="thumb"><img src="images/battle-buff-debuff-icons-guide.png" alt="战斗Buff/Debuff图标" id="iconImg" /></span>
+        <span class="thumb"><img src="images/battle-buff-debuff-icons-guide.png" alt="战斗Buff/Debuff图标" id="iconImg" loading="lazy" decoding="async" /></span>
         <span class="title" id="cardIconTitle">战斗Buff/Debuff图标</span>
         <span class="subtitle" id="cardIconSub">查看战斗Buff/Debuff图标攻略图</span>
       </a>
       <a class="card-link" href="images/attribute-explanation-guide.png" data-images="images/attribute-explanation-guide.png|images/attribute-formula-guide.png" data-images-en="images/attribute-explanation-guide-en.png|images/attribute-formula-guide-en.png">
-        <span class="thumb"><img src="images/attribute-explanation-guide.png" alt="属性具体解释和算法" id="attrExplainImg" /></span>
+        <span class="thumb"><img src="images/attribute-explanation-guide.png" alt="属性具体解释和算法" id="attrExplainImg" loading="lazy" decoding="async" /></span>
         <span class="title" id="cardAttrExplainTitle">属性具体解释和算法</span>
         <span class="subtitle" id="cardAttrExplainSub">查看属性解释攻略图</span>
       </a>
     </div>
+    <div class="no-results" id="noResults" role="status">没有找到匹配的攻略图片。</div>
 
   </div>
   <div class="image-overlay" id="imageOverlay" aria-hidden="true">
@@ -379,6 +489,12 @@
       const imageOverlay = document.getElementById('imageOverlay');
       const overlayImages = document.getElementById('overlayImages');
       const overlayClose = document.getElementById('overlayClose');
+      const guideSearch = document.getElementById('guideSearch');
+      const searchLabel = document.getElementById('searchLabel');
+      const searchClear = document.getElementById('searchClear');
+      const searchStatus = document.getElementById('searchStatus');
+      const guideCards = document.getElementById('guideCards');
+      const noResults = document.getElementById('noResults');
       const guideCardLinks = Array.from(document.querySelectorAll('.card-link[data-image], .card-link[data-images]'));
       const englishImageVersion = '20260801-2';
 
@@ -394,6 +510,13 @@
           nav_home: '回到主页',
           page_title: '攻略图片',
           credit_text: '部分图片收集于网络、公众号，特此感谢作者！',
+          search_label: '搜索攻略图片',
+          search_placeholder: '搜索标题或说明…',
+          search_clear: '清空搜索',
+          search_results: '找到 {count} 张',
+          search_total: '共 {count} 张',
+          search_empty: '没有找到匹配的攻略图片。',
+          cards_label: '攻略图片列表',
           card_qihuan_title: '奇幻梦工厂隐藏关',
           card_qihuan_sub: '查看隐藏关参考图与说明',
           img_alt: '奇幻梦工厂隐藏关',
@@ -457,6 +580,13 @@
           nav_home: 'Home',
           page_title: 'Guide Images',
           credit_text: 'Some images are collected from online sources and public accounts. Special thanks to the original authors.',
+          search_label: 'Search guide images',
+          search_placeholder: 'Search titles or descriptions…',
+          search_clear: 'Clear search',
+          search_results: '{count} found',
+          search_total: '{count} guides',
+          search_empty: 'No matching guide images found.',
+          cards_label: 'Guide image list',
           card_qihuan_title: 'Fantasy Factory Secret Stage',
           card_qihuan_sub: 'Open the secret stage reference image and notes',
           img_alt: 'Fantasy Factory secret stage',
@@ -548,6 +678,11 @@
         if (navHome) navHome.textContent = t('nav_home');
         if (pageTitle) pageTitle.textContent = t('page_title');
         if (creditText) creditText.textContent = t('credit_text');
+        if (searchLabel) searchLabel.textContent = t('search_label');
+        if (guideSearch) guideSearch.setAttribute('placeholder', t('search_placeholder'));
+        if (searchClear) searchClear.setAttribute('aria-label', t('search_clear'));
+        if (guideCards) guideCards.setAttribute('aria-label', t('cards_label'));
+        if (noResults) noResults.textContent = t('search_empty');
         if (cardQihuanTitle) cardQihuanTitle.textContent = t('card_qihuan_title');
         if (cardQihuanSub) cardQihuanSub.textContent = t('card_qihuan_sub');
         if (qihuanImg) qihuanImg.setAttribute('alt', t('img_alt'));
@@ -606,6 +741,39 @@
         if (cardAttrExplainSub) cardAttrExplainSub.textContent = t('card_attrexplain_sub');
         if (attrExplainImg) attrExplainImg.setAttribute('alt', t('attrexplain_alt'));
         applyLocalizedImages();
+        filterGuides();
+      }
+
+      function formatCount(key, count) {
+        return String(t(key)).replace('{count}', String(count));
+      }
+
+      function normalizeSearchText(value) {
+        return String(value || '').normalize('NFKC').toLocaleLowerCase().replace(/\s+/g, ' ').trim();
+      }
+
+      function filterGuides() {
+        const query = normalizeSearchText(guideSearch && guideSearch.value);
+        const terms = query ? query.split(' ').filter(Boolean) : [];
+        let visibleCount = 0;
+        guideCardLinks.forEach((card) => {
+          const image = card.querySelector('img');
+          const haystack = normalizeSearchText([
+            card.textContent,
+            image && image.alt,
+            card.getAttribute('href'),
+            card.getAttribute('data-image'),
+            card.getAttribute('data-images'),
+            card.getAttribute('data-image-en'),
+            card.getAttribute('data-images-en')
+          ].filter(Boolean).join(' '));
+          const matches = terms.every((term) => haystack.includes(term));
+          card.hidden = !matches;
+          if (matches) visibleCount += 1;
+        });
+        if (searchClear) searchClear.classList.toggle('is-visible', Boolean(query));
+        if (searchStatus) searchStatus.textContent = formatCount(query ? 'search_results' : 'search_total', visibleCount);
+        if (noResults) noResults.classList.toggle('is-visible', visibleCount === 0);
       }
 
       function isStandaloneApp() {
@@ -797,7 +965,7 @@
           active = false;
           if (horizontalIntent && dx >= 72 && Math.abs(dy) <= 54) {
             requestAnimationFrame(() => {
-              window.location.replace('index.html');
+              window.flipgameReturnHome({ replaceFallback: true });
             });
           }
           horizontalIntent = false;
@@ -826,6 +994,17 @@
       document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape') closeImageOverlay();
       });
+      if (guideSearch) {
+        guideSearch.addEventListener('input', filterGuides);
+        guideSearch.addEventListener('search', filterGuides);
+      }
+      if (searchClear) {
+        searchClear.addEventListener('click', () => {
+          guideSearch.value = '';
+          filterGuides();
+          guideSearch.focus();
+        });
+      }
 
       setStaticText();
       enableOverlayPinchZoom();

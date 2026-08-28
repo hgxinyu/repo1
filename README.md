@@ -35,7 +35,7 @@ http://localhost:8000/
 - AI玩放置（VIP）：`flipgame/AIAsk.html`
 - 攻略图片：`flipgame/GuideImages.html`
 - 九宫格翻牌：`flipgame/flipgame.html`
-- 计算器入口：`flipgame/Calculators.html`
+- 计算器入口：首页 `flipgame/index.html` 的“放置计算器”和“会员工具”选择面板
 - 核心计算器：`flipgame/CoreCalculator.html`
 - 殿堂 / 飞升计算器：`flipgame/DestinyCalculator.html`
 - 星钻计算器：`flipgame/StarDiamondCalculator.html`

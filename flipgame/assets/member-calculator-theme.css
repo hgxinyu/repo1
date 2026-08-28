@@ -1,0 +1,123 @@
+:root {
+  --radius: 16px;
+  --shadow: 0 10px 22px rgba(15, 23, 42, 0.1);
+  --border: #e5e7eb;
+  --ink: #111827;
+  --muted: #64748b;
+  --brand: #0f766e;
+  --surface: #ffffff;
+  --bg: #f7faf8;
+}
+html,
+body {
+  background:
+    linear-gradient(135deg, rgba(15, 118, 110, 0.08), transparent 34%),
+    linear-gradient(315deg, rgba(194, 65, 12, 0.08), transparent 30%),
+    var(--bg) !important;
+  color: var(--ink);
+}
+
+nav#topbar-nav,
+.langbar,
+.logo-bottom-left {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border-color: var(--border) !important;
+  box-shadow: var(--shadow) !important;
+  backdrop-filter: saturate(140%) blur(6px);
+}
+
+.title h1 {
+  color: var(--ink);
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: var(--border) !important;
+  box-shadow: var(--shadow) !important;
+}
+
+.card h2 {
+  color: #475569 !important;
+}
+
+.btn {
+  border-color: rgba(15, 118, 110, 0.3) !important;
+  background: var(--surface) !important;
+  color: var(--brand) !important;
+  box-shadow: 0 6px 18px rgba(15, 118, 110, 0.14) !important;
+}
+
+.btn:hover:not(:disabled) {
+  box-shadow: 0 10px 24px rgba(15, 118, 110, 0.2) !important;
+}
+
+input[type="number"],
+select {
+  border: 1px solid rgba(15, 118, 110, 0.28) !important;
+  background: rgba(238, 247, 244, 0.82) !important;
+  color: var(--ink) !important;
+  box-shadow: 0 5px 14px rgba(15, 118, 110, 0.09) !important;
+}
+
+input[type="number"]:focus-visible,
+select:focus-visible {
+  border-color: rgba(15, 118, 110, 0.72) !important;
+  background: #fff !important;
+  outline: 3px solid rgba(15, 118, 110, 0.13) !important;
+  outline-offset: 1px !important;
+  box-shadow: 0 8px 20px rgba(15, 118, 110, 0.13) !important;
+}
+
+.hint {
+  border-color: rgba(15, 118, 110, 0.16) !important;
+  background: #eef7f4 !important;
+  color: #285f59 !important;
+}
+
+.box {
+  border-color: #e1e9e6 !important;
+  background: #f4f8f7 !important;
+}
+
+.box .v {
+  color: #0f766e !important;
+}
+
+.box.highlight {
+  border-color: rgba(194, 65, 12, 0.34) !important;
+  background: #fff7ed !important;
+  box-shadow: 0 8px 18px rgba(194, 65, 12, 0.12) !important;
+}
+
+.box.highlight .v {
+  color: #c2410c !important;
+}
+
+.warn {
+  border-color: #fecaca !important;
+  background: #fff1f2 !important;
+  color: #b91c1c !important;
+}
+
+.logo-bottom-left .logo-dot {
+  background: linear-gradient(135deg, #0f766e, #c2410c) !important;
+  box-shadow: 0 0 12px rgba(15, 118, 110, 0.24);
+}
+
+.vip-page-badge {
+  border-color: rgba(194, 65, 12, 0.28) !important;
+  background: #fff7ed !important;
+  color: #c2410c !important;
+}
+
+@media (max-width: 480px) {
+  nav#topbar-nav {
+    background: #fff !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+
+  .card {
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08) !important;
+  }
+}
