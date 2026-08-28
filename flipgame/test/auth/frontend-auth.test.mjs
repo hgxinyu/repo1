@@ -220,4 +220,5 @@ test("admin and protected-page contracts use account capabilities, not legacy Id
   assert.doesNotMatch(docs, /Registration\s*=\s*Open|Autoconfirm\s*=\s*Off|旧迁移注册页|email allowlist/);
   const packageJson = read("package.json");
   assert.doesNotMatch(packageJson, /@netlify\/identity/);
+  assert.doesNotMatch(packageJson, /@netlify\/database/);
 });
