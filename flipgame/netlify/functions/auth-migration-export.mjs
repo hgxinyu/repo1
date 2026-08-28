@@ -61,9 +61,9 @@ export function createMigrationExportHandler({ identityAdminClient = identityAdm
     if (req.method !== "GET") return exportResponse({ error: "Method not allowed" }, 405);
     if (
       envReader("AUTH_ENV_ID") !== "production" ||
-      envReader("CONTEXT") !== "production" ||
       envReader("MIGRATION_WRITE_MODE") !== "frozen" ||
-      envReader("SITE_ID") !== EXPECTED_SITE_ID
+      envReader("AUTH_EXPECTED_SITE_ID") !== EXPECTED_SITE_ID ||
+      envReader("NETLIFY_SITE_ID") !== EXPECTED_SITE_ID
     ) {
       return exportResponse({ error: "Not available" }, 404);
     }

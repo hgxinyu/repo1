@@ -21,9 +21,9 @@ function request({ method = "GET", token = TOKEN } = {}) {
 function environment(overrides = {}) {
   const values = {
     AUTH_ENV_ID: "production",
-    CONTEXT: "production",
     MIGRATION_WRITE_MODE: "frozen",
-    SITE_ID,
+    AUTH_EXPECTED_SITE_ID: SITE_ID,
+    NETLIFY_SITE_ID: SITE_ID,
     AUTH_MIGRATION_EXPORT_TOKEN: TOKEN,
     ...overrides
   };
@@ -88,9 +88,9 @@ test("handler requires every production freeze gate and disables caching on all 
   const admin = { listUsers: async () => [] };
   for (const [name, value] of [
     ["AUTH_ENV_ID", "local-test"],
-    ["CONTEXT", "deploy-preview"],
     ["MIGRATION_WRITE_MODE", "account"],
-    ["SITE_ID", "wrong-site"]
+    ["AUTH_EXPECTED_SITE_ID", "wrong-site"],
+    ["NETLIFY_SITE_ID", "wrong-site"]
   ]) {
     const response = await createMigrationExportHandler({ identityAdminClient: admin, envReader: environment({ [name]: value }) })(request());
     assert.equal(response.status, 404, name);
