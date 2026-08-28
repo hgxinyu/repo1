@@ -130,7 +130,7 @@ Functions 运行环境需要配置与当前部署完全匹配的认证边界：
 AUTH_ENV_ID=当前环境标识
 AUTH_EXPECTED_SITE_ID=当前 Netlify site 标识
 NETLIFY_SITE_ID=当前 Netlify site 标识
-NETLIFY_DB_URL=第一方数据库连接
+AUTH_DATABASE_URL=第一方 Neon BFF 限权数据库连接（不要与 Netlify Database 连接配置混用）
 LOGTO_ENDPOINT=规范化 Logto OIDC issuer
 LOGTO_APP_ID=Logto 应用 ID
 LOGTO_APP_SECRET=Logto 应用 secret

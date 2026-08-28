@@ -359,7 +359,7 @@ test("repository factory uses the default pair only when neither runner is injec
     "AUTH_ENV_ID",
     "AUTH_EXPECTED_SITE_ID",
     "NETLIFY_SITE_ID",
-    "NETLIFY_DB_URL",
+    "AUTH_DATABASE_URL",
     "LOGTO_ENDPOINT",
     "LOGTO_APP_ID"
   ];

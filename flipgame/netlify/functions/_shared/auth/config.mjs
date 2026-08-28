@@ -5,7 +5,7 @@ const SENTINEL_AUTH_SETTINGS = [
   "LOGTO_ENDPOINT"
 ];
 
-const REQUIRED_CONNECTION_SETTINGS = ["NETLIFY_DB_URL", "LOGTO_APP_ID"];
+const REQUIRED_CONNECTION_SETTINGS = ["AUTH_DATABASE_URL", "LOGTO_APP_ID"];
 
 /** Normalize URL-based tenant identifiers to the same URL.href everywhere. */
 export function canonicalIssuer(value) {

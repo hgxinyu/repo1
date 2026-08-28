@@ -9,7 +9,7 @@ function environmentKey() {
   return [
     identity.environmentId,
     identity.siteId,
-    String(process.env.NETLIFY_DB_URL).trim(),
+    String(process.env.AUTH_DATABASE_URL).trim(),
     String(process.env.LOGTO_ENDPOINT).trim(),
     String(process.env.LOGTO_APP_ID).trim()
   ].join("\u0000");
@@ -18,7 +18,7 @@ function environmentKey() {
 function getClient() {
   const key = environmentKey();
   if (!client) {
-    client = postgres(String(process.env.NETLIFY_DB_URL).trim(), {
+    client = postgres(String(process.env.AUTH_DATABASE_URL).trim(), {
       max: 4,
       idle_timeout: 20
     });

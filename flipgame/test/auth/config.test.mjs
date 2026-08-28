@@ -7,7 +7,7 @@ function validEnvironment(overrides = {}) {
     AUTH_ENV_ID: "stage",
     AUTH_EXPECTED_SITE_ID: "site-stage",
     NETLIFY_SITE_ID: "site-stage",
-    NETLIFY_DB_URL: "postgresql://localhost/auth_stage",
+    AUTH_DATABASE_URL: "postgresql://localhost/auth_stage",
     LOGTO_ENDPOINT: "https://stage.logto.app",
     LOGTO_APP_ID: "app-stage",
     ...overrides
@@ -35,7 +35,7 @@ test("rejects every missing required auth setting with its setting name", () => 
     "AUTH_ENV_ID",
     "AUTH_EXPECTED_SITE_ID",
     "NETLIFY_SITE_ID",
-    "NETLIFY_DB_URL",
+    "AUTH_DATABASE_URL",
     "LOGTO_ENDPOINT",
     "LOGTO_APP_ID"
   ];
@@ -46,6 +46,16 @@ test("rejects every missing required auth setting with its setting name", () => 
       new RegExp(`AUTH_CONFIG_MISSING:${name}`)
     );
   }
+});
+
+test("rejects the legacy generic database URL as the auth database boundary", () => {
+  const environment = validEnvironment();
+  delete environment.AUTH_DATABASE_URL;
+  environment.NETLIFY_DB_URL = "postgresql://localhost/netlify_managed";
+  assert.throws(
+    () => assertAuthEnvironment(environment),
+    /AUTH_CONFIG_MISSING:AUTH_DATABASE_URL/
+  );
 });
 
 test("rejects malformed or non-Logto endpoints before database use", () => {
