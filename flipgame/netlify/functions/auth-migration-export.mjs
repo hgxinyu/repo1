@@ -7,7 +7,9 @@ const PAGE_SIZE = 100;
 const MAX_PAGES = 100;
 
 function env(name) {
-  return typeof Netlify !== "undefined" && Netlify.env ? String(Netlify.env.get(name) || "") : "";
+  const configured = typeof Netlify !== "undefined" && Netlify.env ? Netlify.env.get(name) : "";
+  const runtime = typeof process !== "undefined" && process.env ? process.env[name] : "";
+  return String(configured || runtime || "");
 }
 
 function exportResponse(data, status) {
