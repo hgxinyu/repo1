@@ -26,7 +26,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 const SCRIPT_DIRECTORY = dirname(fileURLToPath(import.meta.url));
 const DEFAULT_MIGRATION = resolve(
   SCRIPT_DIRECTORY,
-  "../../netlify/database/migrations/202608250001_auth_accounts.sql"
+  "../../database/migrations/202608250001_auth_accounts.sql"
 );
 const TRUSTED_POSTGRES_PREFIX = "/opt/homebrew/opt/postgresql@17";
 

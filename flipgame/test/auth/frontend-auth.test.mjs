@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const root = resolve(import.meta.dirname, "../..");
@@ -221,4 +221,9 @@ test("admin and protected-page contracts use account capabilities, not legacy Id
   const packageJson = read("package.json");
   assert.doesNotMatch(packageJson, /@netlify\/identity/);
   assert.doesNotMatch(packageJson, /@netlify\/database/);
+});
+
+test("external Neon migrations stay outside Netlify's automatic migration directory", () => {
+  assert.equal(existsSync(resolve(root, "netlify/database/migrations")), false);
+  assert.equal(existsSync(resolve(root, "database/migrations/202608250001_auth_accounts.sql")), true);
 });

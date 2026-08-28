@@ -11,7 +11,7 @@ test("Task 3 PostgreSQL smoke requires the exact disposable socket root", () => 
       host: "127.0.0.1",
       port: "55432",
       migration: new URL(
-        "../../netlify/database/migrations/202608250001_auth_accounts.sql",
+        "../../database/migrations/202608250001_auth_accounts.sql",
         import.meta.url
       ).pathname
     }),
@@ -22,7 +22,7 @@ test("Task 3 PostgreSQL smoke requires the exact disposable socket root", () => 
       host: "/private/tmp/shinegame-auth-pg.test/socket",
       port: "5432",
       migration: new URL(
-        "../../netlify/database/migrations/202608250001_auth_accounts.sql",
+        "../../database/migrations/202608250001_auth_accounts.sql",
         import.meta.url
       ).pathname
     }),

@@ -154,13 +154,13 @@ test("schema smoke verifies legacy session uniqueness within an environment and 
 test("schema smoke exposes an explicit pre-task base migration chain", () => {
   const baseMigration = join(
     testDirectory,
-    "../../netlify/database/migrations/202608250001_auth_accounts.sql"
+    "../../database/migrations/202608250001_auth_accounts.sql"
   );
   const incrementalMigrations = [
-    join(testDirectory, "../../netlify/database/migrations/202608260001_auth_hardening.sql"),
-    join(testDirectory, "../../netlify/database/migrations/202608270001_fix_request_account_vip_role_variable.sql"),
-    join(testDirectory, "../../netlify/database/migrations/202608270002_auth_migration_batches.sql"),
-    join(testDirectory, "../../netlify/database/migrations/202608280001_auth_bff_runtime_role.sql")
+    join(testDirectory, "../../database/migrations/202608260001_auth_hardening.sql"),
+    join(testDirectory, "../../database/migrations/202608270001_fix_request_account_vip_role_variable.sql"),
+    join(testDirectory, "../../database/migrations/202608270002_auth_migration_batches.sql"),
+    join(testDirectory, "../../database/migrations/202608280001_auth_bff_runtime_role.sql")
   ];
   const fixtureRoot = mkdtempSync("/private/tmp/shinegame-auth-migration.");
   const derivedBaseMigration = join(fixtureRoot, "pre-batch-base.sql");
@@ -209,7 +209,7 @@ test("pre-batch derivation removes exactly the batch statements and preserves th
 test("pre-batch derivation uses a portable repository base and removes batch metadata", () => {
   const baseMigration = join(
     testDirectory,
-    "../../netlify/database/migrations/202608250001_auth_accounts.sql"
+    "../../database/migrations/202608250001_auth_accounts.sql"
   );
   const derived = derivePreBatchBaseMigration(readFileSync(baseMigration, "utf8"));
 
@@ -299,7 +299,7 @@ test("pre-batch fixture cleanup removes the exact file when canonicalization fai
 
     assert.throws(
       () => createDisposablePreBatchBase(
-        new URL("../../netlify/database/migrations/202608250001_auth_accounts.sql", import.meta.url),
+        new URL("../../database/migrations/202608250001_auth_accounts.sql", import.meta.url),
         linkedClusterRoot
       ),
       /symlink/iu

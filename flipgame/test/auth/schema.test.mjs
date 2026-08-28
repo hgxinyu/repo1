@@ -8,23 +8,23 @@ import { sql, withTransaction } from "../../netlify/functions/_shared/auth/db.mj
 const testDirectory = dirname(fileURLToPath(import.meta.url));
 const migrationPath = join(
   testDirectory,
-  "../../netlify/database/migrations/202608250001_auth_accounts.sql"
+  "../../database/migrations/202608250001_auth_accounts.sql"
 );
 const hardeningMigrationPath = join(
   testDirectory,
-  "../../netlify/database/migrations/202608260001_auth_hardening.sql"
+  "../../database/migrations/202608260001_auth_hardening.sql"
 );
 const vipRoleVariableFixMigrationPath = join(
   testDirectory,
-  "../../netlify/database/migrations/202608270001_fix_request_account_vip_role_variable.sql"
+  "../../database/migrations/202608270001_fix_request_account_vip_role_variable.sql"
 );
 const migrationBatchesMigrationPath = join(
   testDirectory,
-  "../../netlify/database/migrations/202608270002_auth_migration_batches.sql"
+  "../../database/migrations/202608270002_auth_migration_batches.sql"
 );
 const runtimeRoleMigrationPath = join(
   testDirectory,
-  "../../netlify/database/migrations/202608280001_auth_bff_runtime_role.sql"
+  "../../database/migrations/202608280001_auth_bff_runtime_role.sql"
 );
 
 function migrationSql() {
