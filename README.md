@@ -39,7 +39,7 @@ http://localhost:8000/
 - 核心计算器：`flipgame/CoreCalculator.html`
 - 殿堂 / 飞升计算器：`flipgame/DestinyCalculator.html`
 - 星钻计算器：`flipgame/StarDiamondCalculator.html`
-- 觉醒冲榜模拟器（VIP）：`flipgame/AwakeningRushSimulator.html`
+- 觉醒冲榜模拟器（注册会员）：`flipgame/AwakeningRushSimulator.html`
 - 登录：`flipgame/Login.html`
 - 注册：`flipgame/Register.html`
 - 管理后台：`flipgame/Admin.html`

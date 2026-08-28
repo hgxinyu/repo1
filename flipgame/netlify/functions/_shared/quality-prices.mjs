@@ -74,6 +74,16 @@ export function defaultQualityPrices() {
   };
 }
 
+/** Public price responses contain calculator inputs only, never audit/error metadata. */
+export function publicQualityPrices(value) {
+  const prices = value && typeof value === "object" ? value : defaultQualityPrices();
+  return {
+    source: String(prices.source || "manual-json").trim() || "manual-json",
+    starDiamondBoundDiamondRatio: prices.starDiamondBoundDiamondRatio,
+    tiers: Array.isArray(prices.tiers) ? prices.tiers : []
+  };
+}
+
 export function getQualityPriceStore() {
   return getStore({ name: STORE_NAME, consistency: "strong" });
 }
@@ -100,13 +110,13 @@ export async function readQualityPrices() {
   return defaultQualityPrices();
 }
 
-export async function writeQualityPrices(input, adminEmail) {
+export async function writeQualityPrices(input, updatedByAccountId) {
   const now = new Date().toISOString();
   const payload = {
     ...normalizeQualityPrices(input),
     source: "admin",
     updatedAt: now,
-    updatedBy: String(adminEmail || "").trim()
+    updatedBy: String(updatedByAccountId || "").trim()
   };
   const store = getQualityPriceStore();
   await store.setJSON(CURRENT_KEY, payload);

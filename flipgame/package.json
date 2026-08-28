@@ -5,12 +5,19 @@
   "scripts": {
     "build:ih-knowledge-index": "node ../scripts/build-ih-knowledge-index.mjs",
     "check:knowledge-index": "node --check netlify/functions/_shared/ih-knowledge-index.mjs",
-    "check:functions": "node --check netlify/functions/*.mjs"
+    "check:functions": "node --check netlify/functions/*.mjs",
+    "test": "node --test test/**/*.test.mjs",
+    "test:auth": "node --test test/auth/*.test.mjs"
   },
   "dependencies": {
     "@netlify/blobs": "latest",
     "@netlify/functions": "latest",
-    "@netlify/identity": "latest"
+    "@netlify/database": "latest",
+    "openid-client": "latest",
+    "postgres": "latest"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@netlify/dev": "latest",
+    "@playwright/test": "latest"
+  }
 }

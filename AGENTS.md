@@ -12,7 +12,9 @@ cd flipgame && python3 -m http.server 8000
 
 Open `http://localhost:8000/`. Do not validate `fetch()` pages through `file://`.
 
-When previewing locally, `index.html` shows a `Local Admin` account and Admin Portal entry by default. `Admin.html` uses local mock data only; it must not call real admin APIs or write Netlify Blobs from local preview.
+Only the static `file://` / documented `:8000` preview may show the default `Local Admin` account and Admin Portal entry. `Admin.html` uses local mock data only in that static preview and must not call real admin APIs or write Netlify Blobs.
+
+Any local BFF runtime connected to a development-branch database (for example `localhost:8888` with Neon `local-test`) must start anonymous when the browser has no valid first-party session cookie. It must never seed or automatically sign in a `Local Admin` account. An existing valid browser session may be restored normally; use a clean browser profile/incognito window for fresh-registration acceptance instead of silently deleting development accounts.
 
 ## Project Shape
 
@@ -80,8 +82,8 @@ When previewing locally, `index.html` shows a `Local Admin` account and Admin Po
 - Speed may have hidden decimals in game UI, so calculators may evaluate both `z` and `z+1`.
 - X-tier soul logic is documented in `docs/soul-calculator.md`.
 - Expedition score display rules are documented in `docs/expedition-calculator.md`.
-- Registered-member pages currently include Soul Ascension and Expedition.
-- VIP-only pages currently include Awakening Gala Simulator and Play IH with AI.
+- Registered-member pages currently include Soul Ascension, Expedition, and Awakening Gala Simulator.
+- VIP-only pages currently include Play IH with AI.
 - Each hero can choose 5 enables. Each enable slot picks 1 of 3 column options; enable 1 and enable 4 use the same three-option group. Enable tables with `lv1`/`lv2` subrows are treated as both active by default.
 - In Boss formulas, `绝地` is enable 2 column 2 and currently uses the infused value `18%`.
 - In Boss formulas, `均衡` is enable 5 column 1 and currently uses the infused value `45%`. Current balance-effect rule: if any normal-attack or active-skill damage segment from the same hero fails to crit in that hero's turn, the 45% extra damage applies to that turn's total damage, not only to the non-crit segment.

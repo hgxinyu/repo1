@@ -395,7 +395,7 @@
               <thead>
                 <tr>
                   <th>账号</th>
-                  <th>邮箱确认</th>
+                  <th>账号状态</th>
                   <th>角色</th>
                   <th>申请时间</th>
                   <th>操作</th>
@@ -490,10 +490,9 @@
   </div>
 
   <script type="module">
-    import { clearPersistentIdentityCookies, restoreIdentitySession as restoreNetlifyIdentitySession } from "./assets/auth-session.js";
+    import { authFetch, getAuthMe, isStaticMockPreview, logout } from "./assets/auth-session.js";
 
     const LOCAL_MOCK_MODE = isLocalAdminPreview();
-    let identity = null;
     const userStatusEl = document.getElementById("userStatus");
     const userSummaryEl = document.getElementById("userSummary");
     const rowsEl = document.getElementById("userRows");
@@ -544,29 +543,36 @@
     };
     let activeWorkspace = "users";
     let currentUsers = [];
+    let currentAccountId = "";
     let mockUsers = [
       {
+        accountId: "11111111-1111-4111-8111-111111111111",
         email: "shine@example.com",
         guild: "31939",
         gameName: "ShinE",
         role: "vip",
-        emailVerified: true,
-        emailConfirmedAt: "2026-06-28T07:00:00Z",
+        status: "active",
+        authzVersion: 3,
         requestedAt: "2026-06-28T06:30:00Z"
       },
       {
+        accountId: "22222222-2222-4222-8222-222222222222",
         email: "new@example.com",
         guild: "",
         gameName: "New User",
         role: "pending",
-        emailVerified: false,
+        status: "active",
+        authzVersion: 1,
         requestedAt: "2026-06-28T08:00:00Z"
       },
       {
+        accountId: "33333333-3333-4333-8333-333333333333",
         email: "blocked@example.com",
         guild: "Test",
         gameName: "Blocked Demo",
         role: "blocked",
+        status: "blocked",
+        authzVersion: 4,
         requestedAt: "2026-06-27T19:20:00Z"
       }
     ];
@@ -585,40 +591,11 @@
     };
 
     function isLocalAdminPreview() {
-      const host = (window.location.hostname || "").toLowerCase();
-      return window.location.protocol === "file:"
-        || host === "localhost"
-        || host === "127.0.0.1"
-        || host === "0.0.0.0"
-        || host === "::1"
-        || isPrivateIpv4Host(host);
-    }
-
-    function isPrivateIpv4Host(value) {
-      const parts = value.split(".").map((part) => Number(part));
-      if (parts.length !== 4 || parts.some((part) => !Number.isInteger(part) || part < 0 || part > 255)) {
-        return false;
-      }
-      return parts[0] === 10
-        || (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31)
-        || (parts[0] === 192 && parts[1] === 168);
-    }
-
-    async function loadIdentity() {
-      if (!identity) {
-        identity = await import("https://esm.sh/@netlify/identity?bundle");
-      }
-      return identity;
-    }
-
-    async function restoreIdentitySession() {
-      const identityApi = await loadIdentity();
-      return restoreNetlifyIdentitySession(identityApi);
+      return isStaticMockPreview();
     }
 
     async function api(path, options) {
-      const response = await fetch(path, {
-        credentials: "include",
+      const response = await authFetch(path, {
         ...(options || {}),
         headers: {
           "Content-Type": "application/json",
@@ -669,7 +646,7 @@
           || (role === "pending" && (userRole === "pending" || userRole === "free"))
           || (role === "vip" && (userRole === "vip" || userRole === "admin"))
           || userRole === role;
-        const haystack = [user.email, user.gameName, user.guild].map((value) => String(value || "").toLowerCase()).join(" ");
+      const haystack = [user.primaryEmailMasked, user.email, user.gameName, user.guild].map((value) => String(value || "").toLowerCase()).join(" ");
         return roleMatches && (!query || haystack.includes(query));
       });
     }
@@ -685,11 +662,12 @@
         tr.innerHTML = `
           <td data-label="账号">
             <div class="account-cell">
-              <span class="mono">${escapeHtml(user.email)}</span>
+              <span class="mono">${escapeHtml(user.primaryEmailMasked || user.email || user.accountId)}</span>
               <span class="account-meta">${escapeHtml(user.gameName || "未填写")} · 公会 ${escapeHtml(user.guild || "-")}</span>
+              <span class="account-meta mono">ID ${escapeHtml(user.accountId || "未知")} · 授权版本 v${escapeHtml(user.authzVersion || "?")}</span>
             </div>
           </td>
-          <td data-label="邮箱确认">${emailStatus(user)}</td>
+          <td data-label="账号状态">${accountStatus(user)}</td>
           <td data-label="角色">${roleStatus(user.role)}</td>
           <td data-label="申请时间" class="mono">${escapeHtml(formatDate(user.requestedAt || user.createdAt))}</td>
           <td data-label="操作">
@@ -697,16 +675,16 @@
               <button data-role="vip" type="button" class="compact">VIP</button>
               <button data-role="pending" type="button" class="ghost compact">待审</button>
               <button data-role="blocked" type="button" class="danger compact">禁用</button>
-              ${canDeleteUser(user) ? '<button data-delete type="button" class="danger ghost compact">删除</button>' : ""}
+              ${canDisableUser(user) ? '<button data-disable type="button" class="danger ghost compact">停用</button>' : ""}
             </div>
           </td>
         `;
         tr.querySelectorAll("button[data-role]").forEach((button) => {
-          button.addEventListener("click", () => setRole(user.email, button.dataset.role));
+          button.addEventListener("click", () => setRole(user.accountId, button.dataset.role));
         });
-        const deleteBtn = tr.querySelector("button[data-delete]");
-        if (deleteBtn) {
-          deleteBtn.addEventListener("click", () => deleteUser(user.email));
+        const disableBtn = tr.querySelector("button[data-disable]");
+        if (disableBtn) {
+          disableBtn.addEventListener("click", () => disableUser(user.accountId));
         }
         rowsEl.appendChild(tr);
       }
@@ -801,15 +779,19 @@
       trafficStatus.textContent = LOCAL_MOCK_MODE ? "本地 Mock 示例数据" : `已按 ${data.countryCount || 0} 个国家汇总`;
     }
 
-    function emailStatus(user) {
-      if (user.emailVerified === true || user.emailConfirmedAt) return '<span class="badge ok">已确认</span>';
-      if (user.emailVerified === false) return '<span class="badge warn">未确认</span>';
-      return '<span class="badge">未知</span>';
+    function accountStatus(user) {
+      const status = String(user?.status || "").trim().toLowerCase();
+      if (status === "active") return '<span class="badge ok">active</span>';
+      if (["blocked", "disabled", "merged"].includes(status)) {
+        return `<span class="badge danger">${escapeHtml(status)}</span>`;
+      }
+      return '<span class="badge warn">未知</span>';
     }
 
-    function canDeleteUser(user) {
-      if (!user || user.emailVerified === true || user.emailConfirmedAt) return false;
-      return user.emailVerified === false || String(user.role || "").trim().toLowerCase() === "blocked";
+    function canDisableUser(user) {
+      const accountId = typeof user?.accountId === "string" ? user.accountId.trim().toLowerCase() : "";
+      const status = String(user?.status || "").trim().toLowerCase();
+      return Boolean(accountId && status === "active" && accountId !== currentAccountId);
     }
 
     function roleStatus(role) {
@@ -890,52 +872,55 @@
         return;
       }
       userStatusEl.textContent = "正在加载用户...";
-      const currentUser = await restoreIdentitySession();
-      if (!currentUser) {
-        window.location.href = "Login.html?next=Admin.html";
-        return;
+      if (!currentAccountId) {
+        const currentAccount = await getAuthMe();
+        if (!currentAccount.authenticated || !currentAccount.capabilities || !currentAccount.capabilities.isAdmin) {
+          window.location.href = "Login.html?next=Admin.html";
+          return;
+        }
+        currentAccountId = currentAccount.accountId;
       }
       const data = await api("/api/admin/users");
       render(data.users || []);
-      userStatusEl.textContent = data.identitySyncError
-        ? `已加载 ${(data.users || []).length} 个申请账号，但邮箱确认状态未能从 Identity 刷新：${data.identitySyncError}`
-        : `已加载 ${(data.users || []).length} 个申请账号。`;
+      userStatusEl.textContent = `已加载 ${(data.users || []).length} 个申请账号。`;
     }
 
-    async function setRole(email, role) {
+    async function setRole(accountId, role) {
       if (LOCAL_MOCK_MODE) {
-        mockUsers = mockUsers.map((user) => user.email === email ? { ...user, role } : user);
+        mockUsers = mockUsers.map((user) => user.accountId === accountId
+          ? { ...user, role, status: role === "blocked" ? "blocked" : "active", authzVersion: Number(user.authzVersion || 0) + 1 }
+          : user);
         render(mockUsers);
-        userStatusEl.textContent = `本地 Mock：${email} 已临时改为 ${role}，不会保存到线上。`;
+        userStatusEl.textContent = `本地 Mock：账号已临时改为 ${role}，不会保存到线上。`;
         return;
       }
-      userStatusEl.textContent = `正在更新 ${email}...`;
+      userStatusEl.textContent = "正在更新账号...";
       await api("/api/admin/set-role", {
         method: "POST",
-        body: JSON.stringify({ email, role })
+        body: JSON.stringify({ accountId, role })
       });
       await loadUsers();
     }
 
-    async function deleteUser(email) {
-      if (!window.confirm(`确定删除账号 ${email} 的申请资料？后台会先确认邮箱状态，已确认账号不会被删除。此操作不能撤销。`)) {
+    async function disableUser(accountId) {
+      if (!window.confirm("确定停用这个账号的申请资料？后台会保留账号与审计记录，并撤销当前 session；管理员之后可以重新启用。")) {
         return;
       }
       if (LOCAL_MOCK_MODE) {
-        mockUsers = mockUsers.filter((user) => user.email !== email);
+        mockUsers = mockUsers.filter((user) => user.accountId !== accountId);
         render(mockUsers);
-        userStatusEl.textContent = `本地 Mock：${email} 已临时删除，不会保存到线上。`;
+        userStatusEl.textContent = "本地 Mock：账号已临时停用，不会保存到线上。";
         return;
       }
-      userStatusEl.textContent = `正在删除 ${email}...`;
+      userStatusEl.textContent = "正在停用账号...";
       try {
         await api("/api/admin/delete-user", {
           method: "POST",
-          body: JSON.stringify({ email })
+          body: JSON.stringify({ accountId })
         });
         await loadUsers();
       } catch (error) {
-        userStatusEl.textContent = `删除失败：${error.message || error}`;
+        userStatusEl.textContent = `停用失败：${error.message || error}`;
       }
     }
 
@@ -1026,10 +1011,12 @@
         userStatusEl.textContent = "本地 Mock：没有真实登录会话。";
         return;
       }
-      const identityApi = await loadIdentity();
-      await identityApi.logout();
-      clearPersistentIdentityCookies();
-      window.location.href = "Login.html?next=Admin.html";
+      try {
+        await logout();
+        window.location.href = "Login.html?next=Admin.html";
+      } catch {
+        userStatusEl.textContent = "注销失败，请重试。";
+      }
     });
 
     if (LOCAL_MOCK_MODE && modePill) {
@@ -1038,11 +1025,19 @@
     initWorkspaces();
     initPanelToggles();
 
-    Promise.all([
-      loadUsers(),
-      loadPrices(),
-      loadTraffic()
-    ]).catch((error) => {
+    async function initializeAdmin() {
+      if (!LOCAL_MOCK_MODE) {
+        const currentAccount = await getAuthMe();
+        if (!currentAccount.authenticated || !currentAccount.capabilities || !currentAccount.capabilities.isAdmin) {
+          window.location.href = "Login.html?next=Admin.html";
+          return;
+        }
+        currentAccountId = currentAccount.accountId;
+      }
+      await Promise.all([loadUsers(), loadPrices(), loadTraffic()]);
+    }
+
+    initializeAdmin().catch((error) => {
       userStatusEl.textContent = "没有权限或加载失败：" + (error.message || error);
       priceStatusEl.textContent = "没有权限或加载失败：" + (error.message || error);
       trafficStatus.textContent = "没有权限或加载失败：" + (error.message || error);

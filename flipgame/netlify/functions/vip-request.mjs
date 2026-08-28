@@ -1,46 +1,58 @@
-import { json, normalizeEmail, readProfile, statusForRole, writeProfile } from "./_shared/access.mjs";
+import { authJson } from "./_shared/auth/http.mjs";
+import {
+  authErrorResponse,
+  assertBrowserWriteRequest,
+  createAuthRuntime,
+  requireRequestCapability
+} from "./_shared/auth/runtime.mjs";
 
-export default async (req) => {
-  if (req.method !== "POST") {
-    return json({ error: "Method not allowed" }, { status: 405 });
-  }
+export function createVipRequestHandler(overrides = {}) {
+  const runtime = createAuthRuntime(overrides);
+  const json = overrides.json || authJson;
 
-  let body = {};
-  try {
-    body = await req.json();
-  } catch (error) {
-    return json({ error: "Invalid JSON" }, { status: 400 });
-  }
+  return async function vipRequestHandler(req) {
+    if (req.method !== "POST") {
+      return json({ error: "Method not allowed" }, { status: 405, headers: { Allow: "POST" } });
+    }
 
-  const email = normalizeEmail(body.email);
-  const guild = String(body.guild || "").trim();
-  const gameName = String(body.gameName || "").trim();
-  const emailVerified = typeof body.emailVerified === "boolean" ? body.emailVerified : null;
+    let context;
+    let body = {};
+    try {
+      assertBrowserWriteRequest(req, overrides);
+      ({ context } = await requireRequestCapability(runtime, req, "canAccessRegistered"));
+      body = await req.json();
+    } catch (error) {
+      if (error instanceof SyntaxError || error?.message === "Unexpected end of JSON input") {
+        return json({ error: "Invalid JSON" }, { status: 400 });
+      }
+      return authErrorResponse(error, json, 401);
+    }
 
-  if (!email || !email.includes("@")) {
-    return json({ error: "Valid email is required" }, { status: 400 });
-  }
-  if (!guild || !gameName) {
-    return json({ error: "Guild and game name are required" }, { status: 400 });
-  }
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
+      return json({ error: "Invalid JSON" }, { status: 400 });
+    }
+    const guild = String(body.guild || "").trim();
+    const gameName = String(body.gameName || "").trim();
+    if (!guild || !gameName) {
+      return json({ error: "Guild and game name are required" }, { status: 400 });
+    }
 
-  const existing = await readProfile(email);
-  const now = new Date().toISOString();
-  const profile = await writeProfile({
-    ...(existing || {}),
-    email,
-    guild,
-    gameName,
-    emailVerified: emailVerified === null && existing ? existing.emailVerified : emailVerified,
-    emailConfirmedAt: emailVerified === true ? (existing && existing.emailConfirmedAt ? existing.emailConfirmedAt : now) : (existing && existing.emailConfirmedAt ? existing.emailConfirmedAt : ""),
-    role: existing && existing.role ? existing.role : "pending",
-    status: existing && existing.status ? existing.status : statusForRole("pending"),
-    createdAt: existing && existing.createdAt ? existing.createdAt : now,
-    requestedAt: now
-  });
+    try {
+      const profile = await runtime.accountRepository.requestVip({
+        accountId: context.accountId,
+        guild,
+        gameName
+      });
+      return json({ ok: true, profile });
+    } catch (error) {
+      return authErrorResponse(error, json, 503);
+    }
+  };
+}
 
-  return json({ ok: true, profile });
-};
+export default async function vipRequest(request) {
+  return createVipRequestHandler()(request);
+}
 
 export const config = {
   path: "/api/vip-request"

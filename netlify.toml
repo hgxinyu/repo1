@@ -6,6 +6,31 @@
   node_bundler = "esbuild"
 
 [[redirects]]
+  from = "/api/auth/sign-in"
+  to = "/.netlify/functions/auth-sign-in"
+  status = 200
+
+[[redirects]]
+  from = "/api/auth/callback"
+  to = "/.netlify/functions/auth-callback"
+  status = 200
+
+[[redirects]]
+  from = "/api/auth/session"
+  to = "/.netlify/functions/auth-session"
+  status = 200
+
+[[redirects]]
+  from = "/api/auth/logout"
+  to = "/.netlify/functions/auth-logout"
+  status = 200
+
+[[redirects]]
+  from = "/api/auth/legacy-bridge"
+  to = "/.netlify/functions/auth-legacy-bridge"
+  status = 200
+
+[[redirects]]
   from = "/api/vip-request"
   to = "/.netlify/functions/vip-request"
   status = 200

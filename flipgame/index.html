@@ -696,8 +696,8 @@
         <span class="subtitle" id="cardRecruitSub">欢迎加入iOS 国风，点击填写信息或申请公会ID 31939。公会免费送 VIP。</span>
       </button>
       <a class="card-link" href="AwakeningRushSimulator.html">
-        <span class="title"><span id="cardAwakeningTitle">觉醒冲榜模拟器</span><span class="vip-badge" data-vip-badge>VIP</span></span>
-        <span class="subtitle" id="cardAwakeningSub">VIP 专属，按绑钻数量随机模拟冲榜分数与 A- 以上保留数量。</span>
+        <span class="title"><span id="cardAwakeningTitle">觉醒冲榜模拟器</span><span class="vip-badge member-badge" data-member-badge>会员</span></span>
+        <span class="subtitle" id="cardAwakeningSub">注册会员可用，按绑钻数量随机模拟冲榜分数与 A- 以上保留数量。</span>
       </a>
       <a class="card-link" href="AIAsk.html">
         <span class="title"><span id="cardAiTitle">AI玩放置</span><span class="vip-badge" data-vip-badge>VIP</span></span>
@@ -916,7 +916,7 @@
           card_expedition_title: '远征积分计算器',
           card_expedition_sub: '注册会员可用，按层数和剩余血量快速估算剩余积分（万亿）。',
           card_awakening_title: '觉醒冲榜模拟器',
-          card_awakening_sub: 'VIP 专属，按绑钻数量随机模拟冲榜分数与 A- 以上保留数量。',
+          card_awakening_sub: '注册会员可用，按绑钻数量随机模拟冲榜分数与 A- 以上保留数量。',
           card_recruit_title: '公会招募',
           card_recruit_sub: '欢迎加入iOS 国风，点击填写信息或申请公会ID 31939。公会免费送 VIP。',
           calculator_panel_title: '放置计算器',
@@ -997,7 +997,7 @@
           card_expedition_title: 'Star Expedition Score Calculator',
           card_expedition_sub: 'Registered members can estimate remaining score by floor and remaining HP (trillion).',
           card_awakening_title: 'Awakening Gala Simulator',
-          card_awakening_sub: 'VIP only. Simulate score and kept A-+ copies from bound diamonds.',
+          card_awakening_sub: 'Registered members can use it to simulate score and kept A-+ copies from bound diamonds.',
           card_recruit_title: 'Guild Recruitment',
           card_recruit_sub: 'Join iOS Aurora. Submit your info or apply to Guild ID 31939. Guild members get VIP for free.',
           calculator_panel_title: 'Idle Calculator',
@@ -1366,10 +1366,9 @@
     })();
   </script>
   <script type="module">
-    import { clearPersistentIdentityCookies, restoreIdentitySession as restoreNetlifyIdentitySession } from "./assets/auth-session.js";
+    import { getAuthMe, isStaticMockPreview, logout } from "./assets/auth-session.js";
 
     const LOCAL_MOCK_MODE = isLocalHomepagePreview();
-    let identity = null;
     const adminLink = document.getElementById("adminLink");
     const loginLink = document.getElementById("loginLink");
     const registerLink = document.getElementById("registerLink");
@@ -1380,35 +1379,7 @@
     const logoutBtn = document.getElementById("logoutBtn");
 
     function isLocalHomepagePreview() {
-      const host = (window.location.hostname || "").toLowerCase();
-      return window.location.protocol === "file:"
-        || host === "localhost"
-        || host === "127.0.0.1"
-        || host === "0.0.0.0"
-        || host === "::1"
-        || isPrivateIpv4Host(host);
-    }
-
-    function isPrivateIpv4Host(value) {
-      const parts = value.split(".").map((part) => Number(part));
-      if (parts.length !== 4 || parts.some((part) => !Number.isInteger(part) || part < 0 || part > 255)) {
-        return false;
-      }
-      return parts[0] === 10
-        || (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31)
-        || (parts[0] === 192 && parts[1] === 168);
-    }
-
-    async function loadIdentity() {
-      if (!identity) {
-        identity = await import("https://esm.sh/@netlify/identity?bundle");
-      }
-      return identity;
-    }
-
-    async function restoreIdentitySession() {
-      const identityApi = await loadIdentity();
-      return restoreNetlifyIdentitySession(identityApi);
+      return isStaticMockPreview();
     }
 
     function showLocalAdminPreview() {
@@ -1431,33 +1402,18 @@
     }
 
     async function updateAccountLinks() {
-      const hasRecoveryToken = window.location.hash.includes("recovery_token=") || window.location.search.includes("recovery_token=");
-      if (hasRecoveryToken) {
-        window.location.replace(`Login.html${window.location.search}${window.location.hash}`);
-        return;
-      }
       if (LOCAL_MOCK_MODE) {
         showLocalAdminPreview();
         return;
       }
-      const user = await restoreIdentitySession();
-      if (!user) return;
-
-      const response = await fetch("/api/me", { credentials: "include" });
-      const data = await response.json().catch(() => ({}));
-      if (response.status === 401) {
-        const identityApi = await loadIdentity();
-        await identityApi.logout().catch(() => null);
-        clearPersistentIdentityCookies();
-        return;
-      }
+      const auth = await getAuthMe();
+      if (!auth.authenticated || !auth.capabilities || auth.capabilities.blocked) return;
       if (loginLink) loginLink.style.display = "none";
       if (registerLink) registerLink.style.display = "none";
       if (accountMenu) accountMenu.style.display = "inline-flex";
-      const gameName = data && data.profile && data.profile.gameName ? data.profile.gameName : "";
-      const displayName = gameName || user.email || "已登录";
-      const role = data && data.profile && data.profile.role ? String(data.profile.role).toLowerCase() : "";
-      const hasVipAccess = response.ok && (data.canAccessPremium || data.isAdmin || role === "vip" || role === "admin");
+      const gameName = auth.profile && auth.profile.gameName ? auth.profile.gameName : "";
+      const displayName = gameName || (auth.profile && auth.profile.primaryEmailMasked) || "已登录";
+      const hasVipAccess = auth.capabilities.canAccessPremium || auth.capabilities.isAdmin;
       if (accountName) {
         accountName.textContent = displayName;
         accountName.dataset.placeholder = "false";
@@ -1468,7 +1424,7 @@
       if (accountBtn) {
         accountBtn.setAttribute("aria-label", hasVipAccess ? `${displayName} VIP` : displayName);
       }
-      if (response.ok && data.isAdmin && adminLink) {
+      if (auth.capabilities.isAdmin && adminLink) {
         adminLink.style.display = "inline-flex";
       }
     }
@@ -1490,10 +1446,12 @@
     if (logoutBtn) {
       logoutBtn.addEventListener("click", async () => {
         if (LOCAL_MOCK_MODE) return;
-        const identityApi = await loadIdentity();
-        await identityApi.logout();
-        clearPersistentIdentityCookies();
-        window.location.href = "index.html";
+        try {
+          await logout();
+          window.location.href = "index.html";
+        } catch {
+          if (accountName) accountName.textContent = "注销失败，请重试";
+        }
       });
     }
 

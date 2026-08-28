@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-Hans">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>注册账号 · ShinE</title>  <script>
+  <title>注册账号 · ShinE</title>
+  <script>
     (function () {
       var host = (window.location.hostname || '').toLowerCase();
       var isLocal = host === '' || host === 'localhost' || host === '0.0.0.0' || host === '127.0.0.1' || host === '::1' || /^10\./.test(host) || /^192\.168\./.test(host) || /^172\.(1[6-9]|2\d|3[01])\./.test(host);
@@ -17,265 +18,166 @@
     })();
   </script>
   <style>
-    :root {
-      --border: #e5e7eb;
-      --ink: #111827;
-      --muted: #64748b;
-      --brand: #0f766e;
-      --bg: #f7faf8;
-      --shadow: 0 14px 32px rgba(15, 23, 42, 0.12);
-    }
+    :root { --border: #e5e7eb; --ink: #111827; --muted: #64748b; --brand: #0f766e; --bg: #f7faf8; --shadow: 0 14px 32px rgba(15, 23, 42, .12); }
     * { box-sizing: border-box; }
-    html, body {
-      margin: 0;
-      min-height: 100vh;
-      background: var(--bg);
-      color: var(--ink);
-      font-family: "Segoe UI", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
-      line-height: 1.6;
-    }
-    body {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-    .card {
-      width: min(520px, 100%);
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      box-shadow: var(--shadow);
-      padding: clamp(22px, 5vw, 32px);
-    }
+    html, body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--ink); font-family: "Segoe UI", "Microsoft YaHei", system-ui, -apple-system, sans-serif; line-height: 1.6; }
+    body { display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .card { width: min(520px, 100%); background: #fff; border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow); padding: clamp(22px, 5vw, 32px); }
     h1 { margin: 0 0 6px; font-size: 28px; }
     p { margin: 0 0 18px; color: var(--muted); font-size: 14px; }
-    form { display: grid; gap: 14px; }
+    .actions, form { display: grid; gap: 12px; margin-top: 22px; }
+    a.button, button { display: flex; align-items: center; justify-content: center; min-height: 48px; border: 1px solid rgba(15, 118, 110, .34); border-radius: 14px; padding: 12px 16px; background: #fff; color: var(--brand); font: inherit; font-size: 15px; font-weight: 700; text-decoration: none; cursor: pointer; }
+    a.button.primary, button.primary { border-color: transparent; background: linear-gradient(135deg, #0f766e, #c2410c); color: #fff; }
+    a.button:hover, button:hover { transform: translateY(-1px); }
     label { display: grid; gap: 6px; color: var(--muted); font-size: 14px; }
-    input {
-      width: 100%;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 12px 14px;
-      font-size: 16px;
-      color: var(--ink);
-    }
-    input:focus-visible { outline: 2px solid rgba(15, 118, 110, 0.35); outline-offset: 2px; }
-    .actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 4px; }
-    button, a.button {
-      border: 1px solid rgba(15, 118, 110, 0.34);
-      border-radius: 14px;
-      padding: 10px 16px;
-      background: #fff;
-      color: var(--brand);
-      font-size: 15px;
-      text-decoration: none;
-      cursor: pointer;
-    }
-    button.primary {
-      background: linear-gradient(135deg, #0f766e, #c2410c);
-      color: #fff;
-      border-color: transparent;
-    }
-    .status { min-height: 22px; color: var(--muted); font-size: 14px; margin-top: 14px; }
+    input { width: 100%; border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; font-size: 16px; color: var(--ink); }
+    input:focus-visible, a:focus-visible, button:focus-visible { outline: 2px solid rgba(15, 118, 110, .35); outline-offset: 2px; }
+    .status { min-height: 22px; color: var(--muted); font-size: 14px; margin-top: 16px; }
     .toplink { display: inline-block; margin-bottom: 18px; color: var(--brand); text-decoration: none; font-size: 14px; }
+    .footnote { margin-top: 20px; color: var(--muted); font-size: 12px; }
+    [hidden] { display: none !important; }
   </style>
 </head>
 <body>
   <main class="card">
     <a class="toplink" id="homeLink" href="index.html">回到主页</a>
     <h1 id="pageTitle">注册账号</h1>
-    <p id="pageDesc">注册后请先到邮箱点击确认链接。邮箱确认完成后才能登录；管理员批准后可使用 VIP 页面。</p>
-    <form id="registerForm">
-      <label id="emailLabel">
-        Email
-        <input id="email" type="email" autocomplete="email" required />
-      </label>
-      <label id="passwordLabel">
-        密码
-        <input id="password" type="password" autocomplete="new-password" minlength="8" required />
-      </label>
-      <label id="guildLabel">
-        公会名字
-        <input id="guild" type="text" autocomplete="organization" required />
-      </label>
-      <label id="gameNameLabel">
-        ID 名字
-        <input id="gameName" type="text" autocomplete="nickname" required />
-      </label>
-      <div class="actions">
-        <button class="primary" id="submitBtn" type="submit">注册并提交审核</button>
-        <a class="button" id="loginLink" href="Login.html">已有账号登录</a>
-      </div>
+    <p id="pageDesc">使用 Google 或邮箱验证码开始。Logto Hosted UI 会在认证流程中完成账号创建，之后可在这里补充公会和游戏 ID。</p>
+
+    <section id="authChoices" class="actions" aria-label="认证方式">
+      <a class="button primary" id="googleRegister" data-auth-entry="/api/auth/sign-in?connector=google" href="/api/auth/sign-in?connector=google">使用 Google 注册 / 登录</a>
+      <a class="button" id="emailRegister" data-auth-entry="/api/auth/sign-in?connector=email" href="/api/auth/sign-in?connector=email">使用邮箱验证码注册 / 登录</a>
+    </section>
+
+    <form id="profileForm" hidden>
+      <p id="profileIntro">认证完成后，可以补充资料并提交 VIP 审核。</p>
+      <label id="guildLabel">公会名字<input id="guild" type="text" autocomplete="organization" required /></label>
+      <label id="gameNameLabel">游戏 ID / 名字<input id="gameName" type="text" autocomplete="nickname" required /></label>
+      <button class="primary" id="submitBtn" type="submit">保存资料并提交审核</button>
     </form>
-    <div class="status" id="status" role="status"></div>
+    <p class="footnote" id="pageNote">完成认证后会返回这里。当前不支持 Apple、QQ 或微信登录。</p>
+    <div class="status" id="status" role="status" aria-live="polite"></div>
   </main>
 
   <script type="module">
-    import { getSettings, signup } from "https://esm.sh/@netlify/identity?bundle";
+    import { authFetch, getAuthMe, isStaticMockPreview, safeAuthRedirectPath } from "./assets/auth-session.js";
 
-    const form = document.getElementById("registerForm");
+    const GOOGLE_ENTRY = "/api/auth/sign-in?connector=google";
+    const EMAIL_ENTRY = "/api/auth/sign-in?connector=email";
+    const authChoices = document.getElementById("authChoices");
+    const profileForm = document.getElementById("profileForm");
     const statusEl = document.getElementById("status");
     const currentLang = (() => {
       const saved = (localStorage.getItem("flipgame_lang") || "").toLowerCase();
       if (saved === "zh" || saved === "en") return saved;
       return (navigator.language || "").toLowerCase().startsWith("zh") ? "zh" : "en";
     })();
-
     const I18N = {
       zh: {
-        title: "注册账号 · ShinE",
-        home: "回到主页",
-        page_title: "注册账号",
-        page_desc: "注册后请先到邮箱点击确认链接。邮箱确认完成后才能登录；管理员批准后可使用 VIP 页面。",
-        email_label: "Email",
-        password_label: "密码",
-        guild_label: "公会名字",
-        game_name_label: "ID 名字",
-        submit: "注册并提交审核",
-        login: "已有账号登录",
-        checking_settings: "",
-        signup_disabled: "当前站点不允许公开注册。请在 Netlify Identity 设置里把 Registration 改为 Open。",
-        settings_failed: "无法读取注册设置：",
-        submitting: "正在注册并提交审核...",
-        submit_failed: "提交失败：",
-        request_failed: "提交审核失败",
-        success: "注册/申请已提交。请先到邮箱点击确认链接；邮箱确认完成后才能登录，然后等待管理员批准 VIP 权限。",
-        error_signup_disabled: "Netlify Identity 当前不允许公开注册。请到 Netlify Identity 设置里把 Registration 改为 Open。",
-        error_signup_not_allowed: "Netlify Identity 当前不允许注册。请确认已启用 Identity，并把 Registration 设置为 Open。",
-        error_exists: "这个 email 已经注册过。我已尝试继续提交 VIP 审核；如果仍失败，请直接登录或换一个 email。",
-        error_identity_missing: "Netlify Identity 可能还没有启用。请在 Netlify 后台启用 Identity 后再注册。",
-        error_password: "密码不符合 Netlify Identity 要求，请使用至少 8 位并包含更复杂组合的密码。",
-        error_network: "网络请求失败。请确认当前页面是 Netlify 部署地址，不是本地静态 server。",
-        error_unknown: "未知 AuthError。请检查 Netlify Identity 是否已启用，Registration 是否为 Open。"
+        title: "注册账号 · ShinE", home: "回到主页", pageTitle: "注册账号",
+        pageDesc: "使用 Google 或邮箱验证码开始。Logto Hosted UI 会在认证流程中完成账号创建，之后可在这里补充公会和游戏 ID。",
+        google: "使用 Google 注册 / 登录", email: "使用邮箱验证码注册 / 登录",
+        intro: "认证完成后，可以补充资料并提交 VIP 审核。",
+        guild: "公会名字", gameName: "游戏 ID / 名字", submit: "保存资料并提交审核",
+        note: "完成认证后会返回这里。当前不支持 Apple、QQ 或微信登录。",
+        static: "当前是静态预览，请在 Netlify local runtime 或已部署站点打开注册。",
+        checking: "正在检查登录状态...", ready: "资料已保存，VIP 审核申请已提交。",
+        failed: "提交失败：", notReady: "请先完成 Google 或邮箱认证。"
       },
       en: {
-        title: "Sign Up · ShinE",
-        home: "Home",
-        page_title: "Sign Up",
-        page_desc: "After signing up, confirm your email first. You cannot log in until the email confirmation is complete; VIP pages require admin approval.",
-        email_label: "Email",
-        password_label: "Password",
-        guild_label: "Guild Name",
-        game_name_label: "Game ID / Name",
-        submit: "Sign up and request review",
-        login: "Already have an account",
-        checking_settings: "",
-        signup_disabled: "Public signup is disabled. In Netlify Identity settings, set Registration to Open.",
-        settings_failed: "Could not read signup settings: ",
-        submitting: "Creating account and submitting review request...",
-        submit_failed: "Submit failed: ",
-        request_failed: "Review request failed",
-        success: "Registration/request submitted. Please click the confirmation link in your email first. You can log in after email confirmation, then wait for admin approval.",
-        error_signup_disabled: "Netlify Identity public signup is disabled. Set Registration to Open in Netlify Identity settings.",
-        error_signup_not_allowed: "Netlify Identity does not allow signup. Confirm Identity is enabled and Registration is Open.",
-        error_exists: "This email is already registered. I tried to continue submitting the VIP request; if it still fails, log in or use another email.",
-        error_identity_missing: "Netlify Identity may not be enabled. Enable Identity in Netlify before signing up.",
-        error_password: "The password does not meet Netlify Identity requirements. Use at least 8 characters and a stronger combination.",
-        error_network: "Network request failed. Make sure you are using the Netlify deployed site, not a local static server.",
-        error_unknown: "Unknown AuthError. Check whether Netlify Identity is enabled and Registration is Open."
+        title: "Create account · ShinE", home: "Home", pageTitle: "Create account",
+        pageDesc: "Start with Google or an email verification code. Logto Hosted UI creates the account during authentication; add your guild and game ID here afterward.",
+        google: "Continue with Google", email: "Continue with email code",
+        intro: "After authentication, add profile details and request VIP access.",
+        guild: "Guild name", gameName: "Game ID / name", submit: "Save details and request review",
+        note: "You will return here after authentication. Apple, QQ, and WeChat are not available yet.",
+        static: "This is a static preview. Open registration in the Netlify local runtime or a deployed site.",
+        checking: "Checking your login status...", ready: "Details saved and VIP review requested.",
+        failed: "Submit failed: ", notReady: "Complete Google or email authentication first."
       }
     };
-
-    function t(key) {
-      return (I18N[currentLang] && I18N[currentLang][key]) || I18N.zh[key] || "";
+    function t(key) { return I18N[currentLang][key] || I18N.zh[key] || ""; }
+    function safeReturnTarget() {
+      const params = new URLSearchParams(window.location.search);
+      return safeAuthRedirectPath(params.get("return_to") || params.get("next") || "/index.html");
     }
-
+    function buildEntry(base) {
+      const url = new URL(base, window.location.origin);
+      // Return to this page first, carrying only a finite allowlisted basename
+      // so the authenticated user can finish the profile/VIP request safely.
+      const returnPath = safeReturnTarget();
+      const callbackNext = returnPath === "/index.html"
+        ? "/Register.html"
+        : `/Register.html?return_to=${returnPath.slice(1)}`;
+      url.searchParams.set("next", callbackNext);
+      url.searchParams.set("locale", currentLang === "zh" ? "zh-CN" : "en-US");
+      return `${url.pathname}${url.search}`;
+    }
     function setStaticText() {
       document.documentElement.lang = currentLang === "zh" ? "zh-Hans" : "en";
       document.title = t("title");
       document.getElementById("homeLink").textContent = t("home");
-      document.getElementById("pageTitle").textContent = t("page_title");
-      document.getElementById("pageDesc").textContent = t("page_desc");
-      document.getElementById("emailLabel").firstChild.textContent = t("email_label");
-      document.getElementById("passwordLabel").firstChild.textContent = t("password_label");
-      document.getElementById("guildLabel").firstChild.textContent = t("guild_label");
-      document.getElementById("gameNameLabel").firstChild.textContent = t("game_name_label");
+      document.getElementById("pageTitle").textContent = t("pageTitle");
+      document.getElementById("pageDesc").textContent = t("pageDesc");
+      document.getElementById("googleRegister").textContent = t("google");
+      document.getElementById("emailRegister").textContent = t("email");
+      document.getElementById("profileIntro").textContent = t("intro");
+      document.getElementById("guildLabel").firstChild.textContent = t("guild");
+      document.getElementById("gameNameLabel").firstChild.textContent = t("gameName");
       document.getElementById("submitBtn").textContent = t("submit");
-      document.getElementById("loginLink").textContent = t("login");
+      document.getElementById("pageNote").textContent = t("note");
     }
-
-    function describeAuthError(error) {
-      const parts = [
-        error && error.message,
-        error && error.description,
-        error && error.error_description,
-        error && error.error
-      ].filter(Boolean);
-      const raw = parts.join(" / ") || (error && error.name) || String(error || "");
-      const status = error && error.status ? `HTTP ${error.status}` : "";
-      const text = `${status} ${raw}`.trim();
-      const lower = text.toLowerCase();
-
-      if (lower.includes("signup") && lower.includes("disabled")) {
-        return t("error_signup_disabled");
-      }
-      if (lower.includes("signups are not allowed") || lower.includes("not allowed")) {
-        return t("error_signup_not_allowed");
-      }
-      if (lower.includes("already") || lower.includes("exists")) {
-        return t("error_exists");
-      }
-      if (lower.includes("identity") || lower.includes("not found") || lower.includes("404")) {
-        return t("error_identity_missing");
-      }
-      if (lower.includes("password")) {
-        return t("error_password");
-      }
-      if (lower.includes("network") || lower.includes("failed to fetch")) {
-        return t("error_network");
-      }
-      return text || t("error_unknown");
+    function showProfile(account) {
+      authChoices.hidden = true;
+      profileForm.hidden = false;
+      const profile = account && account.profile ? account.profile : {};
+      document.getElementById("guild").value = profile.guild || "";
+      document.getElementById("gameName").value = profile.gameName || "";
     }
-
+    async function loadAccount() {
+      if (isStaticMockPreview()) return;
+      statusEl.textContent = t("checking");
+      const account = await getAuthMe();
+      if (account.authenticated && account.capabilities && !account.capabilities.blocked) {
+        showProfile(account);
+        statusEl.textContent = "";
+      } else {
+        statusEl.textContent = t("notReady");
+      }
+    }
     setStaticText();
-
-    try {
-      const settings = await getSettings();
-      if (settings && settings.disableSignup) {
-        statusEl.textContent = t("signup_disabled");
-      }
-    } catch (error) {
-      statusEl.textContent = t("settings_failed") + describeAuthError(error);
-    }
-
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      statusEl.textContent = t("submitting");
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value;
-      const guild = document.getElementById("guild").value.trim();
-      const gameName = document.getElementById("gameName").value.trim();
-      let emailVerified = null;
-
-      try {
-        try {
-          const signupUser = await signup(email, password, { guild, gameName });
-          emailVerified = signupUser && typeof signupUser.emailVerified === "boolean" ? signupUser.emailVerified : null;
-        } catch (error) {
-          const rawMessage = [
-            error && error.message,
-            error && error.description,
-            error && error.error_description,
-            error && error.error
-          ].filter(Boolean).join(" ");
-          if (!rawMessage.toLowerCase().includes("already") && !rawMessage.toLowerCase().includes("exists")) throw error;
+    for (const [id, entry] of [["googleRegister", GOOGLE_ENTRY], ["emailRegister", EMAIL_ENTRY]]) {
+      document.getElementById(id).addEventListener("click", (event) => {
+        if (isStaticMockPreview()) {
+          event.preventDefault();
+          statusEl.textContent = t("static");
+          return;
         }
-
-        const response = await fetch("/api/vip-request", {
+        event.currentTarget.href = buildEntry(entry);
+      });
+    }
+    profileForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      statusEl.textContent = t("checking");
+      try {
+        const response = await authFetch("/api/vip-request", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, guild, gameName, emailVerified })
+          headers: { "Accept": "application/json", "Content-Type": "application/json" },
+          body: JSON.stringify({
+            guild: document.getElementById("guild").value.trim(),
+            gameName: document.getElementById("gameName").value.trim()
+          })
         });
         const data = await response.json().catch(() => ({}));
-        if (!response.ok) throw new Error(data.error || t("request_failed"));
-
-        statusEl.textContent = t("success");
-        form.reset();
+        if (!response.ok) throw new Error(data.error || `HTTP ${response.status}`);
+        statusEl.textContent = t("ready");
+        const target = safeReturnTarget();
+        if (target !== "/index.html") window.setTimeout(() => { window.location.href = target; }, 500);
       } catch (error) {
-        statusEl.textContent = t("submit_failed") + describeAuthError(error);
+        statusEl.textContent = t("failed") + (error && error.message ? error.message : String(error));
       }
     });
+    loadAccount().catch(() => { statusEl.textContent = t("notReady"); });
   </script>
 </body>
 </html>

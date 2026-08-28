@@ -1,64 +1,65 @@
-import { admin as identityAdmin } from "@netlify/identity";
-import { deleteProfile, getEmailConfirmedAt, getEmailVerified, json, normalizeEmail, readProfile, requireAdmin } from "./_shared/access.mjs";
+import { authJson } from "./_shared/auth/http.mjs";
+import {
+  authErrorResponse,
+  assertBrowserWriteRequest,
+  createAuthRuntime,
+  requireRequestCapability
+} from "./_shared/auth/runtime.mjs";
+import { isValidAccountId } from "./_shared/auth/account-repository.mjs";
 
-async function readIdentityUser(email) {
-  try {
-    const users = await identityAdmin.listUsers();
-    return {
-      user: (users || []).find((user) => normalizeEmail(user && user.email) === email) || null,
-      error: ""
-    };
-  } catch (error) {
-    return {
-      user: null,
-      error: error && error.message ? error.message : "Unable to read Netlify Identity users"
-    };
-  }
+export function createAdminDeleteUserHandler(overrides = {}) {
+  const runtime = createAuthRuntime(overrides);
+  const json = overrides.json || authJson;
+
+  return async function adminDeleteUserHandler(req) {
+    if (req.method !== "POST") {
+      return json({ error: "Method not allowed" }, { status: 405, headers: { Allow: "POST" } });
+    }
+
+    let context;
+    try {
+      assertBrowserWriteRequest(req, overrides);
+      ({ context } = await requireRequestCapability(runtime, req, "isAdmin"));
+    } catch (error) {
+      return authErrorResponse(error, json, 401);
+    }
+
+    let body = {};
+    try {
+      body = await req.json();
+    } catch (error) {
+      return json({ error: "Invalid JSON" }, { status: 400 });
+    }
+
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
+      return json({ error: "Invalid JSON" }, { status: 400 });
+    }
+    const rawAccountId = typeof body.accountId === "string" ? body.accountId.trim() : "";
+    if (!isValidAccountId(rawAccountId)) return json({ error: "Account ID is invalid" }, { status: 400 });
+    const accountId = rawAccountId.toLowerCase();
+    if (accountId === String(context.accountId || "").trim().toLowerCase()) {
+      return json({ error: "Cannot delete your own admin account" }, { status: 409 });
+    }
+    try {
+      const result = await runtime.accountRepository.deleteAccount({
+        actorAccountId: context.accountId,
+        targetAccountId: accountId
+      });
+      return json({
+        ok: true,
+        accountId: result.accountId,
+        authzVersion: result.authzVersion,
+        revokedSessionCount: result.revokedSessionCount || 0
+      });
+    } catch (error) {
+      return authErrorResponse(error, json, 503);
+    }
+  };
 }
 
-function isConfirmed(profile, identityUser) {
-  if (getEmailConfirmedAt(identityUser)) return true;
-  if (getEmailVerified(identityUser) === true) return true;
-  if (profile && profile.emailConfirmedAt) return true;
-  return profile && profile.emailVerified === true;
+export default async function adminDeleteUser(request) {
+  return createAdminDeleteUserHandler()(request);
 }
-
-export default async (req) => {
-  if (req.method !== "POST") {
-    return json({ error: "Method not allowed" }, { status: 405 });
-  }
-
-  const admin = await requireAdmin();
-  if (admin.response) return admin.response;
-
-  let body = {};
-  try {
-    body = await req.json();
-  } catch (error) {
-    return json({ error: "Invalid JSON" }, { status: 400 });
-  }
-
-  const email = normalizeEmail(body.email);
-  if (!email || !email.includes("@")) {
-    return json({ error: "Valid email is required" }, { status: 400 });
-  }
-
-  const existing = await readProfile(email);
-  if (!existing) {
-    return json({ error: "User request not found" }, { status: 404 });
-  }
-
-  const { user: identityUser, error: identityError } = await readIdentityUser(email);
-  if (identityError) {
-    return json({ error: `Unable to verify email confirmation status: ${identityError}` }, { status: 502 });
-  }
-  if (isConfirmed(existing, identityUser)) {
-    return json({ error: "Confirmed accounts cannot be deleted here" }, { status: 409 });
-  }
-
-  await deleteProfile(email);
-  return json({ ok: true });
-};
 
 export const config = {
   path: "/api/admin/delete-user"

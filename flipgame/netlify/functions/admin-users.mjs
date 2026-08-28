@@ -1,50 +1,59 @@
-import { admin as identityAdmin } from "@netlify/identity";
-import { getEmailConfirmedAt, getEmailVerified, getUsersStore, json, normalizeEmail, publicProfile, requireAdmin, writeProfile } from "./_shared/access.mjs";
+import { authJson } from "./_shared/auth/http.mjs";
+import {
+  authErrorResponse,
+  createAuthRuntime,
+  requireRequestCapability
+} from "./_shared/auth/runtime.mjs";
 
-async function listIdentityUsersByEmail() {
-  try {
-    const users = await identityAdmin.listUsers();
-    return {
-      usersByEmail: new Map((users || []).map((user) => [normalizeEmail(user && user.email), user]).filter(([email]) => email)),
-      error: ""
-    };
-  } catch (error) {
-    return {
-      usersByEmail: new Map(),
-      error: error && error.message ? error.message : "Unable to read Netlify Identity users"
-    };
-  }
+const DEFAULT_LIMIT = 200;
+const MAX_LIMIT = 1000;
+
+function requestedLimit(request) {
+  const raw = new URL(request.url).searchParams.get("limit");
+  if (raw === null || raw === "") return DEFAULT_LIMIT;
+  const value = Number(raw);
+  if (!Number.isSafeInteger(value) || value < 1) return DEFAULT_LIMIT;
+  return Math.min(value, MAX_LIMIT);
 }
 
-export default async () => {
-  const admin = await requireAdmin();
-  if (admin.response) return admin.response;
-
-  const store = getUsersStore();
-  const { usersByEmail: identityUsersByEmail, error: identitySyncError } = await listIdentityUsersByEmail();
-  const { blobs } = await store.list({ prefix: "users/" });
-  const rows = [];
-  for (const blob of blobs) {
-    let profile = await store.get(blob.key, { type: "json" });
-    if (!profile) continue;
-
-    const identityUser = identityUsersByEmail.get(normalizeEmail(profile.email));
-    const emailVerified = getEmailVerified(identityUser);
-    const emailConfirmedAt = getEmailConfirmedAt(identityUser);
-    if (typeof emailVerified === "boolean" && (profile.emailVerified !== emailVerified || (emailConfirmedAt && !profile.emailConfirmedAt))) {
-      profile = await writeProfile({
-        ...profile,
-        emailVerified,
-        emailConfirmedAt: emailVerified ? (profile.emailConfirmedAt || emailConfirmedAt || new Date().toISOString()) : profile.emailConfirmedAt || ""
-      });
-    }
-
-    rows.push(publicProfile(profile));
+async function publicAccount(account, accountRepository) {
+  const row = {
+    accountId: account.accountId,
+    role: account.role,
+    status: account.status,
+    authzVersion: account.authzVersion,
+    guild: account.guild || "",
+    gameName: account.gameName || ""
+  };
+  if (typeof accountRepository?.getPrimaryEmailMasked === "function") {
+    row.primaryEmailMasked = await accountRepository.getPrimaryEmailMasked(account.accountId);
   }
+  return row;
+}
 
-  rows.sort((a, b) => String(b.requestedAt || b.createdAt || "").localeCompare(String(a.requestedAt || a.createdAt || "")));
-  return json({ users: rows, identitySyncError });
-};
+export function createAdminUsersHandler(overrides = {}) {
+  const runtime = createAuthRuntime(overrides);
+  const json = overrides.json || authJson;
+
+  return async function adminUsersHandler(request) {
+    if (request?.method && request.method !== "GET") {
+      return json({ error: "Method not allowed" }, { status: 405, headers: { Allow: "GET" } });
+    }
+    try {
+      await requireRequestCapability(runtime, request, "isAdmin");
+      const accounts = await runtime.accountRepository.listAccounts({ limit: requestedLimit(request) });
+      const rows = [];
+      for (const account of accounts) rows.push(await publicAccount(account, runtime.accountRepository));
+      return json({ users: rows });
+    } catch (error) {
+      return authErrorResponse(error, json, 503);
+    }
+  };
+}
+
+export default async function adminUsers(request) {
+  return createAdminUsersHandler()(request);
+}
 
 export const config = {
   path: "/api/admin/users"

@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-Hans">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>登录 · ShinE</title>  <script>
+  <title>登录 · ShinE</title>
+  <script>
     (function () {
       var host = (window.location.hostname || '').toLowerCase();
       var isLocal = host === '' || host === 'localhost' || host === '0.0.0.0' || host === '127.0.0.1' || host === '::1' || /^10\./.test(host) || /^192\.168\./.test(host) || /^172\.(1[6-9]|2\d|3[01])\./.test(host);
@@ -17,382 +18,93 @@
     })();
   </script>
   <style>
-    :root {
-      --border: #e5e7eb;
-      --ink: #111827;
-      --muted: #64748b;
-      --brand: #0f766e;
-      --bg: #f7faf8;
-      --shadow: 0 14px 32px rgba(15, 23, 42, 0.12);
-    }
+    :root { --border: #e5e7eb; --ink: #111827; --muted: #64748b; --brand: #0f766e; --bg: #f7faf8; --shadow: 0 14px 32px rgba(15, 23, 42, .12); }
     * { box-sizing: border-box; }
-    html, body {
-      margin: 0;
-      min-height: 100vh;
-      background: var(--bg);
-      color: var(--ink);
-      font-family: "Segoe UI", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
-      line-height: 1.6;
-    }
-    body {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-    .card {
-      width: min(460px, 100%);
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      box-shadow: var(--shadow);
-      padding: clamp(22px, 5vw, 32px);
-    }
+    html, body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--ink); font-family: "Segoe UI", "Microsoft YaHei", system-ui, -apple-system, sans-serif; line-height: 1.6; }
+    body { display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .card { width: min(480px, 100%); background: #fff; border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow); padding: clamp(22px, 5vw, 32px); }
     h1 { margin: 0 0 6px; font-size: 28px; }
     p { margin: 0 0 18px; color: var(--muted); font-size: 14px; }
-    form { display: grid; gap: 14px; }
-    label { display: grid; gap: 6px; color: var(--muted); font-size: 14px; }
-    input {
-      width: 100%;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 12px 14px;
-      font-size: 16px;
-      color: var(--ink);
-    }
-    input:focus-visible { outline: 2px solid rgba(15, 118, 110, 0.35); outline-offset: 2px; }
-    .actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 4px; }
-    button, a.button {
-      border: 1px solid rgba(15, 118, 110, 0.34);
-      border-radius: 14px;
-      padding: 10px 16px;
-      background: #fff;
-      color: var(--brand);
-      font-size: 15px;
-      text-decoration: none;
-      cursor: pointer;
-    }
-    button.primary {
-      background: linear-gradient(135deg, #0f766e, #c2410c);
-      color: #fff;
-      border-color: transparent;
-    }
-    .status { min-height: 22px; color: var(--muted); font-size: 14px; margin-top: 14px; }
+    .actions { display: grid; gap: 12px; margin-top: 22px; }
+    a.button { display: flex; align-items: center; justify-content: center; min-height: 48px; border: 1px solid rgba(15, 118, 110, .34); border-radius: 14px; padding: 12px 16px; background: #fff; color: var(--brand); font-size: 15px; font-weight: 700; text-decoration: none; cursor: pointer; }
+    a.button.primary { border-color: transparent; background: linear-gradient(135deg, #0f766e, #c2410c); color: #fff; }
+    a.button:hover { transform: translateY(-1px); }
+    .status { min-height: 22px; color: var(--muted); font-size: 14px; margin-top: 16px; }
     .toplink { display: inline-block; margin-bottom: 18px; color: var(--brand); text-decoration: none; font-size: 14px; }
-    .link-button {
-      border: 0;
-      border-radius: 0;
-      padding: 0;
-      background: transparent;
-      box-shadow: none;
-      color: var(--brand);
-      font-size: 14px;
-    }
-    .secondary-actions { margin-top: -2px; }
-    [hidden] { display: none !important; }
+    .footnote { margin-top: 20px; color: var(--muted); font-size: 12px; }
   </style>
 </head>
 <body>
   <main class="card">
     <a class="toplink" id="homeLink" href="index.html">回到主页</a>
     <h1 id="pageTitle">登录</h1>
-    <p id="pageDesc">登录前请先完成邮箱确认。未点击邮箱确认链接的账号无法登录。</p>
-    <form id="loginForm">
-      <label id="emailLabel">
-        Email
-        <input id="email" type="email" autocomplete="email" required />
-      </label>
-      <label id="passwordLabel">
-        密码
-        <input id="password" type="password" autocomplete="current-password" required />
-      </label>
-      <div class="actions">
-        <button class="primary" id="submitBtn" type="submit">登录</button>
-        <a class="button" id="registerLink" href="Register.html">注册账号</a>
-      </div>
-      <div class="actions secondary-actions">
-        <button class="link-button" id="forgotBtn" type="button">忘记密码？</button>
-      </div>
-    </form>
-    <form id="forgotForm" hidden>
-      <label id="resetEmailLabel">
-        Email
-        <input id="resetEmail" type="email" autocomplete="email" required />
-      </label>
-      <div class="actions">
-        <button class="primary" id="sendResetBtn" type="submit">发送重置邮件</button>
-        <button id="backToLoginBtn" type="button">返回登录</button>
-      </div>
-    </form>
-    <form id="resetForm" hidden>
-      <label id="newPasswordLabel">
-        新密码
-        <input id="newPassword" type="password" autocomplete="new-password" minlength="8" required />
-      </label>
-      <label id="confirmPasswordLabel">
-        确认新密码
-        <input id="confirmPassword" type="password" autocomplete="new-password" minlength="8" required />
-      </label>
-      <div class="actions">
-        <button class="primary" id="resetPasswordBtn" type="submit">设置新密码</button>
-      </div>
-    </form>
-    <div class="status" id="status" role="status"></div>
+    <p id="pageDesc">使用 Google 或邮箱验证码登录。首次使用时，Logto 会在同一流程中完成账号创建。</p>
+    <div class="actions" aria-label="登录方式">
+      <a class="button primary" id="googleLogin" data-auth-entry="/api/auth/sign-in?connector=google" href="/api/auth/sign-in?connector=google">使用 Google 登录</a>
+      <a class="button" id="emailLogin" data-auth-entry="/api/auth/sign-in?connector=email" href="/api/auth/sign-in?connector=email">使用邮箱验证码登录</a>
+    </div>
+    <p class="footnote" id="pageNote">登录后会返回你刚才要访问的页面。当前不支持 Apple、QQ 或微信登录。</p>
+    <div class="status" id="status" role="status" aria-live="polite"></div>
   </main>
 
   <script type="module">
-    import * as identity from "https://esm.sh/@netlify/identity?bundle";
-    import { IDENTITY_SESSION_DAYS, installIdentityCookiePersistence, persistIdentityCookiesFromStorage } from "./assets/auth-session.js";
-
-    const loginForm = document.getElementById("loginForm");
-    const forgotForm = document.getElementById("forgotForm");
-    const resetForm = document.getElementById("resetForm");
+    import { isStaticMockPreview, safeAuthRedirectPath } from "./assets/auth-session.js";
+    const GOOGLE_ENTRY = "/api/auth/sign-in?connector=google";
+    const EMAIL_ENTRY = "/api/auth/sign-in?connector=email";
     const statusEl = document.getElementById("status");
-    const next = new URLSearchParams(window.location.search).get("next") || "index.html";
-    const startedWithRecoveryToken = window.location.hash.includes("recovery_token=") || window.location.search.includes("recovery_token=");
     const currentLang = (() => {
       const saved = (localStorage.getItem("flipgame_lang") || "").toLowerCase();
       if (saved === "zh" || saved === "en") return saved;
       return (navigator.language || "").toLowerCase().startsWith("zh") ? "zh" : "en";
     })();
-    installIdentityCookiePersistence(identity, IDENTITY_SESSION_DAYS);
-
     const I18N = {
       zh: {
-        title: "登录 · ShinE",
-        home: "回到主页",
-        page_title: "登录",
-        page_desc: "登录前请先完成邮箱确认。未点击邮箱确认链接的账号无法登录。",
-        email_label: "Email",
-        password_label: "密码",
-        submit: "登录",
-        register: "注册账号",
-        forgot: "忘记密码？",
-        forgot_title: "重置密码",
-        forgot_desc: "输入注册邮箱，我们会发送密码重置邮件。请从邮件链接回来后设置新密码。",
-        reset_title: "设置新密码",
-        reset_desc: "请设置新密码。完成后用新密码登录。",
-        reset_email_label: "Email",
-        send_reset: "发送重置邮件",
-        back_login: "返回登录",
-        new_password_label: "新密码",
-        confirm_password_label: "确认新密码",
-        reset_password: "设置新密码",
-        confirmed: "邮箱已确认，请登录。",
-        invite: "邀请已接收，请完成密码设置后登录。",
-        recovery_ready: "请设置新密码。",
-        callback_failed: "登录回调处理失败：",
-        logging_in: "正在登录...",
-        login_failed: "登录失败：",
-        sending_reset: "正在发送重置邮件...",
-        reset_sent: "如果该邮箱已注册，密码重置邮件会发送到你的邮箱。请点击邮件里的链接回来设置新密码。",
-        reset_request_failed: "发送重置邮件失败：",
-        resetting_password: "正在设置新密码...",
-        password_mismatch: "两次输入的新密码不一致。",
-        password_reset_success: "密码已更新，请使用新密码登录。",
-        password_reset_failed: "密码重置失败：",
-        error_reset_unavailable: "当前 Identity 模块没有可用的密码重置方法，请确认 Netlify Identity 已启用并重新部署。",
-        error_invalid: "邮箱或密码不正确，或邮箱还没有确认。请先打开注册邮件并点击确认链接。",
-        error_identity_missing: "Netlify Identity 可能还没有启用。请先在 Netlify 后台启用 Identity。",
-        error_network: "网络请求失败。请确认当前页面是 Netlify 部署地址。",
-        error_unknown: "未知 AuthError。"
+        title: "登录 · ShinE", home: "回到主页", pageTitle: "登录",
+        pageDesc: "使用 Google 或邮箱验证码登录。首次使用时，Logto 会在同一流程中完成账号创建。",
+        google: "使用 Google 登录", email: "使用邮箱验证码登录",
+        note: "登录后会返回你刚才要访问的页面。当前不支持 Apple、QQ 或微信登录。",
+        static: "当前是静态预览，请在 Netlify local runtime 或已部署站点打开登录。"
       },
       en: {
-        title: "Login · ShinE",
-        home: "Home",
-        page_title: "Login",
-        page_desc: "Confirm your email before logging in. Accounts cannot log in until the email confirmation link has been clicked.",
-        email_label: "Email",
-        password_label: "Password",
-        submit: "Login",
-        register: "Create account",
-        forgot: "Forgot password?",
-        forgot_title: "Reset password",
-        forgot_desc: "Enter your registered email. We will send a password reset email, then you can return from that link to set a new password.",
-        reset_title: "Set a new password",
-        reset_desc: "Set a new password, then log in with the new password.",
-        reset_email_label: "Email",
-        send_reset: "Send reset email",
-        back_login: "Back to login",
-        new_password_label: "New password",
-        confirm_password_label: "Confirm new password",
-        reset_password: "Set new password",
-        confirmed: "Email confirmed. Please log in.",
-        invite: "Invite accepted. Please finish setting your password, then log in.",
-        recovery_ready: "Please set a new password.",
-        callback_failed: "Login callback failed: ",
-        logging_in: "Logging in...",
-        login_failed: "Login failed: ",
-        sending_reset: "Sending reset email...",
-        reset_sent: "If this email is registered, a password reset email will be sent. Click the link in that email to return and set a new password.",
-        reset_request_failed: "Failed to send reset email: ",
-        resetting_password: "Setting new password...",
-        password_mismatch: "The two new passwords do not match.",
-        password_reset_success: "Password updated. Please log in with the new password.",
-        password_reset_failed: "Password reset failed: ",
-        error_reset_unavailable: "The current Identity module does not expose password reset. Make sure Netlify Identity is enabled and redeploy.",
-        error_invalid: "Email or password is incorrect, or the email has not been confirmed. Please open the signup email and click the confirmation link first.",
-        error_identity_missing: "Netlify Identity may not be enabled. Enable Identity in Netlify first.",
-        error_network: "Network request failed. Make sure you are using the Netlify deployed site.",
-        error_unknown: "Unknown AuthError."
+        title: "Login · ShinE", home: "Home", pageTitle: "Login",
+        pageDesc: "Use Google or an email verification code. Logto completes account creation in the same hosted flow for first-time users.",
+        google: "Continue with Google", email: "Continue with email code",
+        note: "You will return to the page you were visiting. Apple, QQ, and WeChat are not available yet.",
+        static: "This is a static preview. Open login in the Netlify local runtime or a deployed site."
       }
     };
-
-    function t(key) {
-      return (I18N[currentLang] && I18N[currentLang][key]) || I18N.zh[key] || "";
+    function t(key) { return I18N[currentLang][key] || I18N.zh[key] || ""; }
+    function safeNext() {
+      const value = new URLSearchParams(window.location.search).get("next") || "/index.html";
+      return safeAuthRedirectPath(value);
     }
-
+    function buildEntry(base) {
+      const url = new URL(base, window.location.origin);
+      url.searchParams.set("next", safeNext());
+      url.searchParams.set("locale", currentLang === "zh" ? "zh-CN" : "en-US");
+      return `${url.pathname}${url.search}`;
+    }
     function setStaticText() {
       document.documentElement.lang = currentLang === "zh" ? "zh-Hans" : "en";
       document.title = t("title");
       document.getElementById("homeLink").textContent = t("home");
-      document.getElementById("pageTitle").textContent = t("page_title");
-      document.getElementById("pageDesc").textContent = t("page_desc");
-      document.getElementById("emailLabel").firstChild.textContent = t("email_label");
-      document.getElementById("passwordLabel").firstChild.textContent = t("password_label");
-      document.getElementById("submitBtn").textContent = t("submit");
-      document.getElementById("registerLink").textContent = t("register");
-      document.getElementById("forgotBtn").textContent = t("forgot");
-      document.getElementById("resetEmailLabel").firstChild.textContent = t("reset_email_label");
-      document.getElementById("sendResetBtn").textContent = t("send_reset");
-      document.getElementById("backToLoginBtn").textContent = t("back_login");
-      document.getElementById("newPasswordLabel").firstChild.textContent = t("new_password_label");
-      document.getElementById("confirmPasswordLabel").firstChild.textContent = t("confirm_password_label");
-      document.getElementById("resetPasswordBtn").textContent = t("reset_password");
+      document.getElementById("pageTitle").textContent = t("pageTitle");
+      document.getElementById("pageDesc").textContent = t("pageDesc");
+      document.getElementById("googleLogin").textContent = t("google");
+      document.getElementById("emailLogin").textContent = t("email");
+      document.getElementById("pageNote").textContent = t("note");
     }
-
-    function describeAuthError(error) {
-      const parts = [
-        error && error.message,
-        error && error.description,
-        error && error.error_description,
-        error && error.error
-      ].filter(Boolean);
-      const raw = parts.join(" / ") || (error && error.name) || String(error || "");
-      const status = error && error.status ? `HTTP ${error.status}` : "";
-      const text = `${status} ${raw}`.trim();
-      const lower = text.toLowerCase();
-      if (lower.includes("invalid") || lower.includes("401")) return t("error_invalid");
-      if (lower.includes("identity") || lower.includes("not found") || lower.includes("404")) return t("error_identity_missing");
-      if (lower.includes("network") || lower.includes("failed to fetch")) return t("error_network");
-      return text || t("error_unknown");
-    }
-
-    function showMode(mode) {
-      loginForm.hidden = mode !== "login";
-      forgotForm.hidden = mode !== "forgot";
-      resetForm.hidden = mode !== "reset";
-      statusEl.textContent = "";
-
-      if (mode === "forgot") {
-        document.getElementById("pageTitle").textContent = t("forgot_title");
-        document.getElementById("pageDesc").textContent = t("forgot_desc");
-        document.getElementById("resetEmail").value = document.getElementById("email").value.trim();
-        return;
-      }
-
-      if (mode === "reset") {
-        document.getElementById("pageTitle").textContent = t("reset_title");
-        document.getElementById("pageDesc").textContent = t("reset_desc");
-        statusEl.textContent = t("recovery_ready");
-        return;
-      }
-
-      document.getElementById("pageTitle").textContent = t("page_title");
-      document.getElementById("pageDesc").textContent = t("page_desc");
-    }
-
-    async function requestPasswordReset(email) {
-      if (typeof identity.requestPasswordRecovery !== "function") {
-        throw new Error(t("error_reset_unavailable"));
-      }
-      await identity.requestPasswordRecovery(email);
-    }
-
-    function cleanRecoveryUrl() {
-      const url = new URL(window.location.href);
-      url.searchParams.delete("recovery_token");
-      url.hash = "";
-      window.history.replaceState(null, "", `${url.pathname}${url.search}`);
-    }
-
     setStaticText();
-
-    try {
-      const result = await identity.handleAuthCallback();
-      if ((result && result.type === "recovery") || startedWithRecoveryToken) {
-        showMode("reset");
-      }
-      if (result && result.type === "confirmation") {
-        statusEl.textContent = t("confirmed");
-      }
-      if (result && result.type === "invite") {
-        statusEl.textContent = t("invite");
-      }
-    } catch (error) {
-      if (startedWithRecoveryToken) {
-        showMode("reset");
-      } else {
-        statusEl.textContent = t("callback_failed") + describeAuthError(error);
-      }
-    }
-
-    document.getElementById("forgotBtn").addEventListener("click", () => {
-      showMode("forgot");
-    });
-
-    document.getElementById("backToLoginBtn").addEventListener("click", () => {
-      showMode("login");
-    });
-
-    forgotForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      statusEl.textContent = t("sending_reset");
-      const email = document.getElementById("resetEmail").value.trim();
-      try {
-        await requestPasswordReset(email);
-        statusEl.textContent = t("reset_sent");
-      } catch (error) {
-        statusEl.textContent = t("reset_request_failed") + describeAuthError(error);
-      }
-    });
-
-    resetForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const password = document.getElementById("newPassword").value;
-      const confirmation = document.getElementById("confirmPassword").value;
-      if (password !== confirmation) {
-        statusEl.textContent = t("password_mismatch");
-        return;
-      }
-
-      statusEl.textContent = t("resetting_password");
-      try {
-        if (typeof identity.updateUser !== "function") {
-          throw new Error(t("error_reset_unavailable"));
+    for (const [id, entry] of [["googleLogin", GOOGLE_ENTRY], ["emailLogin", EMAIL_ENTRY]]) {
+      document.getElementById(id).addEventListener("click", (event) => {
+        if (isStaticMockPreview()) {
+          event.preventDefault();
+          statusEl.textContent = t("static");
+          return;
         }
-        await identity.updateUser({ password });
-        cleanRecoveryUrl();
-        showMode("login");
-        statusEl.textContent = t("password_reset_success");
-      } catch (error) {
-        statusEl.textContent = t("password_reset_failed") + describeAuthError(error);
-      }
-    });
-
-    loginForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      statusEl.textContent = t("logging_in");
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value;
-      try {
-        await identity.login(email, password);
-        persistIdentityCookiesFromStorage(IDENTITY_SESSION_DAYS);
-        window.location.href = next;
-      } catch (error) {
-        statusEl.textContent = t("login_failed") + describeAuthError(error);
-      }
-    });
+        event.currentTarget.href = buildEntry(entry);
+      });
+    }
   </script>
 </body>
 </html>

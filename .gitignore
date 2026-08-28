@@ -3,3 +3,13 @@
 
 # Local Netlify folder
 .netlify
+
+# Local environment and database credentials
+.env
+.env.*
+!.env.example
+
+flipgame/node_modules/
+
+# Local Neon CLI project/branch selection
+flipgame/.neon

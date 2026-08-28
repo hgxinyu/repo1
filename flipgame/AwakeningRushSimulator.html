@@ -741,11 +741,11 @@
   </div>
 
   <section class="auth-card" id="authCard" aria-live="polite">
-    <h2 id="authTitle">正在检查 VIP 权限</h2>
+    <h2 id="authTitle">正在检查会员权限</h2>
     <p id="authMessage">请稍候...</p>
     <div class="auth-actions" id="authActions" style="display:none;">
       <a class="primary" id="loginLink" href="Login.html?next=AwakeningRushSimulator.html">登录</a>
-      <a id="registerLink" href="Register.html">注册账号</a>
+      <a id="registerLink" href="Register.html?next=AwakeningRushSimulator.html">注册账号</a>
       <button id="retryAuthBtn" type="button">重新检查</button>
     </div>
   </section>
@@ -753,7 +753,7 @@
   <div class="wrap">
     <header class="site-header">
       <div class="title">
-        <h1 id="pageTitle">觉醒冲榜模拟器<span class="vip-page-badge">VIP</span></h1>
+        <h1 id="pageTitle">觉醒冲榜模拟器<span class="vip-page-badge">会员</span></h1>
         <p id="pageDesc">每次觉醒先计分，B+ 及以下分解返钻，A- 及以上保留。</p>
       </div>
       <div class="tools">
@@ -1107,7 +1107,7 @@
           pageTitle.textContent = t('page_title');
           const badge = document.createElement('span');
           badge.className = 'vip-page-badge';
-          badge.textContent = 'VIP';
+          badge.textContent = '会员';
           pageTitle.appendChild(badge);
         }
         if (pageDesc) pageDesc.textContent = t('page_desc');
@@ -1376,33 +1376,13 @@
     })();
   </script>
   <script type="module">
-    import * as identity from "https://esm.sh/@netlify/identity?bundle";
-    import { restoreIdentitySession as restoreNetlifyIdentitySession } from "./assets/auth-session.js";
+    import { getAuthMe, isStaticMockPreview } from "./assets/auth-session.js";
 
     const authTitle = document.getElementById("authTitle");
     const authMessage = document.getElementById("authMessage");
     const authActions = document.getElementById("authActions");
     const retryAuthBtn = document.getElementById("retryAuthBtn");
-    const host = (window.location.hostname || "").toLowerCase();
-    function isPrivateIpv4Host(value) {
-      const parts = value.split(".").map((part) => Number(part));
-      if (parts.length !== 4 || parts.some((part) => !Number.isInteger(part) || part < 0 || part > 255)) {
-        return false;
-      }
-      return parts[0] === 10
-        || (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31)
-        || (parts[0] === 192 && parts[1] === 168);
-    }
-    const isLocal = window.location.protocol === "file:"
-      || host === "localhost"
-      || host === "127.0.0.1"
-      || host === "0.0.0.0"
-      || host === "::1"
-      || isPrivateIpv4Host(host);
-
-    async function restoreIdentitySession() {
-      return restoreNetlifyIdentitySession(identity);
-    }
+    const isLocal = isStaticMockPreview();
 
     async function checkAccess() {
       if (isLocal) {
@@ -1411,39 +1391,29 @@
       }
       document.body.classList.add("auth-checking");
       document.body.classList.remove("auth-blocked");
-      authTitle.textContent = "正在检查 VIP 权限";
+      authTitle.textContent = "正在检查会员权限";
       authMessage.textContent = "正在恢复登录状态，请稍候...";
       authActions.style.display = "none";
 
-      const user = await restoreIdentitySession();
-      if (!user) {
+      const auth = await getAuthMe();
+      if (!auth.authenticated || !auth.capabilities || auth.capabilities.blocked) {
         document.body.classList.remove("auth-checking");
         document.body.classList.add("auth-blocked");
         authTitle.textContent = "需要登录";
-        authMessage.textContent = "觉醒冲榜模拟器是 VIP 专属页面，请先登录或注册账号提交审核。";
+        authMessage.textContent = "觉醒冲榜模拟器是注册会员页面，请先登录或注册账号。";
         authActions.style.display = "flex";
         return;
       }
 
-      const response = await fetch("/api/me", { credentials: "include" });
-      const data = await response.json().catch(() => ({}));
-      if (response.status === 401) {
-        document.body.classList.remove("auth-checking");
-        document.body.classList.add("auth-blocked");
-        authTitle.textContent = "需要重新登录";
-        authMessage.textContent = "登录状态已过期，请重新登录后继续使用。";
-        authActions.style.display = "flex";
-        return;
-      }
-      if (response.ok && data.canAccessPremium) {
+      if (auth.capabilities.canAccessRegistered) {
         document.body.classList.remove("auth-checking", "auth-blocked");
         return;
       }
 
       document.body.classList.remove("auth-checking");
       document.body.classList.add("auth-blocked");
-      authTitle.textContent = "VIP 权限未开启";
-      authMessage.textContent = "你的账号已登录，但还没有 VIP 权限。请等待管理员审核，或联系管理员开通。";
+      authTitle.textContent = "会员权限未开启";
+      authMessage.textContent = "你的账号已登录，但当前账号状态不能访问会员页面。";
       authActions.style.display = "flex";
     }
 

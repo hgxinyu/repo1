@@ -1,5 +1,11 @@
-import { getStore } from "@netlify/blobs";
-import { canAccessPremium, currentUser, isAdminEmail, json, normalizeEmail, readProfile } from "./_shared/access.mjs";
+import { authJson } from "./_shared/auth/http.mjs";
+import {
+  authErrorResponse,
+  assertBrowserWriteRequest,
+  createAuthRuntime,
+  requireRequestCapability
+} from "./_shared/auth/runtime.mjs";
+import { createAiRateLimitRepository } from "./_shared/auth/ai-rate-limit.mjs";
 import { IH_KNOWLEDGE_CHUNKS } from "./_shared/ih-knowledge-index.mjs";
 
 const DEEPSEEK_URL = "https://api.deepseek.com/chat/completions";
@@ -8,7 +14,6 @@ const MAX_QUESTION_LENGTH = 1200;
 const MAX_HISTORY_TURNS = 10;
 const MAX_KNOWLEDGE_CHUNKS = 6;
 const MAX_VIP_REQUESTS_PER_HOUR = 10;
-const RATE_LIMIT_STORE = "ai-question-limits";
 const PINNED_KNOWLEDGE_ALIASES = [
   {
     path: "IHassistant/knowledge/artifacts/duanzuizhijian.md",
@@ -124,14 +129,6 @@ function recentHistory(history) {
     .slice(-(MAX_HISTORY_TURNS * 2));
 }
 
-function rateLimitStore() {
-  return getStore({ name: RATE_LIMIT_STORE, consistency: "strong" });
-}
-
-function hourKey(now = new Date()) {
-  return now.toISOString().slice(0, 13);
-}
-
 function nextHourIso(now = new Date()) {
   const next = new Date(now);
   next.setUTCMinutes(0, 0, 0);
@@ -139,82 +136,78 @@ function nextHourIso(now = new Date()) {
   return next.toISOString();
 }
 
-async function checkRateLimit(email, isAdmin) {
+async function checkRateLimit(accountId, isAdmin, repository) {
   if (isAdmin) return null;
-
-  const normalizedEmail = normalizeEmail(email);
-  const now = new Date();
-  const hour = hourKey(now);
-  const key = `questions/${encodeURIComponent(normalizedEmail)}/${hour}.json`;
-  const store = rateLimitStore();
-  const current = await store.get(key, { type: "json" }).catch(() => null);
-  const count = Number(current && current.count) || 0;
-
-  if (count >= MAX_VIP_REQUESTS_PER_HOUR) {
-    return json({
-      error: `已达到每小时 ${MAX_VIP_REQUESTS_PER_HOUR} 个问题上限，请稍后再试。`,
-      resetAt: nextHourIso(now)
-    }, { status: 429 });
-  }
-
-  await store.setJSON(key, {
-    email: normalizedEmail,
-    hour,
-    count: count + 1,
-    updatedAt: now.toISOString()
-  });
-  return null;
+  const result = await repository.increment({ accountId });
+  if (result.count <= MAX_VIP_REQUESTS_PER_HOUR) return null;
+  return authJson({
+    error: `已达到每小时 ${MAX_VIP_REQUESTS_PER_HOUR} 个问题上限，请稍后再试。`,
+    resetAt: result.resetAt instanceof Date ? result.resetAt.toISOString() : nextHourIso()
+  }, { status: 429 });
 }
 
-async function requireVipUser() {
-  const user = await currentUser();
-  const email = normalizeEmail(user && user.email);
-  if (!email) {
-    return { email: "", response: json({ error: "请先登录后再使用 AI 问答。" }, { status: 401 }) };
-  }
-
-  const profile = await readProfile(email).catch(() => null);
-  if (!canAccessPremium(profile, email)) {
-    return { email, response: json({ error: "AI 问答当前为 VIP 专属，请先开通 VIP 权限。" }, { status: 403 }) };
-  }
-
-  return { email, isAdmin: isAdminEmail(email), response: null };
+async function requireVipUser(runtime, request) {
+  const { context } = await requireRequestCapability(runtime, request, "canAccessPremium");
+  return { context, isAdmin: context.capabilities.isAdmin };
 }
 
-export default async (req) => {
-  if (req.method !== "POST") {
-    return json({ error: "Method not allowed" }, { status: 405 });
-  }
+export function createAiChatHandler(overrides = {}) {
+  const runtime = createAuthRuntime(overrides);
+  const json = overrides.json || authJson;
+  const rateLimitRepository = overrides.aiLimitRepository || createAiRateLimitRepository(
+    overrides.aiRateLimitRepositoryOptions || {}
+  );
+  const fetcher = overrides.fetch || globalThis.fetch;
+  const configuredApiKey = overrides.apiKey;
 
-  const auth = await requireVipUser();
-  if (auth.response) return auth.response;
+  return async function aiChat(req) {
+    if (req.method !== "POST") {
+      return json({ error: "Method not allowed" }, { status: 405, headers: { Allow: "POST" } });
+    }
 
-  const limited = await checkRateLimit(auth.email, auth.isAdmin);
-  if (limited) return limited;
+    let auth;
+    try {
+      assertBrowserWriteRequest(req, overrides);
+      auth = await requireVipUser(runtime, req);
+    } catch (error) {
+      return authErrorResponse(error, json, 401);
+    }
 
-  const apiKey = env("DEEPSEEK_API_KEY");
-  if (!apiKey) {
-    return json({ error: "AI 服务尚未配置 DEEPSEEK_API_KEY。" }, { status: 503 });
-  }
+    let body = {};
+    try {
+      body = await req.json();
+    } catch (error) {
+      return json({ error: "Invalid JSON" }, { status: 400 });
+    }
 
-  let body = {};
-  try {
-    body = await req.json();
-  } catch (error) {
-    return json({ error: "Invalid JSON" }, { status: 400 });
-  }
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
+      return json({ error: "Invalid JSON" }, { status: 400 });
+    }
+    const question = String(body.question || "").trim();
+    if (!question) {
+      return json({ error: "请输入问题。" }, { status: 400 });
+    }
+    if (question.length > MAX_QUESTION_LENGTH) {
+      return json({ error: `问题过长，请控制在 ${MAX_QUESTION_LENGTH} 字以内。` }, { status: 400 });
+    }
 
-  const question = String(body.question || "").trim();
-  if (!question) {
-    return json({ error: "请输入问题。" }, { status: 400 });
-  }
-  if (question.length > MAX_QUESTION_LENGTH) {
-    return json({ error: `问题过长，请控制在 ${MAX_QUESTION_LENGTH} 字以内。` }, { status: 400 });
-  }
+    const rawApiKey = configuredApiKey ?? env("DEEPSEEK_API_KEY");
+    if (typeof rawApiKey !== "string" || !rawApiKey.trim()) {
+      return json({ error: "AI 服务尚未配置 DEEPSEEK_API_KEY。" }, { status: 503 });
+    }
+    const apiKey = rawApiKey.trim();
 
-  const model = DEFAULT_MODEL;
-  const selectedKnowledge = selectKnowledge(question);
-  const messages = [
+    let limited;
+    try {
+      limited = await checkRateLimit(auth.context.accountId, auth.isAdmin, rateLimitRepository);
+    } catch (error) {
+      return authErrorResponse(error, json, 503);
+    }
+    if (limited) return limited;
+
+    const model = DEFAULT_MODEL;
+    const selectedKnowledge = selectKnowledge(question);
+    const messages = [
     {
       role: "system",
       content: [
@@ -231,50 +224,54 @@ export default async (req) => {
     },
     ...recentHistory(body.history),
     { role: "user", content: question }
-  ];
+    ];
 
-  let upstream;
-  try {
-    upstream = await fetch(DEEPSEEK_URL, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model,
-        messages,
-        max_tokens: 1100,
-        temperature: 0,
-        thinking: { type: "disabled" },
-        stream: false
-      })
-    });
-  } catch (error) {
-    return json({ error: "AI 服务连接失败，请稍后再试。" }, { status: 502 });
-  }
+    let upstream;
+    try {
+      upstream = await fetcher(DEEPSEEK_URL, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${apiKey}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model,
+          messages,
+          max_tokens: 1100,
+          temperature: 0,
+          thinking: { type: "disabled" },
+          stream: false
+        })
+      });
+    } catch (error) {
+      return json({ error: "AI 服务连接失败，请稍后再试。" }, { status: 502 });
+    }
 
-  const data = await upstream.json().catch(() => null);
-  if (!upstream.ok) {
-    const message = data && data.error && data.error.message ? data.error.message : "AI 服务返回错误。";
-    return json({ error: message }, { status: upstream.status });
-  }
+    const data = await upstream.json().catch(() => null);
+    if (!upstream.ok) {
+      return json({ error: "AI 服务暂时不可用，请稍后再试。" }, { status: 502 });
+    }
 
-  const answer = data && data.choices && data.choices[0] && data.choices[0].message
-    ? String(data.choices[0].message.content || "").trim()
-    : "";
-  if (!answer) {
-    return json({ error: "AI 服务没有返回可用答案。" }, { status: 502 });
-  }
+    const answer = data && data.choices && data.choices[0] && data.choices[0].message
+      ? String(data.choices[0].message.content || "").trim()
+      : "";
+    if (!answer) {
+      return json({ error: "AI 服务没有返回可用答案。" }, { status: 502 });
+    }
 
-  const response = { answer };
-  if (auth.isAdmin) {
-    response.model = model;
-    response.sources = selectedKnowledge.map((chunk) => ({ path: chunk.path, title: chunk.title }));
-    response.usage = data.usage || null;
-  }
-  return json(response);
-};
+    const response = { answer };
+    if (auth.isAdmin) {
+      response.model = model;
+      response.sources = selectedKnowledge.map((chunk) => ({ path: chunk.path, title: chunk.title }));
+      response.usage = data.usage || null;
+    }
+    return json(response);
+  };
+}
+
+export default async function aiChat(request) {
+  return createAiChatHandler()(request);
+}
 
 export const config = {
   path: "/api/ai-chat"
