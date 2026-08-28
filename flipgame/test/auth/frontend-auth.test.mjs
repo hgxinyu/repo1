@@ -225,5 +225,6 @@ test("admin and protected-page contracts use account capabilities, not legacy Id
 
 test("external Neon migrations stay outside Netlify's automatic migration directory", () => {
   assert.equal(existsSync(resolve(root, "netlify/database/migrations")), false);
-  assert.equal(existsSync(resolve(root, "database/migrations/202608250001_auth_accounts.sql")), true);
+  assert.equal(existsSync(resolve(root, "database/migrations")), false);
+  assert.equal(existsSync(resolve(root, "../database/migrations/202608250001_auth_accounts.sql")), true);
 });

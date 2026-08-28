@@ -8,10 +8,10 @@ import { createAccountRepository } from "../../netlify/functions/_shared/auth/ac
 const SCRIPT_DIRECTORY = resolve(new URL(".", import.meta.url).pathname);
 const DEFAULT_MIGRATION = resolve(
   SCRIPT_DIRECTORY,
-  "../../database/migrations/202608250001_auth_accounts.sql"
+  "../../../database/migrations/202608250001_auth_accounts.sql"
 );
 const DISPOSABLE_SOCKET_PATTERN = /^\/private\/tmp\/shinegame-auth-pg\.[A-Za-z0-9]+\/socket$/u;
-const REPOSITORY_MIGRATION_SUFFIX = "/flipgame/database/migrations/202608250001_auth_accounts.sql";
+const REPOSITORY_MIGRATION_SUFFIX = "/database/migrations/202608250001_auth_accounts.sql";
 
 function usage() {
   return [

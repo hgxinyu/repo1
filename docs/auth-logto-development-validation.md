@@ -54,6 +54,11 @@ The replacement Google secret is not stored in this repository, documentation, t
 - Migrations: `202608250001_auth_accounts.sql`, `202608260001_auth_hardening.sql`, `202608270001_fix_request_account_vip_role_variable.sql`, then `202608270002_auth_migration_batches.sql`
 - Production runtime-role migration: `202608280001_auth_bff_runtime_role.sql` (implemented after this historical Neon validation; not applied to the production branch or to the recorded `local-test` evidence)
 
+The canonical SQL files live under the repository-root `database/migrations/`
+directory, outside the Netlify site base. They are owner-applied to the exact
+verified Neon branch in filename order; Netlify deploys must not discover or
+apply them automatically.
+
 On 2026-08-27, read-only Neon metadata first proved that the target named
 exactly `local-test` was a non-default, non-root child of `production`, and
 that its ID differed from the production branch ID. Only that verified child
