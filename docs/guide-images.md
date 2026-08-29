@@ -10,6 +10,8 @@
 - 页面内卡片手动维护标题、图片路径和描述。
 - 主页“周活动攻略”固定链接到 `GuideImages.html?guide=weekly-current`；攻略页用 `data-weekly-current="true"` 标记唯一的本周卡片，并在进入页面时自动打开本周图片。
 - 每周图片使用带日期的稳定文件名：中文 `weekly-event-YYYY-MM-DD.jpg`，英文 `weekly-event-YYYY-MM-DD-en.jpg`。更新当周时新增一组日期文件、把“本周”标记移到新卡片；旧卡片和旧图片保留为历史归档。
+- 每周攻略默认导出 2400×3200 高清版（或同等 2× 像素密度），发布前必须按实际尺寸检查中英文小字清晰度。
+- 站内版保留 ShineGame 二维码；用户明确要求外发无二维码版本时，另存为 `weekly-event-YYYY-MM-DD-<platform>.png`（例如 `-tieba.png`），不替换站内图片。
 - 有文字的站内生成攻略图同时维护英文 `*-en.png` 版本。`GuideImages.html` 读取首页保存的 `localStorage.flipgame_lang`：中文显示原图，英文显示 `data-image-en` / `data-images-en` 指向的英文图。
 - 奇幻梦工厂隐藏关图片本身没有文字，中英文共用原图；远征推图使用单独的 `expedition-stage-map-en.png` 英文编号版。
 - 图片页面文案包含：`部分图片收集于网络，公众号。特此感谢作者！`
@@ -56,11 +58,12 @@
 
 ## 每周活动更新流程
 
-1. 根据当周资料制作中文和英文两张同版式攻略图，按 `weekly-event-YYYY-MM-DD.jpg` / `weekly-event-YYYY-MM-DD-en.jpg` 保存。
+1. 根据当周资料制作中文和英文两张同版式 2400×3200 高清攻略图，按 `weekly-event-YYYY-MM-DD.jpg` / `weekly-event-YYYY-MM-DD-en.jpg` 保存；按实际尺寸检查正文、小字和数字清晰度。
 2. 在 `GuideImages.html` 最前面新增当周卡片，并为它设置 `data-weekly-current="true"`。
 3. 从上周卡片移除 `data-weekly-current` 和“本周”角标，但保留卡片及日期文件作为历史攻略。
 4. 同时维护卡片的中英文标题、说明、图片路径和替代文本。
 5. 验证主页入口会自动打开当周图，且 `flipgame_lang=zh` / `en` 分别加载中文图 / 英文图。
+6. 站内图保留 ShineGame 二维码；仅在用户明确要求时另存无二维码外发版，平台后缀需写入文件名且不得覆盖站内图。
 
 ## 命名建议
 

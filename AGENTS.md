@@ -41,8 +41,8 @@ Any local BFF runtime connected to a development-branch database (for example `l
 
 ## Git / Deploy Rules
 
-- Use `stage` as the normal development and testing branch. Do feature work there first.
-- Merge from `stage` to the production branch/environment only after testing is complete and the user explicitly asks for that merge or production release.
+- This is a small project and does not maintain a `stage` branch or environment. After relevant local verification, push approved releases directly to `main`.
+- A push to `main` is a production release and still requires the user's explicit current-turn authorization.
 - Do not push after every small change by default. Netlify deploys consume credits on each push.
 - Prefer batching related changes into one commit and one push after the user confirms the work is ready.
 - Do not carry push, commit, production deploy, or Netlify deploy permission across turns. Even if the user asked to push earlier, require an explicit current-turn request before committing, pushing, or deploying again.
