@@ -31,7 +31,7 @@ VIP 账号可额外访问 AI玩放置
 - 新链路由第一方 BFF session 绑定稳定 `accountId`；账号、角色和状态从数据库映射读取，不从客户端 email、role 或 emailVerified 推断权限。浏览器通过 `GET /api/auth/session` / `GET /api/me` 获取能力快照，异常或不完整响应一律按未认证处理。
 - 首页、会员页、VIP 页和管理后台加载时会先读取第一方 session；迁移窗口内的旧 Netlify Identity session 只能通过 `/api/auth/legacy-bridge` 服务端验证并兑换，再读取 `/api/me` 权限。
 - bridge 成功前不会把旧 Identity token 复制到 JavaScript 可读 cookie；只有服务端确认兑换成功后，才清理 `gotrue.user`、`nf_jwt` 和 `nf_refresh`。bridge session 的 idle TTL 为 14 天，absolute expiry 不得超过迁移窗口。
-- VIP 或管理员账号登录首页后，右上角账号按钮会显示醒目的 `VIP` 标记；普通注册会员和待审核账号不显示该标记。
+- VIP 账号登录首页后，右上角账号按钮显示金色 `VIP` 标记；管理员显示独立的深色 `ADMIN` 标记；普通注册会员和待审核账号不显示角色标记。
 - 会员页和 VIP 页在 session 恢复与权限检查完成前只显示检查状态；确认未登录后才显示登录/注册入口。静态 `file://` / `:8000` 预览才使用本地 Mock；`localhost:8888` 的 Netlify local BFF 仍执行真实认证检查。
 - 注销会先撤销当前第一方 session family、尽力撤销 Logto refresh grant、清理浏览器旧状态，再把顶层窗口导航到由 BFF 基于已验证 Logto issuer 生成的 RP-Initiated end-session URL；该 URL 只带固定 `client_id` 和固定 `LOGTO_POST_LOGOUT_REDIRECT_URI`，不接受请求中的 `next`、`Referer` 或其他跳转值。若 provider discovery 或 URL 构建不可用，本地 session 仍保持已撤销，浏览器只回退到固定 `/Login.html?auth=logged-out`。
 - Logout first revokes the first-party session family, best-effort revokes the Logto refresh grant, and clears browser legacy state, then top-level navigates to an RP-Initiated end-session URL built from the verified Logto issuer. The URL carries only the fixed `client_id` and fixed `LOGTO_POST_LOGOUT_REDIRECT_URI`; request `next`, `Referer`, and other redirect values are never accepted. If provider discovery or URL construction is unavailable, local revocation still stands and the browser falls back only to `/Login.html?auth=logged-out`.

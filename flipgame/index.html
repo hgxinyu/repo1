@@ -146,6 +146,14 @@
       letter-spacing: 0;
       white-space: nowrap;
     }
+    .vip-account-badge[hidden] {
+      display: none;
+    }
+    .vip-account-badge[data-badge-kind="admin"] {
+      border-color: rgba(94, 234, 212, 0.72);
+      background: linear-gradient(135deg, #0f172a 0%, #164e63 52%, #0f766e 100%);
+      box-shadow: 0 7px 16px rgba(15, 118, 110, 0.28);
+    }
     .account-panel {
       position: absolute;
       right: 0;
@@ -1905,6 +1913,7 @@
   </script>
   <script type="module">
     import { getAuthMe, isStaticMockPreview, logout } from "./assets/auth-session.js";
+    import { accountBadgePresentation } from "./assets/account-badge.mjs";
 
     const LOCAL_MOCK_MODE = isLocalHomepagePreview();
     const adminLink = document.getElementById("adminLink");
@@ -1932,6 +1941,7 @@
         accountVipBadge.hidden = false;
         accountVipBadge.textContent = "ADMIN";
         accountVipBadge.dataset.badgeOverride = "ADMIN";
+        accountVipBadge.dataset.badgeKind = "admin";
       }
       if (accountBtn) {
         accountBtn.setAttribute("aria-label", "Local Admin");
@@ -1951,16 +1961,23 @@
       if (accountMenu) accountMenu.style.display = "inline-flex";
       const gameName = auth.profile && auth.profile.gameName ? auth.profile.gameName : "";
       const displayName = gameName || (auth.profile && auth.profile.primaryEmailMasked) || "已登录";
-      const hasVipAccess = auth.capabilities.canAccessPremium || auth.capabilities.isAdmin;
+      const badge = accountBadgePresentation(auth.capabilities);
       if (accountName) {
         accountName.textContent = displayName;
         accountName.dataset.placeholder = "false";
       }
       if (accountVipBadge) {
-        accountVipBadge.hidden = !hasVipAccess;
+        accountVipBadge.hidden = !badge.visible;
+        accountVipBadge.textContent = badge.label;
+        accountVipBadge.dataset.badgeKind = badge.kind;
+        if (badge.label) {
+          accountVipBadge.dataset.badgeOverride = badge.label;
+        } else {
+          delete accountVipBadge.dataset.badgeOverride;
+        }
       }
       if (accountBtn) {
-        accountBtn.setAttribute("aria-label", hasVipAccess ? `${displayName} VIP` : displayName);
+        accountBtn.setAttribute("aria-label", badge.ariaSuffix ? `${displayName} ${badge.ariaSuffix}` : displayName);
       }
       if (auth.capabilities.isAdmin && adminLink) {
         adminLink.style.display = "inline-flex";
