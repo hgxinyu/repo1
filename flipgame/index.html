@@ -1139,6 +1139,10 @@
         <span class="title" id="cardCoreTitle">放置计算器</span>
         <span class="subtitle" id="cardCoreSub">统一进入星钻交易、核心、殿堂飞升和珍宝升级。</span>
       </button>
+      <a class="card-link" href="GuideImages.html?guide=weekly-current">
+        <span class="title" id="cardWeeklyTitle">周活动攻略</span>
+        <span class="subtitle" id="cardWeeklySub">查看本周活动路线、资源投入和避坑建议。</span>
+      </a>
       <a class="card-link" href="GuideImages.html">
         <span class="title" id="cardHiddenTitle">攻略图片</span>
         <span class="subtitle" id="cardHiddenSub">集中查看各类攻略图，持续更新。</span>
@@ -1291,6 +1295,8 @@
       const cardCoreSub = document.getElementById('cardCoreSub');
       const cardStarTitle = document.getElementById('cardStarTitle');
       const cardStarSub = document.getElementById('cardStarSub');
+      const cardWeeklyTitle = document.getElementById('cardWeeklyTitle');
+      const cardWeeklySub = document.getElementById('cardWeeklySub');
       const cardHiddenTitle = document.getElementById('cardHiddenTitle');
       const cardHiddenSub = document.getElementById('cardHiddenSub');
       const cardAiTitle = document.getElementById('cardAiTitle');
@@ -1378,6 +1384,8 @@
           card_core_sub: '统一进入星钻交易、核心、殿堂飞升和珍宝升级。',
           card_star_title: '星钻交易计算器',
           card_star_sub: '按比例换算金额与赠送额度。',
+          card_weekly_title: '周活动攻略',
+          card_weekly_sub: '查看本周活动路线、资源投入和避坑建议。',
           card_hidden_title: '攻略图片',
           card_hidden_sub: '集中查看各类攻略图，持续更新。',
           card_ai_title: 'AI玩放置',
@@ -1464,6 +1472,8 @@
           card_core_sub: 'Open star diamond trading, core, Temple and Destiny, and treasure upgrade tools.',
           card_star_title: 'Star Diamond Trade Calculator',
           card_star_sub: 'Convert amounts and bonus ratios.',
+          card_weekly_title: 'Weekly Event Guide',
+          card_weekly_sub: 'Open this week’s event routes, resource costs, and pitfalls.',
           card_hidden_title: 'Guide Images',
           card_hidden_sub: 'Browse strategy images in one place.',
           card_ai_title: 'Play IH with AI',
@@ -1566,6 +1576,8 @@
         if (cardCoreSub) cardCoreSub.textContent = t('card_core_sub');
         if (cardStarTitle) cardStarTitle.textContent = t('card_star_title');
         if (cardStarSub) cardStarSub.textContent = t('card_star_sub');
+        if (cardWeeklyTitle) cardWeeklyTitle.textContent = t('card_weekly_title');
+        if (cardWeeklySub) cardWeeklySub.textContent = t('card_weekly_sub');
         if (cardHiddenTitle) cardHiddenTitle.textContent = t('card_hidden_title');
         if (cardHiddenSub) cardHiddenSub.textContent = t('card_hidden_sub');
         if (cardAiTitle) cardAiTitle.textContent = t('card_ai_title');
