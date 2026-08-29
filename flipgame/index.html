@@ -434,6 +434,9 @@
       display: flex;
       flex-direction: column;
       gap: 12px;
+      min-height: 0;
+      overflow-y: auto;
+      padding-right: 2px;
     }
     .recruit-panel label {
       font-size: 13px;
@@ -453,6 +456,12 @@
     .recruit-panel textarea {
       min-height: 110px;
       resize: vertical;
+    }
+    .recruit-panel .field-note {
+      margin: -6px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
     }
     .recruit-panel button[type="submit"] {
       margin-top: 6px;
@@ -1205,9 +1214,13 @@
       <h2 id="recruitTitle">iOS国风公会招募</h2>
       <p id="recruitDesc">欢迎加入 iOS 国风大家庭，提交信息后会尽快联系你。</p>
     </header>
-    <form id="recruitForm" autocomplete="on">
+    <form id="recruitForm" autocomplete="on" enctype="multipart/form-data">
       <label for="recruitAccount" id="recruitAccountLabel">账号概况（飞升/星魂/灌注/PVP-PVE）</label>
       <textarea id="recruitAccount" name="account_summary" placeholder="例如：飞升15，求知20，圣焰24，灌注12，主C暗战A，主玩PVE" required></textarea>
+
+      <label for="recruitRosterScreenshot" id="recruitRosterScreenshotLabel">背包英雄截图（必填）</label>
+      <input id="recruitRosterScreenshot" name="attachment" type="file" accept="image/png,image/jpeg" required />
+      <p class="field-note" id="recruitRosterScreenshotNote">请上传可看出主要英雄和账号养成度的背包截图，仅限 PNG/JPG，最大 10MB。</p>
 
       <label for="recruitWechat" id="recruitWechatLabel">微信ID</label>
       <input id="recruitWechat" name="wechat_id" type="text" placeholder="请输入微信ID" required />
@@ -1345,6 +1358,9 @@
       const recruitDesc = document.getElementById('recruitDesc');
       const recruitAccountLabel = document.getElementById('recruitAccountLabel');
       const recruitAccount = document.getElementById('recruitAccount');
+      const recruitRosterScreenshotLabel = document.getElementById('recruitRosterScreenshotLabel');
+      const recruitRosterScreenshot = document.getElementById('recruitRosterScreenshot');
+      const recruitRosterScreenshotNote = document.getElementById('recruitRosterScreenshotNote');
       const recruitWechatLabel = document.getElementById('recruitWechatLabel');
       const recruitWechat = document.getElementById('recruitWechat');
       const recruitGameIdLabel = document.getElementById('recruitGameIdLabel');
@@ -1445,6 +1461,11 @@
           recruit_desc: '欢迎加入 iOS 国风大家庭，提交信息后会尽快联系你。',
           recruit_account_label: '账号概况（飞升/星魂/灌注/PVP-PVE）',
           recruit_account_placeholder: '例如：飞升15，求知20，圣焰24，灌注12，主C暗战A，主玩PVE',
+          recruit_screenshot_label: '背包英雄截图（必填）',
+          recruit_screenshot_note: '请上传可看出主要英雄和账号养成度的背包截图，仅限 PNG/JPG，最大 10MB。',
+          recruit_screenshot_required: '请上传背包英雄截图。',
+          recruit_screenshot_type: '截图只支持 PNG 或 JPG 格式。',
+          recruit_screenshot_size: '截图不能超过 10MB。',
           recruit_wechat_label: '微信ID',
           recruit_wechat_placeholder: '请输入微信ID',
           recruit_gameid_label: '游戏ID',
@@ -1533,6 +1554,11 @@
           recruit_desc: 'Welcome to join our iOS Aurora family. We will contact you after submission.',
           recruit_account_label: 'Account Summary (Destiny/Star Soul/Grimoire/PVP-PVE)',
           recruit_account_placeholder: 'e.g. Destiny 3, Star Soul 8, Grimoire 5, mainly PVP',
+          recruit_screenshot_label: 'Hero Bag Screenshot (required)',
+          recruit_screenshot_note: 'Upload a screenshot showing your main heroes and account progress. PNG/JPG only, up to 10MB.',
+          recruit_screenshot_required: 'Please upload a hero bag screenshot.',
+          recruit_screenshot_type: 'The screenshot must be a PNG or JPG file.',
+          recruit_screenshot_size: 'The screenshot must be 10MB or smaller.',
           recruit_wechat_label: 'WeChat ID',
           recruit_wechat_placeholder: 'Enter your WeChat ID',
           recruit_gameid_label: 'Game ID',
@@ -1637,6 +1663,13 @@
         if (recruitDesc) recruitDesc.textContent = t('recruit_desc');
         if (recruitAccountLabel) recruitAccountLabel.textContent = t('recruit_account_label');
         if (recruitAccount) recruitAccount.setAttribute('placeholder', t('recruit_account_placeholder'));
+        if (recruitRosterScreenshotLabel) recruitRosterScreenshotLabel.textContent = t('recruit_screenshot_label');
+        if (recruitRosterScreenshotNote) recruitRosterScreenshotNote.textContent = t('recruit_screenshot_note');
+        if (recruitRosterScreenshot) {
+          recruitRosterScreenshot.dataset.errorRequired = t('recruit_screenshot_required');
+          recruitRosterScreenshot.dataset.errorType = t('recruit_screenshot_type');
+          recruitRosterScreenshot.dataset.errorSize = t('recruit_screenshot_size');
+        }
         if (recruitWechatLabel) recruitWechatLabel.textContent = t('recruit_wechat_label');
         if (recruitWechat) recruitWechat.setAttribute('placeholder', t('recruit_wechat_placeholder'));
         if (recruitGameIdLabel) recruitGameIdLabel.textContent = t('recruit_gameid_label');
@@ -1914,6 +1947,7 @@
   <script type="module">
     import { getAuthMe, isStaticMockPreview, logout } from "./assets/auth-session.js";
     import { accountBadgePresentation } from "./assets/account-badge.mjs";
+    import { recruitmentScreenshotIssue } from "./assets/recruitment-screenshot.mjs";
 
     const LOCAL_MOCK_MODE = isLocalHomepagePreview();
     const adminLink = document.getElementById("adminLink");
@@ -1924,6 +1958,34 @@
     const accountName = document.getElementById("accountName");
     const accountVipBadge = document.getElementById("accountVipBadge");
     const logoutBtn = document.getElementById("logoutBtn");
+    const recruitForm = document.getElementById("recruitForm");
+    const recruitRosterScreenshot = document.getElementById("recruitRosterScreenshot");
+    const recruitStatus = document.getElementById("recruitStatus");
+
+    function validateRecruitmentScreenshot() {
+      const file = recruitRosterScreenshot && recruitRosterScreenshot.files
+        ? recruitRosterScreenshot.files[0]
+        : null;
+      const issue = recruitmentScreenshotIssue(file);
+      const message = issue && recruitRosterScreenshot
+        ? recruitRosterScreenshot.dataset[`error${issue[0].toUpperCase()}${issue.slice(1)}`] || ""
+        : "";
+      if (recruitRosterScreenshot) recruitRosterScreenshot.setCustomValidity(message);
+      if (message && recruitStatus) recruitStatus.textContent = message;
+      return issue === "";
+    }
+
+    if (recruitRosterScreenshot) {
+      recruitRosterScreenshot.addEventListener("change", validateRecruitmentScreenshot);
+    }
+    if (recruitForm) {
+      recruitForm.addEventListener("submit", (event) => {
+        if (validateRecruitmentScreenshot()) return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        if (recruitRosterScreenshot) recruitRosterScreenshot.reportValidity();
+      }, true);
+    }
 
     function isLocalHomepagePreview() {
       return isStaticMockPreview();
