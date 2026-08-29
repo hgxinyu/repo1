@@ -50,3 +50,41 @@ test("the weekly event guide is the first homepage navigation card", async () =>
     await browser.close();
   }
 });
+
+test("a fitted weekly guide stays entirely inside one desktop viewport", async () => {
+  const html = await readFile(new URL("../GuideImages.html", import.meta.url), "utf8");
+  const browser = await chromium.launch({ channel: "chrome", headless: true });
+
+  try {
+    const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+    await page.setContent(html);
+    await page.evaluate(() => {
+      const overlay = document.getElementById("imageOverlay");
+      const images = document.getElementById("overlayImages");
+      const image = document.createElement("img");
+      image.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='2400' height='3200'%3E%3C/svg%3E";
+      images.appendChild(image);
+      overlay.classList.add("is-open", "is-fit-page");
+    });
+
+    const image = page.locator("#overlayImages img");
+    await image.evaluate((element) => element.decode());
+    const metrics = await page.evaluate(() => {
+      const overlay = document.getElementById("imageOverlay");
+      const rect = document.querySelector("#overlayImages img").getBoundingClientRect();
+      return {
+        viewportHeight: window.innerHeight,
+        overlayClientHeight: overlay.clientHeight,
+        overlayScrollHeight: overlay.scrollHeight,
+        imageTop: rect.top,
+        imageBottom: rect.bottom
+      };
+    });
+
+    assert.equal(metrics.overlayScrollHeight <= metrics.overlayClientHeight, true);
+    assert.equal(metrics.imageTop >= 0, true);
+    assert.equal(metrics.imageBottom <= metrics.viewportHeight, true);
+  } finally {
+    await browser.close();
+  }
+});
