@@ -17,6 +17,11 @@ const emailLockSeed = 20260826;
 function fakeTaggedSql(handler) {
   const calls = [];
   const sql = (strings, ...values) => {
+    assert.equal(
+      strings.length,
+      values.length + 1,
+      "postgres.js tagged templates require one more string than values"
+    );
     const parts = Array.from(strings.raw || strings);
     const text = parts.reduce(
       (result, part, index) => `${result}${part}${index < values.length ? "<param>" : ""}`,
@@ -281,7 +286,7 @@ test("repository factory rejects a lone SQL adapter instead of mixing the defaul
 });
 
 test("VIP request updates only active accounts and never uses a client email", async () => {
-  const sql = fakeTaggedSql((call) => {
+  const sql = postgresContractTaggedSql((call) => {
     if (/request_account_vip/i.test(call.text)) {
       assert.doesNotMatch(call.text, /email/i);
       return [{ account_id: legacyVipAccountId }];

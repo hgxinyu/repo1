@@ -311,7 +311,7 @@ async function findByAccountId(sql, accountIdInput) {
     sql,
     [`SELECT ${ACCOUNT_COLUMNS}
        FROM accounts AS a
-       WHERE a.account_id = `],
+       WHERE a.account_id = `, ""],
     [accountId]
   ));
   return exactlyOneAccount(rows);
@@ -379,7 +379,7 @@ async function requestVipInTransaction(transaction, rawInput, deps) {
     transaction,
     [`SELECT ${ACCOUNT_RETURNING_COLUMNS}
        FROM accounts
-       WHERE account_id = `],
+       WHERE account_id = `, ""],
     [accountId]
   ));
   const account = exactlyOneAccount(rows);
@@ -454,7 +454,7 @@ async function setAuthorizationInTransaction(transaction, rawInput, deps) {
     transaction,
     [`SELECT ${ACCOUNT_RETURNING_COLUMNS}
        FROM accounts
-       WHERE account_id = `],
+       WHERE account_id = `, ""],
     [targetAccountId]
   ));
   const updated = exactlyOneAccount(updatedRows);
