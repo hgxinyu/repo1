@@ -2,6 +2,8 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
+from guide_image_style import add_guide_watermark, draw_brand_footnote
+
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "flipgame" / "images" / "root-infusion-set-guide.png"
 QR = ROOT / "flipgame" / "assets" / "shinegame_pro_qr_logo_real.png"
@@ -154,13 +156,7 @@ def draw_pill(draw, x, y, text, fill, text_size_px=22):
 
 
 def draw_light_brand(draw, right, y):
-    fnt = font(22, True)
-    parts = [("ShineGame", "#f8fafc"), (" · Idle Heroes Guide", "#cbd5e1")]
-    total_w = sum(text_size(draw, text, fnt)[0] for text, _ in parts)
-    x = right - total_w
-    for text, fill in parts:
-        draw.text((x, y), text, font=fnt, fill=fill)
-        x += text_size(draw, text, fnt)[0]
+    draw_brand_footnote(draw, right, y, font, size=22)
 
 
 def draw_section(draw, section, x, y, w, h):
@@ -226,6 +222,7 @@ def main():
     draw_light_brand(draw, width - margin, height - 50)
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
+    img = add_guide_watermark(img, font)
     img.save(OUT, optimize=True)
     print(OUT)
 

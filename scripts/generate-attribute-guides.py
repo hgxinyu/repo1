@@ -2,7 +2,7 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
-from guide_image_style import draw_brand_footnote
+from guide_image_style import add_guide_watermark, draw_brand_footnote
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -259,6 +259,7 @@ def draw_explanation():
     draw_brand_footnote(draw, 1080 - margin - 24, footer_y + 72, font)
 
     out = OUT_DIR / "attribute-explanation-guide.png"
+    img = add_guide_watermark(img, font)
     img.save(out, optimize=True)
     print(out)
 
@@ -312,6 +313,7 @@ def draw_formula():
     draw_brand_footnote(draw, 1080 - margin - 24, footer_y + 82, font)
 
     out = OUT_DIR / "attribute-formula-guide.png"
+    img = add_guide_watermark(img, font)
     img.save(out, optimize=True)
     print(out)
 

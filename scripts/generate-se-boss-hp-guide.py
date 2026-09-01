@@ -3,7 +3,7 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
-from guide_image_style import draw_brand_footnote
+from guide_image_style import add_guide_watermark, draw_brand_footnote
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -162,6 +162,7 @@ def main():
     draw_brand_footnote(draw, w - margin - 24, footer_y + 84, font)
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
+    img = add_guide_watermark(img, font)
     img.save(OUT, optimize=True)
     print(OUT)
 

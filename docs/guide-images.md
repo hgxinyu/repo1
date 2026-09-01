@@ -13,6 +13,10 @@
 - 每周攻略默认导出 2400×3200 高清版（或同等 2× 像素密度），发布前必须按实际尺寸检查中英文小字清晰度。
 - 站内版保留 ShineGame 二维码；用户明确要求外发无二维码版本时，另存为 `weekly-event-YYYY-MM-DD-<platform>.png`（例如 `-tieba.png`），不替换站内图片。
 - 有文字的站内生成攻略图同时维护英文 `*-en.png` 版本。`GuideImages.html` 读取首页保存的 `localStorage.flipgame_lang`：中文显示原图，英文显示 `data-image-en` / `data-images-en` 指向的英文图。
+- 底部品牌统一使用 `ShineGame.Pro  ·  Idle Heroes Guide`；底注和紧凑元数据使用中间点 `·` 分隔，不使用逗号串联。
+- 需要标注来源时使用简短的 `Reference · <来源>`，避免在图中放长链接或频道编号。
+- 自制攻略图在正文中段统一加一处淡色斜向 `ShineGame.Pro` 水印；页眉和二维码区域必须保持干净。外部收集原图，以及直接从外部原图翻译生成的版本，不加 ShineGame 水印。
+- Python 生成器会自动加水印。每周活动图等独立渲染产物，应在新鲜无水印源图上执行 `python3 scripts/apply-guide-watermark.py <输入图> <输出图>` 一次；不要对已带水印图片重复处理。
 - 奇幻梦工厂隐藏关图片本身没有文字，中英文共用原图；远征推图使用单独的 `expedition-stage-map-en.png` 英文编号版。
 - 图片页面文案包含：`部分图片收集于网络，公众号。特此感谢作者！`
 - 部分图片已加站内二维码角标。
