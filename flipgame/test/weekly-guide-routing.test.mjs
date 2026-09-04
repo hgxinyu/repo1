@@ -11,22 +11,28 @@ async function loadRouting() {
   }
 }
 
-test("weekly-current query is the only query that requests automatic opening", async () => {
-  const { shouldOpenCurrentWeeklyGuide } = await loadRouting();
+test("homepage weekly-current routing automatically opens only the current guide", async () => {
+  const { currentWeeklyGuideOpenMode, shouldOpenCurrentWeeklyGuide } = await loadRouting();
 
   assert.equal(shouldOpenCurrentWeeklyGuide("?guide=weekly-current"), true);
   assert.equal(shouldOpenCurrentWeeklyGuide("?guide=weekly-current&from=home"), true);
   assert.equal(shouldOpenCurrentWeeklyGuide("?guide=older-week"), false);
   assert.equal(shouldOpenCurrentWeeklyGuide(""), false);
+  assert.equal(currentWeeklyGuideOpenMode("?guide=weekly-current"), "current-only");
+  assert.equal(currentWeeklyGuideOpenMode("?guide=weekly-current&from=home"), "current-only");
+  assert.equal(currentWeeklyGuideOpenMode("?guide=older-week"), null);
+  assert.equal(currentWeeklyGuideOpenMode(""), null);
 });
 
 test("guide image routing selects the English image only for English users", async () => {
-  const { localizedCurrentGuideImageList, localizedGuideImageList } = await loadRouting();
+  const { localizedCurrentGuideImageList, localizedGuideImageList, localizedGuidePickerItems } = await loadRouting();
   const card = {
     image: "images/weekly-event-2026-09-04.jpg",
     imageEn: "images/weekly-event-2026-09-04-en.jpg",
     images: "images/weekly-event-2026-09-04.jpg|images/weekly-event-2026-08-28.jpg",
-    imagesEn: "images/weekly-event-2026-09-04-en.jpg|images/weekly-event-2026-08-28-en.jpg"
+    imagesEn: "images/weekly-event-2026-09-04-en.jpg|images/weekly-event-2026-08-28-en.jpg",
+    labels: "9月4日|8月28日",
+    labelsEn: "Sep 4|Aug 28"
   };
 
   assert.deepEqual(localizedGuideImageList(card, "zh"), [
@@ -39,6 +45,14 @@ test("guide image routing selects the English image only for English users", asy
   ]);
   assert.deepEqual(localizedCurrentGuideImageList(card, "zh"), ["images/weekly-event-2026-09-04.jpg"]);
   assert.deepEqual(localizedCurrentGuideImageList(card, "en"), ["images/weekly-event-2026-09-04-en.jpg"]);
+  assert.deepEqual(localizedGuidePickerItems(card, "zh"), [
+    { image: "images/weekly-event-2026-09-04.jpg", label: "9月4日" },
+    { image: "images/weekly-event-2026-08-28.jpg", label: "8月28日" }
+  ]);
+  assert.deepEqual(localizedGuidePickerItems(card, "en"), [
+    { image: "images/weekly-event-2026-09-04-en.jpg", label: "Sep 4" },
+    { image: "images/weekly-event-2026-08-28-en.jpg", label: "Aug 28" }
+  ]);
   assert.deepEqual(localizedGuideImageList({ image: "images/shared.jpg" }, "en"), ["images/shared.jpg"]);
 });
 
@@ -76,6 +90,9 @@ test("weekly guides share one gallery card while September 4 remains current", a
     assert.equal(await currentCard.getAttribute("data-image-en"), "images/weekly-event-2026-09-04-en.jpg");
     assert.equal(await currentCard.getAttribute("data-images"), "images/weekly-event-2026-09-04.jpg|images/weekly-event-2026-08-28.jpg");
     assert.equal(await currentCard.getAttribute("data-images-en"), "images/weekly-event-2026-09-04-en.jpg|images/weekly-event-2026-08-28-en.jpg");
+    assert.equal(await currentCard.getAttribute("data-labels"), "9月4日|8月28日");
+    assert.equal(await currentCard.getAttribute("data-labels-en"), "Sep 4|Aug 28");
+    assert.equal(await page.locator("#weeklyPicker").count(), 1);
     assert.equal(await page.locator('#guideCards > a[href="images/weekly-event-2026-08-28.jpg"]').count(), 0);
   } finally {
     await browser.close();

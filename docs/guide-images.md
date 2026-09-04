@@ -9,7 +9,7 @@
 - 中文活动名、资源名和付费档位使用 [`docs/guide-translations.md`](guide-translations.md) 中的统一译法。
 - 活动事实可以参考 Discord 等外部资料，但推荐优先级以用户明确确认的口径为准；两者冲突时保留可核实的活动事实，并用用户推荐替换外部攻略的价值判断。图中仍可按实际来源保留 `Reference`。
 - 页面内卡片手动维护标题、图片路径和描述。
-- 主页“周活动攻略”固定链接到 `GuideImages.html?guide=weekly-current`；攻略页只保留一个周活动卡片，`data-image` / `data-image-en` 指向本周图片，`data-images` / `data-images-en` 按新到旧叠放本周与历史周图片。点击攻略页卡片显示完整周攻略图集，从主页进入则只自动打开本周图片。
+- 主页“周活动攻略”固定链接到 `GuideImages.html?guide=weekly-current`，进入后直接显示 fit 当前页面的本周图片，不展开历史周次；攻略页只保留一个周活动卡片，`data-image` / `data-image-en` 指向本周图片，`data-images` / `data-images-en` 按新到旧维护本周与历史周图片。只有在攻略图片列表中打开周活动卡片时，才显示带缩略图和日期的周次选择条，每次切换并显示一张。
 - 每周图片使用带日期的稳定文件名：中文 `weekly-event-YYYY-MM-DD.jpg`，英文 `weekly-event-YYYY-MM-DD-en.jpg`。更新当周时新增一组日期文件，并更新唯一周活动卡片的本周路径与历史图集列表；旧图片继续保留为历史归档。
 - 每周攻略默认导出 2400×3200 高清版（或同等 2× 像素密度），发布前必须按实际尺寸检查中英文小字清晰度。
 - 普通站内攻略图保留 ShineGame 二维码；周活动攻略图按下方“周活动国风视觉规范”改用国风公会 Logo。用户明确要求外发无二维码版本时，另存为 `weekly-event-YYYY-MM-DD-<platform>.png`（例如 `-tieba.png`），不替换站内图片。
@@ -78,7 +78,7 @@
 
 1. 根据当周资料制作中文和英文两张同版式 2400×3200 高清攻略图，按 `weekly-event-YYYY-MM-DD.jpg` / `weekly-event-YYYY-MM-DD-en.jpg` 保存；按实际尺寸检查正文、小字和数字清晰度。
 2. 更新 `GuideImages.html` 最前面的唯一周活动卡片：`data-image` / `data-image-en` 改为当周图片，并把当周图片路径插入 `data-images` / `data-images-en` 列表最前面。
-3. 不另建历史周活动卡片；旧日期文件继续保留，并通过周活动卡片的 `data-images` / `data-images-en` 按新到旧叠放查看。
+3. 不另建历史周活动卡片；旧日期文件继续保留，并通过周活动卡片的 `data-images` / `data-images-en` 与 `data-labels` / `data-labels-en` 按新到旧提供缩略图周次选择。
 4. 同时维护卡片的中英文标题、说明、图片路径和替代文本。
 5. 验证主页入口会自动打开当周图，且 `flipgame_lang=zh` / `en` 分别加载中文图 / 英文图。
 6. 周活动站内图使用 `flipgame/assets/guofeng-guild-logo.png`，不放二维码；其他攻略仍保留 ShineGame 二维码。仅在用户明确要求时另存平台外发版，平台后缀需写入文件名且不得覆盖站内图。

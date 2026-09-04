@@ -273,8 +273,53 @@
     }
     .image-overlay.is-open { display: flex; }
     .image-overlay.is-fit-page {
+      flex-direction: column;
       align-items: center;
       overflow: hidden;
+      padding-top: 14px;
+      padding-bottom: 18px;
+    }
+    .weekly-picker {
+      width: min(860px, calc(100vw - 96px));
+      min-height: 104px;
+      display: flex;
+      flex: 0 0 auto;
+      align-items: stretch;
+      justify-content: center;
+      gap: 10px;
+      margin: 0 auto 12px;
+      padding: 4px;
+      overflow-x: auto;
+      scrollbar-width: thin;
+    }
+    .weekly-picker[hidden] { display: none; }
+    .weekly-picker button {
+      min-width: 126px;
+      display: grid;
+      grid-template-columns: 54px 1fr;
+      align-items: center;
+      gap: 9px;
+      padding: 7px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 13px;
+      background: rgba(15, 23, 42, 0.72);
+      color: #e2e8f0;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .weekly-picker button[aria-selected="true"] {
+      border-color: #5eead4;
+      background: rgba(15, 118, 110, 0.55);
+      box-shadow: 0 0 0 2px rgba(94, 234, 212, 0.16);
+    }
+    .weekly-picker img {
+      width: 54px;
+      height: 76px;
+      border-radius: 8px;
+      object-fit: cover;
+      object-position: top center;
     }
     #overlayImages {
       width: max-content;
@@ -285,7 +330,8 @@
     }
     .image-overlay.is-fit-page #overlayImages {
       width: 100%;
-      height: 100%;
+      flex: 1 1 auto;
+      min-height: 0;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -300,6 +346,13 @@
       max-width: 100%;
       max-height: 100%;
       object-fit: contain;
+    }
+    .image-overlay.is-fit-page .weekly-picker img {
+      width: 54px;
+      height: 76px;
+      max-width: none;
+      max-height: none;
+      object-fit: cover;
     }
     .image-overlay .overlay-close {
       position: fixed;
@@ -326,6 +379,15 @@
       .search-input { min-height: 42px; font-size: 16px; }
       .search-status { min-width: 0; padding: 0 4px 2px; text-align: left; }
       .image-overlay { padding: 16px; }
+      .image-overlay.is-fit-page { padding: 10px 12px 14px; }
+      .weekly-picker {
+        width: calc(100vw - 70px);
+        min-height: 88px;
+        justify-content: flex-start;
+        margin-bottom: 8px;
+      }
+      .weekly-picker button { min-width: 110px; grid-template-columns: 42px 1fr; }
+      .image-overlay.is-fit-page .weekly-picker img { width: 42px; height: 60px; }
       .image-overlay img {
         max-width: calc(100vw - 32px);
       }
@@ -355,7 +417,7 @@
     </div>
 
     <div class="cards" id="guideCards" aria-label="攻略图片列表">
-      <a class="card-link weekly-card" href="images/weekly-event-2026-09-04.jpg" data-image="images/weekly-event-2026-09-04.jpg" data-image-en="images/weekly-event-2026-09-04-en.jpg" data-images="images/weekly-event-2026-09-04.jpg|images/weekly-event-2026-08-28.jpg" data-images-en="images/weekly-event-2026-09-04-en.jpg|images/weekly-event-2026-08-28-en.jpg" data-weekly-current="true">
+      <a class="card-link weekly-card" href="images/weekly-event-2026-09-04.jpg" data-image="images/weekly-event-2026-09-04.jpg" data-image-en="images/weekly-event-2026-09-04-en.jpg" data-images="images/weekly-event-2026-09-04.jpg|images/weekly-event-2026-08-28.jpg" data-images-en="images/weekly-event-2026-09-04-en.jpg|images/weekly-event-2026-08-28-en.jpg" data-labels="9月4日|8月28日" data-labels-en="Sep 4|Aug 28" data-weekly-current="true">
         <span class="thumb">
           <img src="images/weekly-event-2026-09-04.jpg" alt="9月4日周活动攻略" id="weeklyCurrentImg" loading="eager" decoding="async" />
           <span class="current-badge" id="weeklyCurrentBadge">本周</span>
@@ -464,11 +526,12 @@
   </div>
   <div class="image-overlay" id="imageOverlay" aria-hidden="true">
     <button class="overlay-close" id="overlayClose" type="button">关闭</button>
-    <div id="overlayImages"></div>
+    <div class="weekly-picker" id="weeklyPicker" role="tablist" hidden></div>
+    <div id="overlayImages" role="tabpanel"></div>
   </div>
 
   <script type="module">
-    import { localizedCurrentGuideImageList, localizedGuideImageList, shouldOpenCurrentWeeklyGuide } from './assets/guide-image-routing.mjs';
+    import { currentWeeklyGuideOpenMode, localizedCurrentGuideImageList, localizedGuideImageList, localizedGuidePickerItems } from './assets/guide-image-routing.mjs';
 
     (function () {
       const navHome = document.getElementById('navHome');
@@ -538,6 +601,7 @@
       const imageOverlay = document.getElementById('imageOverlay');
       const overlayImages = document.getElementById('overlayImages');
       const overlayClose = document.getElementById('overlayClose');
+      const weeklyPicker = document.getElementById('weeklyPicker');
       const guideSearch = document.getElementById('guideSearch');
       const searchLabel = document.getElementById('searchLabel');
       const searchClear = document.getElementById('searchClear');
@@ -708,17 +772,36 @@
         return (I18N[currentLang] && I18N[currentLang][key]) || I18N.zh[key] || '';
       }
 
-      function localizedImageList(card) {
-        return localizedGuideImageList({
+      function guideCardData(card) {
+        return {
           image: card.getAttribute('data-image'),
           imageEn: card.getAttribute('data-image-en'),
           images: card.getAttribute('data-images'),
-          imagesEn: card.getAttribute('data-images-en')
-        }, currentLang).map((item) => {
-          if (currentLang !== 'en' || item === 'images/qihuan.jpg') return item;
-          const separator = item.includes('?') ? '&' : '?';
-          return `${item}${separator}v=${englishImageVersion}`;
-        });
+          imagesEn: card.getAttribute('data-images-en'),
+          labels: card.getAttribute('data-labels'),
+          labelsEn: card.getAttribute('data-labels-en')
+        };
+      }
+
+      function versionedImageUrl(item) {
+        if (currentLang !== 'en' || item === 'images/qihuan.jpg') return item;
+        const separator = item.includes('?') ? '&' : '?';
+        return `${item}${separator}v=${englishImageVersion}`;
+      }
+
+      function localizedImageList(card) {
+        return localizedGuideImageList(guideCardData(card), currentLang).map(versionedImageUrl);
+      }
+
+      function localizedCurrentImageList(card) {
+        return localizedCurrentGuideImageList(guideCardData(card), currentLang).map(versionedImageUrl);
+      }
+
+      function localizedPickerItems(card) {
+        return localizedGuidePickerItems(guideCardData(card), currentLang).map((item) => ({
+          image: versionedImageUrl(item.image),
+          label: item.label
+        }));
       }
 
       function applyLocalizedImages() {
@@ -853,6 +936,10 @@
         if (!imageOverlay || !overlayImages) return;
         const urls = Array.isArray(imageUrls) ? imageUrls : [imageUrls];
         resetOverlayZoom();
+        if (weeklyPicker) {
+          weeklyPicker.hidden = true;
+          weeklyPicker.innerHTML = '';
+        }
         imageOverlay.classList.toggle('is-fit-page', fitPage);
         overlayImages.innerHTML = '';
         urls.forEach((u, i) => {
@@ -865,6 +952,49 @@
         imageOverlay.setAttribute('aria-hidden', 'false');
       }
 
+      function openWeeklyGuidePicker(card, title) {
+        if (!imageOverlay || !overlayImages || !weeklyPicker) return;
+        const items = localizedPickerItems(card);
+        if (!items.length) return;
+        resetOverlayZoom();
+        imageOverlay.classList.add('is-fit-page', 'is-open');
+        imageOverlay.setAttribute('aria-hidden', 'false');
+        weeklyPicker.hidden = false;
+        weeklyPicker.innerHTML = '';
+
+        const buttons = items.map((item, index) => {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.setAttribute('role', 'tab');
+          button.setAttribute('aria-selected', 'false');
+          button.setAttribute('aria-label', item.label);
+          const thumbnail = document.createElement('img');
+          thumbnail.src = new URL(item.image, window.location.href).href;
+          thumbnail.alt = '';
+          const label = document.createElement('span');
+          label.textContent = item.label;
+          button.append(thumbnail, label);
+          button.addEventListener('click', () => selectItem(index));
+          weeklyPicker.appendChild(button);
+          return button;
+        });
+
+        function selectItem(index) {
+          resetOverlayZoom();
+          const item = items[index];
+          overlayImages.innerHTML = '';
+          const image = document.createElement('img');
+          image.src = new URL(item.image, window.location.href).href;
+          image.alt = `${String(title || '')} · ${item.label}`;
+          overlayImages.appendChild(image);
+          buttons.forEach((button, buttonIndex) => {
+            button.setAttribute('aria-selected', String(buttonIndex === index));
+          });
+        }
+
+        selectItem(0);
+      }
+
       function closeImageOverlay() {
         if (!imageOverlay || !overlayImages) return;
         imageOverlay.classList.remove('is-open');
@@ -872,6 +1002,10 @@
         imageOverlay.setAttribute('aria-hidden', 'true');
         resetOverlayZoom();
         overlayImages.innerHTML = '';
+        if (weeklyPicker) {
+          weeklyPicker.hidden = true;
+          weeklyPicker.innerHTML = '';
+        }
       }
 
       let overlayScale = 1;
@@ -1042,10 +1176,13 @@
       guideCardLinks.forEach((el) => {
         el.addEventListener('click', (event) => {
           event.preventDefault();
-          const images = localizedImageList(el);
           const titleEl = el.querySelector('.title');
           const title = titleEl ? titleEl.textContent : '';
-          openImageWindow(images, title, el.dataset.weeklyCurrent === 'true' && images.length === 1);
+          if (el.dataset.weeklyCurrent === 'true') {
+            openWeeklyGuidePicker(el, title);
+            return;
+          }
+          openImageWindow(localizedImageList(el), title, false);
         });
       });
       if (overlayClose) {
@@ -1072,18 +1209,10 @@
       }
 
       setStaticText();
-      if (shouldOpenCurrentWeeklyGuide(window.location.search)) {
+      if (currentWeeklyGuideOpenMode(window.location.search) === 'current-only') {
         const currentWeeklyCard = document.querySelector('[data-weekly-current="true"]');
         if (currentWeeklyCard) {
-          const currentImages = localizedCurrentGuideImageList({
-            image: currentWeeklyCard.getAttribute('data-image'),
-            imageEn: currentWeeklyCard.getAttribute('data-image-en')
-          }, currentLang).map((item) => {
-            if (currentLang !== 'en') return item;
-            const separator = item.includes('?') ? '&' : '?';
-            return `${item}${separator}v=${englishImageVersion}`;
-          });
-          openImageWindow(currentImages, cardWeeklyTitle ? cardWeeklyTitle.textContent : '', true);
+          openImageOverlay(localizedCurrentImageList(currentWeeklyCard), cardWeeklyTitle ? cardWeeklyTitle.textContent : '', true);
         }
       }
       enableOverlayPinchZoom();
