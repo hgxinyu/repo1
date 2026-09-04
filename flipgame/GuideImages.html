@@ -355,13 +355,18 @@
     </div>
 
     <div class="cards" id="guideCards" aria-label="攻略图片列表">
-      <a class="card-link weekly-card" href="images/weekly-event-2026-08-28.jpg" data-image="images/weekly-event-2026-08-28.jpg" data-image-en="images/weekly-event-2026-08-28-en.jpg" data-weekly-current="true">
+      <a class="card-link weekly-card" href="images/weekly-event-2026-09-04.jpg" data-image="images/weekly-event-2026-09-04.jpg" data-image-en="images/weekly-event-2026-09-04-en.jpg" data-weekly-current="true">
         <span class="thumb">
-          <img src="images/weekly-event-2026-08-28.jpg" alt="8月28日周活动攻略" id="weeklyCurrentImg" loading="eager" decoding="async" />
+          <img src="images/weekly-event-2026-09-04.jpg" alt="9月4日周活动攻略" id="weeklyCurrentImg" loading="eager" decoding="async" />
           <span class="current-badge" id="weeklyCurrentBadge">本周</span>
         </span>
-        <span class="title" id="cardWeeklyTitle">周活动攻略 · 8月28日</span>
-        <span class="subtitle" id="cardWeeklySub">厄斯特尔登场周：战备密保与清巢行动</span>
+        <span class="title" id="cardWeeklyTitle">周活动攻略 · 9月4日</span>
+        <span class="subtitle" id="cardWeeklySub">普通活动周：天空迷宫、许愿币与魔兽珍宝</span>
+      </a>
+      <a class="card-link" href="images/weekly-event-2026-08-28.jpg" data-image="images/weekly-event-2026-08-28.jpg" data-image-en="images/weekly-event-2026-08-28-en.jpg">
+        <span class="thumb"><img src="images/weekly-event-2026-08-28.jpg" alt="8月28日周活动攻略" id="weeklyAug28Img" loading="lazy" decoding="async" /></span>
+        <span class="title" id="cardWeeklyAug28Title">周活动攻略 · 8月28日</span>
+        <span class="subtitle" id="cardWeeklyAug28Sub">厄斯特尔登场周：战备密保与清巢行动</span>
       </a>
       <a class="card-link" href="images/qihuan.jpg" data-image="images/qihuan.jpg" data-image-en="images/qihuan.jpg">
         <span class="thumb"><img src="images/qihuan.jpg" alt="奇幻梦工厂隐藏关" id="qihuanImg" loading="lazy" decoding="async" /></span>
@@ -478,6 +483,9 @@
       const cardWeeklySub = document.getElementById('cardWeeklySub');
       const weeklyCurrentImg = document.getElementById('weeklyCurrentImg');
       const weeklyCurrentBadge = document.getElementById('weeklyCurrentBadge');
+      const cardWeeklyAug28Title = document.getElementById('cardWeeklyAug28Title');
+      const cardWeeklyAug28Sub = document.getElementById('cardWeeklyAug28Sub');
+      const weeklyAug28Img = document.getElementById('weeklyAug28Img');
       const cardQihuanTitle = document.getElementById('cardQihuanTitle');
       const cardQihuanSub = document.getElementById('cardQihuanSub');
       const qihuanImg = document.getElementById('qihuanImg');
@@ -545,7 +553,7 @@
       const guideCards = document.getElementById('guideCards');
       const noResults = document.getElementById('noResults');
       const guideCardLinks = Array.from(document.querySelectorAll('.card-link[data-image], .card-link[data-images]'));
-      const englishImageVersion = '20260801-2';
+      const englishImageVersion = '20260904-1';
 
       let currentLang = (localStorage.getItem('flipgame_lang') || '').toLowerCase();
       if (currentLang !== 'zh' && currentLang !== 'en') {
@@ -566,10 +574,13 @@
           search_total: '共 {count} 张',
           search_empty: '没有找到匹配的攻略图片。',
           cards_label: '攻略图片列表',
-          card_weekly_title: '周活动攻略 · 8月28日',
-          card_weekly_sub: '厄斯特尔登场周：战备密保与清巢行动',
-          weekly_alt: '8月28日周活动攻略',
+          card_weekly_title: '周活动攻略 · 9月4日',
+          card_weekly_sub: '普通活动周：天空迷宫、许愿币与魔兽珍宝',
+          weekly_alt: '9月4日周活动攻略',
           weekly_badge: '本周',
+          card_weekly_aug28_title: '周活动攻略 · 8月28日',
+          card_weekly_aug28_sub: '厄斯特尔登场周：战备密保与清巢行动',
+          weekly_aug28_alt: '8月28日周活动攻略',
           card_qihuan_title: '奇幻梦工厂隐藏关',
           card_qihuan_sub: '查看隐藏关参考图与说明',
           img_alt: '奇幻梦工厂隐藏关',
@@ -640,10 +651,13 @@
           search_total: '{count} guides',
           search_empty: 'No matching guide images found.',
           cards_label: 'Guide image list',
-          card_weekly_title: 'Weekly Event Guide · Aug 28',
-          card_weekly_sub: 'Erskor release week: War Cache and Nest Purge',
-          weekly_alt: 'Aug 28 weekly event guide',
+          card_weekly_title: 'Weekly Event Guide · Sep 4',
+          card_weekly_sub: 'Regular event week: Sky Labyrinth, Wishing Coin, and Monster Treasure',
+          weekly_alt: 'Sep 4 weekly event guide',
           weekly_badge: 'This week',
+          card_weekly_aug28_title: 'Weekly Event Guide · Aug 28',
+          card_weekly_aug28_sub: 'Erskor release week: War Cache and Nest Purge',
+          weekly_aug28_alt: 'Aug 28 weekly event guide',
           card_qihuan_title: 'Fantasy Factory Secret Stage',
           card_qihuan_sub: 'Open the secret stage reference image and notes',
           img_alt: 'Fantasy Factory secret stage',
@@ -746,6 +760,9 @@
         if (cardWeeklySub) cardWeeklySub.textContent = t('card_weekly_sub');
         if (weeklyCurrentImg) weeklyCurrentImg.setAttribute('alt', t('weekly_alt'));
         if (weeklyCurrentBadge) weeklyCurrentBadge.textContent = t('weekly_badge');
+        if (cardWeeklyAug28Title) cardWeeklyAug28Title.textContent = t('card_weekly_aug28_title');
+        if (cardWeeklyAug28Sub) cardWeeklyAug28Sub.textContent = t('card_weekly_aug28_sub');
+        if (weeklyAug28Img) weeklyAug28Img.setAttribute('alt', t('weekly_aug28_alt'));
         if (cardQihuanTitle) cardQihuanTitle.textContent = t('card_qihuan_title');
         if (cardQihuanSub) cardQihuanSub.textContent = t('card_qihuan_sub');
         if (qihuanImg) qihuanImg.setAttribute('alt', t('img_alt'));

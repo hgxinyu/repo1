@@ -51,6 +51,20 @@ test("the weekly event guide is the first homepage navigation card", async () =>
   }
 });
 
+test("the current weekly card publishes the September 4 bilingual guide", async () => {
+  const html = await readFile(new URL("../GuideImages.html", import.meta.url), "utf8");
+  const currentIndex = html.indexOf('data-image="images/weekly-event-2026-09-04.jpg"');
+  const archivedIndex = html.indexOf('data-image="images/weekly-event-2026-08-28.jpg"');
+
+  assert.match(html, /data-image="images\/weekly-event-2026-09-04\.jpg"/);
+  assert.match(html, /data-image-en="images\/weekly-event-2026-09-04-en\.jpg"/);
+  assert.match(html, /data-image="images\/weekly-event-2026-08-28\.jpg"/);
+  assert.equal(currentIndex < archivedIndex, true);
+  assert.equal((html.match(/<a[^>]*data-weekly-current="true"/g) || []).length, 1);
+  assert.match(html, /card_weekly_title: '周活动攻略 · 9月4日'/);
+  assert.match(html, /card_weekly_title: 'Weekly Event Guide · Sep 4'/);
+});
+
 test("a fitted weekly guide stays entirely inside one desktop viewport", async () => {
   const html = await readFile(new URL("../GuideImages.html", import.meta.url), "utf8");
   const browser = await chromium.launch({ channel: "chrome", headless: true });

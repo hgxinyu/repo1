@@ -11,12 +11,12 @@
 - 主页“周活动攻略”固定链接到 `GuideImages.html?guide=weekly-current`；攻略页用 `data-weekly-current="true"` 标记唯一的本周卡片，并在进入页面时自动打开本周图片。
 - 每周图片使用带日期的稳定文件名：中文 `weekly-event-YYYY-MM-DD.jpg`，英文 `weekly-event-YYYY-MM-DD-en.jpg`。更新当周时新增一组日期文件、把“本周”标记移到新卡片；旧卡片和旧图片保留为历史归档。
 - 每周攻略默认导出 2400×3200 高清版（或同等 2× 像素密度），发布前必须按实际尺寸检查中英文小字清晰度。
-- 站内版保留 ShineGame 二维码；用户明确要求外发无二维码版本时，另存为 `weekly-event-YYYY-MM-DD-<platform>.png`（例如 `-tieba.png`），不替换站内图片。
+- 普通站内攻略图保留 ShineGame 二维码；周活动攻略图按下方“周活动国风视觉规范”改用国风公会 Logo。用户明确要求外发无二维码版本时，另存为 `weekly-event-YYYY-MM-DD-<platform>.png`（例如 `-tieba.png`），不替换站内图片。
 - 有文字的站内生成攻略图同时维护英文 `*-en.png` 版本。`GuideImages.html` 读取首页保存的 `localStorage.flipgame_lang`：中文显示原图，英文显示 `data-image-en` / `data-images-en` 指向的英文图。
 - 底部品牌统一使用 `ShineGame.Pro  ·  Idle Heroes Guide`；底注和紧凑元数据使用中间点 `·` 分隔，不使用逗号串联。
 - 需要标注来源时使用简短的 `Reference · <来源>`，避免在图中放长链接或频道编号。
 - 自制攻略图在正文中段统一加一处淡色斜向 `ShineGame.Pro` 水印；页眉和二维码区域必须保持干净。外部收集原图，以及直接从外部原图翻译生成的版本，不加 ShineGame 水印。
-- Python 生成器会自动加水印。每周活动图等独立渲染产物，应在新鲜无水印源图上执行 `python3 scripts/apply-guide-watermark.py <输入图> <输出图>` 一次；不要对已带水印图片重复处理。
+- Python 生成器会自动加水印。每周活动图等独立渲染产物，应在新鲜无水印源图上执行 `python3 scripts/apply-guide-watermark.py <输入图> <输出图>` 一次；不要对已带水印图片重复处理。导出后必须打开中英文最终图片，以肉眼确认正文中段的水印实际可见；模板或脚本中存在水印代码不算验收通过。
 - 奇幻梦工厂隐藏关图片本身没有文字，中英文共用原图；远征推图使用单独的 `expedition-stage-map-en.png` 英文编号版。
 - 图片页面文案包含：`部分图片收集于网络，公众号。特此感谢作者！`
 - 部分图片已加站内二维码角标。
@@ -37,6 +37,18 @@
 - 战斗 Buff/Debuff 图标图由 `scripts/generate-battle-icon-guide.py` 生成，图标裁自旧图 `flipgame/images/tubiao.jpg`，输出为 `flipgame/images/battle-buff-debuff-icons-guide.png`。
 - 彩章血量积分图由 `scripts/generate-se-boss-hp-guide.py` 生成，数据来自 `flipgame/seboss_all.json` 和 `IHassistant/knowledge/bosses/SEBoss/hp-score-table.md`，输出为 `flipgame/images/se-boss-hp-guide.png`。
 - 虚空入侵 Boss 技能图由 `scripts/generate-void-invasion-boss-guide.py` 生成，数据来自用户提供截图和 `IHassistant/knowledge/bosses/void-invasion/README.md`，输出为 `flipgame/images/void-invasion-boss-guide.png`。
+
+## 周活动国风视觉规范
+
+- 周活动攻略固定使用透明版国风公会 Logo：`flipgame/assets/guofeng-guild-logo.png`。Logo 包含“国风”字样和横向小红印 `SHINE`，后续直接复用该资源，不要每周重新生成或改字。
+- 周活动站内图右上角用国风 Logo 替代 ShineGame 二维码；中文与英文版本共用同一个 Logo。其他类型的站内攻略仍沿用 ShineGame Logo/二维码规则。
+- 设计源画布为 1200×1600 时，Logo 使用 196×196 px（约为画布宽度的 16.3%）；2× 导出为 2400×3200 时对应约 392×392 px。Logo 使用浅色圆形衬底、古金细边和深色外圈，保持字形清楚。
+- 主视觉配色固定为水墨黑 / 深青、玉石绿、朱砂红、克制的古金和暖白内容卡片；避免高饱和霓虹色或过多装饰。
+- 推荐版式保持：深色主标题页眉、活动摘要卡、三张资源路线卡、双栏付费与避坑区、底部说明卡。每周可以替换内容，但保持阅读层级和留白节奏一致。
+- 正文中段必须保留一处淡色斜向 `ShineGame.Pro` 水印；水印不能压住关键数字，页眉和 Logo 区域保持干净。
+- 底部品牌必须保持为 `ShineGame.Pro  ·  Idle Heroes Guide`，不要改成公会名。若已有底部说明卡，把品牌合并进该卡，不另加底栏。
+- 底部说明卡必须使用完全不透明的底色，并去掉会在圆角边缘露出主背景色的内阴影或彩色边条；重点检查左下角和右下角。
+- 最终中文、英文图均导出 2400×3200 高清版；发布前以实际像素尺寸检查标题、正文、数字、水印、Logo 与底部品牌的清晰度和遮挡情况。
 
 ## 英文版生成
 
@@ -68,7 +80,8 @@
 3. 从上周卡片移除 `data-weekly-current` 和“本周”角标，但保留卡片及日期文件作为历史攻略。
 4. 同时维护卡片的中英文标题、说明、图片路径和替代文本。
 5. 验证主页入口会自动打开当周图，且 `flipgame_lang=zh` / `en` 分别加载中文图 / 英文图。
-6. 站内图保留 ShineGame 二维码；仅在用户明确要求时另存无二维码外发版，平台后缀需写入文件名且不得覆盖站内图。
+6. 周活动站内图使用 `flipgame/assets/guofeng-guild-logo.png`，不放二维码；其他攻略仍保留 ShineGame 二维码。仅在用户明确要求时另存平台外发版，平台后缀需写入文件名且不得覆盖站内图。
+7. 对中文和英文无水印成图各执行一次 `scripts/apply-guide-watermark.py`，然后打开最终图片，确认正文中段有且仅有一处淡色斜向 `ShineGame.Pro` 水印，并且没有遮挡关键数字。
 
 ## 命名建议
 
