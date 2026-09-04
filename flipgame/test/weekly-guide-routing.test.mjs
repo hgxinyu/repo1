@@ -21,14 +21,24 @@ test("weekly-current query is the only query that requests automatic opening", a
 });
 
 test("guide image routing selects the English image only for English users", async () => {
-  const { localizedGuideImageList } = await loadRouting();
+  const { localizedCurrentGuideImageList, localizedGuideImageList } = await loadRouting();
   const card = {
-    image: "images/weekly-event-2026-08-28.jpg",
-    imageEn: "images/weekly-event-2026-08-28-en.jpg"
+    image: "images/weekly-event-2026-09-04.jpg",
+    imageEn: "images/weekly-event-2026-09-04-en.jpg",
+    images: "images/weekly-event-2026-09-04.jpg|images/weekly-event-2026-08-28.jpg",
+    imagesEn: "images/weekly-event-2026-09-04-en.jpg|images/weekly-event-2026-08-28-en.jpg"
   };
 
-  assert.deepEqual(localizedGuideImageList(card, "zh"), ["images/weekly-event-2026-08-28.jpg"]);
-  assert.deepEqual(localizedGuideImageList(card, "en"), ["images/weekly-event-2026-08-28-en.jpg"]);
+  assert.deepEqual(localizedGuideImageList(card, "zh"), [
+    "images/weekly-event-2026-09-04.jpg",
+    "images/weekly-event-2026-08-28.jpg"
+  ]);
+  assert.deepEqual(localizedGuideImageList(card, "en"), [
+    "images/weekly-event-2026-09-04-en.jpg",
+    "images/weekly-event-2026-08-28-en.jpg"
+  ]);
+  assert.deepEqual(localizedCurrentGuideImageList(card, "zh"), ["images/weekly-event-2026-09-04.jpg"]);
+  assert.deepEqual(localizedCurrentGuideImageList(card, "en"), ["images/weekly-event-2026-09-04-en.jpg"]);
   assert.deepEqual(localizedGuideImageList({ image: "images/shared.jpg" }, "en"), ["images/shared.jpg"]);
 });
 
@@ -51,18 +61,25 @@ test("the weekly event guide is the first homepage navigation card", async () =>
   }
 });
 
-test("the current weekly card publishes the September 4 bilingual guide", async () => {
+test("weekly guides share one gallery card while September 4 remains current", async () => {
   const html = await readFile(new URL("../GuideImages.html", import.meta.url), "utf8");
-  const currentIndex = html.indexOf('data-image="images/weekly-event-2026-09-04.jpg"');
-  const archivedIndex = html.indexOf('data-image="images/weekly-event-2026-08-28.jpg"');
+  const browser = await chromium.launch({ channel: "chrome", headless: true });
 
-  assert.match(html, /data-image="images\/weekly-event-2026-09-04\.jpg"/);
-  assert.match(html, /data-image-en="images\/weekly-event-2026-09-04-en\.jpg"/);
-  assert.match(html, /data-image="images\/weekly-event-2026-08-28\.jpg"/);
-  assert.equal(currentIndex < archivedIndex, true);
-  assert.equal((html.match(/<a[^>]*data-weekly-current="true"/g) || []).length, 1);
-  assert.match(html, /card_weekly_title: '周活动攻略 · 9月4日'/);
-  assert.match(html, /card_weekly_title: 'Weekly Event Guide · Sep 4'/);
+  try {
+    const page = await browser.newPage();
+    await page.setContent(html);
+    const weeklyCards = page.locator("#guideCards > .weekly-card");
+    const currentCard = weeklyCards.first();
+
+    assert.equal(await weeklyCards.count(), 1);
+    assert.equal(await currentCard.getAttribute("data-image"), "images/weekly-event-2026-09-04.jpg");
+    assert.equal(await currentCard.getAttribute("data-image-en"), "images/weekly-event-2026-09-04-en.jpg");
+    assert.equal(await currentCard.getAttribute("data-images"), "images/weekly-event-2026-09-04.jpg|images/weekly-event-2026-08-28.jpg");
+    assert.equal(await currentCard.getAttribute("data-images-en"), "images/weekly-event-2026-09-04-en.jpg|images/weekly-event-2026-08-28-en.jpg");
+    assert.equal(await page.locator('#guideCards > a[href="images/weekly-event-2026-08-28.jpg"]').count(), 0);
+  } finally {
+    await browser.close();
+  }
 });
 
 test("a fitted weekly guide stays entirely inside one desktop viewport", async () => {

@@ -355,18 +355,13 @@
     </div>
 
     <div class="cards" id="guideCards" aria-label="攻略图片列表">
-      <a class="card-link weekly-card" href="images/weekly-event-2026-09-04.jpg" data-image="images/weekly-event-2026-09-04.jpg" data-image-en="images/weekly-event-2026-09-04-en.jpg" data-weekly-current="true">
+      <a class="card-link weekly-card" href="images/weekly-event-2026-09-04.jpg" data-image="images/weekly-event-2026-09-04.jpg" data-image-en="images/weekly-event-2026-09-04-en.jpg" data-images="images/weekly-event-2026-09-04.jpg|images/weekly-event-2026-08-28.jpg" data-images-en="images/weekly-event-2026-09-04-en.jpg|images/weekly-event-2026-08-28-en.jpg" data-weekly-current="true">
         <span class="thumb">
           <img src="images/weekly-event-2026-09-04.jpg" alt="9月4日周活动攻略" id="weeklyCurrentImg" loading="eager" decoding="async" />
           <span class="current-badge" id="weeklyCurrentBadge">本周</span>
         </span>
         <span class="title" id="cardWeeklyTitle">周活动攻略 · 9月4日</span>
         <span class="subtitle" id="cardWeeklySub">普通活动周：天空迷宫、许愿币与魔兽珍宝</span>
-      </a>
-      <a class="card-link" href="images/weekly-event-2026-08-28.jpg" data-image="images/weekly-event-2026-08-28.jpg" data-image-en="images/weekly-event-2026-08-28-en.jpg">
-        <span class="thumb"><img src="images/weekly-event-2026-08-28.jpg" alt="8月28日周活动攻略" id="weeklyAug28Img" loading="lazy" decoding="async" /></span>
-        <span class="title" id="cardWeeklyAug28Title">周活动攻略 · 8月28日</span>
-        <span class="subtitle" id="cardWeeklyAug28Sub">厄斯特尔登场周：战备密保与清巢行动</span>
       </a>
       <a class="card-link" href="images/qihuan.jpg" data-image="images/qihuan.jpg" data-image-en="images/qihuan.jpg">
         <span class="thumb"><img src="images/qihuan.jpg" alt="奇幻梦工厂隐藏关" id="qihuanImg" loading="lazy" decoding="async" /></span>
@@ -473,7 +468,7 @@
   </div>
 
   <script type="module">
-    import { localizedGuideImageList, shouldOpenCurrentWeeklyGuide } from './assets/guide-image-routing.mjs';
+    import { localizedCurrentGuideImageList, localizedGuideImageList, shouldOpenCurrentWeeklyGuide } from './assets/guide-image-routing.mjs';
 
     (function () {
       const navHome = document.getElementById('navHome');
@@ -483,9 +478,6 @@
       const cardWeeklySub = document.getElementById('cardWeeklySub');
       const weeklyCurrentImg = document.getElementById('weeklyCurrentImg');
       const weeklyCurrentBadge = document.getElementById('weeklyCurrentBadge');
-      const cardWeeklyAug28Title = document.getElementById('cardWeeklyAug28Title');
-      const cardWeeklyAug28Sub = document.getElementById('cardWeeklyAug28Sub');
-      const weeklyAug28Img = document.getElementById('weeklyAug28Img');
       const cardQihuanTitle = document.getElementById('cardQihuanTitle');
       const cardQihuanSub = document.getElementById('cardQihuanSub');
       const qihuanImg = document.getElementById('qihuanImg');
@@ -578,9 +570,6 @@
           card_weekly_sub: '普通活动周：天空迷宫、许愿币与魔兽珍宝',
           weekly_alt: '9月4日周活动攻略',
           weekly_badge: '本周',
-          card_weekly_aug28_title: '周活动攻略 · 8月28日',
-          card_weekly_aug28_sub: '厄斯特尔登场周：战备密保与清巢行动',
-          weekly_aug28_alt: '8月28日周活动攻略',
           card_qihuan_title: '奇幻梦工厂隐藏关',
           card_qihuan_sub: '查看隐藏关参考图与说明',
           img_alt: '奇幻梦工厂隐藏关',
@@ -655,9 +644,6 @@
           card_weekly_sub: 'Regular event week: Sky Labyrinth, Wishing Coin, and Monster Treasure',
           weekly_alt: 'Sep 4 weekly event guide',
           weekly_badge: 'This week',
-          card_weekly_aug28_title: 'Weekly Event Guide · Aug 28',
-          card_weekly_aug28_sub: 'Erskor release week: War Cache and Nest Purge',
-          weekly_aug28_alt: 'Aug 28 weekly event guide',
           card_qihuan_title: 'Fantasy Factory Secret Stage',
           card_qihuan_sub: 'Open the secret stage reference image and notes',
           img_alt: 'Fantasy Factory secret stage',
@@ -760,9 +746,6 @@
         if (cardWeeklySub) cardWeeklySub.textContent = t('card_weekly_sub');
         if (weeklyCurrentImg) weeklyCurrentImg.setAttribute('alt', t('weekly_alt'));
         if (weeklyCurrentBadge) weeklyCurrentBadge.textContent = t('weekly_badge');
-        if (cardWeeklyAug28Title) cardWeeklyAug28Title.textContent = t('card_weekly_aug28_title');
-        if (cardWeeklyAug28Sub) cardWeeklyAug28Sub.textContent = t('card_weekly_aug28_sub');
-        if (weeklyAug28Img) weeklyAug28Img.setAttribute('alt', t('weekly_aug28_alt'));
         if (cardQihuanTitle) cardQihuanTitle.textContent = t('card_qihuan_title');
         if (cardQihuanSub) cardQihuanSub.textContent = t('card_qihuan_sub');
         if (qihuanImg) qihuanImg.setAttribute('alt', t('img_alt'));
@@ -1062,7 +1045,7 @@
           const images = localizedImageList(el);
           const titleEl = el.querySelector('.title');
           const title = titleEl ? titleEl.textContent : '';
-          openImageWindow(images, title, el.dataset.weeklyCurrent === 'true');
+          openImageWindow(images, title, el.dataset.weeklyCurrent === 'true' && images.length === 1);
         });
       });
       if (overlayClose) {
@@ -1092,7 +1075,15 @@
       if (shouldOpenCurrentWeeklyGuide(window.location.search)) {
         const currentWeeklyCard = document.querySelector('[data-weekly-current="true"]');
         if (currentWeeklyCard) {
-          openImageWindow(localizedImageList(currentWeeklyCard), cardWeeklyTitle ? cardWeeklyTitle.textContent : '', true);
+          const currentImages = localizedCurrentGuideImageList({
+            image: currentWeeklyCard.getAttribute('data-image'),
+            imageEn: currentWeeklyCard.getAttribute('data-image-en')
+          }, currentLang).map((item) => {
+            if (currentLang !== 'en') return item;
+            const separator = item.includes('?') ? '&' : '?';
+            return `${item}${separator}v=${englishImageVersion}`;
+          });
+          openImageWindow(currentImages, cardWeeklyTitle ? cardWeeklyTitle.textContent : '', true);
         }
       }
       enableOverlayPinchZoom();
