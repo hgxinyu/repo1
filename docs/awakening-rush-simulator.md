@@ -4,7 +4,7 @@
 
 价格数据：线上优先读取 `/api/quality-prices`；本地静态预览或 API 不可用时回退到 `flipgame/quality_prices.json`。
 
-访问权限：注册会员。`pending`、`free`、`vip`、`admin` 账号均可访问；角色为 `blocked` 或状态为 `blocked` 时始终拒绝访问。页面加载时会调用 `/api/me` 检查当前登录账号的统一权限能力。
+访问权限：VIP。`vip`、`svip`、`admin` 账号可访问，`pending` 和 `free` 不可访问；角色为 `blocked` 或状态为 `blocked` 时始终拒绝访问。页面加载时会调用 `/api/me` 检查当前登录账号的统一权限能力 `canAccessPremium`。
 
 ## 规则前提
 
