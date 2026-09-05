@@ -259,6 +259,26 @@ test("admin users list account records without falling back to Blob users or ema
   });
 });
 
+test("admin users list uses the batch email method without per-user lookups", async () => {
+  let batchCalls = 0;
+  let emailCalls = 0;
+  const handler = createAdminUsersHandler({
+    resolveAuthContext: contextResolver(account({ accountId: ADMIN_ID, role: "admin" })),
+    accountRepository: {
+      async listAccountsWithPrimaryEmailMasks() {
+        batchCalls += 1;
+        return [{ account: account({ accountId: TARGET_ID }), primaryEmailMasked: "a****@example.com" }];
+      },
+      async getPrimaryEmailMasked() { emailCalls += 1; return "must-not-run"; }
+    }
+  });
+  const response = await handler(new Request("https://stage.example.test/api/admin/users"));
+  assert.equal(response.status, 200);
+  assert.equal(batchCalls, 1);
+  assert.equal(emailCalls, 0);
+  assert.equal((await responseBody(response)).users[0].primaryEmailMasked, "a****@example.com");
+});
+
 test("admin delete mutation targets accountId and never asks Netlify Identity for email confirmation", async () => {
   let received;
   const admin = account({ accountId: ADMIN_ID, role: "admin", status: "active" });
@@ -501,6 +521,46 @@ test("admin traffic storage failures return sanitized 503 responses", async () =
   const body = await responseBody(response);
   assert.equal(response.status, 503);
   assert.deepEqual(body, { error: "AUTH_UNAVAILABLE" });
+});
+
+test("admin traffic paginates Blob listings and caps global reads at eight", async () => {
+  const { createAdminTrafficHandler } = await import("../../netlify/functions/admin-traffic.mjs");
+  let listCalls = 0;
+  let listingPages = 0;
+  let activeGets = 0;
+  let maxActiveGets = 0;
+  const blobs = Array.from({ length: 20 }, (_, index) => ({ key: `blob-${index}` }));
+  const store = {
+    list(options) {
+      listCalls += 1;
+      assert.deepEqual(options, { prefix: options.prefix, paginate: true });
+      return (async function* () {
+        listingPages += 1;
+        yield { blobs: blobs.slice(0, 10) };
+        listingPages += 1;
+        yield { blobs: blobs.slice(10) };
+      })();
+    },
+    async get(key) {
+      activeGets += 1;
+      maxActiveGets = Math.max(maxActiveGets, activeGets);
+      await new Promise((resolve) => setTimeout(resolve, 1));
+      activeGets -= 1;
+      return { views: 1, country: "US", paths: { "/": 1 } };
+    }
+  };
+  const handler = createAdminTrafficHandler({
+    resolveAuthContext: contextResolver(account({ accountId: ADMIN_ID, role: "admin" })),
+    getStore: () => store
+  });
+
+  const response = await handler(new Request("https://stage.example.test/api/admin/traffic?days=7"));
+  const body = await response.json();
+  assert.equal(response.status, 200);
+  assert.equal(listCalls, 7);
+  assert.equal(listingPages, 14);
+  assert.equal(maxActiveGets <= 8, true);
+  assert.equal(body.totalViews, 140);
 });
 
 test("admin users list passes a bounded limit to the account repository", async () => {

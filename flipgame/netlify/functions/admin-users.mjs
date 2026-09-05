@@ -16,7 +16,7 @@ function requestedLimit(request) {
   return Math.min(value, MAX_LIMIT);
 }
 
-async function publicAccount(account, accountRepository) {
+async function publicAccount(account, accountRepository, primaryEmailMasked) {
   const row = {
     accountId: account.accountId,
     role: account.role,
@@ -25,7 +25,9 @@ async function publicAccount(account, accountRepository) {
     guild: account.guild || "",
     gameName: account.gameName || ""
   };
-  if (typeof accountRepository?.getPrimaryEmailMasked === "function") {
+  if (primaryEmailMasked !== undefined) {
+    row.primaryEmailMasked = primaryEmailMasked;
+  } else if (typeof accountRepository?.getPrimaryEmailMasked === "function") {
     row.primaryEmailMasked = await accountRepository.getPrimaryEmailMasked(account.accountId);
   }
   return row;
@@ -41,9 +43,14 @@ export function createAdminUsersHandler(overrides = {}) {
     }
     try {
       await requireRequestCapability(runtime, request, "isAdmin");
-      const accounts = await runtime.accountRepository.listAccounts({ limit: requestedLimit(request) });
+      const options = { limit: requestedLimit(request) };
+      const accounts = typeof runtime.accountRepository.listAccountsWithPrimaryEmailMasks === "function"
+        ? await runtime.accountRepository.listAccountsWithPrimaryEmailMasks(options)
+        : await runtime.accountRepository.listAccounts(options);
       const rows = [];
-      for (const account of accounts) rows.push(await publicAccount(account, runtime.accountRepository));
+      for (const entry of accounts) {
+        rows.push(await publicAccount(entry?.account || entry, runtime.accountRepository, entry?.account ? entry.primaryEmailMasked : undefined));
+      }
       return json({ users: rows });
     } catch (error) {
       return authErrorResponse(error, json, 503);

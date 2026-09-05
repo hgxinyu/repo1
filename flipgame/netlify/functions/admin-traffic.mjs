@@ -8,6 +8,7 @@ import {
 
 const STORE_NAME = "site-traffic";
 const ALLOWED_RANGES = new Set([7, 30, 90]);
+const BLOB_READ_CONCURRENCY = 8;
 
 function dateKey(date) {
   return date.toISOString().slice(0, 10);
@@ -16,6 +17,44 @@ function dateKey(date) {
 function requestedDays(request) {
   const value = Number(new URL(request.url).searchParams.get("days"));
   return ALLOWED_RANGES.has(value) ? value : 30;
+}
+
+async function listAllBlobs(store, prefix) {
+  const blobs = [];
+  const source = store.list({ prefix, paginate: true });
+  if (source && typeof source[Symbol.asyncIterator] === "function") {
+    for await (const listing of source) {
+      if (!listing || !Array.isArray(listing.blobs)) throw new Error("Invalid analytics Blob listing");
+      blobs.push(...listing.blobs);
+    }
+  } else {
+    const listing = await source;
+    if (!listing || !Array.isArray(listing.blobs)) throw new Error("Invalid analytics Blob listing");
+    blobs.push(...listing.blobs);
+  }
+  return blobs;
+}
+
+async function readBlobsBounded(store, blobs) {
+  const records = new Array(blobs.length);
+  let nextIndex = 0;
+  let failed = false;
+  async function worker() {
+    while (true) {
+      if (failed) return;
+      const index = nextIndex;
+      nextIndex += 1;
+      if (index >= blobs.length) return;
+      try {
+        records[index] = await store.get(blobs[index].key, { type: "json" });
+      } catch (error) {
+        failed = true;
+        throw error;
+      }
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(BLOB_READ_CONCURRENCY, blobs.length) }, worker));
+  return records;
 }
 
 export function createAdminTrafficHandler(overrides = {}) {
@@ -52,19 +91,26 @@ export function createAdminTrafficHandler(overrides = {}) {
         dayKeys.push(day);
       }
 
-      const dayListings = await Promise.all(dayKeys.map((day) => store.list({ prefix: `visits/${day}/` })));
-      for (let index = 0; index < dayKeys.length; index += 1) {
-        const day = dayKeys[index];
-        const records = await Promise.all(dayListings[index].blobs.map((blob) => store.get(blob.key, { type: "json" })));
-        for (const record of records) {
-          if (!record) continue;
-          const views = Number(record.views || 0);
-          const country = String(record.country || "ZZ").toUpperCase();
-          dailyTotals.set(day, (dailyTotals.get(day) || 0) + views);
-          countryTotals.set(country, (countryTotals.get(country) || 0) + views);
-          for (const [path, count] of Object.entries(record.paths || {})) {
-            pageTotals.set(path, (pageTotals.get(path) || 0) + Number(count || 0));
-          }
+      const dayListings = await Promise.allSettled(
+        dayKeys.map((day) => listAllBlobs(store, `visits/${day}/`))
+      );
+      const rejectedListing = dayListings.find((result) => result.status === "rejected");
+      if (rejectedListing) throw rejectedListing.reason;
+      const dayBlobs = dayListings.map((result) => result.value);
+      const blobRefs = dayKeys.flatMap((day, index) =>
+        dayBlobs[index].map((blob) => ({ day, blob }))
+      );
+      const records = await readBlobsBounded(store, blobRefs.map(({ blob }) => blob));
+      for (let index = 0; index < records.length; index += 1) {
+        const day = blobRefs[index].day;
+        const record = records[index];
+        if (!record) continue;
+        const views = Number(record.views || 0);
+        const country = String(record.country || "ZZ").toUpperCase();
+        dailyTotals.set(day, (dailyTotals.get(day) || 0) + views);
+        countryTotals.set(country, (countryTotals.get(country) || 0) + views);
+        for (const [path, count] of Object.entries(record.paths || {})) {
+          pageTotals.set(path, (pageTotals.get(path) || 0) + Number(count || 0));
         }
       }
 

@@ -490,6 +490,33 @@ test("listAccounts passes LIMIT through a valid postgres.js tagged-template shap
   assert.equal(accounts[0].accountId, legacyVipAccountId);
 });
 
+test("listAccountsWithPrimaryEmailMasks uses one query for 200 accounts and fails closed on missing/corrupt emails", async () => {
+  const accounts = Array.from({ length: 200 }, (_, index) => accountRow({
+    account_id: `11111111-1111-4111-8111-${String(index + 1).padStart(12, "0")}`,
+    primary_encrypted_email: index === 1 ? null : index === 2 ? "bad-cipher" : "cipher",
+    primary_encryption_key_version: 1
+  }));
+  const sql = postgresContractTaggedSql((call) => {
+    assert.match(call.text, /left join account_emails/i);
+    assert.deepEqual(call.values, [200]);
+    return accounts;
+  });
+  const repository = repositoryFor(sql, {
+    decryptSecret: async (value) => {
+      if (value === "bad-cipher") throw new Error("private encryption detail");
+      assert.equal(value, "cipher");
+      return "admin@example.com";
+    }
+  });
+  const rows = await repository.listAccountsWithPrimaryEmailMasks({ limit: 200 });
+  assert.equal(sql.calls.length, 1);
+  assert.equal(rows.length, 200);
+  assert.equal(rows[0].primaryEmailMasked, "a****@example.com");
+  assert.equal(rows[1].primaryEmailMasked, "");
+  assert.equal(rows[2].primaryEmailMasked, "");
+  assert.doesNotMatch(JSON.stringify(rows), /admin@example.com|cipher|encrypted_email|private encryption detail/);
+});
+
 test("findMigrationRecordByLegacyUserId returns only a completed netlify mapping bound to its account and DB boundary", async () => {
   const sql = fakeTaggedSql((call) => {
     assert.match(call.text, /from migration_records/i);

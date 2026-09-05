@@ -344,6 +344,40 @@ async function listAllAccounts(sql, rawLimit) {
   return accounts;
 }
 
+async function listAllAccountsWithPrimaryEmailMasks(sql, rawLimit, deps) {
+  const limit = accountLimit(rawLimit);
+  const rows = await rowsFrom(query(
+    sql,
+    [`SELECT ${ACCOUNT_COLUMNS},
+              e.encrypted_email AS primary_encrypted_email,
+              e.encryption_key_version AS primary_encryption_key_version
+       FROM accounts AS a
+       LEFT JOIN account_emails AS e
+         ON e.account_id = a.account_id
+        AND e.is_primary = TRUE
+        AND e.removed_at IS NULL
+       ORDER BY a.created_at DESC, a.account_id
+       LIMIT `, ""],
+    [limit]
+  ));
+  const accounts = rows.map(mapAccountRow);
+  if (accounts.some((account) => !account)) throw new AuthError("ACCOUNT_MAPPING_MISSING", 503);
+  return Promise.all(accounts.map(async (account, index) => {
+    const row = rows[index];
+    let primaryEmailMasked = "";
+    const encrypted = field(row, "primaryEncryptedEmail", "primary_encrypted_email");
+    const keyVersion = field(row, "primaryEncryptionKeyVersion", "primary_encryption_key_version");
+    if (encrypted !== undefined && encrypted !== null && keyVersion !== undefined && keyVersion !== null) {
+      try {
+        primaryEmailMasked = maskedEmail(await deps.decryptSecret(encrypted, cryptoOptions(deps, keyVersion)));
+      } catch {
+        primaryEmailMasked = "";
+      }
+    }
+    return { account, primaryEmailMasked };
+  }));
+}
+
 async function requestVipInTransaction(transaction, rawInput, deps) {
   assertTransaction(transaction);
   if (!rawInput || typeof rawInput !== "object") throw new AuthError("AUTH_INPUT_INVALID", 400);
@@ -970,6 +1004,11 @@ export async function listAccounts(deps = {}) {
   return listAllAccounts(resolved.sql, deps.limit);
 }
 
+export async function listAccountsWithPrimaryEmailMasks(deps = {}) {
+  const resolved = repositoryDependencies(deps);
+  return listAllAccountsWithPrimaryEmailMasks(resolved.sql, deps.limit, resolved);
+}
+
 export async function requestVip(input, deps = {}) {
   return createAccountRepository(deps).requestVip(input);
 }
@@ -1021,6 +1060,9 @@ export function createAccountRepository(overrides = {}) {
     },
     listAccounts(options = {}) {
       return listAllAccounts(deps.sql, options?.limit);
+    },
+    listAccountsWithPrimaryEmailMasks(options = {}) {
+      return listAllAccountsWithPrimaryEmailMasks(deps.sql, options?.limit, deps);
     },
     getPrimaryEmailMasked(accountId) {
       return primaryEmailMasked(deps.sql, accountId, deps);

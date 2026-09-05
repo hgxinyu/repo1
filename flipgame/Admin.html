@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-Hans">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>管理后台 · ShinE</title>  <script>
+  <title>管理后台 · ShineGame</title>  <script>
     (function () {
       var host = (window.location.hostname || '').toLowerCase();
       var isLocal = host === '' || host === 'localhost' || host === '0.0.0.0' || host === '127.0.0.1' || host === '::1' || /^10\./.test(host) || /^192\.168\./.test(host) || /^172\.(1[6-9]|2\d|3[01])\./.test(host);
@@ -18,281 +18,189 @@
   </script>
   <style>
     :root {
-      --canvas: #f1f0e9;
-      --paper: #fffefa;
-      --paper-2: #f8f7f1;
-      --ink: #17211f;
-      --muted: #6d7772;
-      --line: #e4e3da;
-      --line-strong: #cbcfc5;
-      --forest: #123d35;
-      --forest-deep: #0a2b26;
-      --forest-soft: #e1eee8;
-      --gold: #c99038;
-      --gold-soft: #fff4db;
-      --danger: #a83b4b;
-      --danger-soft: #fff0f1;
-      --ok: #187253;
-      --shadow: 0 18px 50px rgba(32, 47, 42, .08);
-      --radius: 18px;
+      --canvas:#f4f6f5; --paper:#fff; --paper-2:#f8faf9; --ink:#172f29; --muted:#5e706a;
+      --line:#e0e7e3; --line-strong:#c4d2ca; --forest:#17654e; --forest-deep:#103d32; --forest-soft:#e8f3ed;
+      --gold:#9a6414; --gold-soft:#fff4df; --danger:#b13240; --danger-soft:#fff0f1; --ok:#17654e;
+      --radius:12px; --shadow:0 2px 8px rgba(22,51,40,.035);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+      color:var(--ink); font-size:14px; line-height:1.6;
     }
-    * { box-sizing: border-box; }
-    [hidden] { display: none !important; }
-    html { scroll-behavior: smooth; }
-    html, body { margin: 0; min-height: 100%; }
-    body {
-      min-height: 100vh;
-      background:
-        radial-gradient(circle at 82% 4%, rgba(201, 144, 56, .11), transparent 24rem),
-        linear-gradient(125deg, rgba(18, 61, 53, .025) 1px, transparent 1px),
-        var(--canvas);
-      background-size: auto, 26px 26px, auto;
-      color: var(--ink);
-      font-family: "Avenir Next", Avenir, "PingFang SC", "Microsoft YaHei", sans-serif;
-      line-height: 1.55;
+    * { box-sizing:border-box; }
+    [hidden] { display:none!important; }
+    html,body { margin:0; min-height:100%; background:var(--canvas); }
+    button,input,select { font:inherit; }
+    button,a { -webkit-tap-highlight-color:transparent; }
+    button,a,input,select,summary { outline-offset:3px; }
+    :focus-visible { outline:2px solid var(--forest); }
+    a { color:var(--forest); }
+    button,.action { min-height:40px; padding:8px 14px; border:1px solid var(--line-strong); border-radius:8px; background:var(--paper); color:var(--ink); font-weight:600; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:7px; }
+    button:hover,.action:hover { background:var(--forest-soft); border-color:#8eb6a4; }
+    button:disabled { opacity:.55; cursor:wait; }
+    button.primary { color:#fff; background:var(--forest); border-color:var(--forest); }
+    button.primary:hover { background:var(--forest-deep); }
+    button.danger { color:var(--danger); border-color:#e3bbc1; background:#fff; }
+    button.ghost { background:transparent; }
+    input,select { min-height:42px; padding:9px 12px; border:1px solid var(--line-strong); border-radius:8px; color:var(--ink); background:#fff; max-width:100%; }
+    input:disabled,select:disabled { color:var(--muted); background:var(--paper-2); }
+    .admin-shell { min-height:100vh; display:grid; grid-template-columns:216px minmax(0,1fr); }
+    .sidebar { position:sticky; top:0; height:100vh; padding:28px 16px 20px; display:flex; flex-direction:column; border-right:1px solid var(--line); background:#fff; z-index:5; }
+    .brand { display:flex; gap:10px; align-items:center; padding:0 8px; }
+    .brand-mark { display:grid; place-items:center; width:36px; height:36px; color:#fff; background:var(--forest); border-radius:10px; font-size:20px; font-weight:700; }
+    .brand-copy { display:grid; }
+    .brand-copy strong { font-size:19px; line-height:1.25; font-weight:700; letter-spacing:-.5px; }
+    .brand-copy span { font-size:12px; color:var(--muted); }
+    .side-label { margin:36px 12px 10px; font-size:12px; color:var(--muted); }
+    .side-nav { display:grid; gap:6px; }
+    .side-nav a { display:flex; gap:12px; align-items:center; padding:11px 13px; border-radius:8px; color:var(--muted); font-weight:500; text-decoration:none; }
+    .side-nav a:hover { background:var(--paper-2); }
+    .side-nav a.active { color:var(--forest); background:var(--forest-soft); font-weight:650; }
+    .nav-icon { display:inline-flex; flex:0 0 auto; width:20px; height:20px; align-items:center; justify-content:center; }
+    .nav-icon svg { width:20px; height:20px; }
+    .side-foot { margin-top:auto; padding:20px 10px 0; }
+    .environment-card { border-top:1px solid var(--line); padding-top:16px; }
+    .environment-card strong { font-size:13px; font-weight:600; }
+    .environment-card p { font-size:12px; margin:5px 0 0; color:var(--muted); }
+    .workspace { min-width:0; padding:30px clamp(18px,3vw,44px) 48px; }
+    .workspace-inner { max-width:1360px; margin:0 auto; }
+    .topbar { display:flex; justify-content:space-between; align-items:center; gap:24px; margin-bottom:24px; }
+    .title-block { min-width:0; }
+    .eyebrow { font-size:12px; color:var(--muted); margin:0 0 3px; }
+    h1 { font-size:28px; line-height:1.35; margin:0; font-weight:650; letter-spacing:0; }
+    .title-block>p:not(.eyebrow) { margin:6px 0 0; color:var(--muted); }
+    .mode-pill { display:inline-flex; margin-top:10px; padding:3px 9px; border-radius:5px; color:#805617; background:var(--gold-soft); font-size:12px; }
+    .toolbar,.actions { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .toolbar { flex-shrink:0; }
+    .layout { display:grid; gap:20px; }
+    .panel { background:var(--paper); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden; min-width:0; }
+    .panel-head { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:20px 24px; border-bottom:1px solid var(--line); }
+    .panel-heading { display:flex; gap:10px; align-items:center; min-width:0; }
+    .panel-icon,.panel-kicker { display:none; }
+    .panel-title h2 { margin:0; font-size:17px; line-height:1.4; font-weight:600; }
+    .panel-title p { margin:5px 0 0; font-size:13px; color:var(--muted); }
+    .panel-head>.actions { justify-content:flex-end; }
+    .status-line { color:var(--muted); font-size:13px; overflow-wrap:anywhere; }
+    .status-line[data-state="error"] { color:var(--danger); }
+    .status-line[data-state="loading"]::before { content:""; display:inline-block; width:10px; height:10px; margin-right:7px; border:2px solid #bdcfc5; border-top-color:var(--forest); border-radius:50%; animation:spin .8s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .summary-row { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); padding:20px 24px; gap:24px; border-bottom:1px solid var(--line); }
+    .summary-item { min-width:0; padding-right:20px; border-right:1px solid var(--line); }
+    .summary-item:last-child { border:0; }
+    .summary-label { color:var(--muted); font-size:13px; }
+    .summary-value { margin-top:3px; font-size:27px; font-weight:600; line-height:1.35; font-variant-numeric:tabular-nums; }
+    .list-tools { display:flex; align-items:center; gap:12px; padding:18px 24px; }
+    .search-box { flex:1; display:flex; align-items:center; position:relative; max-width:480px; }
+    .search-box input { width:100%; padding-left:36px; }
+    .search-box::before { content:"⌕"; position:absolute; left:13px; color:var(--muted); font-size:20px; }
+    .filter-select { min-width:145px; }
+    .table-wrap { overflow-x:auto; }
+    table { width:100%; border-collapse:collapse; text-align:left; }
+    th { padding:11px 20px; background:var(--paper-2); border-block:1px solid var(--line); font-size:12px; font-weight:500; color:var(--muted); white-space:nowrap; }
+    td { padding:18px 20px; border-bottom:1px solid var(--line); vertical-align:middle; font-size:14px; }
+    tbody tr:last-child td { border-bottom:0; }
+    tbody tr:hover { background:#fcfdfc; }
+    .account-cell { display:flex; align-items:flex-start; gap:11px; min-width:180px; }
+    .account-avatar { flex:0 0 34px; width:34px; height:34px; display:grid; place-items:center; border-radius:50%; color:var(--forest); background:var(--forest-soft); font-weight:600; }
+    .account-copy { min-width:0; display:grid; gap:3px; }
+    .account-name { font-weight:600; overflow-wrap:anywhere; }
+    .account-meta { color:var(--muted); font-size:12px; overflow-wrap:anywhere; }
+    .account-detail { font-size:12px; color:var(--muted); }
+    .account-detail summary { cursor:pointer; width:fit-content; }
+    .account-detail .mono { display:block; max-width:240px; margin-top:5px; overflow-wrap:anywhere; }
+    .mono { font-variant-numeric:tabular-nums; font-size:12px; }
+    .badge { display:inline-flex; align-items:center; width:fit-content; padding:3px 8px; border-radius:5px; border:1px solid var(--line); background:var(--paper-2); color:var(--muted); font-size:12px; font-weight:500; white-space:nowrap; }
+    .badge.ok { background:#edf7f0; color:#226443; border-color:#cde5d5; }
+    .badge.svip { background:#f5edff; color:#7432a3; border-color:#e2cef5; }
+    .badge.warn { background:var(--gold-soft); color:#805617; border-color:#ead9b5; }
+    .badge.danger { background:var(--danger-soft); color:var(--danger); border-color:#ebc8cd; }
+    .compact { font-size:13px; min-height:34px; padding:6px 10px; }
+    .role-editor { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+    .role-editor select { min-height:36px; padding:6px 25px 6px 9px; font-size:13px; }
+    .row-actions { min-width:165px; }
+    .empty-row { padding:40px 24px; color:var(--muted); text-align:center; }
+    .price-tools { padding:20px 24px; display:flex; gap:24px; align-items:flex-end; background:var(--paper-2); border-bottom:1px solid var(--line); }
+    .field { display:grid; gap:7px; font-size:13px; }
+    .price-tools .field { width:260px; }
+    .price-input-pair { display:grid; grid-template-columns:repeat(2,minmax(100px,220px)); gap:20px; }
+    .price-field { display:grid; gap:6px; min-width:0; font-size:12px; color:var(--muted); }
+    .price-field input { width:100%; text-align:right; font-variant-numeric:tabular-nums; }
+    .price-tier-cell { width:110px; font-weight:650; }
+    .panel-footer { padding:14px 24px; border-top:1px solid var(--line); display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; color:var(--muted); font-size:12px; }
+    .meta { display:flex; flex-wrap:wrap; gap:14px; }
+    .traffic-grid { display:grid; grid-template-columns:1.15fr 1fr; gap:28px; padding:24px; }
+    .traffic-block { min-width:0; }
+    .traffic-block-head { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:16px; }
+    .traffic-block-head h3 { margin:0; font-size:15px; font-weight:600; }
+    .country-list,.page-list { display:grid; gap:16px; }
+    .country-row { display:grid; grid-template-columns:minmax(90px,1fr) minmax(40px,1fr) auto; gap:12px; align-items:center; }
+    .country-code,.page-path { font-size:13px; overflow-wrap:anywhere; }
+    .traffic-number { font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums; }
+    .traffic-bar { height:5px; border-radius:4px; background:var(--forest-soft); overflow:hidden; }
+    .traffic-bar span { display:block; height:100%; background:#3c8568; border-radius:4px; }
+    .trend-bars { display:flex; gap:4px; height:140px; align-items:flex-end; border-bottom:1px solid var(--line); padding-top:12px; }
+    .trend-bar { flex:1; min-width:1px; position:relative; background:#599c7d; border-radius:3px 3px 0 0; }
+    .trend-bar:hover::after { content:attr(data-tip); position:absolute; bottom:100%; right:0; background:var(--forest-deep); color:#fff; padding:5px 8px; border-radius:4px; font-size:12px; white-space:nowrap; z-index:2; }
+    .page-row { display:flex; justify-content:space-between; gap:12px; padding-bottom:9px; border-bottom:1px solid var(--line); }
+    .auth-notice { display:flex; align-items:center; gap:12px; margin-bottom:20px; padding:14px 18px; background:#fff; border:1px solid var(--line); border-radius:10px; }
+    .auth-notice p { margin:0; flex:1; }
+    .workspace-updated { margin-top:12px; font-size:12px; color:var(--muted); }
+    @media(min-width:1600px) { td { padding-block:20px; } }
+    @media(max-width:1100px) { .topbar { align-items:flex-start; } .toolbar { max-width:210px; justify-content:flex-end; } .traffic-grid { grid-template-columns:1fr; } td,th { padding-inline:14px; } }
+    @media(max-width:850px) {
+      .admin-shell { display:block; }
+      .sidebar { position:relative; height:auto; padding:16px 20px 0; border-right:0; border-bottom:1px solid var(--line); }
+      .brand { padding:0 0 14px; }
+      .brand-copy { display:flex; align-items:center; gap:10px; }
+      .side-label,.side-foot { display:none; }
+      .side-nav { display:flex; gap:6px; }
+      .side-nav a { padding:10px 13px 12px; border-radius:7px 7px 0 0; gap:7px; }
+      .side-nav a:last-child { margin-left:auto; }
+      .workspace { padding:24px 20px 40px; }
+      .toolbar .action { display:none; }
     }
-    button, input, select { font: inherit; }
-    button, a { -webkit-tap-highlight-color: transparent; }
-    button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible {
-      outline: 3px solid rgba(201, 144, 56, .3);
-      outline-offset: 2px;
+    @media(max-width:650px) {
+      .topbar { display:block; margin-bottom:18px; }
+      .toolbar { max-width:none; justify-content:flex-start; margin-top:16px; }
+      .panel-head { align-items:flex-start; flex-wrap:wrap; padding:18px; }
+      .panel-head>.actions { justify-content:flex-start; }
+      .panel-title p { line-height:1.6; }
+      .summary-row { padding:18px; gap:12px; }
+      .summary-item { padding-right:8px; }
+      .summary-value { font-size:24px; }
+      .list-tools { padding:16px 18px; flex-wrap:wrap; gap:10px; }
+      .search-box { min-width:100%; max-width:none; }
+      input,select { font-size:16px; }
+      .filter-select { flex:1; }
+      table:not(.price-table),table:not(.price-table) tbody,table:not(.price-table) tr,table:not(.price-table) td { display:block; }
+      table:not(.price-table) thead { display:none; }
+      table:not(.price-table) tr { padding:18px; border-top:1px solid var(--line); display:grid; grid-template-columns:1fr 1fr; gap:12px 10px; }
+      table:not(.price-table) td { padding:0; border:0; min-width:0; }
+      table:not(.price-table) td:first-child,table:not(.price-table) td:last-child { grid-column:1/-1; }
+      table:not(.price-table) td[data-label="申请时间"] { grid-column:1/-1; color:var(--muted); }
+      table:not(.price-table) td[data-label="申请时间"]::before { content:"注册 / 申请 "; }
+      table:not(.price-table) td.empty-row { grid-column:1/-1; padding:22px 0; }
+      .account-cell { min-width:0; }
+      .account-detail .mono { max-width:100%; }
+      .role-editor select { font-size:16px; flex:1; }
+      .role-editor .compact { min-height:40px; }
+      .price-tools { display:grid; gap:12px; padding:18px; }
+      .price-tools .field { width:100%; }
+      .price-input-pair { gap:10px; }
+      .price-table th,.price-table td { padding:14px 12px; }
+      .price-tier-cell { width:55px; }
+      .traffic-grid { padding:18px; }
+      .panel-footer { padding:14px 18px; }
     }
-    .admin-shell { min-height: 100vh; display: grid; grid-template-columns: 240px minmax(0, 1fr); }
-    .sidebar {
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      z-index: 10;
-      display: flex;
-      flex-direction: column;
-      padding: 30px 22px 22px;
-      overflow: hidden;
-      color: #f7f1df;
-      background:
-        radial-gradient(circle at 120% -5%, rgba(224, 174, 91, .28), transparent 16rem),
-        linear-gradient(160deg, var(--forest) 0%, var(--forest-deep) 76%);
+    @media(max-width:390px) {
+      .sidebar { padding-inline:12px; }
+      .side-nav { gap:2px; }
+      .side-nav a { font-size:13px; padding-inline:9px; }
+      .side-nav a:last-child { display:none; }
+      .workspace { padding-inline:12px; }
+      h1 { font-size:26px; }
+      .summary-label { font-size:12px; }
+      .country-row { grid-template-columns:minmax(80px,1fr) 45px auto; gap:8px; }
     }
-    .sidebar::after {
-      content: "";
-      position: absolute;
-      right: -90px;
-      bottom: -70px;
-      width: 210px;
-      height: 210px;
-      border: 1px solid rgba(255,255,255,.09);
-      border-radius: 50%;
-      box-shadow: 0 0 0 38px rgba(255,255,255,.025), 0 0 0 76px rgba(255,255,255,.018);
-      pointer-events: none;
-    }
-    .brand { display: flex; align-items: center; gap: 12px; position: relative; z-index: 1; }
-    .brand-mark {
-      width: 42px;
-      height: 42px;
-      display: grid;
-      place-items: center;
-      border: 1px solid rgba(255,255,255,.18);
-      border-radius: 13px;
-      background: rgba(255,255,255,.08);
-      color: #e4bd72;
-      font-family: Georgia, serif;
-      font-size: 21px;
-      font-style: italic;
-      box-shadow: inset 0 1px rgba(255,255,255,.08);
-    }
-    .brand-copy { display: grid; line-height: 1.1; }
-    .brand-copy strong { color: #fffdf6; font-family: Georgia, "Songti SC", serif; font-size: 20px; letter-spacing: .02em; }
-    .brand-copy span { margin-top: 5px; color: #9fb8b0; font-size: 10px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
-    .side-label { margin: 50px 12px 12px; color: #78968d; font-size: 10px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
-    .side-nav { display: grid; gap: 7px; position: relative; z-index: 1; }
-    .side-nav a {
-      min-height: 46px;
-      display: flex;
-      align-items: center;
-      gap: 11px;
-      padding: 0 13px;
-      border: 1px solid transparent;
-      border-radius: 12px;
-      color: #b7cbc4;
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: 650;
-      transition: .2s ease;
-    }
-    .side-nav a:hover, .side-nav a.active { border-color: rgba(255,255,255,.1); background: rgba(255,255,255,.08); color: #fff; transform: translateX(2px); }
-    .nav-icon { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 9px; background: rgba(255,255,255,.06); font-size: 14px; }
-    .side-foot { margin-top: auto; position: relative; z-index: 1; }
-    .environment-card { padding: 14px; border: 1px solid rgba(255,255,255,.1); border-radius: 14px; background: rgba(255,255,255,.055); }
-    .environment-card strong { display: block; color: #fff; font-size: 13px; }
-    .environment-card p { margin: 4px 0 0; color: #90aaa1; font-size: 11px; }
-    .workspace { min-width: 0; padding: 34px clamp(22px, 4vw, 58px) 64px; }
-    .workspace-inner { width: min(1240px, 100%); margin: 0 auto; }
-    .topbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; margin-bottom: 28px; }
-    .title-block { display: grid; gap: 5px; }
-    .eyebrow { margin: 0; color: var(--gold); font-size: 11px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
-    h1 { margin: 0; font-family: Georgia, "Songti SC", serif; font-size: clamp(31px, 4vw, 46px); font-weight: 600; line-height: 1.12; letter-spacing: -.025em; }
-    h2 { margin: 0; font-family: Georgia, "Songti SC", serif; font-size: 23px; font-weight: 600; line-height: 1.25; }
-    p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
-    .toolbar, .actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-    a.action, button {
-      min-height: 40px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 7px;
-      border: 1px solid var(--line-strong);
-      border-radius: 11px;
-      padding: 8px 13px;
-      background: rgba(255,254,250,.84);
-      color: var(--forest);
-      font-size: 13px;
-      font-weight: 700;
-      text-decoration: none;
-      white-space: nowrap;
-      cursor: pointer;
-      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
-    }
-    a.action:hover, button:hover { border-color: #a7b8b0; background: #fff; transform: translateY(-1px); box-shadow: 0 7px 18px rgba(24,50,43,.08); }
-    button:disabled { opacity: .55; cursor: not-allowed; transform: none; box-shadow: none; }
-    button.primary { border-color: var(--forest); background: var(--forest); color: #fff; box-shadow: 0 8px 18px rgba(18,61,53,.16); }
-    button.primary:hover { background: var(--forest-deep); }
-    button.danger { border-color: rgba(168,59,75,.2); color: var(--danger); }
-    button.ghost { background: transparent; }
-    button.compact { min-height: 34px; padding: 6px 10px; border-radius: 9px; font-size: 12px; }
-    .mode-pill { width: fit-content; margin-top: 5px; border: 1px solid #efd8a7; border-radius: 999px; padding: 4px 10px; color: #875a18; background: var(--gold-soft); font-size: 11px; font-weight: 800; }
-    .layout { display: grid; gap: 24px; }
-    .panel { scroll-margin-top: 24px; overflow: hidden; border: 1px solid rgba(210,210,200,.9); border-radius: var(--radius); background: rgba(255,254,250,.95); box-shadow: var(--shadow); animation: panel-in .48s both; }
-    .panel:nth-child(2) { animation-delay: .09s; }
-    @keyframes panel-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
-    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; } }
-    .panel-head { display: flex; justify-content: space-between; gap: 24px; align-items: center; padding: 24px 26px; border-bottom: 1px solid var(--line); cursor: pointer; }
-    .panel-heading { display: flex; align-items: center; gap: 14px; }
-    .panel-icon { width: 44px; height: 44px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 13px; background: var(--forest-soft); color: var(--forest); font-size: 18px; }
-    .panel-title { display: grid; gap: 2px; }
-    .panel-kicker { color: var(--gold); font-size: 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
-    .panel-toggle { min-width: 64px; }
-    .panel.is-collapsed .collapsible { display: none; }
-    .panel.is-collapsed .panel-head { border-bottom: 0; }
-    .summary-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; padding: 20px 26px; background: var(--paper-2); border-bottom: 1px solid var(--line); }
-    .summary-item { position: relative; min-height: 86px; overflow: hidden; padding: 16px 18px; border: 1px solid var(--line); border-radius: 14px; background: var(--paper); }
-    .summary-item::after { content: ""; position: absolute; top: 17px; right: 17px; width: 7px; height: 7px; border-radius: 50%; background: var(--line-strong); box-shadow: 0 0 0 5px rgba(203,207,197,.2); }
-    .summary-item:nth-child(2)::after { background: var(--gold); box-shadow: 0 0 0 5px rgba(201,144,56,.14); }
-    .summary-item:nth-child(3)::after { background: var(--ok); box-shadow: 0 0 0 5px rgba(24,114,83,.12); }
-    .summary-label { color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .04em; }
-    .summary-value { margin-top: 6px; font-family: Georgia, serif; font-size: 27px; font-weight: 600; line-height: 1; }
-    .list-tools { display: flex; justify-content: space-between; gap: 12px; padding: 16px 26px; border-bottom: 1px solid var(--line); background: var(--paper); }
-    .search-box { position: relative; flex: 1 1 340px; max-width: 460px; }
-    .search-box::before { content: "⌕"; position: absolute; left: 13px; top: 50%; z-index: 1; color: var(--muted); font-size: 20px; transform: translateY(-54%); }
-    input, select { width: 100%; min-height: 40px; border: 1px solid var(--line-strong); border-radius: 10px; padding: 8px 11px; background: #fff; color: var(--ink); }
-    .search-box input { padding-left: 38px; }
-    input:focus, select:focus { border-color: #8aa59a; outline: 3px solid rgba(18,61,53,.09); }
-    .filter-select { width: auto; min-width: 124px; }
-    .table-wrap { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    th, td { padding: 14px 16px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
-    th { background: #fbfaf5; color: #7c847f; font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; }
-    tbody tr:last-child td { border-bottom: 0; }
-    tbody tr { transition: background .16s ease; }
-    tbody tr:hover { background: #fbfaf5; }
-    .account-cell { display: grid; gap: 3px; min-width: 190px; }
-    .account-cell .mono { color: var(--ink); font-weight: 700; }
-    .account-meta { color: var(--muted); font-size: 11px; }
-    .mono { font-family: "SFMono-Regular", Consolas, monospace; font-size: 12px; }
-    .status-line { max-width: 410px; color: var(--muted); font-size: 12px; }
-    .badge { min-height: 25px; display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 999px; padding: 3px 9px; background: #fff; color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: .03em; text-transform: uppercase; }
-    .badge.svip { background:#f3e8ff; color:#6b21a8; border-color:#d8b4fe; }
-    .badge.ok { border-color: rgba(24,114,83,.18); background: #edf8f2; color: var(--ok); }
-    .badge.warn { border-color: rgba(201,144,56,.25); background: var(--gold-soft); color: #93631d; }
-    .badge.danger { border-color: rgba(168,59,75,.18); background: var(--danger-soft); color: var(--danger); }
-    .price-tools { display: grid; grid-template-columns: minmax(220px, 340px) minmax(0, 1fr); gap: 22px; align-items: end; padding: 20px 26px; border-bottom: 1px solid var(--line); background: var(--paper-2); }
-    .field, .price-field { display: grid; gap: 6px; color: var(--muted); font-size: 11px; font-weight: 800; letter-spacing: .03em; }
-    .price-table th:first-child, .price-table td:first-child { padding-left: 26px; }
-    .price-table th:last-child, .price-table td:last-child { padding-right: 26px; }
-    .price-table input { min-width: 108px; text-align: right; }
-    .price-input-pair { display: grid; grid-template-columns: repeat(2, minmax(112px, 220px)); gap: 14px; align-items: end; }
-    .price-field { min-width: 0; }
-    .price-field span { color: var(--muted); font-size: 10px; line-height: 1.25; }
-    .price-field input { min-width: 0; background: #fbfbf8; font-family: "SFMono-Regular", Consolas, monospace; font-weight: 650; }
-    .price-tier-cell { width: 110px; color: var(--forest); font-family: Georgia, serif; font-size: 16px; font-weight: 700; }
-    .panel-footer { display: flex; justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap; padding: 15px 26px; border-top: 1px solid var(--line); background: var(--paper-2); }
-    .meta { display: flex; gap: 8px 18px; flex-wrap: wrap; color: var(--muted); font-size: 11px; }
-    .empty-row { padding: 42px; color: var(--muted); text-align: center; }
-    .traffic-summary { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .traffic-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(280px, .75fr); gap: 0; }
-    .traffic-block { min-width: 0; padding: 22px 26px 26px; }
-    .traffic-block + .traffic-block { border-left: 1px solid var(--line); }
-    .traffic-block-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 17px; }
-    .traffic-block-head h3 { margin: 0; color: var(--forest); font: 600 17px/1.25 Georgia, "Songti SC", serif; }
-    .country-list, .page-list { display: grid; gap: 13px; }
-    .country-row { display: grid; grid-template-columns: 108px minmax(0, 1fr) 68px; gap: 11px; align-items: center; }
-    .country-code { color: var(--forest); font-family: "SFMono-Regular", Consolas, monospace; font-size: 12px; font-weight: 800; }
-    .traffic-bar { height: 8px; overflow: hidden; border-radius: 999px; background: #e9ebe5; }
-    .traffic-bar > span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--forest), #3f7768); transform-origin: left; animation: grow-bar .55s ease both; }
-    @keyframes grow-bar { from { transform: scaleX(0); } }
-    .traffic-number { color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; text-align: right; }
-    .trend-bars { height: 132px; display: flex; align-items: end; gap: 5px; padding: 14px 0 20px; border-bottom: 1px solid var(--line); }
-    .trend-bar { min-width: 3px; flex: 1 1 0; position: relative; border-radius: 4px 4px 1px 1px; background: linear-gradient(180deg, var(--gold), #dfbd7c); }
-    .trend-bar:hover::after { content: attr(data-tip); position: absolute; left: 50%; bottom: calc(100% + 7px); z-index: 2; padding: 5px 7px; border-radius: 6px; background: var(--forest-deep); color: #fff; font-size: 10px; white-space: nowrap; transform: translateX(-50%); }
-    .page-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
-    .page-row:last-child { border-bottom: 0; }
-    .page-path { overflow: hidden; color: var(--ink); font-family: "SFMono-Regular", Consolas, monospace; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
-    @media (max-width: 920px) {
-      .admin-shell { grid-template-columns: 1fr; }
-      .sidebar { position: relative; height: auto; min-height: 0; padding: 16px 20px; flex-direction: row; align-items: center; gap: 18px; }
-      .side-label, .environment-card { display: none; }
-      .side-nav { margin-left: auto; grid-auto-flow: column; }
-      .side-nav a { min-height: 40px; padding: 0 10px; }
-      .side-nav a span:not(.nav-icon) { display: none; }
-      .side-foot { margin: 0; }
-      .workspace { padding-top: 28px; }
-    }
-    @media (max-width: 680px) {
-      .workspace { padding: 22px 12px 40px; }
-      .topbar { align-items: stretch; flex-direction: column; margin-bottom: 20px; }
-      .toolbar { display: grid; grid-template-columns: 1fr 1fr 1fr; }
-      .toolbar > * { padding-inline: 8px; }
-      .panel { border-radius: 15px; }
-      .panel-head { align-items: flex-start; padding: 19px 16px; }
-      .panel-heading { align-items: flex-start; }
-      .panel-icon { width: 38px; height: 38px; border-radius: 11px; }
-      h2 { font-size: 20px; }
-      .panel-head > .actions { justify-content: flex-end; }
-      .panel-head .status-line { width: 100%; order: 3; text-align: right; }
-      .summary-row { grid-template-columns: repeat(3, 1fr); gap: 7px; padding: 12px; }
-      .summary-item { min-height: 72px; padding: 12px; }
-      .summary-value { font-size: 23px; }
-      .list-tools { padding: 12px; flex-wrap: wrap; }
-      .search-box { max-width: none; flex-basis: 100%; }
-      .filter-select { flex: 1; }
-      table:not(.price-table), table:not(.price-table) thead, table:not(.price-table) tbody, table:not(.price-table) tr, table:not(.price-table) th, table:not(.price-table) td { display: block; }
-      table:not(.price-table) thead { display: none; }
-      table:not(.price-table) tr { padding: 15px 16px; border-bottom: 1px solid var(--line); }
-      table:not(.price-table) td { display: grid; grid-template-columns: 82px minmax(0, 1fr); align-items: start; padding: 6px 0; border: 0; }
-      table:not(.price-table) td::before { content: attr(data-label); color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
-      table:not(.price-table) td .actions { gap: 6px; }
-      table:not(.price-table) td .actions button { min-height: 34px; flex: 1 1 auto; padding: 6px 9px; }
-      .price-tools { grid-template-columns: 1fr; gap: 12px; padding: 16px; }
-      .traffic-grid { grid-template-columns: 1fr; }
-      .traffic-block { padding: 18px 16px; }
-      .traffic-block + .traffic-block { border-left: 0; border-top: 1px solid var(--line); }
-      .price-table th:first-child, .price-table td:first-child { padding-left: 16px; }
-      .price-table th:last-child, .price-table td:last-child { padding-right: 16px; }
-      .price-input-pair { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-      .price-table input { min-width: 0; }
-      .panel-footer { padding: 14px 16px; }
-    }
-    @media (max-width: 430px) {
-      .brand-copy span { display: none; }
-      .sidebar { padding-inline: 14px; }
-      .side-nav { gap: 2px; }
-      .nav-icon { width: 26px; }
-      .toolbar { grid-template-columns: 1fr 1fr; }
-      .toolbar .action { grid-column: 1 / -1; }
-      .panel-head { gap: 10px; }
-      .panel-head .actions { gap: 5px; }
-      .panel-head .actions button { min-height: 34px; padding: 6px 8px; }
-      .panel-heading { gap: 9px; }
-      .panel-title p { display: none; }
-    }
+    @media(prefers-reduced-motion:reduce) { *,*::before,*::after { animation:none!important; scroll-behavior:auto!important; transition:none!important; } }
   </style>
   <link rel="stylesheet" href="assets/home-nav.css">
   <script src="assets/home-navigation.js" defer></script>
@@ -303,32 +211,32 @@
       <div class="brand">
         <div class="brand-mark" aria-hidden="true">S</div>
         <div class="brand-copy">
-          <strong>ShinE</strong>
-          <span>Admin Console</span>
+          <strong>ShineGame</strong>
+          <span>管理后台</span>
         </div>
       </div>
-      <div class="side-label">Workspace</div>
+      <div class="side-label">管理</div>
       <nav class="side-nav">
         <a class="active" href="#users-panel" data-workspace="users" aria-controls="users-panel" aria-current="page">
-          <span class="nav-icon" aria-hidden="true">人</span>
-          <span>用户审核</span>
+          <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M16 5a3 3 0 0 1 0 6m2 3a5 5 0 0 1 3 4v2"/></svg></span>
+          <span>会员管理</span>
         </a>
         <a href="#prices-panel" data-workspace="prices" aria-controls="prices-panel">
-          <span class="nav-icon" aria-hidden="true">◇</span>
+          <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 9 7-9 11L3 10Z M3 10h18 M8 3l4 18 4-18"/></svg></span>
           <span>资质价格</span>
         </a>
         <a href="#traffic-panel" data-workspace="traffic" aria-controls="traffic-panel">
-          <span class="nav-icon" aria-hidden="true">◎</span>
+          <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16h16M8 16v-5m5 5V7m5 9V4"/></svg></span>
           <span>访问流量</span>
         </a>
         <a href="index.html">
-          <span class="nav-icon" aria-hidden="true">↗</span>
+          <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6m0-6L10 14M10 4H4v16h16v-6"/></svg></span>
           <span>返回站点</span>
         </a>
       </nav>
       <div class="side-foot">
         <div class="environment-card">
-          <strong>Operations</strong>
+          <strong>ShineGame.Pro</strong>
           <p>会员权限与计算器数据控制台</p>
         </div>
       </div>
@@ -338,10 +246,10 @@
       <div class="workspace-inner">
         <header class="topbar">
           <div class="title-block">
-            <p class="eyebrow" id="workspaceEyebrow">Access Control</p>
-            <h1 id="workspaceTitle">用户审核</h1>
+            <p class="eyebrow" id="workspaceEyebrow">后台管理 / 会员</p>
+            <h1 id="workspaceTitle">会员管理</h1>
             <p id="workspaceIntro">审核会员访问权限，处理待审核账号与角色状态。</p>
-            <span class="mode-pill" id="modePill" hidden>● 本地 Mock · 所有修改仅供预览</span>
+            <span class="mode-pill" id="modePill" hidden>本地预览 · 修改不会保存到线上</span>
           </div>
           <div class="toolbar">
             <a class="action home-nav-button" href="index.html">回到主页</a>
@@ -350,41 +258,45 @@
           </div>
         </header>
 
-        <main class="layout">
+        <div class="auth-notice" id="authNotice" role="status">
+          <p id="authMessage">正在确认管理员身份…</p>
+          <a id="authLogin" href="Login.html?next=Admin.html" hidden>登录管理员账号</a>
+          <button id="retryAuth" type="button" hidden>重试</button>
+        </div>
+        <main class="layout" id="adminLayout">
       <section class="panel" id="users-panel" aria-labelledby="users-title" data-panel="users" data-workspace-panel="users">
         <div class="panel-head" data-panel-head>
           <div class="panel-heading">
             <div class="panel-icon" aria-hidden="true">人</div>
             <div class="panel-title">
               <span class="panel-kicker">Access control</span>
-              <h2 id="users-title">会员与访问权限</h2>
+              <h2 id="users-title">账号列表</h2>
               <p>审核注册账号，并分配 VIP、SVIP、待审或禁用状态。</p>
             </div>
           </div>
           <div class="actions">
             <div class="status-line" id="userStatus" role="status">正在检查管理员权限...</div>
-            <button class="panel-toggle" type="button" data-collapse-toggle aria-expanded="false">展开</button>
           </div>
         </div>
         <div class="collapsible">
           <div class="summary-row" id="userSummary" aria-label="用户统计">
             <div class="summary-item">
               <div class="summary-label">账号</div>
-              <div class="summary-value">0</div>
+              <div class="summary-value">—</div>
             </div>
             <div class="summary-item">
               <div class="summary-label">待审核</div>
-              <div class="summary-value">0</div>
+              <div class="summary-value">—</div>
             </div>
             <div class="summary-item">
               <div class="summary-label" title="VIP / SVIP / Admin">VIP 及以上</div>
-              <div class="summary-value">0</div>
+              <div class="summary-value">—</div>
             </div>
           </div>
           <div class="list-tools" aria-label="筛选用户">
             <label class="search-box">
               <span hidden>搜索账号</span>
-              <input id="userSearchInput" type="search" placeholder="搜索邮箱、游戏名或公会…" autocomplete="off" />
+              <input id="userSearchInput" aria-label="搜索邮箱、游戏名或公会" type="search" placeholder="搜索邮箱、游戏名或公会…" autocomplete="off" />
             </label>
             <select class="filter-select" id="roleFilter" aria-label="按角色筛选">
               <option value="all">全部角色</option>
@@ -423,7 +335,6 @@
             </div>
           </div>
           <div class="actions">
-            <button class="panel-toggle" type="button" data-collapse-toggle aria-expanded="false">展开</button>
             <button id="reloadPricesBtn" type="button">重载</button>
             <button id="savePricesBtn" class="primary" type="button">保存</button>
           </div>
@@ -469,7 +380,6 @@
               <option value="30" selected>最近 30 天</option>
               <option value="90">最近 90 天</option>
             </select>
-            <button class="panel-toggle" type="button" data-collapse-toggle aria-expanded="false">展开</button>
           </div>
         </div>
         <div class="collapsible">
@@ -490,6 +400,7 @@
         </div>
       </section>
         </main>
+        <p class="workspace-updated" id="workspaceUpdated" aria-live="polite">数据按页面加载；点击刷新可获取最新结果。</p>
       </div>
     </div>
   </div>
@@ -529,19 +440,19 @@
     const WORKSPACES = {
       users: {
         hash: "#users-panel",
-        eyebrow: "Access Control",
-        title: "用户审核",
+        eyebrow: "后台管理 / 会员",
+        title: "会员管理",
         intro: "审核会员访问权限，处理待审核账号与角色状态。"
       },
       prices: {
         hash: "#prices-panel",
-        eyebrow: "Pricing Source",
+        eyebrow: "后台管理 / 价格",
         title: "资质价格",
         intro: "维护升格与觉醒计算器使用的核心价格基准。"
       },
       traffic: {
         hash: "#traffic-panel",
-        eyebrow: "Traffic Intelligence",
+        eyebrow: "后台管理 / 流量",
         title: "访问流量",
         intro: "从国家、日期和热门页面观察站点访问趋势。"
       }
@@ -549,6 +460,16 @@
     let activeWorkspace = "users";
     let currentUsers = [];
     let currentAccountId = "";
+    let authReady = false;
+    let priceDirty = false;
+    let priceSaving = false;
+    let userMutation = false;
+    const workspaceState = Object.fromEntries(Object.keys(WORKSPACES).map(name => [name, { loaded: false, pending: null, updatedAt: "" }]));
+    const workspaceUpdated = document.getElementById("workspaceUpdated");
+    const authNotice = document.getElementById("authNotice");
+    const authMessage = document.getElementById("authMessage");
+    const authLogin = document.getElementById("authLogin");
+    const retryAuth = document.getElementById("retryAuth");
     let mockUsers = [
       {
         accountId: "11111111-1111-4111-8111-111111111111",
@@ -666,31 +587,34 @@
         tr.innerHTML = `
           <td data-label="账号">
             <div class="account-cell">
-              <span class="mono">${escapeHtml(user.primaryEmailMasked || user.email || user.accountId)}</span>
-              <span class="account-meta">${escapeHtml(user.gameName || "未填写")} · 公会 ${escapeHtml(user.guild || "-")}</span>
-              <span class="account-meta mono">ID ${escapeHtml(user.accountId || "未知")} · 授权版本 v${escapeHtml(user.authzVersion || "?")}</span>
+              <span class="account-avatar" aria-hidden="true">${escapeHtml((user.gameName || user.primaryEmailMasked || "?").slice(0, 1))}</span>
+              <div class="account-copy">
+                <span class="account-name">${escapeHtml(user.gameName || "未填写游戏名")}</span>
+                <span class="account-meta">${escapeHtml(user.primaryEmailMasked || user.email || "无邮箱")} · ${escapeHtml(user.guild || "未填写公会")}</span>
+                <details class="account-detail"><summary>账号详情</summary><span class="mono">${escapeHtml(user.accountId || "未知")}<br>授权版本 ${escapeHtml(user.authzVersion || "?")}</span></details>
+              </div>
             </div>
           </td>
           <td data-label="账号状态">${accountStatus(user)}</td>
           <td data-label="角色">${roleStatus(user.role)}</td>
           <td data-label="申请时间" class="mono">${escapeHtml(formatDate(user.requestedAt || user.createdAt))}</td>
           <td data-label="操作">
-            <div class="actions">
-              <button data-role="vip" type="button" class="compact">VIP</button>
-              <button data-role="svip" type="button" class="compact">SVIP</button>
-              <button data-role="pending" type="button" class="ghost compact">待审</button>
-              <button data-role="blocked" type="button" class="danger compact">禁用</button>
+            <div class="role-editor row-actions">
+              <select data-role-select aria-label="${escapeHtml(user.gameName || user.accountId)}的会员等级" ${user.accountId === currentAccountId ? "disabled" : ""}>
+                ${[ ["free", "普通会员"], ["pending", "待审核"], ["vip", "VIP"], ["svip", "SVIP"], ...(user.role === "admin" ? [["admin", "管理员"]] : []), ["blocked", "已禁用"] ].map(([value, label]) => `<option value="${value}" ${value === user.role ? "selected" : ""}>${label}</option>`).join("")}
+              </select>
+              <button data-apply-role type="button" class="compact" disabled>应用</button>
               ${canDisableUser(user) ? '<button data-disable type="button" class="danger ghost compact">停用</button>' : ""}
             </div>
           </td>
         `;
-        tr.querySelectorAll("button[data-role]").forEach((button) => {
-          button.addEventListener("click", () => setRole(user.accountId, button.dataset.role));
-        });
+        const roleSelect = tr.querySelector("[data-role-select]");
+        const applyBtn = tr.querySelector("[data-apply-role]");
+        roleSelect.addEventListener("change", () => { applyBtn.disabled = userMutation || roleSelect.value === user.role; });
+        applyBtn.addEventListener("click", () => runUserMutation(() => setRole(user.accountId, roleSelect.value)));
         const disableBtn = tr.querySelector("button[data-disable]");
-        if (disableBtn) {
-          disableBtn.addEventListener("click", () => disableUser(user.accountId));
-        }
+        if (disableBtn) disableBtn.addEventListener("click", () => runUserMutation(() => disableUser(user.accountId)));
+        if (userMutation) tr.querySelectorAll("button,select").forEach(control => { control.disabled = true; });
         rowsEl.appendChild(tr);
       }
     }
@@ -742,9 +666,9 @@
       }
       priceMetaEl.textContent = "";
       const meta = [
-        data.storage ? `存储：${data.storage}` : "",
+
         data.updatedAt ? `更新：${data.updatedAt}` : "",
-        data.updatedBy ? `操作：${data.updatedBy}` : ""
+
       ].filter(Boolean);
       for (const item of meta) {
         const span = document.createElement("span");
@@ -781,14 +705,14 @@
       trafficStatus.textContent = "正在加载流量...";
       const data = LOCAL_MOCK_MODE ? { ...mockTraffic, days: Number(trafficRange.value) } : await api(`/api/admin/traffic?days=${trafficRange.value}`);
       renderTraffic(data);
-      trafficStatus.textContent = LOCAL_MOCK_MODE ? "本地 Mock 示例数据" : `已按 ${data.countryCount || 0} 个国家汇总`;
+      trafficStatus.textContent = LOCAL_MOCK_MODE ? "本地预览示例数据" : `已按 ${data.countryCount || 0} 个国家汇总`;
     }
 
     function accountStatus(user) {
       const status = String(user?.status || "").trim().toLowerCase();
-      if (status === "active") return '<span class="badge ok">active</span>';
+      if (status === "active") return '<span class="badge ok">正常</span>';
       if (["blocked", "disabled", "merged"].includes(status)) {
-        return `<span class="badge danger">${escapeHtml(status)}</span>`;
+        return `<span class="badge danger">${({blocked:"已禁用",disabled:"已停用",merged:"已合并"})[status]}</span>`;
       }
       return '<span class="badge warn">未知</span>';
     }
@@ -802,40 +726,52 @@
     function roleStatus(role) {
       const clean = String(role || "").trim().toLowerCase();
       if (clean === "svip") return `<span class="badge svip">SVIP</span>`;
-      if (clean === "vip" || clean === "admin") return `<span class="badge ok">${escapeHtml(clean)}</span>`;
-      if (clean === "blocked") return '<span class="badge danger">blocked</span>';
-      if (clean === "pending") return '<span class="badge warn">pending</span>';
-      return `<span class="badge">${escapeHtml(clean || "free")}</span>`;
+      if (clean === "vip" || clean === "admin") return `<span class="badge ok">${clean === "admin" ? "管理员" : "VIP"}</span>`;
+      if (clean === "blocked") return '<span class="badge danger">已禁用</span>';
+      if (clean === "pending") return '<span class="badge warn">待审核</span>';
+      return `<span class="badge">${clean === "free" ? "普通会员" : escapeHtml(clean || "未知")}</span>`;
     }
 
-    function setPanelCollapsed(panel, collapsed) {
-      panel.classList.toggle("is-collapsed", collapsed);
-      const toggle = panel.querySelector("[data-collapse-toggle]");
-      if (toggle) {
-        toggle.textContent = collapsed ? "展开" : "收起";
-        toggle.setAttribute("aria-expanded", collapsed ? "false" : "true");
-      }
+    function statusFor(name) {
+      return name === "prices" ? priceStatusEl : name === "traffic" ? trafficStatus : userStatusEl;
     }
 
-    function initPanelToggles() {
-      document.querySelectorAll("[data-panel]").forEach((panel) => {
-        setPanelCollapsed(panel, panel.classList.contains("is-collapsed"));
-        const head = panel.querySelector("[data-panel-head]");
-        const toggle = panel.querySelector("[data-collapse-toggle]");
-        const switchPanel = () => setPanelCollapsed(panel, !panel.classList.contains("is-collapsed"));
-        if (toggle) {
-          toggle.addEventListener("click", (event) => {
-            event.stopPropagation();
-            switchPanel();
-          });
-        }
-        if (head) {
-          head.addEventListener("click", (event) => {
-            if (event.target.closest("button, a, input, select, textarea")) return;
-            switchPanel();
-          });
-        }
+    function updateControls() {
+      const pending = !authReady || Boolean(workspaceState[activeWorkspace].pending);
+      refreshBtn.disabled = pending || (activeWorkspace === "prices" && priceSaving) || (activeWorkspace === "users" && userMutation);
+      reloadPricesBtn.disabled = !authReady || Boolean(workspaceState.prices.pending) || priceSaving;
+      savePricesBtn.disabled = !authReady || !workspaceState.prices.loaded || Boolean(workspaceState.prices.pending) || priceSaving || !priceDirty;
+      starRatioInput.disabled = !workspaceState.prices.loaded || Boolean(workspaceState.prices.pending) || priceSaving;
+      priceRowsEl.querySelectorAll("input").forEach(input => { input.disabled = Boolean(workspaceState.prices.pending) || priceSaving; });
+      trafficRange.disabled = !authReady || Boolean(workspaceState.traffic.pending);
+      const updatedAt = workspaceState[activeWorkspace].updatedAt;
+      workspaceUpdated.textContent = updatedAt ? `本页更新于 ${updatedAt} · 切换页面保留结果，刷新可获取最新数据。` : "数据按页面加载；点击刷新可获取最新结果。";
+    }
+
+    async function loadWorkspace(name, force = false) {
+      if (!authReady) return;
+      const state = workspaceState[name];
+      if (state.pending) return state.pending;
+      if (state.loaded && !force) { updateControls(); return; }
+      if (name === "prices" && priceDirty && !window.confirm("价格有未保存的修改，重新加载会丢弃这些修改。继续吗？")) return;
+      const status = statusFor(name);
+      status.dataset.state = "loading";
+      document.getElementById(WORKSPACES[name].hash.slice(1)).setAttribute("aria-busy", "true");
+      state.pending = Promise.resolve().then(() => ({ users: loadUsers, prices: loadPrices, traffic: loadTraffic }[name])()).then(() => {
+        state.loaded = true;
+        state.updatedAt = new Date().toLocaleTimeString("zh-CN", { hour12: false });
+        if (name === "prices") priceDirty = false;
+        status.dataset.state = "ready";
+      }).catch(error => {
+        status.dataset.state = "error";
+        status.textContent = `加载失败：${error.message || error}。可点击刷新重试。`;
+      }).finally(() => {
+        state.pending = null;
+        document.getElementById(WORKSPACES[name].hash.slice(1)).setAttribute("aria-busy", "false");
+        updateControls();
       });
+      updateControls();
+      return state.pending;
     }
 
     function setWorkspace(name, updateHash = true) {
@@ -857,7 +793,8 @@
       if (updateHash && window.location.hash !== config.hash) {
         window.history.replaceState(null, "", config.hash);
       }
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      updateControls();
+      if (authReady) void loadWorkspace(next);
     }
 
     function initWorkspaces() {
@@ -874,7 +811,7 @@
     async function loadUsers() {
       if (LOCAL_MOCK_MODE) {
         render(mockUsers);
-        userStatusEl.textContent = `本地 Mock：已加载 ${mockUsers.length} 个示例账号。`;
+        userStatusEl.textContent = `本地预览：已加载 ${mockUsers.length} 个示例账号。`;
         return;
       }
       userStatusEl.textContent = "正在加载用户...";
@@ -891,13 +828,32 @@
       userStatusEl.textContent = `已加载 ${(data.users || []).length} 个申请账号。`;
     }
 
+    async function runUserMutation(action) {
+      if (userMutation) return;
+      userMutation = true;
+      updateControls();
+      rowsEl.querySelectorAll("button,select").forEach(control => { control.disabled = true; });
+      userStatusEl.dataset.state = "loading";
+      try {
+        await action();
+        if (userStatusEl.dataset.state !== "error") userStatusEl.dataset.state = "ready";
+      } catch (error) {
+        userStatusEl.dataset.state = "error";
+        userStatusEl.textContent = `操作未完成：${error.message || error}。请刷新核对账号状态后再操作。`;
+      } finally {
+        userMutation = false;
+        updateControls();
+        renderUserRows(getFilteredUsers());
+      }
+    }
+
     async function setRole(accountId, role) {
       if (LOCAL_MOCK_MODE) {
         mockUsers = mockUsers.map((user) => user.accountId === accountId
           ? { ...user, role, status: role === "blocked" ? "blocked" : "active", authzVersion: Number(user.authzVersion || 0) + 1 }
           : user);
         render(mockUsers);
-        userStatusEl.textContent = `本地 Mock：账号已临时改为 ${role}，不会保存到线上。`;
+        userStatusEl.textContent = `本地预览：账号已临时改为 ${role}，不会保存到线上。`;
         return;
       }
       userStatusEl.textContent = "正在更新账号...";
@@ -905,29 +861,25 @@
         method: "POST",
         body: JSON.stringify({ accountId, role })
       });
-      await loadUsers();
+      await loadWorkspace("users", true);
     }
 
     async function disableUser(accountId) {
-      if (!window.confirm("确定停用这个账号的申请资料？后台会保留账号与审计记录，并撤销当前 session；管理员之后可以重新启用。")) {
+      if (!window.confirm("停用后，该账号将退出登录且无法访问会员内容，之后可以重新启用。确定停用吗？")) {
         return;
       }
       if (LOCAL_MOCK_MODE) {
-        mockUsers = mockUsers.filter((user) => user.accountId !== accountId);
+        mockUsers = mockUsers.map(user => user.accountId === accountId ? { ...user, role: "blocked", status: "blocked", authzVersion: Number(user.authzVersion || 0) + 1 } : user);
         render(mockUsers);
-        userStatusEl.textContent = "本地 Mock：账号已临时停用，不会保存到线上。";
+        userStatusEl.textContent = "本地预览：账号已临时停用，不会保存到线上。";
         return;
       }
       userStatusEl.textContent = "正在停用账号...";
-      try {
-        await api("/api/admin/delete-user", {
-          method: "POST",
-          body: JSON.stringify({ accountId })
-        });
-        await loadUsers();
-      } catch (error) {
-        userStatusEl.textContent = `停用失败：${error.message || error}`;
-      }
+      await api("/api/admin/delete-user", {
+        method: "POST",
+        body: JSON.stringify({ accountId })
+      });
+      await loadWorkspace("users", true);
     }
 
     async function loadPrices() {
@@ -941,7 +893,7 @@
           updatedAt: "本地预览",
           updatedBy: "browser"
         });
-        priceStatusEl.textContent = "本地 Mock：价格已加载，保存不会写入线上。";
+        priceStatusEl.textContent = "本地预览：价格已加载，保存不会写入线上。";
         return;
       }
       priceStatusEl.textContent = "正在加载价格...";
@@ -976,7 +928,7 @@
           updatedAt: new Date().toISOString(),
           updatedBy: "browser"
         });
-        priceStatusEl.textContent = "本地 Mock：价格已临时更新，不会保存到线上。";
+        priceStatusEl.textContent = "本地预览：价格已临时更新，不会保存到线上。";
         return;
       }
       priceStatusEl.textContent = "正在保存价格...";
@@ -988,65 +940,74 @@
       priceStatusEl.textContent = "价格已保存，计算器会读取最新价格。";
     }
 
-    refreshBtn.addEventListener("click", async () => {
-      refreshBtn.disabled = true;
-      try {
-        if (activeWorkspace === "prices") await loadPrices();
-        else if (activeWorkspace === "traffic") await loadTraffic();
-        else await loadUsers();
-      } catch (error) {
-        const statusEl = activeWorkspace === "prices" ? priceStatusEl : activeWorkspace === "traffic" ? trafficStatus : userStatusEl;
-        statusEl.textContent = "加载失败：" + (error.message || error);
-      } finally {
-        refreshBtn.disabled = false;
-      }
-    });
-    reloadPricesBtn.addEventListener("click", () => loadPrices().catch((error) => {
-      priceStatusEl.textContent = "价格加载失败：" + (error.message || error);
-    }));
-    savePricesBtn.addEventListener("click", () => savePrices().catch((error) => {
-      priceStatusEl.textContent = "价格保存失败：" + (error.message || error);
-    }));
-    userSearchInput.addEventListener("input", () => renderUserRows(getFilteredUsers()));
-    roleFilter.addEventListener("change", () => renderUserRows(getFilteredUsers()));
-    trafficRange.addEventListener("change", () => loadTraffic().catch((error) => {
-      trafficStatus.textContent = "流量加载失败：" + (error.message || error);
-    }));
-    logoutBtn.addEventListener("click", async () => {
-      if (LOCAL_MOCK_MODE) {
-        userStatusEl.textContent = "本地 Mock：没有真实登录会话。";
+    refreshBtn.addEventListener("click", () => loadWorkspace(activeWorkspace, true));
+    reloadPricesBtn.addEventListener("click", () => loadWorkspace("prices", true));
+    savePricesBtn.addEventListener("click", async () => {
+      if (priceSaving || !workspaceState.prices.loaded || !priceDirty) return;
+      const inputs = [starRatioInput, ...priceRowsEl.querySelectorAll("input")];
+      if (inputs.some(input => !input.reportValidity() || input.value.trim() === "")) {
+        priceStatusEl.dataset.state = "error";
+        priceStatusEl.textContent = "请填写所有价格，比例必须大于 0，价格不能为负数。";
         return;
       }
+      priceSaving = true;
+      priceStatusEl.dataset.state = "loading";
+      updateControls();
       try {
-        await logout();
-      } catch {
-        userStatusEl.textContent = "注销失败，请重试。";
-      }
+        await savePrices();
+        priceDirty = false;
+        workspaceState.prices.updatedAt = new Date().toLocaleTimeString("zh-CN", { hour12: false });
+        priceStatusEl.dataset.state = "ready";
+      } catch (error) {
+        priceStatusEl.dataset.state = "error";
+        priceStatusEl.textContent = `保存未完成：${error.message || error}。请核对后重试。`;
+      } finally { priceSaving = false; updateControls(); }
     });
-
-    if (LOCAL_MOCK_MODE && modePill) {
-      modePill.hidden = false;
-    }
+    document.getElementById("prices-panel").addEventListener("input", event => {
+      if (!event.target.matches("input")) return;
+      priceDirty = true;
+      priceStatusEl.textContent = "有未保存的价格修改";
+      updateControls();
+    });
+    window.addEventListener("beforeunload", event => {
+      if (!priceDirty) return;
+      event.preventDefault(); event.returnValue = "";
+    });
+    userSearchInput.addEventListener("input", () => renderUserRows(getFilteredUsers()));
+    roleFilter.addEventListener("change", () => renderUserRows(getFilteredUsers()));
+    trafficRange.addEventListener("change", () => loadWorkspace("traffic", true));
+    logoutBtn.addEventListener("click", async () => {
+      if (LOCAL_MOCK_MODE) {
+        userStatusEl.textContent = "本地预览没有真实登录会话。";
+        return;
+      }
+      try { await logout(); } catch { statusFor(activeWorkspace).textContent = "注销失败，请重试。"; }
+    });
+    if (LOCAL_MOCK_MODE && modePill) modePill.hidden = false;
     initWorkspaces();
-    initPanelToggles();
 
     async function initializeAdmin() {
+      retryAuth.disabled = true;
+      authMessage.textContent = "正在确认管理员身份…";
       if (!LOCAL_MOCK_MODE) {
         const currentAccount = await getAuthMe();
         if (!currentAccount.authenticated || !currentAccount.capabilities || !currentAccount.capabilities.isAdmin) {
-          window.location.href = "Login.html?next=Admin.html";
+          authMessage.textContent = "未能确认管理员权限。请登录管理员账号，或稍后重试。";
+          authLogin.hidden = false;
+          retryAuth.hidden = false;
+          retryAuth.disabled = false;
+          document.getElementById("adminLayout").hidden = true;
           return;
         }
         currentAccountId = currentAccount.accountId;
       }
-      await Promise.all([loadUsers(), loadPrices(), loadTraffic()]);
+      authReady = true;
+      authNotice.hidden = true;
+      document.getElementById("adminLayout").hidden = false;
+      await loadWorkspace(activeWorkspace);
     }
-
-    initializeAdmin().catch((error) => {
-      userStatusEl.textContent = "没有权限或加载失败：" + (error.message || error);
-      priceStatusEl.textContent = "没有权限或加载失败：" + (error.message || error);
-      trafficStatus.textContent = "没有权限或加载失败：" + (error.message || error);
-    });
+    retryAuth.addEventListener("click", initializeAdmin);
+    void initializeAdmin();
   </script>
 </body>
 </html>
