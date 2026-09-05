@@ -12,6 +12,7 @@ const CONTEXT_CAPABILITY_RESOLVERS = new WeakMap();
 const ALLOWED_CAPABILITIES = Object.freeze([
   "canAccessRegistered",
   "canAccessPremium",
+  "canAccessSvip",
   "isAdmin"
 ]);
 const ALLOWED_CAPABILITY_SET = new Set(ALLOWED_CAPABILITIES);
@@ -135,8 +136,9 @@ function sanitizeCapabilities(value, account) {
   if (!value || typeof value !== "object") {
     throw new AuthError("AUTH_CONTEXT_INVALID", 500);
   }
-  const booleans = ["authenticated", "blocked", ...ALLOWED_CAPABILITIES];
-  if (booleans.some((name) => typeof value[name] !== "boolean")) {
+  const booleans = ["authenticated", "blocked", "canAccessRegistered", "canAccessPremium", "isAdmin"];
+  if (booleans.some((name) => typeof value[name] !== "boolean") ||
+      (value.canAccessSvip !== undefined && typeof value.canAccessSvip !== "boolean")) {
     throw new AuthError("AUTH_CONTEXT_INVALID", 500);
   }
   if (value.authenticated !== true) throw new AuthError("AUTH_CONTEXT_INVALID", 500);
@@ -156,6 +158,9 @@ function sanitizeCapabilities(value, account) {
     blocked: accountBlocked,
     canAccessRegistered: accountBlocked ? false : value.canAccessRegistered,
     canAccessPremium: accountBlocked ? false : value.canAccessPremium,
+    // Older injected resolvers may omit this newly introduced capability;
+    // omission must fail closed and never widen access for a privileged role.
+    canAccessSvip: accountBlocked ? false : (value.canAccessSvip ?? false),
     isAdmin: accountBlocked ? false : value.isAdmin
   });
 }

@@ -35,7 +35,8 @@ function capabilitiesForAccount(value) {
     role: value.role,
     blocked,
     canAccessRegistered: !blocked,
-    canAccessPremium: !blocked && (value.role === "vip" || value.role === "admin"),
+    canAccessPremium: !blocked && (value.role === "vip" || value.role === "svip" || value.role === "admin"),
+    canAccessSvip: !blocked && (value.role === "svip" || value.role === "admin"),
     isAdmin: !blocked && value.role === "admin"
   };
 }
@@ -310,6 +311,7 @@ test("canonical /api/me exposes only a masked primary email and account capabili
     role: "admin",
     canAccessRegistered: true,
     canAccessPremium: true,
+    canAccessSvip: true,
     isAdmin: true,
     profile: {
       primaryEmailMasked: "p***@example.com",
@@ -391,6 +393,30 @@ test("admin role mutation rejects non-UUID targets and unknown roles before writ
     assert.equal(response.status, 400);
   }
   assert.equal(writes, 0);
+});
+
+test("admin role mutation accepts SVIP as a non-admin role", async () => {
+  let received;
+  const handler = createAdminSetRoleHandler({
+    resolveAuthContext: contextResolver(account({ accountId: ADMIN_ID, role: "admin" })),
+    trustedOrigins: TRUSTED_ORIGIN,
+    accountRepository: {
+      async setAuthorization(input) { received = input; return { account: account({ role: "svip" }), revokedSessionCount: 0 }; }
+    }
+  });
+  const response = await handler(request("/api/admin/set-role", { accountId: TARGET_ID, role: "svip" }));
+  assert.equal(response.status, 200);
+  assert.equal(received.role, "svip");
+  assert.equal(received.status, "active");
+});
+
+test("SVIP cannot call an admin-only API", async () => {
+  const handler = createAdminSetRoleHandler({
+    resolveAuthContext: contextResolver(account({ role: "svip" })),
+    trustedOrigins: TRUSTED_ORIGIN
+  });
+  const response = await handler(request("/api/admin/set-role", { accountId: TARGET_ID, role: "vip" }));
+  assert.equal(response.status, 403);
 });
 
 test("admin cannot demote, block, or delete its own account", async () => {

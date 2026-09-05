@@ -97,6 +97,15 @@ test("migration is transactional and declares all auth and AI limit tables", () 
   assert.doesNotMatch(sqlText, /^\s*(drop|truncate)\s+/mu);
 });
 
+test("SVIP migration adds an enum role and hardens VIP request idempotency", () => {
+  const sqlText = readFileSync(join(testDirectory, "../../../database/migrations/202609050001_auth_svip.sql"), "utf8").toLowerCase();
+  assert.match(sqlText, /alter type public\.auth_account_role add value if not exists 'svip' before 'admin'/u);
+  assert.match(sqlText, /create or replace function public\.request_account_vip/u);
+  assert.match(sqlText, /request_account_vip[\s\S]*'svip'::public\.auth_account_role/u);
+  assert.match(sqlText, /security definer/u);
+  assert.match(sqlText, /revoke execute on function public\.request_account_vip/u);
+});
+
 test("migration batch readiness is durable and least-privilege in both migration paths", () => {
   const baseSql = migrationSql();
   const batchSql = migrationBatchesMigrationSql();

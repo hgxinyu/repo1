@@ -149,6 +149,12 @@
     .vip-account-badge[hidden] {
       display: none;
     }
+    .vip-account-badge[data-badge-kind="svip"] {
+      background: #f3e8ff;
+      color: #6b21a8;
+      border-color: #d8b4fe;
+      box-shadow: 0 4px 12px rgba(107, 33, 168, 0.14);
+    }
     .vip-account-badge[data-badge-kind="admin"] {
       border-color: rgba(94, 234, 212, 0.72);
       background: linear-gradient(135deg, #0f172a 0%, #164e63 52%, #0f766e 100%);
@@ -1598,7 +1604,7 @@
         if (accountName && accountName.dataset.placeholder === 'true') accountName.textContent = t('account_signed_in');
         if (accountVipBadge) accountVipBadge.textContent = accountVipBadge.dataset.badgeOverride || t('vip_badge');
         if (accountBtn && accountName && accountVipBadge && !accountVipBadge.hidden) {
-          accountBtn.setAttribute('aria-label', `${accountName.textContent} ${t('vip_badge')}`);
+          accountBtn.setAttribute('aria-label', `${accountName.textContent} ${accountVipBadge.dataset.badgeOverride || t('vip_badge')}`);
         }
         if (adminLink) adminLink.textContent = t('admin_link');
         document.querySelectorAll('[data-member-badge]').forEach((badge) => { badge.textContent = t('member_badge'); });

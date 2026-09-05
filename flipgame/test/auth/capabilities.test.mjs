@@ -3,21 +3,23 @@ import assert from "node:assert/strict";
 import { capabilitiesForAccount } from "../../netlify/functions/_shared/auth/capabilities.mjs";
 
 const cases = [
-  ["pending", true, false, false],
-  ["free", true, false, false],
-  ["vip", true, true, false],
-  ["admin", true, true, true],
-  ["blocked", false, false, false]
+  ["pending", true, false, false, false],
+  ["free", true, false, false, false],
+  ["vip", true, true, false, false],
+  ["svip", true, true, true, false],
+  ["admin", true, true, true, true],
+  ["blocked", false, false, false, false]
 ];
 
 test("role matrix is canonical and blocked wins", () => {
-  for (const [role, registered, premium, admin] of cases) {
+  for (const [role, registered, premium, svip, admin] of cases) {
     const value = capabilitiesForAccount({ role, status: "approved" });
     assert.equal(value.authenticated, true);
     assert.equal(value.role, role);
     assert.equal(value.blocked, role === "blocked");
     assert.equal(value.canAccessRegistered, registered);
     assert.equal(value.canAccessPremium, premium);
+    assert.equal(value.canAccessSvip, svip);
     assert.equal(value.isAdmin, admin);
   }
 });
@@ -57,4 +59,11 @@ test("non-active account statuses are denied even when the role is privileged", 
     assert.equal(value.canAccessPremium, false);
     assert.equal(value.isAdmin, false);
   }
+});
+
+test("SVIP is premium and SVIP-capable but never an administrator", () => {
+  const value = capabilitiesForAccount({ role: "svip", status: "active" });
+  assert.equal(value.canAccessPremium, true);
+  assert.equal(value.canAccessSvip, true);
+  assert.equal(value.isAdmin, false);
 });

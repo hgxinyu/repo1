@@ -14,6 +14,7 @@ const ANONYMOUS_CAPABILITIES = Object.freeze({
   blocked: false,
   canAccessRegistered: false,
   canAccessPremium: false,
+  canAccessSvip: false,
   isAdmin: false
 });
 

@@ -373,6 +373,24 @@ test("authorization session revocation is scoped to the configured environment a
   assert.equal(result.revokedSessionCount, 1);
 });
 
+test("authorization session revocation also covers SVIP demotion", async () => {
+  const sql = fakeTaggedSql((call) => {
+    if (/from accounts/i.test(call.text) && /for update/i.test(call.text)) return [accountRow({ role: "svip" })];
+    if (/set_account_authorization/i.test(call.text)) return [{ account_id: legacyVipAccountId }];
+    if (/update auth_sessions/i.test(call.text)) return [{ session_id: "session-svip" }];
+    if (/from accounts/i.test(call.text)) return [accountRow({ role: "vip", authz_version: 8 })];
+    throw new Error(`unexpected SQL: ${call.text}`);
+  });
+  const repository = repositoryFor(sql, { environmentId: "stage", siteId: "site-dev" });
+  const result = await repository.setAuthorization({
+    actorAccountId: thirdAccountId,
+    targetAccountId: legacyVipAccountId,
+    role: "vip",
+    status: "active"
+  });
+  assert.equal(result.revokedSessionCount, 1);
+});
+
 test("repository factory rejects a lone transaction runner instead of mixing the default SQL", () => {
   const withTransaction = async () => {
     throw new Error("must not run");

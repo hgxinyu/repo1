@@ -1,4 +1,4 @@
-const ROLES = new Set(["pending", "free", "vip", "admin", "blocked"]);
+const ROLES = new Set(["pending", "free", "vip", "svip", "admin", "blocked"]);
 
 export function normalizeRole(value) {
   const role = String(value || "").trim().toLowerCase();
@@ -17,7 +17,8 @@ export function capabilitiesForAccount(account) {
     role,
     blocked,
     canAccessRegistered: !blocked,
-    canAccessPremium: !blocked && (role === "vip" || role === "admin"),
+    canAccessPremium: !blocked && (role === "vip" || role === "svip" || role === "admin"),
+    canAccessSvip: !blocked && (role === "svip" || role === "admin"),
     isAdmin: !blocked && role === "admin"
   };
 }

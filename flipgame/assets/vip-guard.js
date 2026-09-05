@@ -32,8 +32,8 @@ function safeNext(value) {
 export async function guardVipPage(options = {}) {
   const pageName = options.pageName || "该页面";
   const next = options.next || window.location.pathname.split("/").pop() || "index.html";
-  const access = options.access === "registered" ? "registered" : "vip";
-  const badgeText = access === "registered" ? "会员" : "VIP";
+  const access = ["registered", "svip"].includes(options.access) ? options.access : "vip";
+  const badgeText = access === "registered" ? "会员" : access === "svip" ? "SVIP" : "VIP";
   const isLocalMock = isStaticMockPreview();
   if (!isLocalMock) document.body.classList.add("auth-checking");
 
@@ -93,7 +93,7 @@ export async function guardVipPage(options = {}) {
     const capabilities = auth && auth.authenticated ? auth.capabilities : null;
     const canAccess = access === "registered"
       ? Boolean(capabilities && capabilities.canAccessRegistered && !capabilities.blocked)
-      : Boolean(capabilities && capabilities.canAccessPremium && !capabilities.blocked);
+      : Boolean(capabilities && (access === "svip" ? capabilities.canAccessSvip : capabilities.canAccessPremium) && !capabilities.blocked);
     if (canAccess) {
       document.body.classList.remove("auth-checking", "auth-blocked");
       return true;
@@ -101,9 +101,9 @@ export async function guardVipPage(options = {}) {
 
     document.body.classList.remove("auth-checking");
     document.body.classList.add("auth-blocked");
-    title.textContent = auth && auth.authenticated ? (access === "registered" ? "账号不可用" : "VIP 权限未开启") : "需要登录";
+    title.textContent = auth && auth.authenticated ? (access === "registered" ? "账号不可用" : `${badgeText} 权限未开启`) : "需要登录";
     message.textContent = auth && auth.authenticated
-      ? (access === "registered" ? "你的账号当前不能访问会员页面，请联系管理员。" : "你的账号已登录，但还没有 VIP 权限。请等待管理员审核，或联系管理员开通。")
+      ? (access === "registered" ? "你的账号当前不能访问会员页面，请联系管理员。" : `你的账号已登录，但还没有 ${badgeText} 权限。请等待管理员审核，或联系管理员开通。`)
       : `${pageName} 需要登录后使用，请先登录或注册账号。`;
     actions.style.display = "flex";
     return false;

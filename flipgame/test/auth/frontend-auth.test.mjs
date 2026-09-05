@@ -279,3 +279,24 @@ test("external Neon migrations stay outside Netlify's automatic migration direct
   assert.equal(existsSync(resolve(root, "database/migrations")), false);
   assert.equal(existsSync(resolve(root, "../database/migrations/202608250001_auth_accounts.sql")), true);
 });
+
+
+test("SVIP session preserves inherited VIP access and rejects forged SVIP capability", async () => {
+  const { normalizeAuthState } = await import("../../assets/auth-session.js");
+  const state = {
+    authenticated: true, accountId: "11111111-1111-4111-8111-111111111111", role: "svip", status: "active",
+    capabilities: { authenticated: true, role: "svip", blocked: false, canAccessRegistered: true, canAccessPremium: true, canAccessSvip: true, isAdmin: false }
+  };
+  const normalized = normalizeAuthState(state);
+  assert.equal(normalized.authenticated, true);
+  assert.equal(normalized.capabilities.canAccessPremium, true);
+  assert.equal(normalized.capabilities.canAccessSvip, true);
+  assert.equal(normalized.capabilities.isAdmin, false);
+  for (const role of ["free", "pending", "vip"]) {
+    assert.equal(normalizeAuthState({ ...state, role, capabilities: { ...state.capabilities, role, canAccessPremium: role === "vip" } }).authenticated, false);
+  }
+  for (const canAccessSvip of [false, undefined, "true", 1]) {
+    assert.equal(normalizeAuthState({ ...state, capabilities: { ...state.capabilities, canAccessSvip } }).authenticated, false);
+  }
+  assert.equal(normalizeAuthState({ ...state, status: "blocked" }).authenticated, false);
+});

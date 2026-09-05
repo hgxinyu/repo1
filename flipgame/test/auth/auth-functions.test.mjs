@@ -855,6 +855,7 @@ test("session method restriction and unauthenticated response are stable", async
       blocked: false,
       canAccessRegistered: false,
       canAccessPremium: false,
+      canAccessSvip: false,
       isAdmin: false
     }
   });

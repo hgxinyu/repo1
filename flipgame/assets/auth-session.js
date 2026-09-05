@@ -168,7 +168,7 @@ function normalizedCapabilities(data) {
   const requiredBooleans = ["authenticated", "canAccessRegistered", "canAccessPremium", "isAdmin"];
   if (source.authenticated !== true || requiredBooleans.some((key) => typeof source[key] !== "boolean")) return null;
   const role = typeof source.role === "string" && source.role.trim() ? source.role.trim().toLowerCase() : "";
-  if (!["pending", "free", "vip", "admin"].includes(role)) return null;
+  if (!["pending", "free", "vip", "svip", "admin"].includes(role)) return null;
   const outerRole = typeof data.role === "string" ? data.role.trim().toLowerCase() : "";
   const status = nested
     ? (typeof data.status === "string" ? data.status.trim().toLowerCase() : "")
@@ -181,15 +181,20 @@ function normalizedCapabilities(data) {
     pending: { premium: false, admin: false },
     free: { premium: false, admin: false },
     vip: { premium: true, admin: false },
+    svip: { premium: true, admin: false },
     admin: { premium: true, admin: true }
   }[role];
   if (!source.canAccessRegistered || source.canAccessPremium !== expected.premium || source.isAdmin !== expected.admin) return null;
+  const expectedSvip = role === "svip" || role === "admin";
+  if (source.canAccessSvip !== undefined && source.canAccessSvip !== expectedSvip) return null;
+  if (role === "svip" && source.canAccessSvip !== true) return null;
   return Object.freeze({
     authenticated: true,
     role,
     blocked: false,
     canAccessRegistered: true,
     canAccessPremium: source.canAccessPremium,
+    canAccessSvip: source.canAccessSvip === true,
     isAdmin: source.isAdmin
   });
 }

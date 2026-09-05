@@ -40,6 +40,7 @@ const ACCOUNT_RETURNING_COLUMNS = `
 const SUBJECT_SERIALIZATION_SEED = 20260825;
 const EMAIL_SERIALIZATION_SEED = 20260826;
 const NEW_ACCOUNT_CONNECTOR_SCOPES = new Set(["logto"]);
+const ROLE_RANK = Object.freeze({ blocked: 0, pending: 1, free: 2, vip: 3, svip: 4, admin: 5 });
 // PostgreSQL UUID accepts both cases and does not require a particular UUID
 // version/variant. Keep the boundary strict about shape, then canonicalize
 // before comparing or passing the identifier to SQL.
@@ -194,10 +195,14 @@ function accountIdValue(value, code = "AUTH_INPUT_INVALID", status = 400) {
 
 function roleValue(value) {
   const role = text(value, "AUTH_INPUT_INVALID", 400).toLowerCase();
-  if (!["pending", "free", "vip", "admin", "blocked"].includes(role)) {
+  if (!["pending", "free", "vip", "svip", "admin", "blocked"].includes(role)) {
     throw new AuthError("AUTH_INPUT_INVALID", 400);
   }
   return role;
+}
+
+function roleRank(value) {
+  return ROLE_RANK[String(value ?? "").trim().toLowerCase()] ?? -1;
 }
 
 function statusValue(value) {
@@ -447,7 +452,7 @@ async function setAuthorizationInTransaction(transaction, rawInput, deps) {
   ));
 
   const revokedSessionCount = status === "blocked" ||
-    (String(before.role).toLowerCase() === "admin" && role !== "admin")
+    roleRank(role) < roleRank(before.role)
     ? await revokeActiveSessionsInTransaction(transaction, targetAccountId, deps)
     : 0;
   const updatedRows = await rowsFrom(query(

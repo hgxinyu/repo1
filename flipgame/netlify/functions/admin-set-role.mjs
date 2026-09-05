@@ -7,7 +7,7 @@ import {
 } from "./_shared/auth/runtime.mjs";
 import { isValidAccountId } from "./_shared/auth/account-repository.mjs";
 
-const ALLOWED_ROLES = new Set(["pending", "free", "vip", "admin", "blocked"]);
+const ALLOWED_ROLES = new Set(["pending", "free", "vip", "svip", "admin", "blocked"]);
 
 export function createAdminSetRoleHandler(overrides = {}) {
   const runtime = createAuthRuntime(overrides);

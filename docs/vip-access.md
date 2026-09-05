@@ -15,14 +15,14 @@
 ```text
 用户通过第一方登录链路建立 accounts 账号
 用户填写公会名字 / ID 名字
-系统按当前 session accountId 写入 VIP 申请；active/free 账号通过数据库受控边界转为 pending，重复申请对 pending/vip/admin 幂等
+系统按当前 session accountId 写入 VIP 申请；active/free 账号通过数据库受控边界转为 pending，重复申请对 pending/vip/svip/admin 幂等
 管理员进入 Admin.html
-管理员按 accountId 手动把账号设为 vip
+管理员按 accountId 手动把账号设为 vip 或 svip
 管理员可将目标账号审计化禁用（保留账号、迁移和审计历史）
 管理员可在 Admin.html 维护升格和觉醒使用的资质价格
 用户登录后可访问注册会员页面（包括觉醒冲榜模拟器）
 用户登录后可访问注册会员页面（包括凝魂魂力、远征积分和觉醒冲榜模拟器）
-VIP 账号可额外访问 AI玩放置
+VIP 和 SVIP 账号可额外访问 AI玩放置；SVIP 沿用现有每个 UTC 小时最多 10 次的限制
 ```
 
 ## 浏览器登录与 session
@@ -31,7 +31,7 @@ VIP 账号可额外访问 AI玩放置
 - 新链路由第一方 BFF session 绑定稳定 `accountId`；账号、角色和状态从数据库映射读取，不从客户端 email、role 或 emailVerified 推断权限。浏览器通过 `GET /api/auth/session` / `GET /api/me` 获取能力快照，异常或不完整响应一律按未认证处理。
 - 首页、会员页、VIP 页和管理后台加载时会先读取第一方 session；迁移窗口内的旧 Netlify Identity session 只能通过 `/api/auth/legacy-bridge` 服务端验证并兑换，再读取 `/api/me` 权限。
 - bridge 成功前不会把旧 Identity token 复制到 JavaScript 可读 cookie；只有服务端确认兑换成功后，才清理 `gotrue.user`、`nf_jwt` 和 `nf_refresh`。bridge session 的 idle TTL 为 14 天，absolute expiry 不得超过迁移窗口。
-- VIP 账号登录首页后，右上角账号按钮显示金色 `VIP` 标记；管理员显示独立的深色 `ADMIN` 标记；普通注册会员和待审核账号不显示角色标记。
+- VIP 账号登录首页后，右上角账号按钮显示金色 `VIP` 标记；SVIP 显示 `SVIP` 标记；管理员显示独立的深色 `ADMIN` 标记；普通注册会员和待审核账号不显示角色标记。
 - 会员页和 VIP 页在 session 恢复与权限检查完成前只显示检查状态；确认未登录后才显示登录/注册入口。静态 `file://` / `:8000` 预览才使用本地 Mock；`localhost:8888` 的 Netlify local BFF 仍执行真实认证检查。
 - 注销会先撤销当前第一方 session family、尽力撤销 Logto refresh grant、清理浏览器旧状态，再把顶层窗口导航到由 BFF 基于已验证 Logto issuer 生成的 RP-Initiated end-session URL；该 URL 只带固定 `client_id` 和固定 `LOGTO_POST_LOGOUT_REDIRECT_URI`，不接受请求中的 `next`、`Referer` 或其他跳转值。若 provider discovery 或 URL 构建不可用，本地 session 仍保持已撤销，浏览器只回退到固定 `/Login.html?auth=logged-out`。
 - Logout first revokes the first-party session family, best-effort revokes the Logto refresh grant, and clears browser legacy state, then top-level navigates to an RP-Initiated end-session URL built from the verified Logto issuer. The URL carries only the fixed `client_id` and fixed `LOGTO_POST_LOGOUT_REDIRECT_URI`; request `next`, `Referer`, and other redirect values are never accepted. If provider discovery or URL construction is unavailable, local revocation still stands and the browser falls back only to `/Login.html?auth=logged-out`.
@@ -58,22 +58,27 @@ During the migration window, a first successful Google or email-code login perfo
 
 ## 角色
 
+SVIP 需要先应用 `database/migrations/202609050001_auth_svip.sql`，再发布应用代码。迁移包含两个独立事务：先提交 enum 扩展，再执行授权函数更新；执行器不得将整个文件额外包在单一事务中。该迁移不会由 Netlify 代码发布自动应用。
+
 - `pending`：已提交申请，可访问注册会员页面，等待 VIP 审核。
 - `free`：普通注册用户，可访问注册会员页面。
 - `vip`：可访问注册会员页面和 VIP 页面。
-- `admin`：管理员角色，可访问注册会员页面、VIP 页面和管理能力。
+- `svip`：继承 VIP 页面权限，并具备未来 SVIP 内容的 `canAccessSvip` 能力；不具备管理能力。
+- `admin`：管理员角色，可访问注册会员页面、VIP / SVIP 页面和管理能力。
 - `blocked`：禁用，不可访问注册会员页面、VIP 页面或管理能力；阻断状态优先于其他角色能力。
 
-权限能力由统一角色矩阵计算：`pending`、`free`、`vip`、`admin` 的注册会员能力分别为可、可、可、可；仅 `vip` 和 `admin` 可访问 VIP 页面；仅 `admin` 具备管理能力。账号角色为 `blocked`，或账号状态不是 `active`（包括 `blocked`、`disabled`、`merged`）时，所有受保护能力均关闭。管理员身份来自 `accounts.role`，不再由 `ADMIN_EMAILS` 或客户端邮箱决定。
+权限能力由统一角色矩阵计算：`pending`、`free`、`vip`、`svip`、`admin` 的注册会员能力均为可；`vip`、`svip` 和 `admin` 可访问 VIP 页面；仅 `svip` 和 `admin` 具备 `canAccessSvip`，仅 `admin` 具备管理能力。账号角色为 `blocked`，或账号状态不是 `active`（包括 `blocked`、`disabled`、`merged`）时，所有受保护能力均关闭；资料映射不完整或 session 授权版本过期时也 fail closed。管理员身份来自 `accounts.role`，不再由 `ADMIN_EMAILS` 或客户端邮箱决定。
 
 ## API
 
 - `GET /api/auth/session`：读取当前第一方 session 的 `accountId` 与能力快照；匿名、失效或响应格式异常时，浏览器端按未认证处理。
 - `POST /api/vip-request`：提交 VIP 申请。
 - `POST /api/auth/legacy-bridge`：在迁移窗口内，用服务端验证的 immutable Netlify user ID 将旧 session 一次性兑换为第一方 `legacy_bridge` session；要求可信 Origin 和 CSRF，拒绝 email-only fallback。
-- `GET /api/me`：读取当前登录用户、注册会员状态和 VIP 权限。响应使用稳定 `accountId`，只返回 `primaryEmailMasked`，不返回完整 email。
+- `GET /api/me`：读取当前登录用户、注册会员状态、VIP 权限和未来 SVIP 内容权限（`canAccessSvip`）。响应使用稳定 `accountId`，只返回 `primaryEmailMasked`，不返回完整 email。
+- 未来 SVIP 页面可用前端 `guardVipPage({ access: "svip" })` 做体验层路由保护，同时必须由服务端 `requireCapability(context, "canAccessSvip")` 保护真实内容/API；静态资源 guard 不能承担机密内容保护。
+- 对请求处理器应使用 `requireRequestCapability(runtime, request, "canAccessSvip")`，让服务端重新解析 session/account 并 fail closed。
 - `GET /api/quality-prices`：读取升格和觉醒使用的当前资质价格；未保存后台价格时返回静态默认值。
-- `POST /api/ai-chat`：VIP 调用 AI玩放置，后端代理 DeepSeek API。VIP 每个 UTC 小时最多提问 10 次，管理员账号不受限制；计数以数据库 `(account_id, hour_start)` 原子 upsert 保存，不读取旧 email Blob bucket。
+- `POST /api/ai-chat`：VIP / SVIP 调用 AI玩放置，后端代理 DeepSeek API。VIP / SVIP 每个 UTC 小时最多提问 10 次，管理员账号不受限制；计数以数据库 `(account_id, hour_start)` 原子 upsert 保存，不读取旧 email Blob bucket。
 - `GET /api/admin/users`：管理员按 accountId 读取申请列表，带有界 limit。
 - `POST /api/admin/set-role`：管理员按 accountId 修改角色；数据库递增 `authz_version` 并写审计记录，降权或禁用时撤销目标账号的当前环境/site active sessions。
 - `POST /api/admin/delete-user`：管理员按 accountId 审计化禁用目标账号，不物理删除账号、迁移记录或审计历史；管理员不能禁用或删除自己。

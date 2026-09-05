@@ -199,6 +199,7 @@
     .mono { font-family: "SFMono-Regular", Consolas, monospace; font-size: 12px; }
     .status-line { max-width: 410px; color: var(--muted); font-size: 12px; }
     .badge { min-height: 25px; display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 999px; padding: 3px 9px; background: #fff; color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: .03em; text-transform: uppercase; }
+    .badge.svip { background:#f3e8ff; color:#6b21a8; border-color:#d8b4fe; }
     .badge.ok { border-color: rgba(24,114,83,.18); background: #edf8f2; color: var(--ok); }
     .badge.warn { border-color: rgba(201,144,56,.25); background: var(--gold-soft); color: #93631d; }
     .badge.danger { border-color: rgba(168,59,75,.18); background: var(--danger-soft); color: var(--danger); }
@@ -357,7 +358,7 @@
             <div class="panel-title">
               <span class="panel-kicker">Access control</span>
               <h2 id="users-title">会员与访问权限</h2>
-              <p>审核注册账号，并分配 VIP、待审或禁用状态。</p>
+              <p>审核注册账号，并分配 VIP、SVIP、待审或禁用状态。</p>
             </div>
           </div>
           <div class="actions">
@@ -376,7 +377,7 @@
               <div class="summary-value">0</div>
             </div>
             <div class="summary-item">
-              <div class="summary-label">VIP/Admin</div>
+              <div class="summary-label" title="VIP / SVIP / Admin">VIP 及以上</div>
               <div class="summary-value">0</div>
             </div>
           </div>
@@ -388,7 +389,9 @@
             <select class="filter-select" id="roleFilter" aria-label="按角色筛选">
               <option value="all">全部角色</option>
               <option value="pending">待审核</option>
-              <option value="vip">VIP / Admin</option>
+              <option value="vip">VIP</option>
+              <option value="svip">SVIP</option>
+              <option value="admin">Admin</option>
               <option value="blocked">已禁用</option>
             </select>
           </div>
@@ -646,7 +649,6 @@
         const userRole = String(user.role || "free").toLowerCase();
         const roleMatches = role === "all"
           || (role === "pending" && (userRole === "pending" || userRole === "free"))
-          || (role === "vip" && (userRole === "vip" || userRole === "admin"))
           || userRole === role;
       const haystack = [user.primaryEmailMasked, user.email, user.gameName, user.guild].map((value) => String(value || "").toLowerCase()).join(" ");
         return roleMatches && (!query || haystack.includes(query));
@@ -675,6 +677,7 @@
           <td data-label="操作">
             <div class="actions">
               <button data-role="vip" type="button" class="compact">VIP</button>
+              <button data-role="svip" type="button" class="compact">SVIP</button>
               <button data-role="pending" type="button" class="ghost compact">待审</button>
               <button data-role="blocked" type="button" class="danger compact">禁用</button>
               ${canDisableUser(user) ? '<button data-disable type="button" class="danger ghost compact">停用</button>' : ""}
@@ -695,7 +698,7 @@
     function renderUserSummary(users) {
       const total = users.length;
       const pending = users.filter((user) => user.role === "pending" || user.role === "free").length;
-      const vip = users.filter((user) => user.role === "vip" || user.role === "admin").length;
+      const vip = users.filter((user) => user.role === "vip" || user.role === "svip" || user.role === "admin").length;
       userSummaryEl.innerHTML = `
         <div class="summary-item">
           <div class="summary-label">账号</div>
@@ -706,7 +709,7 @@
           <div class="summary-value">${pending}</div>
         </div>
         <div class="summary-item">
-          <div class="summary-label">VIP/Admin</div>
+          <div class="summary-label" title="VIP / SVIP / Admin">VIP 及以上</div>
           <div class="summary-value">${vip}</div>
         </div>
       `;
@@ -798,6 +801,7 @@
 
     function roleStatus(role) {
       const clean = String(role || "").trim().toLowerCase();
+      if (clean === "svip") return `<span class="badge svip">SVIP</span>`;
       if (clean === "vip" || clean === "admin") return `<span class="badge ok">${escapeHtml(clean)}</span>`;
       if (clean === "blocked") return '<span class="badge danger">blocked</span>';
       if (clean === "pending") return '<span class="badge warn">pending</span>';

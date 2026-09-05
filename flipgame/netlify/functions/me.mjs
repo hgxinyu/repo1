@@ -7,6 +7,7 @@ const ANONYMOUS = Object.freeze({
   role: "anonymous",
   canAccessRegistered: false,
   canAccessPremium: false,
+  canAccessSvip: false,
   isAdmin: false,
   profile: null
 });
@@ -42,6 +43,7 @@ export function createMeHandler(overrides = {}) {
         role: capabilities.role,
         canAccessRegistered: capabilities.canAccessRegistered,
         canAccessPremium: capabilities.canAccessPremium,
+        canAccessSvip: capabilities.canAccessSvip,
         isAdmin: capabilities.isAdmin,
         profile: canonicalProfile(context.account, primaryEmailMasked)
       });

@@ -37,3 +37,11 @@ test("admin capability wins over inconsistent premium role text", async () => {
 
   assert.equal(accountBadgePresentation({ role: "vip", canAccessPremium: true, isAdmin: true }).label, "ADMIN");
 });
+
+
+test("SVIP has its own badge and admin still takes precedence", async () => {
+  const { accountBadgePresentation } = await loadBadgePresentation();
+  const capabilities = { role: "svip", canAccessPremium: true, canAccessSvip: true, isAdmin: false };
+  assert.deepEqual(accountBadgePresentation(capabilities), { visible: true, label: "SVIP", kind: "svip", ariaSuffix: "SVIP" });
+  assert.equal(accountBadgePresentation({ ...capabilities, isAdmin: true }).label, "ADMIN");
+});

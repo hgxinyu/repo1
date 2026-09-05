@@ -73,6 +73,7 @@ test("resolveAuthContext maps a valid Logto app session to accountId", async () 
       blocked: false,
       canAccessRegistered: true,
       canAccessPremium: true,
+      canAccessSvip: false,
       isAdmin: false
     }
   });
@@ -219,6 +220,35 @@ test("blocked account context carries blocked capabilities and cannot satisfy a 
 test("requireCapability returns a complete context for an allowed capability", async () => {
   const context = await resolveAuthContext({}, contextDeps());
   assert.equal(requireCapability(context, "canAccessPremium"), context);
+});
+
+test("SVIP boundary allows canonical SVIP/admin and rejects VIP/free", async () => {
+  const { capabilitiesForAccount: canonicalCapabilities } = await import("../../netlify/functions/_shared/auth/capabilities.mjs");
+  for (const role of ["svip", "admin", "vip", "free"]) {
+    const context = await resolveAuthContext({}, contextDeps({
+      findAccountByLogtoSubject: async () => ({ ...account, role }),
+      capabilitiesForAccount: canonicalCapabilities
+    }));
+    if (["svip", "admin"].includes(role)) assert.equal(requireCapability(context, "canAccessSvip"), context);
+    else assert.throws(() => requireCapability(context, "canAccessSvip"), (error) => error.code === "CAPABILITY_DENIED");
+  }
+});
+
+test("SVIP capability is denied when the resolver omits or disables it", async () => {
+  for (const canAccessSvip of [undefined, false]) {
+    const context = await resolveAuthContext({}, contextDeps({
+      findAccountByLogtoSubject: async () => ({ ...account, role: "svip" }),
+      capabilitiesForAccount: (value) => ({
+        authenticated: true, role: value.role, blocked: false,
+        canAccessRegistered: true, canAccessPremium: true, isAdmin: false,
+        ...(canAccessSvip === undefined ? {} : { canAccessSvip })
+      })
+    }));
+    assert.throws(
+      () => requireCapability(context, "canAccessSvip"),
+      (error) => error instanceof AuthError && error.code === "CAPABILITY_DENIED" && error.status === 403
+    );
+  }
 });
 
 test("requireCapability rejects a forged context without the resolver brand", () => {
