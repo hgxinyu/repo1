@@ -392,6 +392,8 @@
         max-width: calc(100vw - 32px);
       }
     }
+    .weekly-picker { min-height:56px; justify-content:flex-start; }
+    .weekly-picker button { grid-template-columns:1fr; min-width:130px; max-width:260px; overflow-wrap:anywhere; }
   </style>
   <link rel="stylesheet" href="assets/home-nav.css">
   <script src="assets/home-navigation.js" defer></script>
@@ -531,6 +533,8 @@
   </div>
 
   <script type="module">
+    import { api as guideApi, pageBlob, preview as guidePreview } from './assets/guide-client.js';
+    import { publishedWeeklyGuides, weeklyEdition } from './assets/weekly-guides.mjs';
     import { currentWeeklyGuideOpenMode, localizedCurrentGuideImageList, localizedGuideImageList, localizedGuidePickerItems } from './assets/guide-image-routing.mjs';
 
     (function () {
@@ -952,50 +956,69 @@
         imageOverlay.setAttribute('aria-hidden', 'false');
       }
 
-      function openWeeklyGuidePicker(card, title) {
+      let weeklySelection = 0;
+      const weeklyObjectUrls = [];
+      let dynamicWeeks = [];
+      const weeklyReady = guideApi('', {signal:AbortSignal.timeout(5000)})
+        .then(result => { dynamicWeeks = publishedWeeklyGuides(result.guides); return dynamicWeeks; })
+        .catch(() => []);
+
+      async function dynamicWeekImages(summary, coverOnly = false) {
+        const {guide} = await guideApi(`?id=${encodeURIComponent(summary.id)}`);
+        if (!guide || guide.status !== 'published' || guide.category !== 'weekly') throw new Error('Weekly guide unavailable');
+        const edition = weeklyEdition(guide,currentLang);
+        const requestedPages = coverOnly ? edition.pages.slice(0,1) : edition.pages;
+        const urls = guidePreview ? await Promise.all(requestedPages.map(async page => {
+          const url=URL.createObjectURL(await pageBlob(guide,page));weeklyObjectUrls.push(url);return url;
+        })) : requestedPages.map(page => `/api/guides?id=${encodeURIComponent(guide.id)}&asset=${encodeURIComponent(page)}`);
+        return {...edition,urls};
+      }
+
+      async function openWeeklyGuidePicker(card, title, currentOnly = false) {
         if (!imageOverlay || !overlayImages || !weeklyPicker) return;
-        const items = localizedPickerItems(card);
-        if (!items.length) return;
-        resetOverlayZoom();
-        imageOverlay.classList.add('is-fit-page', 'is-open');
-        imageOverlay.setAttribute('aria-hidden', 'false');
-        weeklyPicker.hidden = false;
-        weeklyPicker.innerHTML = '';
-
-        const buttons = items.map((item, index) => {
-          const button = document.createElement('button');
-          button.type = 'button';
-          button.setAttribute('role', 'tab');
-          button.setAttribute('aria-selected', 'false');
-          button.setAttribute('aria-label', item.label);
-          const thumbnail = document.createElement('img');
-          thumbnail.src = new URL(item.image, window.location.href).href;
-          thumbnail.alt = '';
-          const label = document.createElement('span');
-          label.textContent = item.label;
-          button.append(thumbnail, label);
-          button.addEventListener('click', () => selectItem(index));
-          weeklyPicker.appendChild(button);
-          return button;
+        const request = ++weeklySelection;
+        openImageOverlay([],title,true);
+        overlayImages.textContent = currentLang === 'en' ? 'Loading weekly guides…' : '正在加载周攻略…';
+        await weeklyReady;
+        if(request !== weeklySelection)return;
+        const items = [...dynamicWeeks.map(guide => ({guide,label:weeklyEdition(guide,currentLang).title})), ...localizedPickerItems(card)];
+        weeklyPicker.hidden = currentOnly;
+        const buttons = items.map((item,index) => {
+          const button = document.createElement('button');button.type='button';button.setAttribute('role','tab');button.setAttribute('aria-selected','false');
+          button.textContent=item.label;button.setAttribute('aria-label',item.label);
+          button.addEventListener('click',()=>selectItem(index));weeklyPicker.appendChild(button);return button;
         });
-
-        function selectItem(index) {
-          resetOverlayZoom();
-          const item = items[index];
-          overlayImages.innerHTML = '';
-          const image = document.createElement('img');
-          image.src = new URL(item.image, window.location.href).href;
-          image.alt = `${String(title || '')} · ${item.label}`;
-          overlayImages.appendChild(image);
-          buttons.forEach((button, buttonIndex) => {
-            button.setAttribute('aria-selected', String(buttonIndex === index));
-          });
+        async function selectItem(index) {
+          const selection=++weeklySelection;resetOverlayZoom();overlayImages.replaceChildren();
+          overlayImages.textContent=currentLang==='en'?'Loading…':'正在加载…';
+          buttons.forEach((button,i)=>button.setAttribute('aria-selected',String(i===index)));
+          try {
+            const item=items[index];
+            const result=item.guide ? await dynamicWeekImages(item.guide) : {urls:[item.image],title:item.label,notice:''};
+            if(selection!==weeklySelection)return;
+            overlayImages.replaceChildren();
+            if(result.notice){const note=document.createElement('p');note.textContent=result.notice;note.style.color='#fff';overlayImages.appendChild(note);}
+            result.urls.forEach((url,i)=>{const image=document.createElement('img');image.src=url;image.alt=`${result.title} · ${i+1}`;image.loading=i?'lazy':'eager';overlayImages.appendChild(image);});
+          } catch {
+            if(selection!==weeklySelection)return;
+            overlayImages.replaceChildren();const note=document.createElement('p');note.style.color='#fff';note.textContent=currentLang==='en'?'This issue is unavailable. Choose another issue or reload.':'此期暂时不可用，请选择其他期或刷新。';overlayImages.appendChild(note);
+          }
         }
+        if(items.length)await selectItem(0);
+      }
 
-        selectItem(0);
+      async function refreshWeeklyCard() {
+        await weeklyReady;
+        if(!dynamicWeeks.length)return;
+        const current=dynamicWeeks[0];const edition=weeklyEdition(current,currentLang);
+        cardWeeklyTitle.textContent=edition.title;
+        cardWeeklySub.textContent=currentLang==='en'?'Latest published weekly guide · Browse all issues':'最新已发布周攻略 · 点击查看历期集合';
+        try {const result=await dynamicWeekImages(current,true);if(result.urls[0])weeklyCurrentImg.src=result.urls[0];weeklyCurrentImg.alt=edition.title;}catch{}
+        filterGuides();
       }
 
       function closeImageOverlay() {
+        weeklySelection++;
         if (!imageOverlay || !overlayImages) return;
         imageOverlay.classList.remove('is-open');
         imageOverlay.classList.remove('is-fit-page');
@@ -1212,9 +1235,12 @@
       if (currentWeeklyGuideOpenMode(window.location.search) === 'current-only') {
         const currentWeeklyCard = document.querySelector('[data-weekly-current="true"]');
         if (currentWeeklyCard) {
-          openImageOverlay(localizedCurrentImageList(currentWeeklyCard), cardWeeklyTitle ? cardWeeklyTitle.textContent : '', true);
+          openWeeklyGuidePicker(currentWeeklyCard, cardWeeklyTitle ? cardWeeklyTitle.textContent : '', true);
         }
       }
+      refreshWeeklyCard();
+      window.addEventListener('pagehide', () => weeklyObjectUrls.forEach(url => URL.revokeObjectURL(url)));
+      window.addEventListener('pageshow', event => {if(event.persisted)location.reload();});
       enableOverlayPinchZoom();
       enableAppSwipeHome();
     })();

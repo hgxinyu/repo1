@@ -69,3 +69,8 @@
   from = "/api/admin/quality-prices"
   to = "/.netlify/functions/admin-quality-prices"
   status = 200
+
+[[redirects]]
+  from = "/api/guides"
+  to = "/.netlify/functions/guides"
+  status = 200

@@ -1158,10 +1158,10 @@
         <span class="title" id="cardDiscordTitle">放置奇兵兑换码</span>
         <span class="subtitle" id="cardDiscordSub">及时更新放置奇兵兑换码。</span>
       </a>
-      <a class="card-link" href="flipgame.html">
-        <span class="title" id="cardFlipTitle">九宫格翻牌</span>
-        <span class="subtitle" id="cardFlipSub">模拟翻牌流程，记录并计算最佳组合。</span>
-      </a>
+      <button class="card-link card-button" id="gameCard" type="button" aria-haspopup="dialog" aria-controls="gamePanel">
+        <span class="title" id="cardGameTitle">小游戏</span>
+        <span class="subtitle" id="cardGameSub">打开九宫格翻牌小游戏。</span>
+      </button>
       <button class="card-link card-button" id="calculatorCard" type="button" aria-haspopup="dialog" aria-controls="calculatorPanel">
         <span class="title" id="cardCoreTitle">放置计算器</span>
         <span class="subtitle" id="cardCoreSub">统一进入星钻交易、核心、殿堂飞升和珍宝升级。</span>
@@ -1171,17 +1171,13 @@
         <span class="subtitle" id="cardHiddenSub">集中查看各类攻略图，持续更新。</span>
       </a>
       <button class="card-link card-button" id="memberCard" type="button" aria-haspopup="dialog" aria-controls="memberPanel">
-        <span class="title"><span id="cardMemberTitle">会员工具</span><span class="vip-badge member-badge" data-member-badge>会员</span></span>
+        <span class="title"><span id="cardMemberTitle">免费会员工具箱</span><span class="vip-badge member-badge" data-member-badge>会员</span></span>
         <span class="subtitle" id="cardMemberSub">集中进入凝魂魂力和远征积分。</span>
       </button>
-      <a class="card-link" href="AwakeningRushSimulator.html">
-        <span class="title"><span id="cardAwakeningTitle">觉醒冲榜模拟器</span><span class="vip-badge" data-vip-badge>VIP</span></span>
-        <span class="subtitle" id="cardAwakeningSub">VIP 专属，按绑钻数量随机模拟冲榜分数与 A- 以上保留数量。</span>
-      </a>
-      <a class="card-link" href="AIAsk.html">
-        <span class="title"><span id="cardAiTitle">AI玩放置</span><span class="vip-badge" data-vip-badge>VIP</span></span>
-        <span class="subtitle" id="cardAiSub">VIP 专属，基于公开工具文档回答凝魂、远征和权限问题。</span>
-      </a>
+      <button class="card-link card-button" id="vipCard" type="button" aria-haspopup="dialog" aria-controls="vipPanel">
+        <span class="title"><span id="cardVipTitle">VIP 工具箱</span><span class="vip-badge" data-vip-badge>VIP</span></span>
+        <span class="subtitle" id="cardVipSub">觉醒冲榜模拟器 · 新手攻略 · AI 问答</span>
+      </button>
       <button class="card-link card-button" id="recruitCard" type="button">
         <span class="title" id="cardRecruitTitle">公会招募</span>
         <span class="subtitle" id="cardRecruitSub">欢迎加入iOS 国风，点击填写信息或申请公会ID 31939。公会免费送 VIP。</span>
@@ -1287,6 +1283,24 @@
     </div>
   </section>
 
+  <section class="calculator-panel" id="gamePanel" aria-hidden="true" role="dialog" aria-labelledby="gamePanelTitle">
+    <button class="close-btn" type="button" aria-label="关闭小游戏选择" id="gameClose">×</button>
+    <header><h2 id="gamePanelTitle">小游戏</h2><p id="gamePanelDesc">选择一个小游戏开始。</p></header>
+    <div class="calculator-options">
+      <a class="calculator-option" href="flipgame.html"><strong id="gameFlipTitle">九宫格翻牌</strong><span class="option-desc" id="gameFlipDesc">模拟翻牌流程，记录并计算最佳组合。</span></a>
+    </div>
+  </section>
+
+  <section class="calculator-panel" id="vipPanel" aria-hidden="true" role="dialog" aria-labelledby="vipPanelTitle">
+    <button class="close-btn" type="button" aria-label="关闭 VIP 工具箱" id="vipClose">×</button>
+    <header><h2 id="vipPanelTitle">VIP 工具箱</h2><p id="vipPanelDesc">登录 VIP 账号后使用以下专属工具。</p></header>
+    <div class="calculator-options">
+      <a class="calculator-option" href="AIAsk.html"><strong><span id="vipAiTitle">AI玩放置</span><span class="vip-badge" data-vip-badge>VIP</span></strong><span class="option-desc" id="vipAiDesc">基于公开工具文档回答凝魂、远征和权限问题。</span></a>
+      <a class="calculator-option" href="AwakeningRushSimulator.html"><strong><span id="vipAwakeningTitle">觉醒冲榜模拟器</span><span class="vip-badge" data-vip-badge>VIP</span></strong><span class="option-desc" id="vipAwakeningDesc">按绑钻数量随机模拟冲榜分数与 A- 以上保留数量。</span></a>
+      <a class="calculator-option" href="GuideLibrary.html?id=guofeng-pro-v4"><strong><span id="vipGuideTitle">国风偷学 Pro 攻略</span><span class="vip-badge" data-vip-badge>VIP</span></strong><span class="option-desc" id="vipGuideDesc">直接阅读国风偷学 Pro 新手攻略，保留原图与水印。</span></a>
+    </div>
+  </section>
+
   <div class="logo-bottom-right">
     <span class="logo-dot"></span>
     <span class="logo-by">By</span>
@@ -1318,6 +1332,8 @@
       const navGrid = document.getElementById('navGrid');
       const cardFlipTitle = document.getElementById('cardFlipTitle');
       const cardFlipSub = document.getElementById('cardFlipSub');
+      const cardGameTitle = document.getElementById('cardGameTitle');
+      const cardGameSub = document.getElementById('cardGameSub');
       const cardCoreTitle = document.getElementById('cardCoreTitle');
       const cardCoreSub = document.getElementById('cardCoreSub');
       const cardStarTitle = document.getElementById('cardStarTitle');
@@ -1326,17 +1342,17 @@
       const cardWeeklySub = document.getElementById('cardWeeklySub');
       const cardHiddenTitle = document.getElementById('cardHiddenTitle');
       const cardHiddenSub = document.getElementById('cardHiddenSub');
-      const cardAiTitle = document.getElementById('cardAiTitle');
-      const cardAiSub = document.getElementById('cardAiSub');
       const cardDiscordTitle = document.getElementById('cardDiscordTitle');
       const cardDiscordSub = document.getElementById('cardDiscordSub');
       const cardSoulTitle = document.getElementById('cardSoulTitle');
       const cardSoulSub = document.getElementById('cardSoulSub');
       const cardExpeditionTitle = document.getElementById('cardExpeditionTitle');
       const cardExpeditionSub = document.getElementById('cardExpeditionSub');
-      const cardAwakeningTitle = document.getElementById('cardAwakeningTitle');
-      const cardAwakeningSub = document.getElementById('cardAwakeningSub');
+      const cardVipTitle = document.getElementById('cardVipTitle');
+      const cardVipSub = document.getElementById('cardVipSub');
       const calculatorCard = document.getElementById('calculatorCard');
+      const gameCard = document.getElementById('gameCard');
+      const vipCard = document.getElementById('vipCard');
       const memberCard = document.getElementById('memberCard');
       const cardMemberTitle = document.getElementById('cardMemberTitle');
       const cardMemberSub = document.getElementById('cardMemberSub');
@@ -1392,6 +1408,22 @@
       const memberClose = document.getElementById('memberClose');
       const memberPanelTitle = document.getElementById('memberPanelTitle');
       const memberPanelDesc = document.getElementById('memberPanelDesc');
+      const gamePanel = document.getElementById('gamePanel');
+      const gameClose = document.getElementById('gameClose');
+      const gamePanelTitle = document.getElementById('gamePanelTitle');
+      const gamePanelDesc = document.getElementById('gamePanelDesc');
+      const gameFlipTitle = document.getElementById('gameFlipTitle');
+      const gameFlipDesc = document.getElementById('gameFlipDesc');
+      const vipPanel = document.getElementById('vipPanel');
+      const vipClose = document.getElementById('vipClose');
+      const vipPanelTitle = document.getElementById('vipPanelTitle');
+      const vipPanelDesc = document.getElementById('vipPanelDesc');
+      const vipAiTitle = document.getElementById('vipAiTitle');
+      const vipAiDesc = document.getElementById('vipAiDesc');
+      const vipAwakeningTitle = document.getElementById('vipAwakeningTitle');
+      const vipAwakeningDesc = document.getElementById('vipAwakeningDesc');
+      const vipGuideTitle = document.getElementById('vipGuideTitle');
+      const vipGuideDesc = document.getElementById('vipGuideDesc');
 
       const I18N = {
         zh: {
@@ -1418,25 +1450,39 @@
           card_weekly_sub: '查看本周活动路线、资源投入和避坑建议。',
           card_hidden_title: '攻略图片',
           card_hidden_sub: '集中查看各类攻略图，持续更新。',
-          card_ai_title: 'AI玩放置',
-          card_ai_sub: 'VIP 专属，基于公开工具文档回答凝魂、远征和权限问题。',
           card_discord_title: '放置奇兵兑换码',
           card_discord_sub: '及时更新放置奇兵兑换码。',
           card_soul_title: '凝魂魂力计算器',
           card_soul_sub: '注册会员可用，检验属性区间并估算凝魂次数与魂力值。',
           card_expedition_title: '远征积分计算器',
           card_expedition_sub: '注册会员可用，按层数和剩余血量快速估算剩余积分（万亿）。',
-          card_awakening_title: '觉醒冲榜模拟器',
-          card_awakening_sub: 'VIP 专属，按绑钻数量随机模拟冲榜分数与 A- 以上保留数量。',
-          card_member_title: '会员工具',
+          card_game_title: '小游戏',
+          card_game_sub: '打开九宫格翻牌小游戏。',
+          card_vip_title: 'VIP 工具箱',
+          card_vip_sub: '觉醒冲榜模拟器 · 新手攻略 · AI 问答',
+          card_member_title: '免费会员工具箱',
           card_member_sub: '集中进入凝魂魂力和远征积分。',
           card_recruit_title: '公会招募',
           card_recruit_sub: '欢迎加入iOS 国风，点击填写信息或申请公会ID 31939。公会免费送 VIP。',
           calculator_panel_title: '放置计算器',
           calculator_panel_desc: '根据当前要算的问题进入对应的公开计算器。',
-          member_panel_title: '会员工具',
+          member_panel_title: '免费会员工具箱',
           member_panel_desc: '登录注册会员账号后即可使用以下两个工具。',
           member_close_label: '关闭会员工具选择',
+          game_panel_title: '小游戏',
+          game_panel_desc: '选择一个小游戏开始。',
+          game_flip_title: '九宫格翻牌',
+          game_flip_desc: '模拟翻牌流程，记录并计算最佳组合。',
+          game_close_label: '关闭小游戏选择',
+          vip_panel_title: 'VIP 工具箱',
+          vip_panel_desc: '登录 VIP 账号后使用以下专属工具。',
+          vip_ai_title: 'AI玩放置',
+          vip_ai_desc: '基于公开工具文档回答凝魂、远征和权限问题。',
+          vip_awakening_title: '觉醒冲榜模拟器',
+          vip_awakening_desc: '按绑钻数量随机模拟冲榜分数与 A- 以上保留数量。',
+          vip_guide_title: '国风偷学 Pro 攻略',
+          vip_guide_desc: '直接阅读国风偷学 Pro 新手攻略，保留原图与水印。',
+          vip_close_label: '关闭 VIP 工具箱',
           calculator_star_title: '星钻交易计算器',
           calculator_star_desc: '按星钻数量和交易比例，换算金额与赠送额度。',
           calculator_core_title: '核心计算器',
@@ -1511,25 +1557,39 @@
           card_weekly_sub: 'Open this week’s event routes, resource costs, and pitfalls.',
           card_hidden_title: 'Guide Images',
           card_hidden_sub: 'Browse strategy images in one place.',
-          card_ai_title: 'Play IH with AI',
-          card_ai_sub: 'VIP only. Ask questions about public tool docs, including soul, expedition, and access rules.',
           card_discord_title: 'Idle Heroes Codes',
           card_discord_sub: 'Timely updates for Idle Heroes codes.',
           card_soul_title: 'Soul Power Calculator',
           card_soul_sub: 'Registered members can use it to check stat ranges and estimate soul perfection count and soul power.',
           card_expedition_title: 'Star Expedition Score Calculator',
           card_expedition_sub: 'Registered members can estimate remaining score by floor and remaining HP (trillion).',
-          card_awakening_title: 'Awakening Gala Simulator',
-          card_awakening_sub: 'VIP members can use it to simulate score and kept A-+ copies from bound diamonds.',
-          card_member_title: 'Member Tools',
+          card_game_title: 'Mini Games',
+          card_game_sub: 'Open the 3x3 flip-card mini game.',
+          card_vip_title: 'VIP Toolbox',
+          card_vip_sub: 'Awakening Gala Simulator · Beginner Guides · AI Q&A',
+          card_member_title: 'Free Member Toolbox',
           card_member_sub: 'Open Soul Power and Star Expedition Score tools.',
           card_recruit_title: 'Guild Recruitment',
           card_recruit_sub: 'Join iOS Aurora. Submit your info or apply to Guild ID 31939. Guild members get VIP for free.',
           calculator_panel_title: 'Idle Calculator',
           calculator_panel_desc: 'Open the public calculator that matches your resource question.',
-          member_panel_title: 'Member Tools',
+          member_panel_title: 'Free Member Toolbox',
           member_panel_desc: 'Sign in with a registered member account to use these two tools.',
           member_close_label: 'Close member tools chooser',
+          game_panel_title: 'Mini Games',
+          game_panel_desc: 'Choose a mini game to begin.',
+          game_flip_title: '3x3 Flip Cards',
+          game_flip_desc: 'Simulate flips, track cards, and compute the best line.',
+          game_close_label: 'Close mini game chooser',
+          vip_panel_title: 'VIP Toolbox',
+          vip_panel_desc: 'Sign in with a VIP account to use these exclusive tools.',
+          vip_ai_title: 'Play IH with AI',
+          vip_ai_desc: 'Ask questions about public tool docs, including soul, expedition, and access rules.',
+          vip_awakening_title: 'Awakening Gala Simulator',
+          vip_awakening_desc: 'Simulate score and kept A-+ copies from bound diamonds.',
+          vip_guide_title: 'Guofeng Pro Guides',
+          vip_guide_desc: 'Read the Guofeng Pro beginner guide with original images and watermarks.',
+          vip_close_label: 'Close VIP toolbox',
           calculator_star_title: 'Star Diamond Trade Calculator',
           calculator_star_desc: 'Convert star diamonds, trading ratio, amount, and bonus value.',
           calculator_core_title: 'Core Calculator',
@@ -1612,6 +1672,8 @@
         if (navGrid) navGrid.setAttribute('aria-label', t('nav_label'));
         if (cardFlipTitle) cardFlipTitle.textContent = t('card_flip_title');
         if (cardFlipSub) cardFlipSub.textContent = t('card_flip_sub');
+        if (cardGameTitle) cardGameTitle.textContent = t('card_game_title');
+        if (cardGameSub) cardGameSub.textContent = t('card_game_sub');
         if (cardCoreTitle) cardCoreTitle.textContent = t('card_core_title');
         if (cardCoreSub) cardCoreSub.textContent = t('card_core_sub');
         if (cardStarTitle) cardStarTitle.textContent = t('card_star_title');
@@ -1620,16 +1682,14 @@
         if (cardWeeklySub) cardWeeklySub.textContent = t('card_weekly_sub');
         if (cardHiddenTitle) cardHiddenTitle.textContent = t('card_hidden_title');
         if (cardHiddenSub) cardHiddenSub.textContent = t('card_hidden_sub');
-        if (cardAiTitle) cardAiTitle.textContent = t('card_ai_title');
-        if (cardAiSub) cardAiSub.textContent = t('card_ai_sub');
         if (cardDiscordTitle) cardDiscordTitle.textContent = t('card_discord_title');
         if (cardDiscordSub) cardDiscordSub.textContent = t('card_discord_sub');
         if (cardSoulTitle) cardSoulTitle.textContent = t('card_soul_title');
         if (cardSoulSub) cardSoulSub.textContent = t('card_soul_sub');
         if (cardExpeditionTitle) cardExpeditionTitle.textContent = t('card_expedition_title');
         if (cardExpeditionSub) cardExpeditionSub.textContent = t('card_expedition_sub');
-        if (cardAwakeningTitle) cardAwakeningTitle.textContent = t('card_awakening_title');
-        if (cardAwakeningSub) cardAwakeningSub.textContent = t('card_awakening_sub');
+        if (cardVipTitle) cardVipTitle.textContent = t('card_vip_title');
+        if (cardVipSub) cardVipSub.textContent = t('card_vip_sub');
         if (cardMemberTitle) cardMemberTitle.textContent = t('card_member_title');
         if (cardMemberSub) cardMemberSub.textContent = t('card_member_sub');
         if (cardRecruitTitle) cardRecruitTitle.textContent = t('card_recruit_title');
@@ -1652,6 +1712,20 @@
         if (memberPanelTitle) memberPanelTitle.textContent = t('member_panel_title');
         if (memberPanelDesc) memberPanelDesc.textContent = t('member_panel_desc');
         if (memberClose) memberClose.setAttribute('aria-label', t('member_close_label'));
+        if (gamePanelTitle) gamePanelTitle.textContent = t('game_panel_title');
+        if (gamePanelDesc) gamePanelDesc.textContent = t('game_panel_desc');
+        if (gameFlipTitle) gameFlipTitle.textContent = t('game_flip_title');
+        if (gameFlipDesc) gameFlipDesc.textContent = t('game_flip_desc');
+        if (gameClose) gameClose.setAttribute('aria-label', t('game_close_label'));
+        if (vipPanelTitle) vipPanelTitle.textContent = t('vip_panel_title');
+        if (vipPanelDesc) vipPanelDesc.textContent = t('vip_panel_desc');
+        if (vipAiTitle) vipAiTitle.textContent = t('vip_ai_title');
+        if (vipAiDesc) vipAiDesc.textContent = t('vip_ai_desc');
+        if (vipAwakeningTitle) vipAwakeningTitle.textContent = t('vip_awakening_title');
+        if (vipAwakeningDesc) vipAwakeningDesc.textContent = t('vip_awakening_desc');
+        if (vipGuideTitle) vipGuideTitle.textContent = t('vip_guide_title');
+        if (vipGuideDesc) vipGuideDesc.textContent = t('vip_guide_desc');
+        if (vipClose) vipClose.setAttribute('aria-label', t('vip_close_label'));
         if (feedbackToggleText) feedbackToggleText.textContent = t('feedback_toggle');
         if (feedbackTitle) feedbackTitle.textContent = t('feedback_title');
         if (feedbackDesc) feedbackDesc.textContent = t('feedback_desc');
@@ -1721,6 +1795,18 @@
           if (firstOption) firstOption.focus();
         }
       }
+      function setGamePanel(open) {
+        gamePanel.style.display = open ? 'flex' : 'none';
+        gamePanel.setAttribute('aria-hidden', open ? 'false' : 'true');
+        if (open) gamePanel.querySelector('.calculator-option').focus();
+        else if (gamePanel.contains(document.activeElement)) gameCard.focus();
+      }
+      function setVipPanel(open) {
+        vipPanel.style.display = open ? 'flex' : 'none';
+        vipPanel.setAttribute('aria-hidden', open ? 'false' : 'true');
+        if (open) vipPanel.querySelector('.calculator-option').focus();
+        else if (vipPanel.contains(document.activeElement)) vipCard.focus();
+      }
 
       toggle.addEventListener('click', () => {
         const isHidden = panel.getAttribute('aria-hidden') !== 'false';
@@ -1732,6 +1818,8 @@
         setPanel(false);
         setRecruitPanel(false);
         setMemberPanel(false);
+        setGamePanel(false);
+        setVipPanel(false);
         setCalculatorPanel(true);
       });
       calculatorClose.addEventListener('click', () => setCalculatorPanel(false));
@@ -1742,25 +1830,43 @@
         setPanel(false);
         setRecruitPanel(false);
         setCalculatorPanel(false);
+        setGamePanel(false);
+        setVipPanel(false);
         setMemberPanel(true);
       });
       memberClose.addEventListener('click', () => setMemberPanel(false));
       memberPanel.querySelectorAll('.calculator-option').forEach((option) => {
         option.addEventListener('click', () => setMemberPanel(false));
       });
+      gameCard.addEventListener('click', () => {
+        setPanel(false); setRecruitPanel(false); setCalculatorPanel(false); setMemberPanel(false); setVipPanel(false); setGamePanel(true);
+      });
+      gameClose.addEventListener('click', () => setGamePanel(false));
+      gamePanel.querySelectorAll('.calculator-option').forEach((option) => option.addEventListener('click', () => setGamePanel(false)));
+      vipCard.addEventListener('click', () => {
+        setPanel(false); setRecruitPanel(false); setCalculatorPanel(false); setMemberPanel(false); setGamePanel(false); setVipPanel(true);
+      });
+      vipClose.addEventListener('click', () => setVipPanel(false));
+      vipPanel.querySelectorAll('.calculator-option').forEach((option) => option.addEventListener('click', () => setVipPanel(false)));
       window.addEventListener('pageshow', () => {
         setCalculatorPanel(false);
         setMemberPanel(false);
+        setGamePanel(false);
+        setVipPanel(false);
       });
       document.addEventListener('pointerdown', (event) => {
         const calculatorOpen = calculatorPanel.getAttribute('aria-hidden') === 'false';
         const memberOpen = memberPanel.getAttribute('aria-hidden') === 'false';
+        const gameOpen = gamePanel.getAttribute('aria-hidden') === 'false';
+        const vipOpen = vipPanel.getAttribute('aria-hidden') === 'false';
         if (calculatorOpen && !calculatorPanel.contains(event.target) && !calculatorCard.contains(event.target)) {
           setCalculatorPanel(false);
         }
         if (memberOpen && !memberPanel.contains(event.target) && !memberCard.contains(event.target)) {
           setMemberPanel(false);
         }
+        if (gameOpen && !gamePanel.contains(event.target) && !gameCard.contains(event.target)) setGamePanel(false);
+        if (vipOpen && !vipPanel.contains(event.target) && !vipCard.contains(event.target)) setVipPanel(false);
       });
       recruitCard.addEventListener('click', () => {
         setPanel(false);
@@ -1795,6 +1901,8 @@
           const recruitOpen = recruitPanel.getAttribute('aria-hidden') === 'false';
           const calculatorOpen = calculatorPanel.getAttribute('aria-hidden') === 'false';
           const memberOpen = memberPanel.getAttribute('aria-hidden') === 'false';
+          const gameOpen = gamePanel.getAttribute('aria-hidden') === 'false';
+          const vipOpen = vipPanel.getAttribute('aria-hidden') === 'false';
           if (feedbackOpen && !panel.contains(target) && !toggle.contains(target)) {
             setPanel(false);
           }
@@ -1807,6 +1915,8 @@
           if (memberOpen && !memberPanel.contains(target) && !memberCard.contains(target)) {
             setMemberPanel(false);
           }
+          if (gameOpen && !gamePanel.contains(target) && !gameCard.contains(target)) setGamePanel(false);
+          if (vipOpen && !vipPanel.contains(target) && !vipCard.contains(target)) setVipPanel(false);
         });
       }
 
@@ -1816,6 +1926,8 @@
           setRecruitPanel(false);
           setCalculatorPanel(false);
           setMemberPanel(false);
+          setGamePanel(false);
+          setVipPanel(false);
         }
       });
 
@@ -2081,5 +2193,6 @@
       if (adminLink) adminLink.style.display = "none";
     });
   </script>
+  <script type="module" src="assets/weekly-home.js"></script>
 </body>
 </html>

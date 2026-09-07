@@ -264,9 +264,9 @@ test("admin and protected-page contracts use account capabilities, not legacy Id
   assert.match(awakening, /Register\.html\?next=AwakeningRushSimulator\.html/);
 
   const index = read("index.html");
-  assert.match(index, /cardAwakeningTitle[^\n]*data-vip-badge/);
-  assert.doesNotMatch(index.slice(index.indexOf('<section class="member-panel"'), index.indexOf('<div class="logo-bottom-right"')), /AwakeningRushSimulator/);
-  assert.match(index, /card_awakening_sub:\s*['"]VIP members/);
+  assert.match(index, /vipAwakeningTitle[^\n]*data-vip-badge/);
+  assert.doesNotMatch(index.match(/<section class="member-panel" id="memberPanel"[\s\S]*?<\/section>/)[0], /AwakeningRushSimulator/);
+  assert.match(index, /vip_panel_desc:[^\n]*VIP/);
 
   const docs = read("../docs/vip-access.md");
   assert.doesNotMatch(docs, /Registration\s*=\s*Open|Autoconfirm\s*=\s*Off|旧迁移注册页|email allowlist/);

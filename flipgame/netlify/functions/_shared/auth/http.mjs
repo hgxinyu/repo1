@@ -18,6 +18,8 @@ const DEFAULT_ALLOWED_PATHS = new Set([
   "/DestinyCalculator.html",
   "/Login.html",
   "/Register.html",
+  "/GuideLibrary.html",
+  "/GuideAdmin.html",
   "/Admin.html"
 ]);
 

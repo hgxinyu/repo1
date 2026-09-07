@@ -13,3 +13,6 @@ flipgame/node_modules/
 
 # Local Neon CLI project/branch selection
 flipgame/.neon
+
+# Private guide import pages; never publish as static files
+output/guide-import/

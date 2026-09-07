@@ -1,0 +1,88 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>攻略发布 · ShineGame</title><link rel="stylesheet" href="assets/guide-library.css"></head><body>
+<header><a class="brand" href="Admin.html">ShineGame · <span data-zh="攻略发布" data-en="Guide publishing">攻略发布</span></a><div class="row"><a href="Admin.html" data-zh="管理后台" data-en="Admin"></a></div></header>
+<main class="shell"><h1 data-zh="发布攻略" data-en="Publish a guide"></h1><p class="muted" data-zh="上传原图，选择阅读权限。发布后直接显示在攻略库，无需重新部署网站。" data-en="Upload original images and choose access. Published guides appear immediately without redeploying the site."></p><div id="notice" class="notice" role="status"></div>
+<div id="workspace" hidden><form id="form" class="form-card"><h2 id="editorTitle" data-zh="新建攻略" data-en="New guide"></h2><label for="title" data-zh="攻略标题" data-en="Guide title"></label><input id="title" required maxlength="160" placeholder="国风偷学 · Pro 版本攻略"><label for="titleEn" data-zh="英文标题（选填）" data-en="English title (optional)"></label><input id="titleEn" maxlength="160"><label for="category" data-zh="分类与阅读权限" data-en="Category and access"></label><select id="category"><option value="public" data-zh="普通攻略 · 所有人可看" data-en="Public guide · Everyone"></option><option value="weekly" data-zh="周活动攻略 · 所有人可看" data-en="Weekly guide · Everyone"></option><option value="vip" data-zh="VIP 攻略 · VIP / SVIP / 管理员" data-en="VIP guide · VIP / SVIP / Admin"></option></select>
+<p class="hint" data-zh="中英文图片分别上传，每种语言最多 100 张，每张不超过 3 MB。新选图片按文件名追加，可调整顺序。至少提供一种语言。" data-en="Upload Chinese and English images separately, up to 100 pages per language and 3 MB each. Selected images are appended in filename order. At least one language is required."></p>
+<section><label for="files" data-zh="中文版图片" data-en="Chinese images"></label><input id="files" type="file" accept="image/png,image/jpeg,image/webp" multiple><ol id="fileList" class="page-editor"></ol></section>
+<section><label for="filesEn" data-zh="英文版图片（选填）" data-en="English images (optional)"></label><input id="filesEn" type="file" accept="image/png,image/jpeg,image/webp" multiple><ol id="fileListEn" class="page-editor"></ol></section>
+<p class="hint" data-zh="没有英文图时，英文站显示中文版并提示“仅中文版”。编辑期间旧版继续可读，保存成功后统一更新，原链接不变。" data-en="Without English images, readers see the Chinese edition with a clear notice. The current edition remains available during editing; saving updates the same link."></p>
+<div id="imagePreview" class="page-frame" hidden><img id="firstImage" alt="Preview"></div><p class="hint" data-zh="PDF 请先导出分页图片再上传。本次 Pro 攻略已准备好 21 张分页原版图。" data-en="Export PDF pages as images before uploading. The Pro guide has been prepared as 21 original-layout pages."></p><button class="primary" id="submit" data-zh="上传并发布" data-en="Upload and publish"></button><button type="button" id="cancel" hidden data-zh="取消编辑" data-en="Cancel editing"></button><p id="uploadStatus" role="status" style="margin:16px 0 0"></p></form>
+<h2 data-zh="攻略管理" data-en="Manage guides"></h2><p class="hint" data-zh="点击编辑可修改标题、分类、中英文图片及页序。下架后停止读者访问。" data-en="Edit titles, category, language editions and page order. Unpublishing stops reader access."></p><div id="list" class="admin-list"></div></div></main>
+<script type="module">
+import {getAuthMe} from './assets/auth-session.js';
+import {api,post,preview,t,titleOf,categoryName,translate,pageBlob} from './assets/guide-client.js';
+translate();
+document.title=t('攻略发布 · ShineGame','Guide publishing · ShineGame');
+const $=id=>document.getElementById(id);
+let editing=null, busy=false, editions={zh:[],en:[]}, previewURL, previewVersion=0;
+const errorText=e=>e.message||t('操作失败，请重试。','Request failed. Please retry.');
+function closePreview(){previewVersion++;if(previewURL)URL.revokeObjectURL(previewURL);$('imagePreview').hidden=true;}
+function resetEditor(){editing=null;editions={zh:[],en:[]};$('form').reset();closePreview();$('editorTitle').textContent=t('新建攻略','New guide');$('submit').textContent=t('上传并发布','Upload and publish');$('cancel').hidden=true;renderPages();}
+function renderPages(){
+ for(const lang of ['zh','en']){
+  const list=$(lang==='zh'?'fileList':'fileListEn');list.replaceChildren();
+  editions[lang].forEach((entry,index)=>{
+   const li=document.createElement('li'),name=document.createElement('span');
+   name.textContent=entry.file?entry.file.name:`${t('现有图片','Existing page')} ${index+1}`;
+   const row=document.createElement('div');row.className='row';
+   const action=(label,run,disabled=false)=>{const button=document.createElement('button');button.type='button';button.textContent=label;button.disabled=busy||disabled;button.onclick=run;row.append(button);};
+   action(t('预览','Preview'),async()=>{closePreview();const version=previewVersion;try{const blob=entry.file||await pageBlob(editing,entry.asset,true);if(version!==previewVersion)return;previewURL=URL.createObjectURL(blob);$('firstImage').src=previewURL;$('imagePreview').hidden=false;}catch(e){$('uploadStatus').textContent=errorText(e);}});
+   action(t('上移','Up'),()=>{[editions[lang][index-1],editions[lang][index]]=[entry,editions[lang][index-1]];renderPages();},index===0);
+   action(t('下移','Down'),()=>{[editions[lang][index+1],editions[lang][index]]=[entry,editions[lang][index+1]];renderPages();},index===editions[lang].length-1);
+   action(t('移除','Remove'),()=>{editions[lang].splice(index,1);renderPages();});li.append(name,row);list.append(li);
+  });
+ }
+}
+for(const [input,lang] of [['files','zh'],['filesEn','en']]){
+ $(input).onchange=()=>{
+  const files=[...$(input).files].sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true}));
+  if(editions[lang].length+files.length>100||files.some(f=>f.size>3*1024*1024||!['image/png','image/jpeg','image/webp'].includes(f.type))){$('uploadStatus').textContent=t('每种语言最多 100 张 PNG/JPG/WebP，每张不超过 3 MB。','Up to 100 PNG/JPG/WebP images per language, at most 3 MB each.');$(input).value='';return;}
+  editions[lang].push(...files.map(file=>({file})));$(input).value='';renderPages();
+ };
+}
+$('cancel').onclick=()=>{if(!busy){resetEditor();$('uploadStatus').textContent='';}};
+async function openEditor(id){
+ const {guide}=await api(`?id=${id}&admin=1`);resetEditor();editing=guide;
+ $('title').value=guide.title;$('titleEn').value=guide.titleEn||'';$('category').value=guide.category;
+ editions={zh:guide.pages.map(asset=>({asset})),en:(guide.pagesEn||[]).map(asset=>({asset}))};
+ $('editorTitle').textContent=t('编辑攻略','Edit guide');$('submit').textContent=t('保存并发布修改','Save and publish changes');$('cancel').hidden=false;$('uploadStatus').textContent='';renderPages();$('form').scrollIntoView({behavior:'smooth'});$('title').focus();
+}
+async function refresh(){
+ const {guides}=await api('?admin=1');$('list').replaceChildren();
+ if(!guides.length)$('list').textContent=t('还没有攻略。','No guides yet.');
+ for(const guide of guides){
+  const item=document.createElement('article');item.className='admin-item';
+  const heading=document.createElement('strong');heading.textContent=titleOf(guide);
+  const detail=document.createElement('p');detail.className='muted';detail.textContent=`${categoryName(guide.category)} · ${guide.status==='published'?t('已发布','Published'):t('草稿','Draft')} · 中文 ${guide.pageCount} / English ${guide.pageCountEn||0}`;
+  const row=document.createElement('div');row.className='row';
+  const edit=document.createElement('button');edit.type='button';edit.textContent=t('编辑','Edit');edit.onclick=async()=>{if(busy)return;try{await openEditor(guide.id);}catch(e){$('notice').textContent=errorText(e);}};row.append(edit);
+  if(guide.status==='published'){const view=document.createElement('a');view.className='button';view.href=`GuideLibrary.html?id=${encodeURIComponent(guide.id)}`;view.textContent=t('查看','View');row.append(view);}
+  if(guide.status==='published'||guide.pageCount||guide.pageCountEn){
+   const button=document.createElement('button');button.type='button';button.textContent=guide.status==='published'?t('下架','Unpublish'):t('重新发布','Republish');
+   button.onclick=async()=>{if(busy)return;button.disabled=true;try{if(guide.status==='published')await post(`?id=${guide.id}`,{action:'unpublish'});else{const {guide:full}=await api(`?id=${guide.id}&admin=1`);await post(`?id=${guide.id}`,{action:'publish',pages:full.pages,pagesEn:full.pagesEn||[]});}await refresh();}catch(e){$('notice').textContent=errorText(e);button.disabled=false;}};row.append(button);
+  }
+  item.append(heading,detail,row);$('list').append(item);
+ }
+}
+$('form').onsubmit=async event=>{
+ event.preventDefault();if(busy)return;
+ if(!editions.zh.length&&!editions.en.length){$('uploadStatus').textContent=t('请至少提供一种语言的图片。','Provide images in at least one language.');return;}
+ busy=true;const controls=[...$('form').querySelectorAll('input,select,button')];controls.forEach(el=>el.disabled=true);
+ try{
+  const metadata={title:$('title').value.trim(),titleEn:$('titleEn').value.trim(),category:$('category').value};
+  if(!metadata.title)throw new Error(t('请填写攻略标题。','A guide title is required.'));
+  if(!editing){const {guide}=await post('',{action:'create',...metadata});editing=guide;}
+  const guide=editing, result={zh:[],en:[]};
+  for(const lang of ['zh','en'])for(let i=0;i<editions[lang].length;i++){
+   const entry=editions[lang][i];
+   if(!entry.asset){$('uploadStatus').textContent=t(`正在上传${lang==='zh'?'中文':'英文'}图片 ${i+1} / ${editions[lang].length}…`,`Uploading ${lang==='zh'?'Chinese':'English'} page ${i+1} / ${editions[lang].length}…`);const {asset}=await api(`?id=${guide.id}&upload=1`,{method:'POST',headers:{'Content-Type':entry.file.type},body:entry.file});entry.asset=asset;}
+   result[lang].push(entry.asset);
+  }
+  await post(`?id=${guide.id}`,{action:'edit',revision:guide.revision||0,...metadata,pages:result.zh,pagesEn:result.en});
+  resetEditor();$('uploadStatus').textContent=preview?t('演示保存成功，原链接已更新。','Demo saved. The same link is updated.'):t('保存成功，原链接已更新。','Saved. The same link is updated.');await refresh();
+ }catch(e){$('uploadStatus').textContent=errorText(e)+t(' 修改未发布，旧版保持不变。',' Changes were not published; the previous edition is unchanged.');}
+ finally{busy=false;controls.forEach(el=>el.disabled=false);renderPages();}
+};
+window.addEventListener('beforeunload',event=>{if(busy){event.preventDefault();event.returnValue='';}});
+try{if(preview){$('notice').textContent=t('本地演示 · 上传仅存于当前浏览器，不调用线上管理 API。','Local demo · Uploads stay in this browser; no live admin API calls.');}else{const me=await getAuthMe();if(!me?.isAdmin)throw new Error(t('请使用管理员账号登录后发布攻略。','Sign in with an admin account to publish guides.'));}$('workspace').hidden=false;await refresh();}catch(e){$('notice').textContent=errorText(e);const a=document.createElement('a');a.href='Login.html?next=%2FGuideAdmin.html';a.textContent=t(' 登录',' Sign in');$('notice').append(a);}
+</script></body></html>

@@ -59,3 +59,7 @@ Recommended future flow:
 If `IHassistant/` is intended to become a normal subdirectory of this repo, remove its nested `.git` directory before adding it to the root repository.
 
 If `IHassistant/` should remain an independent repository, convert it into a real Git submodule instead of committing a copied nested repo.
+
+## VIP 攻略阅读入口（2026-09-07）
+
+`GuideLibrary.html?category=vip` 提供管理员上传的原版图片攻略，与 AI 玩放置同属首页 VIP 工具箱。阅读清单及每张图片由 `/api/guides` 校验 VIP/SVIP/admin 权限。后台内容存在私有 Netlify Blobs；不会自动纳入 AI 知识索引，也不会将本地知识库复制到公开目录。原 PDF 转图保留水印；维护流程见 `docs/guide-library.md`，权限见 `docs/vip-access.md`。
