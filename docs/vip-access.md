@@ -196,3 +196,5 @@ DEEPSEEK_API_KEY=DeepSeek API key
 静态 :8000 预览仅操作当前浏览器 IndexedDB，不调用真实管理 API。:8888/生产环境无模拟账号与权限回退。完整维护方式见 `docs/guide-library.md`。
 
 攻略编辑支持中文版/英文版图片。两种语言原图使用同样的 VIP guard。管理员编辑通过 revision + ETag 校验后一次更新分类与图片引用；新上传但尚未发布的图片不对读者开放，编辑失败保留旧版。
+
+攻略后台前端从 getAuthMe() 的规范化结果读取 authenticated 与 capabilities.isAdmin；不能读取不存在的顶层 isAdmin。回归测试须覆盖非静态环境下的真实管理员响应结构，不能只验收 Local Admin 演示和匿名拒绝。

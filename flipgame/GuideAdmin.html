@@ -84,5 +84,5 @@ $('form').onsubmit=async event=>{
  finally{busy=false;controls.forEach(el=>el.disabled=false);renderPages();}
 };
 window.addEventListener('beforeunload',event=>{if(busy){event.preventDefault();event.returnValue='';}});
-try{if(preview){$('notice').textContent=t('本地演示 · 上传仅存于当前浏览器，不调用线上管理 API。','Local demo · Uploads stay in this browser; no live admin API calls.');}else{const me=await getAuthMe();if(!me?.isAdmin)throw new Error(t('请使用管理员账号登录后发布攻略。','Sign in with an admin account to publish guides.'));}$('workspace').hidden=false;await refresh();}catch(e){$('notice').textContent=errorText(e);const a=document.createElement('a');a.href='Login.html?next=%2FGuideAdmin.html';a.textContent=t(' 登录',' Sign in');$('notice').append(a);}
+try{if(preview){$('notice').textContent=t('本地演示 · 上传仅存于当前浏览器，不调用线上管理 API。','Local demo · Uploads stay in this browser; no live admin API calls.');}else{const me=await getAuthMe();if(!me?.authenticated || !me.capabilities?.isAdmin)throw new Error(t('请使用管理员账号登录后发布攻略。','Sign in with an admin account to publish guides.'));}$('workspace').hidden=false;await refresh();}catch(e){$('notice').textContent=errorText(e);const a=document.createElement('a');a.href='Login.html?next=%2FGuideAdmin.html';a.textContent=t(' 登录',' Sign in');$('notice').append(a);}
 </script></body></html>
