@@ -1,0 +1,74 @@
+{
+  "zh": {
+    "eyebrow": "IDLE HEROES · 每周活动分析",
+    "title": "卡牌活动周",
+    "subtitle": "卡牌对决 × 觉醒联动",
+    "date": "9月11–17日 · 2026 · UTC",
+    "badge": "周攻略 · 参考历史记录",
+    "summaryLabel": "本周建议",
+    "summaryTitle": "优先第5关",
+    "summarySub": "绑钻留大活动",
+    "lead": "先领免费卡，最后一天再补投入",
+    "leadNote": "通关消耗参考历史记录，受抽卡与操作影响。",
+    "chips": ["每日7张 · 全周49张", "虚空腐蚀80 · 累计600绑钻"],
+    "routesTitle": "免费 / 低投入路线",
+    "routes": [
+      {"title": "每日领取", "rewards": [{"text": "49张免费卡", "icon": "card"}, {"text": "600绑钻", "icon": "csg"}], "lines": ["每天登录领7张卡。完成契约战略对应腐蚀档位任务，45–80档合计可领600绑钻。"], "tag": "先拿免费资源"},
+      {"title": "推荐 · 第5关", "rewards": [{"text": "5枚宝库币", "icon": "coin"}, {"text": "可换125万星碎", "icon": "stellar"}], "lines": ["参考历史记录：全周登录＋约5,000钻石。", "先用免费卡推进，最后一天只补实际缺口。"], "tag": "估算路线 · 不保证通关"},
+      {"title": "可选 · 第7关", "rewards": [{"text": "累计10枚宝库币", "icon": "coin"}, {"text": "可换250万星碎", "icon": "stellar"}], "lines": ["参考历史记录：全周登录＋6,000钻石＋约300–350绑钻。", "仅在缺口小且确有需求时考虑。"], "tag": "默认保留绑钻"}
+    ],
+    "exchange": "星碎兑换按商店1前4次半价计算：每次5币换125万；也可按需换时空结晶。",
+    "awakeTitle": "觉醒与积分 · 别混算",
+    "awakeRows": [
+      {"title": "觉醒盛典 · 600分", "lines": ["看库存，推荐做到300或600分档。", "按觉醒品质计分，结合现有资源选择目标。"]},
+      {"title": "星海旋律", "lines": ["每用1张卡＋3分；每次觉醒＋7分。", "基础分上限1,500，与觉醒品质积分不同。"]},
+      {"title": "付费倍率", "lines": ["累计VIP经验5,000 / 10,000 / 15,000 / 20,000，", "对应积分2 / 4 / 6 / 9倍。"]}
+    ],
+    "awakeNote": "双倍通关奖励不包括宝库币。",
+    "paidTitle": "付费路线 · 收益与风险",
+    "prerequisite": "共同前提：觉醒＋打牌，基础积分做到1,500。",
+    "paidRows": [
+      {"title": "一个超值礼包", "reward": "80币", "line": "通关17层：60＋旋律20。", "note": "手动打牌，勿用游戏内扫荡。"},
+      {"title": "两个超值礼包", "reward": "120币", "line": "通关20层：80＋旋律40。", "note": "风险较小，小概率需补卡。"}
+    ],
+    "paidNote": ["需搭配钻石及绑钻购卡。", "绑钻超值按进度买，大概率不用买满；", "不够再追加现金超值礼包。"],
+    "footer": "消耗参考历史记录 · 最终以游戏内为准",
+    "reference": "Reference · 本周公告与社区分析"
+  },
+  "en": {
+    "eyebrow": "IDLE HEROES · WEEKLY EVENT GUIDE",
+    "title": "CARD CLASH WEEK",
+    "subtitle": "Card Clash of Illusion × Soul Awakening",
+    "date": "SEP 11–17 · 2026 · UTC",
+    "badge": "WEEKLY GUIDE · HISTORICAL RECORDS",
+    "summaryLabel": "THIS WEEK",
+    "summaryTitle": "Aim for Stage 5",
+    "summarySub": "Save CSG for bigger events",
+    "lead": "Use free cards first. Top up on the final day.",
+    "leadNote": "Historical estimates; actual costs depend on card luck and play.",
+    "chips": ["7 cards daily · 49 total", "Void Corruption 80 · 600 CSG total"],
+    "routesTitle": "FREE / LOW-RESOURCE ROUTES",
+    "routes": [
+      {"title": "DAILY REWARDS", "rewards": [{"text": "49 free cards", "icon": "card"}, {"text": "600 CSG", "icon": "csg"}], "lines": ["Log in for 7 cards daily.", "Complete Contractual Strategy tiers from Void Corruption 45–80 for 600 CSG in total."], "tag": "Collect free resources first"},
+      {"title": "RECOMMENDED · STAGE 5", "rewards": [{"text": "5 Treasury Coins", "icon": "coin"}, {"text": "Redeem 1.25M Stellar", "icon": "stellar"}], "lines": ["Historical records: all daily cards + about 5,000 gems.", "Use free cards first; cover only the remaining gap on the final day."], "tag": "Estimate · Not guaranteed"},
+      {"title": "OPTIONAL · STAGE 7", "rewards": [{"text": "10 Coins in total", "icon": "coin"}, {"text": "Redeem 2.5M Stellar", "icon": "stellar"}], "lines": ["Historical records: all daily cards + 6,000 gems + about 300–350 CSG.", "Only consider if the gap is small and you need the reward."], "tag": "Default: save CSG"}
+    ],
+    "exchange": "Shop 1: first 4 purchases at half price. Each 5 Coins buys 1.25M Stellar; choose Crystals of Transcendence if needed.",
+    "awakeTitle": "AWAKENING & POINTS",
+    "awakeRows": [
+      {"title": "Soul-Awakening Gala · 600 pts", "lines": ["Choose the 300 or 600 point tier based on your stock.", "Gala points depend on awakening quality."]},
+      {"title": "Starlight Melody", "lines": ["Each card used: +3 pts. Each awakening: +7 pts.", "Base cap: 1,500. Separate from Gala quality points."]},
+      {"title": "Spending multipliers", "lines": ["5,000 / 10,000 / 15,000 / 20,000 VIP EXP unlock", "2× / 4× / 6× / 9× points."]}
+    ],
+    "awakeNote": "Double stage rewards exclude Treasury Coins.",
+    "paidTitle": "PAID ROUTES · REWARDS & RISK",
+    "prerequisite": "Both routes: cards + awakenings must reach 1,500 base points.",
+    "paidRows": [
+      {"title": "One Value Pack", "reward": "80 Coins", "line": "Clear Stage 17: 60 + Melody 20.", "note": "PLAY MANUALLY — DO NOT USE SWEEP."},
+      {"title": "Two Value Packs", "reward": "120 Coins", "line": "Clear Stage 20: 80 + Melody 40.", "note": "Low risk; a small chance of needing extra cards."}
+    ],
+    "paidNote": ["Also buy cards with gems and CSG.", "Buy CSG Value Packs as needed; you likely won't need all of them.", "If still short, add a cash Value Pack."],
+    "footer": "Costs based on historical records · In-game rules prevail",
+    "reference": "Reference · This week's announcement & community analysis"
+  }
+}

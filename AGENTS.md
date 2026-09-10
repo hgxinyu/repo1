@@ -2,6 +2,10 @@
 
 This repository contains a static tool site under `flipgame/` and an Idle Heroes knowledge base under `IHassistant/`. Follow these rules when making changes as an agent.
 
+## 攻略图默认技能
+
+在本项目制作、修改、核对或整理 Idle Heroes 攻略图（包括周活动攻略图）时，默认先读取并使用 [`skills/ih-guide-images/SKILL.md`](skills/ih-guide-images/SKILL.md)，无需用户重复点名。周活动使用其中固定 Discord 来源，普通玩法攻略只复用适用的资料、视觉和验收流程。单纯攻略网页代码调整按网页规则处理，不强制进入制图流程。用户本轮明确要求优先；“先记录／晚点改”不自动生成图片，预览不等于正式版或发布授权。
+
 ## Local Server
 
 Use this command from the repository root when a page reads CSV/JSON:

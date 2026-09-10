@@ -1,0 +1,6 @@
+interface:
+  display_name: "IH 周活动与攻略图"
+  short_description: "核对周活动资料、审阅中文文案并制作清晰的中英文攻略图，保留项目品牌规范"
+  default_prompt: "使用 $ih-guide-images 根据本周资料制作攻略图，先整理文案和待确认事项，再按本次要求制作预览或正式图。"
+policy:
+  allow_implicit_invocation: true
