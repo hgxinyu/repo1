@@ -75,7 +75,7 @@ test("the weekly event guide is the first homepage navigation card", async () =>
   }
 });
 
-test("weekly guides share one gallery card while September 4 remains current", async () => {
+test("weekly guides share one gallery card while September 11 remains current", async () => {
   const html = await readFile(new URL("../GuideImages.html", import.meta.url), "utf8");
   const browser = await chromium.launch({ channel: "chrome", headless: true });
 
@@ -86,12 +86,12 @@ test("weekly guides share one gallery card while September 4 remains current", a
     const currentCard = weeklyCards.first();
 
     assert.equal(await weeklyCards.count(), 1);
-    assert.equal(await currentCard.getAttribute("data-image"), "images/weekly-event-2026-09-04.jpg");
-    assert.equal(await currentCard.getAttribute("data-image-en"), "images/weekly-event-2026-09-04-en.jpg");
-    assert.equal(await currentCard.getAttribute("data-images"), "images/weekly-event-2026-09-04.jpg|images/weekly-event-2026-08-28.jpg");
-    assert.equal(await currentCard.getAttribute("data-images-en"), "images/weekly-event-2026-09-04-en.jpg|images/weekly-event-2026-08-28-en.jpg");
-    assert.equal(await currentCard.getAttribute("data-labels"), "9月4日|8月28日");
-    assert.equal(await currentCard.getAttribute("data-labels-en"), "Sep 4|Aug 28");
+    assert.equal(await currentCard.getAttribute("data-image"), "images/weekly-event-2026-09-11.png");
+    assert.equal(await currentCard.getAttribute("data-image-en"), "images/weekly-event-2026-09-11-en.png");
+    assert.equal(await currentCard.getAttribute("data-images"), "images/weekly-event-2026-09-11.png|images/weekly-event-2026-09-04.jpg|images/weekly-event-2026-08-28.jpg");
+    assert.equal(await currentCard.getAttribute("data-images-en"), "images/weekly-event-2026-09-11-en.png|images/weekly-event-2026-09-04-en.jpg|images/weekly-event-2026-08-28-en.jpg");
+    assert.equal(await currentCard.getAttribute("data-labels"), "9月11日|9月4日|8月28日");
+    assert.equal(await currentCard.getAttribute("data-labels-en"), "Sep 11|Sep 4|Aug 28");
     assert.equal(await page.locator("#weeklyPicker").count(), 1);
     assert.equal(await page.locator('#guideCards > a[href="images/weekly-event-2026-08-28.jpg"]').count(), 0);
   } finally {
