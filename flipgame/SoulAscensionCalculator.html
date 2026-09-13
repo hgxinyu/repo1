@@ -612,7 +612,7 @@
           best_combo_label: '最优组合',
           best_cost_label: '凝魂成本',
           best_exp_label: '总经验',
-          best_combo_desc: '达到所需总经验的最低成本吃法',
+          best_combo_desc: '以 A- 及以上为主，B+、B、B- 合计最多补 2 个，计算满足此限制的最低成本组合',
           best_cost_desc: '根据狗粮资质价格自动计算',
           best_eff_desc: '成本/所需总经验：',
           asc_cost_label: '升格成本',
@@ -665,7 +665,7 @@
           best_combo_label: 'Best Combo',
           best_cost_label: 'Soul Perfection Cost',
           best_exp_label: 'Total EXP',
-          best_combo_desc: 'Lowest cost way to reach the required EXP',
+          best_combo_desc: 'Lowest-cost combination using A- and above, with at most 2 B+, B or B- copies in total to fill the remaining EXP',
           best_cost_desc: 'Computed automatically from food prices',
           best_eff_desc: 'Cost / Required EXP:',
           asc_cost_label: 'Soul Merge Cost',
@@ -1035,15 +1035,16 @@
         const maxExp = Math.max(...options.map((item) => item.exp));
         const cap = targetExp + maxExp;
         const feedItems = [];
-        options.forEach((option, optionIndex) => {
+        const fillers = options.filter((option) => ['B-', 'B', 'B+'].includes(option.key));
+        options.filter((option) => !fillers.includes(option)).forEach((option, optionIndex) => {
           for (let copy = 0; copy < MAX_FEED_PER_TIER; copy += 1) {
             feedItems.push({ optionIndex, key: option.key, exp: option.exp, price: option.price });
           }
         });
         const dpCost = Array(cap + 1).fill(Infinity);
         const dpCount = Array(cap + 1).fill(Infinity);
-        const prevExp = Array(cap + 1).fill(-1);
-        const prevItem = Array(cap + 1).fill(-1);
+        // Immutable paths keep reconstruction consistent with bounded item usage.
+        const paths = Array(cap + 1).fill(null);
         dpCost[0] = 0;
         dpCount[0] = 0;
 
@@ -1059,24 +1060,39 @@
             if (betterCost || sameCostLessItems) {
               dpCost[nextExp] = nextCost;
               dpCount[nextExp] = nextCount;
-              prevExp[nextExp] = exp;
-              prevItem[nextExp] = i;
+              paths[nextExp] = { key: item.key, previous: paths[exp] };
             }
           }
         }
 
+        // B tiers only fill a remaining gap: at most two copies across all three tiers.
+        const supplements = [[]];
+        fillers.forEach((first, i) => {
+          supplements.push([first]);
+          fillers.slice(i).forEach((second) => supplements.push([first, second]));
+        });
         let bestExp = -1;
         let bestCost = Infinity;
         let bestCount = Infinity;
-        for (let exp = targetExp; exp <= cap; exp += 1) {
-          if (!Number.isFinite(dpCost[exp])) continue;
-          const lowerCost = dpCost[exp] < bestCost;
-          const sameCostLowerOverflow = dpCost[exp] === bestCost && exp < bestExp;
-          const sameCostOverflowLessItems = dpCost[exp] === bestCost && exp === bestExp && dpCount[exp] < bestCount;
-          if (lowerCost || sameCostLowerOverflow || sameCostOverflowLessItems) {
-            bestExp = exp;
-            bestCost = dpCost[exp];
-            bestCount = dpCount[exp];
+        let bestPath = null;
+        let bestSupplement = [];
+        for (const supplement of supplements) {
+          const extraExp = supplement.reduce((sum, item) => sum + item.exp, 0);
+          const extraCost = supplement.reduce((sum, item) => sum + item.price, 0);
+          for (let baseExp = Math.max(0, targetExp - extraExp); baseExp <= cap - extraExp; baseExp += 1) {
+            if (!Number.isFinite(dpCost[baseExp])) continue;
+            const exp = baseExp + extraExp;
+            // Every filler must be needed; do not add B copies to an already complete plan.
+            if (supplement.some((item) => exp - item.exp >= targetExp)) continue;
+            const cost = dpCost[baseExp] + extraCost;
+            const count = dpCount[baseExp] + supplement.length;
+            if (cost < bestCost || (cost === bestCost && (exp < bestExp || (exp === bestExp && count < bestCount)))) {
+              bestExp = exp;
+              bestCost = cost;
+              bestCount = count;
+              bestPath = paths[baseExp];
+              bestSupplement = supplement;
+            }
           }
         }
 
@@ -1091,12 +1107,12 @@
         }
 
         const counts = {};
-        let cursor = bestExp;
-        while (cursor > 0 && prevItem[cursor] !== -1) {
-          const item = feedItems[prevItem[cursor]];
-          counts[item.key] = (counts[item.key] || 0) + 1;
-          cursor = prevExp[cursor];
+        for (let path = bestPath; path; path = path.previous) {
+          counts[path.key] = (counts[path.key] || 0) + 1;
         }
+        bestSupplement.forEach((item) => {
+          counts[item.key] = (counts[item.key] || 0) + 1;
+        });
 
         const parts = Object.keys(counts).sort().map((key) => `${key}×${counts[key]}`);
         bestComboValue.textContent = parts.length ? parts.join(' + ') : t('dash');
