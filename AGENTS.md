@@ -1,47 +1,44 @@
 # AGENTS.md
 
-This repository contains a static tool site under `flipgame/` and an Idle Heroes knowledge base under `IHassistant/`. Follow these rules when making changes as an agent.
+ShineGame 的静态页面位于 `flipgame/`，游戏知识库位于 `IHassistant/`。默认尽量中文回复。
 
-## 攻略图默认技能
+## 协作与按需读取
 
-在本项目制作、修改、核对或整理 Idle Heroes 攻略图（包括周活动攻略图）时，默认先读取并使用 [`skills/ih-guide-images/SKILL.md`](skills/ih-guide-images/SKILL.md)，无需用户重复点名。周活动使用其中固定 Discord 来源，普通玩法攻略只复用适用的资料、视觉和验收流程。单纯攻略网页代码调整按网页规则处理，不强制进入制图流程。用户本轮明确要求优先；“先记录／晚点改”不自动生成图片，预览不等于正式版或发布授权。
+- 在本任务已授权范围内自主完成可逆工作。技能的通用步骤按任务选择；不因关键词、工具次数或“可能相关”叠加预读、规划、TDD、评审代理或设计审批。明确指定的流程与实际安全、权限、平台要求仍须遵守。
+- 本项目使用已配置的登录架构，不因通用平台技能的宽泛触发条件更换身份服务。通用技能是可选方法，不能扩大本次任务范围。
+- 当前源码说明本地实现；线上行为以当前部署及必要的只读数据为准。历史设计、计划、旧验证和记忆用于定位，不能作为已实现或已发布的证明。文档与实现冲突时说明差异。
+- 问题查询以给出有证据的结论为完成；实施任务需完成受影响行为的验证和必要修复。通过后只因新问题扩大检查，不停在未经验证的首稿。
+- 保留无关 dirty 改动。计划与进度按交接需要记录，优先复用当前任务记录；不把不同任务持续追加成一个“最新状态”。
 
-## Local Server
+只读与本任务相关的资料：
 
-Use this command from the repository root when a page reads CSV/JSON:
+| 任务 | 入口 |
+| --- | --- |
+| 网页设计、视觉小修 | `web-design-quality`；沿用现有品牌与单文件页面模式 |
+| 登录、VIP、管理员、账号查询 | [当前权限说明](docs/vip-access.md)；只读诊断见 [账号排查](docs/account-diagnostics.md) |
+| 游戏机制、计算器规则、阵容、知识维护 | [游戏工作规则](IHassistant/AGENTS.md)，再读对应机制笔记或 `docs/*-calculator.md` |
+| 打牌周活动计算、方案比较、文案整理 | [打牌活动分析模块](skills/ih-guide-images/references/card-event.md)；纯分析不进入制图步骤 |
+| 攻略图制作、修改、核对、整理 | [ih-guide-images](skills/ih-guide-images/SKILL.md)；周活动用其中固定 Discord 来源，纯网页代码调整不进入制图流程 |
+| 发布与交接 | 本文件下方规则；历史发布记录不授予本次发布权限 |
 
-```bash
-cd flipgame && python3 -m http.server 8000
-```
+## 项目与修改约定
 
-Open `http://localhost:8000/`. Do not validate `fetch()` pages through `file://`.
+- 页面是独立 HTML，无静态构建步骤；Functions 位于 `flipgame/netlify/functions/`，依赖在 `flipgame/package.json`。
+- 可见文案同步 zh/en I18N。改计算规则同步对应 `docs/`；改登录、角色、权限同步 `docs/vip-access.md`；未来 VIP 知识库权限同时同步 `docs/ihassistant.md`。
+- `IHassistant/` 不自动公开。未经明确要求，不将知识文件复制到公开或 VIP 页面。
+- 游戏知识变更运行 `node scripts/build-ih-knowledge-index.mjs`；不要把站点维护文档加入游戏索引。
+- 数据入口：魂力 `flipgame/soul_tiers.csv`；远征 `flipgame/seboss_all.json`；核心/神殿/命运 `docs/core-calculator.md` 与 `flipgame/destiny_temple_levels.json`。Excel 再生成时记录来源，浏览器最终使用 CSV/JSON。
+- 攻略发布素材位于 `flipgame/images/`，原始知识截图位于 `IHassistant/knowledge/`。Logo、水印及双语验收规格集中在制图技能和 `docs/guide-images.md`。普通攻略的品牌底注并入已有说明卡；没有说明卡才用虚空入侵图的独立圆角底注样式。
+- 不提交 `.DS_Store`、本地表格工作文件、临时截图或生成中间产物；明确用于发布的正式攻略图除外。
 
-Only the static `file://` / documented `:8000` preview may show the default `Local Admin` account and Admin Portal entry. `Admin.html` uses local mock data only in that static preview and must not call real admin APIs or write Netlify Blobs.
+## 本地环境与验证
 
-Any local BFF runtime connected to a development-branch database (for example `localhost:8888` with Neon `local-test`) must start anonymous when the browser has no valid first-party session cookie. It must never seed or automatically sign in a `Local Admin` account. An existing valid browser session may be restored normally; use a clean browser profile/incognito window for fresh-registration acceptance instead of silently deleting development accounts.
+读取 CSV/JSON 的静态页面，从仓库根运行 `cd flipgame && python3 -m http.server 8000`，访问 `http://localhost:8000/`，不要用 `file://` 验证 fetch。
 
-## Project Shape
-
-- Main app files are standalone HTML pages in `flipgame/`.
-- Static pages still have no build step.
-- Netlify Functions live under `flipgame/netlify/functions/` and use `flipgame/package.json` for deploy dependencies.
-- Shared data is stored as CSV/JSON next to the pages that load it.
-- The site supports zh/en text through per-page I18N objects.
-- Local, stage, and production app icons are selected by hostname in each page header.
-- `IHassistant/` is the Idle Heroes knowledge base. It stores game mechanics, heroes, artifacts, soulstones, monsters, bosses, modes, lineups, screenshots, and source notes.
-- `IHassistant/` is not automatically public site content. Do not copy knowledge files into `flipgame/` unless the user explicitly asks to expose them through a public or VIP page.
-
-## Editing Rules
-
-- Preserve existing single-file page patterns unless the user explicitly asks for a refactor.
-- When changing visible text, update both Chinese and English I18N entries when present.
-- When changing calculator rules, update the matching document under `docs/`.
-- When changing VIP, login, admin, or permission behavior, update `docs/vip-access.md`.
-- When adding or changing Idle Heroes game knowledge, update files under `IHassistant/knowledge/`, follow the IHassistant rules in this file, then regenerate the AI knowledge index with `node scripts/build-ih-knowledge-index.mjs`.
-- Keep facts, inferences, and unverified claims separate in knowledge files. Mark uncertain game conclusions as `待确认`.
-- When future VIP knowledge-base pages are added, keep permission behavior documented in both `docs/vip-access.md` and `docs/ihassistant.md`.
-- Do not commit `.DS_Store`, local spreadsheet working files, screenshots, or temporary generated files.
-- Be careful with the user's dirty worktree. Do not revert unrelated user edits.
+- 静态 `file://` / `:8000` 可显示 Local Admin；`Admin.html` 仅用 mock，不调用真实管理员 API 或写 Blobs。
+- `:8888` 等 BFF 使用真实认证，无有效第一方 Cookie 时必须匿名，禁止 seed 或自动登录 Local Admin。已有有效会话正常恢复；新注册验收使用干净 profile，不靠删除开发账号。
+- 项目不维护 stage。历史 stage 主机名、图标或记录不代表有隔离环境；任何配置不明的外部数据库或 Blob 写入都按生产写入处理。仅在核实独立开发资源后，才用于会写数据的测试。
+- 验证受影响的行为：文案/链接做对应检查；视觉修改看实际浏览器；权限和数据脚本检查成功与拒绝路径。静态检查不能称为视觉、登录或生产验收。确认无生产访问的本地 fixture 测试可自主运行及修复本次引入的失败。
 
 ## Git / Deploy Rules
 
@@ -60,56 +57,3 @@ Any local BFF runtime connected to a development-branch database (for example `l
 - Record the objective, completed work, remaining work, changed files, verification results, dirty-worktree boundaries, exact next steps, and actions that must not be taken.
 - Delete `HANDOFF.md` after the work is completed and the durable decisions are documented in the appropriate `README.md`, `AGENTS.md`, or `docs/` file.
 - Never store passwords, API keys, tokens, production data, or other secrets in `HANDOFF.md`.
-
-## Data Rules
-
-- Stage and production data are not separated yet. Treat data writes made while testing `stage` as writes to shared/live data unless the user confirms a separate data environment exists.
-- Soul calculator data source: `flipgame/soul_tiers.csv`.
-- Core / Temple / Destiny calculator documentation: `docs/core-calculator.md`. Calculator entry choices live in the homepage panels in `flipgame/index.html`; page implementations live in `flipgame/CoreCalculator.html` and `flipgame/DestinyCalculator.html`. Destiny Temple / Divine Power terminology lives in `IHassistant/knowledge/mechanics/destiny-temple.md`; the transcribed 1-30 level table lives in `flipgame/destiny_temple_levels.json`.
-- Expedition calculator data source: `flipgame/seboss_all.json`.
-- Guide images live under `flipgame/images/`.
-- Generated guide images should use the right-side ShineGame logo/QR treatment in the headnote. Weekly event guides are the exception: use the transparent Guofeng guild logo at `flipgame/assets/guofeng-guild-logo.png` instead of a QR code, for both Chinese and English versions. The brand footnote text is `ShineGame.Pro  ·  Idle Heroes Guide`; if the image already has a bottom note/rule/explanation card, merge the brand footnote into that existing card instead of adding a separate bottom bar. Use the standalone rounded bottom footnote style from the void invasion guide only when there is no existing footer card. In guide footnotes and compact metadata, use the middle dot `·` instead of commas as the separator.
-- Generated guide images may include a concise `Reference · <source>` line when source attribution is useful. Keep it readable and avoid long raw URLs or channel identifiers in the artwork.
-- ShineGame-created guide images use one subtle diagonal `ShineGame.Pro` watermark in the middle content area. Keep the header and QR/logo area clean, and do not add this watermark to collected external originals or direct translations derived from them. Weekly event guides use the Guofeng visual rules in `docs/guide-images.md`: on a 1200×1600 source canvas the logo is 196×196 px, the palette is ink/deep teal, jade, cinnabar, restrained antique gold, and warm off-white, and the opaque footer card must not expose the background at its rounded corners.
-- Knowledge base images and source screenshots live under `IHassistant/knowledge/`.
-- AI玩放置 / Play IH with AI knowledge index: `flipgame/netlify/functions/_shared/ih-knowledge-index.mjs`, generated from game-related Markdown files and `IHassistant/knowledge/` text data.
-- If data is regenerated from Excel, keep final browser data in CSV/JSON and document the source file.
-
-## IHassistant Rules
-
-- Knowledge base entrypoint: `IHassistant/README.md`.
-- Detailed knowledge index: `IHassistant/knowledge/README.md`.
-- Agent-specific game rules are maintained in this root `AGENTS.md`.
-- Prefer adding new source material to the most specific subfolder under `IHassistant/knowledge/`.
-- After updating game-related Markdown documents or `IHassistant/knowledge/` text data, regenerate `flipgame/netlify/functions/_shared/ih-knowledge-index.mjs` with `node scripts/build-ih-knowledge-index.mjs` so `flipgame/AIAsk.html` uses the latest project knowledge. Do not index website-maintenance docs such as login/VIP/PWA/admin/deploy docs unless they contain game rules.
-- Do not invent game mechanics or lineup conclusions. If source material is incomplete, record the gap instead of filling it by assumption.
-- Lineup advice must state the target scenario, core idea, key heroes/artifacts/positioning/speed or stat requirements, and known risks.
-- Normal battles use up to 6 heroes per team. Analyze lineup advice by 6 positions unless a mode explicitly differs.
-- PVP and PVE conclusions must be recorded separately.
-- Star expedition imprints only apply to star expedition / expedition boss contexts unless explicitly documented otherwise.
-- Star imprints, Foresight sets, Karl/Fate/Bull set bonuses, and similar expedition-only bonuses must not be applied to generic Boss, PVE, or PVP contexts by default.
-- User-provided artifact screenshots should go under `IHassistant/knowledge/artifacts/`. Record screenshot filename, full artifact name, common shorthand, major tier, minor tier, and effects when organizing artifacts.
-
-## Important Knowledge
-
-- Soul stat total: `x + y + 100*z`.
-- Soul stat average: `(x + y + 100*z) / 3`.
-- Speed may have hidden decimals in game UI, so calculators may evaluate both `z` and `z+1`.
-- X-tier soul logic is documented in `docs/soul-calculator.md`.
-- Expedition score display rules are documented in `docs/expedition-calculator.md`.
-- Registered-member pages currently include Soul Ascension and Expedition.
-- VIP pages currently include Awakening Gala Simulator and Play IH with AI; SVIP and admin inherit access.
-- Each hero can choose 5 enables. Each enable slot picks 1 of 3 column options; enable 1 and enable 4 use the same three-option group. Enable tables with `lv1`/`lv2` subrows are treated as both active by default.
-- In Boss formulas, `绝地` is enable 2 column 2 and currently uses the infused value `18%`.
-- In Boss formulas, `均衡` is enable 5 column 1 and currently uses the infused value `45%`. Current balance-effect rule: if any normal-attack or active-skill damage segment from the same hero fails to crit in that hero's turn, the 45% extra damage applies to that turn's total damage, not only to the non-crit segment.
-- Each team can carry 1 monster. Monster skills, aura, and rune upgrades can provide damage, healing, shields, or stat bonuses and must be included in lineup advice. Monster energy starts at 0, gains +10 whenever any hero casts an active skill, gains +20 at the end of each round, and casts at 100 energy.
-- Each hero can wear gear and 1 artifact. Artifact stats must be included when evaluating final hero stats.
-- Each hero can equip 1 soulstone. Soulstone affixes must be included when evaluating final speed, output, control, or survival.
-- Each hero can have awakened copy stats. Awakening affixes must be included when evaluating final stats, control hit, control immunity, survival, or output. Awakening-copy data lives in `IHassistant/knowledge/awaken copy/`.
-- Imprint infusion full configuration has 63 skill points. Each branch must be allocated top-down; each node costs 1 point except the final node, which costs 2 points. Imprint infusion data lives in `IHassistant/knowledge/imprint infusion/`.
-- Artifacts have two major tiers: `辉煌神器` and `极境辉煌神器`. Each major tier has three minor tiers: `闪烁` = 1, `光辉` = 2, `璀璨` = 3. Common shorthand: `粉三` means `辉煌神器·璀璨`; `极3` means `极境辉煌神器·璀璨`.
-- Artifact shorthand: `万灵秘境` is `镜子`; `断罪之剪` is `剪刀`.
-- Damage formulas that mention `鹿角` default to extreme/deific tier 1 antlers' per-round damage increase coefficient. Earlier formula text saying `粉鹿角` is a typo and should be understood as `极鹿角`.
-- Hero action order is determined by final speed. When a hero acts, energy below 100 uses normal attack; energy at 100 or more uses active skill.
-- Destiny Temple terminology: `飞` = Destiny Level, `神能加成` = Divine Power Bonus, `神` = Divine Power Level, and `神能等级 = 飞升等级 + 神能加成`.
-- Destiny Temple resource aliases: `神玉/蓝玉` = Aurora Gem; `星碎/蓝碎/印痕` = Stellar Shards; `意识/意识精华/树精华` = Spiritual Essence; `灵碎/黄碎/黄玉` = Scattered Spiritvein Shard; `时晶/时空结晶/紫碎` = Crystal of Transcendence.

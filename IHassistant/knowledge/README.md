@@ -27,6 +27,8 @@
 
 ## 关键机制文档
 
+- [VB9 社区实战资料](bosses/void-invasion/vb9-community-notes.md)：9-1～9-10 来源、作者配速与截图；研究归档，攻略图暂不上架，缺失条件和未复现状态已注明。
+
 - `mechanics/attributes-affixes.md`：属性词缀、基础战斗规则和通用乘区。
 - `mechanics/boss-damage-formula.md`：章鱼 Boss 伤害公式和阿斯布主 C 相关乘区。
 - `mechanics/damage-types.md`：传统伤害、真实伤害、惩戒伤害，以及哪些属性对不同伤害类型生效。

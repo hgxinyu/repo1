@@ -1,5 +1,16 @@
 # VIP 账号与权限
 
+## 当前实现核对（2026-09-12）
+
+本节记录当前 main 源码，并与本次只读生产排查相符；后续行为变更时更新。历史 onboarding 设计和分支完成记录不等于生产已实现。
+
+- 新账号认证成功后为 `free / active`。从 `Login.html` 进入时默认返回首页，当前没有强制填写公会和游戏名的跳转。
+- `Register.html` 的“保存资料并提交审核”提交到 `/api/vip-request`，由 `requestVipInTransaction` 在同一事务保存公会/游戏名并调用 `request_account_vip`，使 free 转为 pending。当前不存在独立的 `/api/account/profile` 实现。
+- 旧账号迁移保留原角色；pending 不一定代表近期主动申请过 VIP。free 和 pending 的现有会员权限相同；当前未按资料完整度关闭会员能力。
+- 首页登录后隐藏注册链接，账号菜单只有注销，没有独立 VIP 申请或补资料入口。
+- `Admin.html` 行内显示区分 free（普通会员）与 pending（待审核），但“待审核”统计和筛选包含两者。这是当前界面语义混淆，尚未修复。
+- 查询步骤与只读工具见 [账号排查](account-diagnostics.md)。不要用掩码邮箱或游戏名推定唯一身份。
+
 页面：
 
 - 注册：`flipgame/Register.html`

@@ -1,5 +1,7 @@
 # Logto Development Validation
 
+> 历史验证记录：下述“待发布”“stage 门槛”和临时 local-test 状态只描述当时实验，不代表当前生产状态，也不要求重建 stage。当前项目无 stage；登录现状见 [VIP 账号与权限](vip-access.md)，新发布按根 AGENTS.md 验收。
+
 Status: **TASK 5 LOCAL-TEST IMPLEMENTED/VALIDATED — Google legacy claim, repeat login, readiness matrix, and migration smoke passed; real email OTP delivery/callback and genuinely fresh-profile HTTPS stage acceptance remain production release gates**
 
 Final whole-branch hardening is implemented locally but does not change those release gates. Production import and finalization share one source/environment/site advisory lock: import rejects a reconciled/completed scope before any row write, while finalization locks and exactly compares the full source/snapshot migration population and validates ordered completion evidence plus the account/email/identity graph before persisting the batch in that same owner transaction. The module constructs and deep-freezes its report and completion time internally. Caller-supplied, serialized, read-only-diagnostic, or imported-file evidence is rejected. Legacy emails without explicit verified evidence are conflicts, and sensitive snapshot/review files use exclusive `0600` creation with redacted stdout.
