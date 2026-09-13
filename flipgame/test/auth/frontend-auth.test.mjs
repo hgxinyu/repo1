@@ -63,6 +63,27 @@ test("Login and Register expose only Google/email BFF entrypoints", () => {
   }
 });
 
+test("public and protected pages expose one combined account entry", () => {
+  const home = read("index.html");
+  const login = read("Login.html");
+  const guard = read("assets/vip-guard.js");
+  assert.match(home, /id="loginLink"[^>]*>登录 \/ 注册</);
+  assert.doesNotMatch(home, /id="registerLink"/);
+  assert.match(home, /id="accountProfileLink"[^>]*href="Register\.html"[^>]*display:none/);
+  assert.match(home, /auth\.capabilities\.role === "free" \? "inline-flex" : "none"/);
+  assert.match(home, />申请 VIP<\/a>/);
+  assert.match(login, /登录 \/ 注册/);
+  assert.match(guard, />登录 \/ 注册<\/a>/);
+  assert.doesNotMatch(guard, />注册账号<\/a>/);
+});
+
+test("VIP request page requires guild and game ID", () => {
+  const register = read("Register.html");
+  assert.match(register, /id="guild"[^>]*required/);
+  assert.match(register, /id="gameName"[^>]*required/);
+  assert.match(register, /填写公会名字和游戏 ID/);
+});
+
 test("public auth policy pages are bilingual and linked from login and registration", () => {
   const privacy = read("Privacy.html");
   const terms = read("Terms.html");

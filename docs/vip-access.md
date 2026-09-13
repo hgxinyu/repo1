@@ -7,7 +7,7 @@
 - 新账号认证成功后为 `free / active`。从 `Login.html` 进入时默认返回首页，当前没有强制填写公会和游戏名的跳转。
 - `Register.html` 的“保存资料并提交审核”提交到 `/api/vip-request`，由 `requestVipInTransaction` 在同一事务保存公会/游戏名并调用 `request_account_vip`，使 free 转为 pending。当前不存在独立的 `/api/account/profile` 实现。
 - 旧账号迁移保留原角色；pending 不一定代表近期主动申请过 VIP。free 和 pending 的现有会员权限相同；当前未按资料完整度关闭会员能力。
-- 首页登录后隐藏注册链接，账号菜单只有注销，没有独立 VIP 申请或补资料入口。
+- 首页与受保护页面统一显示“登录 / 注册”入口。已有账号直接登录；新邮箱完成验证码后，仍需按 Logto Hosted UI 的提示确认创建账号。登录后的账号菜单只为 `free` 普通用户显示“申请 VIP”；申请页强制填写公会和游戏 ID，提交成功后账号进入 `pending`。
 - `Admin.html` 行内显示区分 free（普通会员）与 pending（待审核），但“待审核”统计和筛选包含两者。这是当前界面语义混淆，尚未修复。
 - 查询步骤与只读工具见 [账号排查](account-diagnostics.md)。不要用掩码邮箱或游戏名推定唯一身份。
 
@@ -37,7 +37,7 @@ VIP 和 SVIP 账号可额外访问觉醒冲榜模拟器和 AI玩放置；SVIP �
 
 ## 浏览器登录与 session
 
-- 登录和注册页只提供 Google 与邮箱验证码两个 Logto Hosted UI 入口；Hosted UI 负责登录/注册区分及验证码输入，不在页面收集密码，也不宣称 Apple、QQ 或微信已可用。
+- 站内统一从 `Login.html` 进入 Google 或邮箱验证码认证；Hosted UI 负责区分已有账号与新账号并输入验证码。新邮箱需要确认继续创建账号，网站不在认证前查询或暴露邮箱是否已注册。`Register.html` 保留为认证后的资料与 VIP 申请页面，也兼容旧链接直接发起认证；页面不收集密码，也不宣称 Apple、QQ 或微信已可用。
 - 新链路由第一方 BFF session 绑定稳定 `accountId`；账号、角色和状态从数据库映射读取，不从客户端 email、role 或 emailVerified 推断权限。浏览器通过 `GET /api/auth/session` / `GET /api/me` 获取能力快照，异常或不完整响应一律按未认证处理。
 - 首页、会员页、VIP 页和管理后台加载时会先读取第一方 session；迁移窗口内的旧 Netlify Identity session 只能通过 `/api/auth/legacy-bridge` 服务端验证并兑换，再读取 `/api/me` 权限。
 - bridge 成功前不会把旧 Identity token 复制到 JavaScript 可读 cookie；只有服务端确认兑换成功后，才清理 `gotrue.user`、`nf_jwt` 和 `nf_refresh`。bridge session 的 idle TTL 为 14 天，absolute expiry 不得超过迁移窗口。

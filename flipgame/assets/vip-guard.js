@@ -65,8 +65,7 @@ export async function guardVipPage(options = {}) {
     <h2 id="authTitle">正在检查权限</h2>
     <p id="authMessage">请稍候...</p>
     <div class="auth-actions" id="authActions" style="display:none;">
-      <a class="primary" href="Login.html?next=${safeNext(next)}">登录</a>
-      <a href="Register.html?next=${safeNext(next)}">注册账号</a>
+      <a class="primary" href="Login.html?next=${safeNext(next)}">登录 / 注册</a>
       <button id="retryAuthBtn" type="button">重新检查</button>
     </div>
   `;
@@ -104,7 +103,7 @@ export async function guardVipPage(options = {}) {
     title.textContent = auth && auth.authenticated ? (access === "registered" ? "账号不可用" : `${badgeText} 权限未开启`) : "需要登录";
     message.textContent = auth && auth.authenticated
       ? (access === "registered" ? "你的账号当前不能访问会员页面，请联系管理员。" : `你的账号已登录，但还没有 ${badgeText} 权限。请等待管理员审核，或联系管理员开通。`)
-      : `${pageName} 需要登录后使用，请先登录或注册账号。`;
+      : `${pageName} 需要账号登录后使用。首次使用可在同一入口创建账号。`;
     actions.style.display = "flex";
     return false;
   }

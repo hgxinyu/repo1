@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>注册账号 · ShinE</title>
+  <title>申请 VIP · ShinE</title>
   <script>
     (function () {
       var host = (window.location.hostname || '').toLowerCase();
@@ -44,21 +44,21 @@
 <body>
   <main class="card">
     <a class="toplink" id="homeLink" href="index.html">回到主页</a>
-    <h1 id="pageTitle">注册账号</h1>
-    <p id="pageDesc">使用 Google 或邮箱验证码开始。Logto Hosted UI 会在认证流程中完成账号创建，之后可在这里补充公会和游戏 ID。</p>
+    <h1 id="pageTitle">申请 VIP</h1>
+    <p id="pageDesc">请先登录或注册账号，然后填写公会和游戏 ID 提交 VIP 申请。</p>
 
     <section id="authChoices" class="actions" aria-label="认证方式">
-      <a class="button primary" id="googleRegister" data-auth-entry="/api/auth/sign-in?connector=google" href="/api/auth/sign-in?connector=google">使用 Google 注册 / 登录</a>
-      <a class="button" id="emailRegister" data-auth-entry="/api/auth/sign-in?connector=email" href="/api/auth/sign-in?connector=email">使用邮箱验证码注册 / 登录</a>
+      <a class="button primary" id="googleRegister" data-auth-entry="/api/auth/sign-in?connector=google" href="/api/auth/sign-in?connector=google">使用 Google 继续</a>
+      <a class="button" id="emailRegister" data-auth-entry="/api/auth/sign-in?connector=email" href="/api/auth/sign-in?connector=email">使用邮箱验证码继续</a>
     </section>
 
     <form id="profileForm" hidden>
-      <p id="profileIntro">认证完成后，可以补充资料并提交 VIP 审核。</p>
+      <p id="profileIntro">填写公会名字和游戏 ID 后提交申请。</p>
       <label id="guildLabel">公会名字<input id="guild" type="text" autocomplete="organization" required /></label>
-      <label id="gameNameLabel">游戏 ID / 名字<input id="gameName" type="text" autocomplete="nickname" required /></label>
+      <label id="gameNameLabel">游戏 ID<input id="gameName" type="text" autocomplete="nickname" required /></label>
       <button class="primary" id="submitBtn" type="submit">保存资料并提交审核</button>
     </form>
-    <p class="footnote" id="pageNote">完成认证后会返回这里。当前不支持 Apple、QQ 或微信登录。</p>
+    <p class="footnote" id="pageNote">普通用户提交后将进入待审核状态。</p>
     <p class="footnote"><a id="privacyLink" href="Privacy.html">隐私政策</a> · <a id="termsLink" href="Terms.html">服务条款</a></p>
     <div class="status" id="status" role="status" aria-live="polite"></div>
   </main>
@@ -78,23 +78,23 @@
     })();
     const I18N = {
       zh: {
-        title: "注册账号 · ShinE", home: "回到主页", pageTitle: "注册账号",
-        pageDesc: "使用 Google 或邮箱验证码开始。Logto Hosted UI 会在认证流程中完成账号创建，之后可在这里补充公会和游戏 ID。",
-        google: "使用 Google 注册 / 登录", email: "使用邮箱验证码注册 / 登录",
-        intro: "认证完成后，可以补充资料并提交 VIP 审核。",
-        guild: "公会名字", gameName: "游戏 ID / 名字", submit: "保存资料并提交审核",
-        note: "完成认证后会返回这里。当前不支持 Apple、QQ 或微信登录。", privacy: "隐私政策", terms: "服务条款",
+        title: "申请 VIP · ShinE", home: "回到主页", pageTitle: "申请 VIP",
+        pageDesc: "请先登录或注册账号，然后填写公会和游戏 ID 提交 VIP 申请。",
+        google: "使用 Google 继续", email: "使用邮箱验证码继续",
+        intro: "填写公会名字和游戏 ID 后提交申请。",
+        guild: "公会名字", gameName: "游戏 ID", submit: "保存资料并提交审核",
+        note: "普通用户提交后将进入待审核状态。", privacy: "隐私政策", terms: "服务条款",
         static: "当前是静态预览，请在 Netlify local runtime 或已部署站点打开注册。",
         checking: "正在检查登录状态...", ready: "资料已保存，VIP 审核申请已提交。",
         failed: "提交失败：", notReady: "请先完成 Google 或邮箱认证。"
       },
       en: {
-        title: "Create account · ShinE", home: "Home", pageTitle: "Create account",
-        pageDesc: "Start with Google or an email verification code. Logto Hosted UI creates the account during authentication; add your guild and game ID here afterward.",
+        title: "Request VIP · ShinE", home: "Home", pageTitle: "Request VIP",
+        pageDesc: "Sign in or create an account, then enter your guild and game ID to request VIP access.",
         google: "Continue with Google", email: "Continue with email code",
-        intro: "After authentication, add profile details and request VIP access.",
-        guild: "Guild name", gameName: "Game ID / name", submit: "Save details and request review",
-        note: "You will return here after authentication. Apple, QQ, and WeChat are not available yet.", privacy: "Privacy Policy", terms: "Terms of Service",
+        intro: "Enter your guild name and game ID, then submit the request.",
+        guild: "Guild name", gameName: "Game ID", submit: "Save details and request review",
+        note: "Free users move to pending review after submitting.", privacy: "Privacy Policy", terms: "Terms of Service",
         static: "This is a static preview. Open registration in the Netlify local runtime or a deployed site.",
         checking: "Checking your login status...", ready: "Details saved and VIP review requested.",
         failed: "Submit failed: ", notReady: "Complete Google or email authentication first."
