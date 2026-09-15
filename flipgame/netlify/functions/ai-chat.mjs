@@ -9,7 +9,7 @@ import { createAiRateLimitRepository } from "./_shared/auth/ai-rate-limit.mjs";
 import { IH_KNOWLEDGE_CHUNKS } from "./_shared/ih-knowledge-index.mjs";
 
 const DEEPSEEK_URL = "https://api.deepseek.com/chat/completions";
-const DEFAULT_MODEL = "deepseek-v4-flash";
+const DEFAULT_MODEL = "deepseek-flash";
 const MAX_QUESTION_LENGTH = 1200;
 const MAX_HISTORY_TURNS = 10;
 const MAX_KNOWLEDGE_CHUNKS = 6;
