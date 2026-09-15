@@ -5,6 +5,7 @@ import {
 import {
   createSessionRepository
 } from "./_shared/auth/session-repository.mjs";
+import { readLoginLocation } from "./_shared/auth/login-metadata.mjs";
 import {
   authJson,
   authRedirect,
@@ -527,7 +528,7 @@ export function createAuthLegacyBridgeHandler(overrides = {}) {
     ((request) => verifyLegacySessionFromRequest(request, overrides));
   const nextPath = overrides.safeNextPath || safeNextPath;
 
-  return async function authLegacyBridge(request) {
+  return async function authLegacyBridge(request, netlifyContext) {
     if (request?.method !== "POST") {
       return authJson({ error: "Method not allowed" }, { status: 405, headers: { Allow: "POST" } });
     }
@@ -591,7 +592,8 @@ export function createAuthLegacyBridgeHandler(overrides = {}) {
           legacyNetlifyUserId: verified.legacyUserId,
           migrationId: migration.migrationId,
           migrationWindowEndsAt: migration.migrationWindowEndsAt,
-          authzVersion: accountVersion(account)
+          authzVersion: accountVersion(account),
+          loginLocation: readLoginLocation(netlifyContext)
         }
       });
       const consumed = bridgeResult?.consumed;
@@ -623,8 +625,8 @@ export function createAuthLegacyBridgeHandler(overrides = {}) {
   };
 }
 
-export default async function authLegacyBridge(request) {
-  return createAuthLegacyBridgeHandler()(request);
+export default async function authLegacyBridge(request, netlifyContext) {
+  return createAuthLegacyBridgeHandler()(request, netlifyContext);
 }
 
 export const config = {

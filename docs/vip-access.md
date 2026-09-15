@@ -7,7 +7,7 @@
 - 新账号认证成功后为 `free / active`。从 `Login.html` 进入时默认返回首页，当前没有强制填写公会和游戏名的跳转。
 - `Register.html` 的“保存资料并提交审核”提交到 `/api/vip-request`，由 `requestVipInTransaction` 在同一事务保存公会/游戏名并调用 `request_account_vip`，使 free 转为 pending。当前不存在独立的 `/api/account/profile` 实现。
 - 旧账号迁移保留原角色；pending 不一定代表近期主动申请过 VIP。free 和 pending 的现有会员权限相同；当前未按资料完整度关闭会员能力。
-- 首页与受保护页面统一显示“登录 / 注册”入口。已有账号直接登录；新邮箱完成验证码后，仍需按 Logto Hosted UI 的提示确认创建账号。登录后的账号菜单只为 `free` 普通用户显示“申请 VIP”；申请页强制填写公会和游戏 ID，提交成功后账号进入 `pending`。
+- 首页与受保护页面统一显示“登录 / 注册”入口。已有账号直接登录；新邮箱完成验证码后，仍需按 Logto Hosted UI 的提示确认创建账号。登录后的账号菜单只为 `free` 普通用户显示“申请 VIP”；申请页强制填写公会和游戏 ID，提交成功后账号进入 `pending`，页面随后返回主页并沿用当前第一方 session。
 - `Admin.html` 行内显示区分 free（普通会员）与 pending（待审核），但“待审核”统计和筛选包含两者。这是当前界面语义混淆，尚未修复。
 - 查询步骤与只读工具见 [账号排查](account-diagnostics.md)。不要用掩码邮箱或游戏名推定唯一身份。
 
@@ -89,7 +89,7 @@ SVIP 需要先应用 `database/migrations/202609050001_auth_svip.sql`，再发�
 - 对请求处理器应使用 `requireRequestCapability(runtime, request, "canAccessSvip")`，让服务端重新解析 session/account 并 fail closed。
 - `GET /api/quality-prices`：读取升格和觉醒使用的当前资质价格；未保存后台价格时返回静态默认值。
 - `POST /api/ai-chat`：VIP / SVIP 调用 AI玩放置，后端代理 DeepSeek API。VIP / SVIP 每个 UTC 小时最多提问 10 次，管理员账号不受限制；计数以数据库 `(account_id, hour_start)` 原子 upsert 保存，不读取旧 email Blob bucket。
-- `GET /api/admin/users`：管理员按 accountId 读取申请列表，带有界 limit。
+- `GET /api/admin/users`：管理员按 accountId 读取申请列表，带有界 limit，并返回 `lastLoginAt` 与粗粒度 `lastLoginLocation`（国家、州/省、城市）；从未登录或地点不可用时为 `null`。这些字段不通过 `/api/me` 暴露给普通用户。
 - `POST /api/admin/set-role`：管理员按 accountId 修改角色；数据库递增 `authz_version` 并写审计记录，降权或禁用时撤销目标账号的当前环境/site active sessions。
 - `POST /api/admin/delete-user`：管理员按 accountId 审计化禁用目标账号，不物理删除账号、迁移记录或审计历史；管理员不能禁用或删除自己。
 - `GET /api/admin/quality-prices`：管理员读取资质价格；响应不包含 `updatedBy` 或存储错误细节。
@@ -113,6 +113,10 @@ OAuth transaction/session/AI 限流的精确列级 INSERT/UPDATE；以及
 `migration_records` 仅可读，审计/context/merge 表、授权直接变更和 migration
 写入保持 owner-only。BFF 运行时必须通过受控的该角色上下文执行数据库请求，
 不得使用 Neon owner 作为应用运行角色；部署前应重跑 PostgreSQL role smoke。
+
+登录元数据迁移 `202609140001_account_login_metadata.sql` 必须在代码发布前按现有
+migration chain 应用；它只向 BFF 授予四个 `last_login_*` 列的更新权限，代码发布
+不会自动执行数据库迁移。
 
 旧账号按已验证邮箱认领时，事务先以不可逆的 `email_lookup_hash` 获取 advisory
 lock，再以规范化 issuer + Logto `sub` 获取第二把 advisory lock；邮箱、账号和

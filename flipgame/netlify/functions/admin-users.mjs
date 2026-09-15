@@ -17,13 +17,22 @@ function requestedLimit(request) {
 }
 
 async function publicAccount(account, accountRepository, primaryEmailMasked) {
+  const hasLoginLocation = Boolean(
+    account?.lastLoginCountry || account?.lastLoginRegion || account?.lastLoginCity
+  );
   const row = {
     accountId: account.accountId,
     role: account.role,
     status: account.status,
     authzVersion: account.authzVersion,
     guild: account.guild || "",
-    gameName: account.gameName || ""
+    gameName: account.gameName || "",
+    lastLoginAt: account.lastLoginAt ?? null,
+    lastLoginLocation: hasLoginLocation ? {
+      country: account.lastLoginCountry || null,
+      region: account.lastLoginRegion || null,
+      city: account.lastLoginCity || null
+    } : null
   };
   if (primaryEmailMasked !== undefined) {
     row.primaryEmailMasked = primaryEmailMasked;

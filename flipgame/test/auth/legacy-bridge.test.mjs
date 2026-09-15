@@ -136,7 +136,13 @@ function responseCookies(response) {
 
 test("valid immutable Netlify user ID bridges to a window-limited first-party session", async () => {
   const { deps, calls } = makeDeps();
-  const response = await createAuthLegacyBridgeHandler(deps)(request());
+  const response = await createAuthLegacyBridgeHandler(deps)(request(), {
+    geo: {
+      country: { code: "us" },
+      subdivision: { name: "California" },
+      city: "San Jose"
+    }
+  });
 
   assert.equal(response.status, 302);
   assert.equal(response.headers.get("location"), "/AIAsk.html");
@@ -164,6 +170,7 @@ test("valid immutable Netlify user ID bridges to a window-limited first-party se
   assert.equal(calls[4][1].legacyNetlifyUserId, LEGACY_USER_ID);
   assert.equal(calls[4][1].migrationId, MIGRATION_ID);
   assert.equal(calls[4][1].migrationWindowEndsAt.getTime(), MIGRATION_WINDOW_ENDS_AT.getTime());
+  assert.deepEqual(calls[4][1].loginLocation, { country: "US", region: "California", city: "San Jose" });
   assert.equal("refreshToken" in calls[4][1], false);
   assert.equal("logtoSubject" in calls[4][1], false);
 

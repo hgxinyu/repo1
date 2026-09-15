@@ -254,9 +254,39 @@ test("admin users list account records without falling back to Blob users or ema
       status: "active",
       authzVersion: 7,
       guild: "Shine",
-      gameName: "Player One"
+      gameName: "Player One",
+      lastLoginAt: null,
+      lastLoginLocation: null
     }]
   });
+});
+
+test("admin users list exposes coarse last-login metadata without raw network identifiers", async () => {
+  const admin = account({ accountId: ADMIN_ID, role: "admin", status: "active" });
+  const handler = createAdminUsersHandler({
+    resolveAuthContext: contextResolver(admin),
+    accountRepository: {
+      async listAccounts() {
+        return [account({
+          lastLoginAt: "2026-09-14T17:30:00.000Z",
+          lastLoginCountry: "US",
+          lastLoginRegion: "California",
+          lastLoginCity: "San Jose"
+        })];
+      }
+    }
+  });
+
+  const response = await handler(new Request("https://stage.example.test/api/admin/users"));
+  assert.equal(response.status, 200);
+  const user = (await responseBody(response)).users[0];
+  assert.deepEqual(user.lastLoginAt, "2026-09-14T17:30:00.000Z");
+  assert.deepEqual(user.lastLoginLocation, {
+    country: "US",
+    region: "California",
+    city: "San Jose"
+  });
+  assert.equal("ip" in user, false);
 });
 
 test("admin users list uses the batch email method without per-user lookups", async () => {

@@ -71,6 +71,7 @@
     const authChoices = document.getElementById("authChoices");
     const profileForm = document.getElementById("profileForm");
     const statusEl = document.getElementById("status");
+    const submitBtn = document.getElementById("submitBtn");
     const currentLang = (() => {
       const saved = (localStorage.getItem("flipgame_lang") || "").toLowerCase();
       if (saved === "zh" || saved === "en") return saved;
@@ -164,6 +165,7 @@
     }
     profileForm.addEventListener("submit", async (event) => {
       event.preventDefault();
+      if (submitBtn) submitBtn.disabled = true;
       statusEl.textContent = t("checking");
       try {
         const response = await authFetch("/api/vip-request", {
@@ -178,8 +180,9 @@
         if (!response.ok) throw new Error(data.error || `HTTP ${response.status}`);
         statusEl.textContent = t("ready");
         const target = safeReturnTarget();
-        if (target !== "/index.html") window.setTimeout(() => { window.location.href = target; }, 500);
+        window.setTimeout(() => { window.location.assign(target); }, 500);
       } catch (error) {
+        if (submitBtn) submitBtn.disabled = false;
         statusEl.textContent = t("failed") + (error && error.message ? error.message : String(error));
       }
     });

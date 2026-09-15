@@ -696,6 +696,104 @@ test("createAppSession gives a legacy bridge no refresh token and caps absolute 
   assert.equal(sql.calls[0].values.some((value) => value === null), true);
 });
 
+test("createAppSession records login time and coarse location in the same transaction", async () => {
+  let loginUpdate;
+  const sql = fakeTaggedSql((call) => {
+    if (/insert into auth_sessions/i.test(call.text)) {
+      return [{
+        session_id: "session-login-metadata",
+        auth_source: "logto",
+        account_id: accountId,
+        session_family_id: FAMILY_A,
+        issued_at: createdAt,
+        last_seen_at: createdAt,
+        idle_expires_at: new Date(createdAt.getTime() + 14 * 86400000),
+        absolute_expires_at: new Date(createdAt.getTime() + 30 * 86400000),
+        authz_version: 7,
+        rotation_version: 1
+      }];
+    }
+    if (/update accounts[\s\S]*last_login_at/i.test(call.text)) {
+      loginUpdate = call;
+      return [{ account_id: accountId }];
+    }
+    throw new Error(`unexpected query: ${call.text}`);
+  });
+
+  await repoFor(sql).createAppSession({
+    authSource: "logto",
+    accountId,
+    logtoSubject: "logto-user",
+    refreshToken: "provider-refresh",
+    authzVersion: 7,
+    loginLocation: { country: "US", region: "California", city: "San Jose" }
+  });
+
+  assert.ok(loginUpdate);
+  assert.match(loginUpdate.text, /set[\s\S]*last_login_at/i);
+  assert.deepEqual(loginUpdate.values, [createdAt, "US", "California", "San Jose", accountId]);
+});
+
+test("createAppSession without login metadata does not update the account", async () => {
+  const sql = fakeTaggedSql((call) => {
+    assert.match(call.text, /insert into auth_sessions/i);
+    return [{
+      session_id: "session-without-login-metadata",
+      auth_source: "logto",
+      account_id: accountId,
+      session_family_id: FAMILY_A,
+      issued_at: createdAt,
+      last_seen_at: createdAt,
+      idle_expires_at: new Date(createdAt.getTime() + 14 * 86400000),
+      absolute_expires_at: new Date(createdAt.getTime() + 30 * 86400000),
+      authz_version: 7,
+      rotation_version: 1
+    }];
+  });
+
+  await repoFor(sql).createAppSession({
+    authSource: "logto",
+    accountId,
+    logtoSubject: "logto-user",
+    refreshToken: "provider-refresh",
+    authzVersion: 7
+  });
+
+  assert.equal(sql.calls.some((call) => /update accounts/i.test(call.text)), false);
+});
+
+test("createAppSession validates the transaction adapter before recording login metadata", async () => {
+  const sql = fakeTaggedSql(() => [{
+    session_id: "session-invalid-transaction",
+    auth_source: "logto",
+    account_id: accountId,
+    session_family_id: FAMILY_A,
+    issued_at: createdAt,
+    last_seen_at: createdAt,
+    idle_expires_at: new Date(createdAt.getTime() + 14 * 86400000),
+    absolute_expires_at: new Date(createdAt.getTime() + 30 * 86400000),
+    authz_version: 7,
+    rotation_version: 1
+  }]);
+  sql.begin = () => {};
+  const repository = repoFor(sql, {
+    withTransaction: async (callback) => callback(sql)
+  });
+
+  await assert.rejects(
+    () => repository.createAppSession({
+      authSource: "logto",
+      accountId,
+      logtoSubject: "logto-user",
+      refreshToken: "provider-refresh",
+      authzVersion: 7,
+      loginLocation: { country: "US", region: "California", city: "San Jose" }
+    }),
+    (error) => error.code === "TRANSACTION_REQUIRED"
+  );
+  assert.equal(sql.calls.length, 0);
+});
+
 test("rotateSession uses FOR UPDATE plus rotation-version CAS and returns a new opaque refresh token", async () => {
   const sessionToken = SESSION_TOKEN;
   const oldRefreshToken = "old-refresh-token";

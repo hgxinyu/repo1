@@ -15,6 +15,7 @@ import {
 import {
   createLogtoClient
 } from "./_shared/auth/logto-client.mjs";
+import { readLoginLocation } from "./_shared/auth/login-metadata.mjs";
 import {
   authJson,
   authRedirect,
@@ -195,7 +196,7 @@ export function createAuthCallbackHandler(overrides = {}) {
   const accountRepository = buildDefaultAccountRepository(overrides, issuerOrTenant);
   const nextPath = overrides.safeNextPath || safeNextPath;
 
-  return async function authCallback(request) {
+  return async function authCallback(request, netlifyContext) {
     if (request?.method !== "GET") {
       return callbackError(errorWith("METHOD_NOT_ALLOWED", 405), 405, { Allow: "GET" });
     }
@@ -296,7 +297,8 @@ export function createAuthCallbackHandler(overrides = {}) {
         accountId: account.accountId,
         logtoSubject: validatedClaims.sub,
         authzVersion: accountVersion(account),
-        refreshToken
+        refreshToken,
+        loginLocation: readLoginLocation(netlifyContext)
       });
       if (!createdSession || typeof createdSession.sessionToken !== "string" || createdSession.sessionToken.length === 0) {
         throw errorWith("SESSION_CREATE_FAILED", 500);
@@ -328,8 +330,8 @@ export function createAuthCallbackHandler(overrides = {}) {
   };
 }
 
-export default async function authCallback(request) {
-  return createAuthCallbackHandler()(request);
+export default async function authCallback(request, netlifyContext) {
+  return createAuthCallbackHandler()(request, netlifyContext);
 }
 
 export const config = {

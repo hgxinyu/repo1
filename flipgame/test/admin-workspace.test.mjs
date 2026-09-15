@@ -5,7 +5,7 @@ import { resolve, extname } from 'node:path';
 import { chromium } from 'playwright';
 const root = resolve(import.meta.dirname, '..');
 const adminId = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
-const users = [{ accountId:'11111111-1111-4111-8111-111111111111', gameName:'测试玩家 Test Player', primaryEmailMasked:'t***@example.com', guild:'测试公会', role:'svip', status:'active', authzVersion:2 }, {accountId:adminId,gameName:'Admin 管理员示例长名称 Long Account Name',role:'admin',status:'active'}];
+const users = [{ accountId:'11111111-1111-4111-8111-111111111111', gameName:'测试玩家 Test Player', primaryEmailMasked:'t***@example.com', guild:'测试公会', role:'svip', status:'active', authzVersion:2, lastLoginAt:'2026-09-14T17:30:00.000Z', lastLoginLocation:{ country:'US', region:'California', city:'San Jose' } }, {accountId:adminId,gameName:'Admin 管理员示例长名称 Long Account Name',role:'admin',status:'active',lastLoginAt:null,lastLoginLocation:null}];
 const prices = JSON.parse(await readFile(resolve(root,'quality_prices.json'),'utf8'));
 async function fixture(browser, { delay = 60, failTraffic = false, failUsers = false, anonymous = false, failWrite = false } = {}) {
   const page=await browser.newPage(); const calls=[]; const errors=[]; const writes=[]; let currentUsers=structuredClone(users);
@@ -43,6 +43,8 @@ test('admin loads only the selected workspace and reuses it while preserving pri
   const {page,calls,errors}=await fixture(browser);
   await page.goto('https://admin.test/Admin.html');
   await page.locator('#userRows .account-cell').first().waitFor();
+  assert.match(await page.locator('#userRows tr').first().locator('[data-label="上次登录"]').textContent(), /San Jose/);
+  assert.match(await page.locator('#userRows tr').last().locator('[data-label="上次登录"]').textContent(), /从未登录/);
   assert.deepEqual(calls,['/api/me','/api/admin/users']);
   await page.locator('[data-workspace="prices"]').click();
   await page.locator('#priceRows input').first().waitFor();
@@ -71,6 +73,21 @@ test('admin isolates traffic errors and coalesces repeated workspace entry', asy
   assert.equal(await page.locator('#userRows .account-cell').count(),2);
   assert.deepEqual(errors,[]);
  }finally {await browser.close();}
+});
+
+test('admin last-login cells remain readable without horizontal overflow on narrow screens',async()=>{
+ const browser=await chromium.launch({channel:'chrome',headless:true});
+ try {
+  const {page,errors}=await fixture(browser);
+  await page.goto('https://admin.test/Admin.html');
+  await page.locator('#userRows .account-cell').first().waitFor();
+  for(const width of [390,320]) {
+    await page.setViewportSize({width,height:1000});
+    assert.equal(await page.locator('[data-label="上次登录"]').first().isVisible(),true);
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,`users ${width}`);
+  }
+  assert.deepEqual(errors,[]);
+ } finally {await browser.close();}
 });
 
 test('admin deep links defer other sections and failed auth never reads admin data',async()=>{

@@ -153,6 +153,21 @@ test("direct createAccount accepts injected SQL and transaction dependencies", a
   assert.equal(account.role, "free");
 });
 
+test("account repository maps nullable last-login metadata when the columns are present", async () => {
+  const sql = fakeTaggedSql(() => [accountRow({
+    last_login_at: "2026-09-14T17:30:00.000Z",
+    last_login_country: "US",
+    last_login_region: "California",
+    last_login_city: "San Jose"
+  })]);
+
+  const account = await repositoryFor(sql).findAccountById(legacyVipAccountId);
+  assert.equal(account.lastLoginAt, "2026-09-14T17:30:00.000Z");
+  assert.equal(account.lastLoginCountry, "US");
+  assert.equal(account.lastLoginRegion, "California");
+  assert.equal(account.lastLoginCity, "San Jose");
+});
+
 test("createAccount rejects privileged or blocked state before calling the fixed function", async () => {
   const sql = fakeTaggedSql(() => {
     throw new Error("invalid account state must not reach SQL");
@@ -297,7 +312,10 @@ test("VIP request updates only active accounts and never uses a client email", a
       assert.doesNotMatch(call.text, /email/i);
       return [{ account_id: legacyVipAccountId }];
     }
-    if (/from accounts/i.test(call.text)) return [accountRow({ role: "pending" })];
+    if (/select[\s\S]*from accounts/i.test(call.text)) {
+      assert.doesNotMatch(call.text, /last_login_/i);
+      return [accountRow({ role: "pending" })];
+    }
     throw new Error(`unexpected SQL: ${call.text}`);
   });
   const repository = repositoryFor(sql, { environmentId: "stage", siteId: "site-dev" });

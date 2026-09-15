@@ -16,6 +16,10 @@ const ACCOUNT_COLUMNS = `
   a.merged_into_account_id,
   a.migration_id,
   a.blocked_at,
+  a.last_login_at,
+  a.last_login_country,
+  a.last_login_region,
+  a.last_login_city,
   a.created_at,
   a.updated_at
 `;
@@ -93,7 +97,7 @@ export function mapAccountRow(row) {
   if (!row || typeof row !== "object") return null;
   const accountId = field(row, "accountId", "account_id");
   if (accountId === undefined || accountId === null || String(accountId).trim() === "") return null;
-  return {
+  const mapped = {
     accountId,
     role: field(row, "role"),
     status: field(row, "status"),
@@ -106,6 +110,17 @@ export function mapAccountRow(row) {
     createdAt: field(row, "createdAt", "created_at") ?? null,
     updatedAt: field(row, "updatedAt", "updated_at") ?? null
   };
+  const hasLoginMetadata = [
+    "lastLoginAt", "last_login_at", "lastLoginCountry", "last_login_country",
+    "lastLoginRegion", "last_login_region", "lastLoginCity", "last_login_city"
+  ].some((name) => Object.prototype.hasOwnProperty.call(row, name));
+  if (hasLoginMetadata) {
+    mapped.lastLoginAt = field(row, "lastLoginAt", "last_login_at") ?? null;
+    mapped.lastLoginCountry = field(row, "lastLoginCountry", "last_login_country") ?? null;
+    mapped.lastLoginRegion = field(row, "lastLoginRegion", "last_login_region") ?? null;
+    mapped.lastLoginCity = field(row, "lastLoginCity", "last_login_city") ?? null;
+  }
+  return mapped;
 }
 
 function oneAccount(rows) {

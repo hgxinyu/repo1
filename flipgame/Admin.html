@@ -107,6 +107,9 @@
     .account-detail summary { cursor:pointer; width:fit-content; }
     .account-detail .mono { display:block; max-width:240px; margin-top:5px; overflow-wrap:anywhere; }
     .mono { font-variant-numeric:tabular-nums; font-size:12px; }
+    .last-login { display:grid; gap:3px; min-width:150px; }
+    .last-login-time { font-variant-numeric:tabular-nums; white-space:nowrap; }
+    .last-login-location { color:var(--muted); font-size:12px; overflow-wrap:anywhere; }
     .badge { display:inline-flex; align-items:center; width:fit-content; padding:3px 8px; border-radius:5px; border:1px solid var(--line); background:var(--paper-2); color:var(--muted); font-size:12px; font-weight:500; white-space:nowrap; }
     .badge.ok { background:#edf7f0; color:#226443; border-color:#cde5d5; }
     .badge.svip { background:#f5edff; color:#7432a3; border-color:#e2cef5; }
@@ -177,6 +180,8 @@
       table:not(.price-table) td:first-child,table:not(.price-table) td:last-child { grid-column:1/-1; }
       table:not(.price-table) td[data-label="申请时间"] { grid-column:1/-1; color:var(--muted); }
       table:not(.price-table) td[data-label="申请时间"]::before { content:"注册 / 申请 "; }
+      table:not(.price-table) td[data-label="上次登录"] { grid-column:1/-1; color:var(--muted); }
+      table:not(.price-table) td[data-label="上次登录"]::before { content:"上次登录 "; }
       table:not(.price-table) td.empty-row { grid-column:1/-1; padding:22px 0; }
       .account-cell { min-width:0; }
       .account-detail .mono { max-width:100%; }
@@ -316,6 +321,7 @@
                   <th>账号状态</th>
                   <th>角色</th>
                   <th>申请时间</th>
+                  <th>上次登录</th>
                   <th>操作</th>
                 </tr>
               </thead>
@@ -480,7 +486,9 @@
         role: "vip",
         status: "active",
         authzVersion: 3,
-        requestedAt: "2026-06-28T06:30:00Z"
+        requestedAt: "2026-06-28T06:30:00Z",
+        lastLoginAt: "2026-09-14T17:30:00.000Z",
+        lastLoginLocation: { country: "US", region: "California", city: "San Jose" }
       },
       {
         accountId: "22222222-2222-4222-8222-222222222222",
@@ -490,7 +498,9 @@
         role: "pending",
         status: "active",
         authzVersion: 1,
-        requestedAt: "2026-06-28T08:00:00Z"
+        requestedAt: "2026-06-28T08:00:00Z",
+        lastLoginAt: null,
+        lastLoginLocation: null
       },
       {
         accountId: "33333333-3333-4333-8333-333333333333",
@@ -500,7 +510,9 @@
         role: "blocked",
         status: "blocked",
         authzVersion: 4,
-        requestedAt: "2026-06-27T19:20:00Z"
+        requestedAt: "2026-06-27T19:20:00Z",
+        lastLoginAt: "2026-09-12T08:10:00.000Z",
+        lastLoginLocation: { country: "CN", region: null, city: null }
       }
     ];
     const mockTraffic = {
@@ -558,6 +570,19 @@
       }).format(date);
     }
 
+    function formatLoginLocation(location) {
+      if (!location || typeof location !== "object") return "位置未知";
+      const parts = [location.city, location.region, location.country]
+        .map((value) => String(value || "").trim())
+        .filter(Boolean);
+      return parts.length ? parts.join(" · ") : "位置未知";
+    }
+
+    function renderLastLogin(user) {
+      const time = user.lastLoginAt ? formatDate(user.lastLoginAt) : "从未登录";
+      return `<div class="last-login"><span class="last-login-time">${escapeHtml(time)}</span><span class="last-login-location">${escapeHtml(formatLoginLocation(user.lastLoginLocation))}</span></div>`;
+    }
+
     function render(users) {
       currentUsers = Array.isArray(users) ? users : [];
       renderUserSummary(currentUsers);
@@ -580,7 +605,7 @@
     function renderUserRows(users) {
       rowsEl.innerHTML = "";
       if (!users.length) {
-        rowsEl.innerHTML = `<tr><td class="empty-row" colspan="5">${currentUsers.length ? "没有符合筛选条件的账号" : "暂无账号申请"}</td></tr>`;
+        rowsEl.innerHTML = `<tr><td class="empty-row" colspan="6">${currentUsers.length ? "没有符合筛选条件的账号" : "暂无账号申请"}</td></tr>`;
         return;
       }
       for (const user of users) {
@@ -599,6 +624,7 @@
           <td data-label="账号状态">${accountStatus(user)}</td>
           <td data-label="角色">${roleStatus(user.role)}</td>
           <td data-label="申请时间" class="mono">${escapeHtml(formatDate(user.requestedAt || user.createdAt))}</td>
+          <td data-label="上次登录">${renderLastLogin(user)}</td>
           <td data-label="操作">
             <div class="role-editor row-actions">
               <select data-role-select aria-label="${escapeHtml(user.gameName || user.accountId)}的会员等级" ${user.accountId === currentAccountId ? "disabled" : ""}>

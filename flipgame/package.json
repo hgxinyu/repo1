@@ -6,7 +6,7 @@
     "build:ih-knowledge-index": "node ../scripts/build-ih-knowledge-index.mjs",
     "check:knowledge-index": "node --check netlify/functions/_shared/ih-knowledge-index.mjs",
     "check:functions": "node --check netlify/functions/*.mjs",
-    "test": "node --test test/**/*.test.mjs",
+    "test": "node --test test/*.test.mjs test/auth/*.test.mjs",
     "test:auth": "node --test test/auth/*.test.mjs"
   },
   "dependencies": {

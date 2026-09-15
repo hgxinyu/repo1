@@ -26,6 +26,10 @@ const runtimeRoleMigrationPath = join(
   testDirectory,
   "../../../database/migrations/202608280001_auth_bff_runtime_role.sql"
 );
+const loginMetadataMigrationPath = join(
+  testDirectory,
+  "../../../database/migrations/202609140001_account_login_metadata.sql"
+);
 
 function migrationSql() {
   return readFileSync(migrationPath, "utf8").toLowerCase();
@@ -49,6 +53,10 @@ function runtimeRoleMigrationSql() {
   return existsSync(runtimeRoleMigrationPath)
     ? readFileSync(runtimeRoleMigrationPath, "utf8").toLowerCase()
     : "";
+}
+
+function loginMetadataMigrationSql() {
+  return readFileSync(loginMetadataMigrationPath, "utf8").toLowerCase();
 }
 
 function tableBody(sqlText, tableName) {
@@ -104,6 +112,24 @@ test("SVIP migration adds an enum role and hardens VIP request idempotency", () 
   assert.match(sqlText, /request_account_vip[\s\S]*'svip'::public\.auth_account_role/u);
   assert.match(sqlText, /security definer/u);
   assert.match(sqlText, /revoke execute on function public\.request_account_vip/u);
+});
+
+test("login metadata migration is transactional and grants only coarse login-field updates", () => {
+  const sqlText = loginMetadataMigrationSql();
+  assert.match(sqlText, /^\s*begin;[\s\S]*commit;\s*$/u);
+  for (const column of ["last_login_at", "last_login_country", "last_login_region", "last_login_city"]) {
+    assert.match(sqlText, new RegExp(`add column if not exists ${column}`, "u"));
+  }
+  assert.match(sqlText, /pg_catalog\.pg_constraint/u);
+  for (const constraint of [
+    "accounts_last_login_country_check",
+    "accounts_last_login_region_check",
+    "accounts_last_login_city_check"
+  ]) {
+    assert.match(sqlText, new RegExp(`if not exists[\\s\\S]*${constraint}`, "u"));
+  }
+  assert.match(sqlText, /grant update \(last_login_at, last_login_country, last_login_region, last_login_city\)\s+on table public\.accounts to shinegame_auth_bff/u);
+  assert.doesNotMatch(sqlText, /grant update \([^)]*(?:role|status|guild|game_name|authz_version)[^)]*\) on table public\.accounts to shinegame_auth_bff/u);
 });
 
 test("migration batch readiness is durable and least-privilege in both migration paths", () => {

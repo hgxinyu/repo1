@@ -7,6 +7,7 @@ import {
   tokenHash as defaultTokenHash
 } from "./crypto.mjs";
 import { safeNextPath as defaultSafeNextPath } from "./http.mjs";
+import { normalizeLoginLocation } from "./login-metadata.mjs";
 
 const OAUTH_TTL_MS = 10 * 60 * 1000;
 const BRIDGE_TTL_MS = 5 * 60 * 1000;
@@ -855,7 +856,29 @@ async function insertAppSession(
   };
   const output = sessionRowShape(merged, false, deps.environmentId, deps.siteId);
   output.sessionToken = parsed.sessionToken;
+  await recordLoginMetadataInTransaction(adapter, parsed, input?.loginLocation);
   return output;
+}
+
+async function recordLoginMetadataInTransaction(adapter, parsed, rawLocation) {
+  if (rawLocation === undefined) return;
+  const location = normalizeLoginLocation(rawLocation);
+  const rows = await rowsFrom(query(
+    adapter,
+    [
+      `UPDATE accounts
+          SET last_login_at = `,
+      `, last_login_country = `,
+      `, last_login_region = `,
+      `, last_login_city = `,
+      `
+        WHERE account_id = `,
+      `
+        RETURNING account_id`
+    ],
+    [parsed.now, location.country, location.region, location.city, parsed.accountId]
+  ));
+  if (rows.length !== 1) throw fail("SESSION_CREATE_FAILED", 500);
 }
 
 async function consumeBridgeAndCreateAppSessionInTransaction(input, transaction, deps) {
@@ -1272,6 +1295,11 @@ export function createSessionRepository(overrides = {}) {
       return consumeBridgeAndCreateAppSessionWithDeps(input, deps);
     },
     createAppSession(input) {
+      if (input && Object.prototype.hasOwnProperty.call(input, "loginLocation")) {
+        return deps.withTransaction((transaction) =>
+          insertAppSession(input, deps, assertTransaction(transaction))
+        );
+      }
       return insertAppSession(input, deps);
     },
     rotateSession(input) {

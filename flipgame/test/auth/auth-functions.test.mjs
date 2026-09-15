@@ -490,7 +490,13 @@ test("callback consumes OAuth state exactly once before exchanging code or resol
 
   const response = await handler(request(`/api/auth/callback?code=provider-code&state=${STATE}`, {
     cookie: preauthCookie()
-  }));
+  }), {
+    geo: {
+      country: { code: "us" },
+      subdivision: { name: "California" },
+      city: "San Jose"
+    }
+  });
   assert.equal(response.status, 302);
   assert.equal(new URL(response.headers.get("location"), ORIGIN).pathname, "/AIAsk.html");
   responseHeaders(response);
@@ -502,7 +508,8 @@ test("callback consumes OAuth state exactly once before exchanging code or resol
     accountId: ACCOUNT_ID,
     logtoSubject: "logto-user-1",
     authzVersion: 7,
-    refreshToken: REFRESH_TOKEN
+    refreshToken: REFRESH_TOKEN,
+    loginLocation: { country: "US", region: "California", city: "San Jose" }
   });
   assert.match(response.headers.get("set-cookie"), /__Host-shinegame_session=/);
   assert.match(response.headers.get("set-cookie"), /__Host-shinegame_csrf=/);
@@ -675,7 +682,8 @@ test("callback creates a free account only after an exact reconciled migration b
     accountId: newAccount.accountId,
     logtoSubject: "logto-user-1",
     authzVersion: 1,
-    refreshToken: REFRESH_TOKEN
+    refreshToken: REFRESH_TOKEN,
+    loginLocation: { country: null, region: null, city: null }
   });
   assert.deepEqual(calls, [
     "consume",

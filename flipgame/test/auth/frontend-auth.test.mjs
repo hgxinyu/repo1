@@ -84,6 +84,14 @@ test("VIP request page requires guild and game ID", () => {
   assert.match(register, /填写公会名字和游戏 ID/);
 });
 
+test("successful VIP request returns to the safe target even when it is the homepage", () => {
+  const register = read("Register.html");
+  assert.match(register, /const target = safeReturnTarget\(\)/);
+  assert.match(register, /window\.location\.assign\(target\)/);
+  assert.doesNotMatch(register, /target\s*!==\s*["']\/index\.html["']/);
+  assert.doesNotMatch(register, /localStorage\.(?:setItem|removeItem).*token|sessionStorage\.(?:setItem|removeItem).*token/i);
+});
+
 test("public auth policy pages are bilingual and linked from login and registration", () => {
   const privacy = read("Privacy.html");
   const terms = read("Terms.html");
