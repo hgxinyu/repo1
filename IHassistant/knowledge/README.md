@@ -27,6 +27,8 @@
 
 ## 关键机制文档
 
+- [Discord 游戏机制对照](mechanics/discord-game-mechanics-review.md)：历史社区公式、神圣格挡测试、2026 年悟空自伤报告，以及与当前知识的冲突和待验证边界。
+
 - [VB9 社区实战资料](bosses/void-invasion/vb9-community-notes.md)：9-1～9-10 来源、作者配速与截图；研究归档，攻略图暂不上架，缺失条件和未复现状态已注明。
 
 - `mechanics/attributes-affixes.md`：属性词缀、基础战斗规则和通用乘区。
